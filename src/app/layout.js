@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "../styles/globals.css";
 import Header from "@/components/Header";
+import Header2 from "@/components/Header2";
 import Footer from "@/components/Footer";
 
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -21,7 +22,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "MBU ShardUI 2",
+  title: "Bastion Universe",
   description: "",
 };
 
@@ -31,7 +32,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Header />
+        <Header2 />
         {children}
         <Footer />
       </body>
