@@ -1,5 +1,3 @@
-'use client'
-
 import { useState } from "react";
 
 export default function CopyBtn({ text, icon }) {

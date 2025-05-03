@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import CopyBtn from './CopyBtn';
+import CopyBtn from '../Base/CopyBtn';
 
 export default function Hero() {
     return (
