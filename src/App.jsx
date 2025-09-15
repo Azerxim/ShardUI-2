@@ -9,17 +9,21 @@ import ProfilPage from './pages/Profil/Profil.jsx';
 
 import Header from './components/Menus/Header.jsx'
 import Footer from './components/Menus/Footer.jsx'
+import ServerEtat from './components/Base/ServerEtat.jsx';
 
 export default function App() {
   return (
     <div>
       <Header />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/profil" element={<ProfilPage />} />
-          <Route path="/test" element={<TestPage />} />
-        </Routes>
+      <section className="container mx-auto px-4 py-2">
+        <ServerEtat />
+      </section>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/profil" element={<ProfilPage />} />
+        <Route path="/test" element={<TestPage />} />
+      </Routes>
       <Footer />
       </div>
   );

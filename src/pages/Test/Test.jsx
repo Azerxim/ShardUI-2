@@ -7,11 +7,12 @@ import Skeleton from "../../components/Skeleton";
 
 export default function TestPage() {
   return (
-    <div style={{ padding: "0 10%" }}>
-      <ServerEtat />
-      <div className="flex items-center justify-center">
-        <Skeleton></Skeleton>
-      </div>
+    <div>
+      <main className="container mx-auto px-4 py-2">
+        <div className="flex items-center justify-center">
+          <Skeleton></Skeleton>
+        </div>
+      </main>
     </div>
   );
 }

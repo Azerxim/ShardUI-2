@@ -13,8 +13,9 @@ export default function ProfilPage() {
   }
   return (
     <div>
+      <main className="container mx-auto px-4 py-2">
       {User ? (
-        <div className="py-2 bg-sky-900 text-base-200">
+        <div className="py-2 bg-sky-800 text-base-200 rounded-3xl">
           <div className='flex flex-col justify-items-center items-center space-x-4 space-y-2 mb-4'>
             <h2 className="">Bienvenue</h2>
             <UserButton userid={User.id} link={`/profil`} />
@@ -29,6 +30,7 @@ export default function ProfilPage() {
           <p>Vous n'êtes pas connecté.</p>
         </div>
       )}
+      </main>
     </div>
   );
 }
