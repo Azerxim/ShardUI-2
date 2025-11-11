@@ -1,8 +1,8 @@
 import { useState } from "react";
 
-export default function CopyBtn({ text, icon }) {
+export default function CopyBtn({ text, icon, classes = "btn btn-success", style = { padding: "24px", fontSize: "1.25rem" }, textCopy = text }) {
     // Initial text
-    const [textToCopy, setTextToCopy] = useState(text); 
+    const [textToCopy, setTextToCopy] = useState(textCopy); 
     // State to manage notification visibility
     const [showNotification, setShowNotification] = useState(false); 
 
@@ -20,7 +20,7 @@ export default function CopyBtn({ text, icon }) {
 
     return (
         <div>
-            <button className="btn btn-success" onClick={handleCopy} style={{ padding: "24px", fontSize: "1.25rem" }}>
+            <button className={`${classes}`} onClick={handleCopy} style={style}>
                 {icon}
                 <span>{text}</span>
             </button>

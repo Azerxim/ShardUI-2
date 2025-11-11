@@ -2,6 +2,7 @@ import './Home.css'
 
 import Hero from '../../components/Menus/Hero'
 import ServerEtat from '../../components/Base/ServerEtat'
+import CopyBtn from '../../components/Base/CopyBtn'
 
 export default function HomePage() {
   return (
@@ -20,7 +21,7 @@ export default function HomePage() {
               </ul>
             </div>
             <div>
-              <img src="/public/baniere.png" alt="Bannière du serveur" className="rounded-lg shadow-md w-full" onError={(e)=>{e.target.src='/images/baniere.png'}} />
+              <img src="/baniere.png" alt="Bannière du serveur" className="rounded-lg shadow-md w-full" onError={(e)=>{e.target.src='/images/baniere.png'}} />
             </div>
           </div>
         </section>
@@ -49,7 +50,7 @@ export default function HomePage() {
           <h2 className="text-2xl font-bold mb-4">Prêt à nous rejoindre ?</h2>
           <p className="mb-6">Rejoignez la communauté et commencez votre aventure role-play aujourd'hui.</p>
           <div className="flex flex-col gap-3 md:flex-row md:justify-center">
-            <a className="btn btn-primary" href="#">Rejoindre le serveur</a>
+            <CopyBtn text="Rejoindre le serveur" textCopy="play.tetrago.fr" classes="btn btn-primary" style={{}}/>
             <a className="btn btn-outline" href="/login">Se connecter</a>
           </div>
         </section>

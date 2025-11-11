@@ -54,6 +54,28 @@ export default function ServerEtat() {
         );
     }, []);
 
+    const reloadComponent = () => {
+        // Rafraîchir les données du réseau
+        fetch(link_network)
+            .then((response) => response.json())
+            .then((data) => {
+                setNetworkData(data);
+            })
+            .catch((error) => {
+                console.error('Error fetching network data:', error);
+            });
+
+        // Rafraîchir les données du serveur
+        fetch(link_serv)
+            .then((response) => response.json())
+            .then((data) => {
+                setServerData(data);
+            })
+            .catch((error) => {
+                console.error('Error fetching server data:', error);
+            });
+    };
+
     // console.log(NetworkData)
     // console.log(ServerData)
     return (
@@ -65,26 +87,26 @@ export default function ServerEtat() {
                     </div>
                     { ServerData.online === true ?
                         <div className='flex gap-2 items-center bg-green-200' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
-                            <span>Serveur en ligne</span>
+                            <span>En ligne</span>
                         </div>
                         :
                         <div className='flex gap-2 items-center bg-red-200' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
-                            <span>Serveur éteint</span>
+                            <span>Éteint</span>
                         </div>
                     }
                 </div>
                 <div className='flex gap-2 items-center'>
-                    {/* <div className='btn flex gap-2 items-center bg-[#f2f2f2] border-[#f2f2f2]' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }} onClick={() => reloadComponent()}>
+                    <div className='btn flex gap-2 items-center bg-[#f2f2f2] border-[#f2f2f2]' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }} onClick={() => reloadComponent()}>
                         <FontAwesomeIcon icon="fa-solid fa-rotate-right" />
-                    </div> */}
+                    </div>
                     <div className='btn flex gap-2 items-center bg-[#f2f2f2] border-[#f2f2f2]' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }} onClick={() => setPlayerlist(!Playerlist)}>
                         <FontAwesomeIcon icon="fa-solid fa-people-group" />
                         <div className='flex gap-1'>
                             <span id="player">{NetworkData.players.now}</span> / <span id="players">{NetworkData.players.max}</span>
                         </div>
-                        <span className="etat-info-hidden-mobile">
-                            Joueurs en ligne
-                        </span>
+                        {/* <span className="etat-info-hidden-mobile">
+                            Joueurs
+                        </span> */}
                     </div>
                 </div>
             </div>

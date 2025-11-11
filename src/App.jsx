@@ -6,6 +6,7 @@ import HomePage from './pages/Home/Home.jsx';
 import TestPage from './pages/Test/Test.jsx';
 import LoginPage from './pages/Login/Login.jsx';
 import ProfilPage from './pages/Profil/Profil.jsx';
+import BibliothequePage from './pages/Bibliotheque/Bibliotheque.jsx';
 
 import Header from './components/Menus/Header.jsx'
 import Footer from './components/Menus/Footer.jsx'
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/profil" element={<ProfilPage />} />
         <Route path="/test" element={<TestPage />} />
+        <Route path="/bibliotheque" element={<BibliothequePage />} />
       </Routes>
       <Footer />
       </div>

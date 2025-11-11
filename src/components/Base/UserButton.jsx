@@ -12,7 +12,7 @@ export default function UserButton({ userid, link, bgColor = "bg-base-200", text
     .then((response) => response.json())
     .then((data) => {
         if (data.error == 200) {
-            setUsername(data.user.full_name);
+            setUsername(data.user.pseudo);
             setImageUrl(data.user.image_url);
         }
     })

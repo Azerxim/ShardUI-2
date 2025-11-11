@@ -13,6 +13,7 @@ export default function Header() {
                         tabIndex={0}
                         className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-4 w-52 p-2 shadow">
                         <li><a href='/test'>Test</a></li>
+                        <li><a href='/bibliotheque'>Bibliothèque</a></li>
                         {/* <li>
                             <a>Parent</a>
                             <ul className="p-2">
@@ -31,6 +32,7 @@ export default function Header() {
             <div className="navbar-center hidden lg:flex">
                 <ul className="menu menu-horizontal px-1">
                     <li><a href='/test'>Test</a></li>
+                    <li><a href='/bibliotheque'>Bibliothèque</a></li>
                     {/* <li>
                         <details>
                             <summary>Parent</summary>

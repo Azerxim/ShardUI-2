@@ -19,11 +19,12 @@ export default function Login() {
             });
             return;
         }
-        fetch(`/api/user/login/?password=${password}&email=${email}`, {
-            method: "GET",
+        fetch(`/api/user/login/`, {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
+            body: JSON.stringify({ email, password }),
         })
         .then((res) => res.json())
         .then((data) => {

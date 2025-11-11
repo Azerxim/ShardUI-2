@@ -1,0 +1,13 @@
+/* EtagereLivres - Styles personnalisés */
+
+/* Conteneur de livre pour gérer le z-index */
+.book-container {
+  display: inline-block;
+}
+
+/* Style pour l'écriture verticale de bas en haut */
+.writing-mode-vertical-upward {
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+}
