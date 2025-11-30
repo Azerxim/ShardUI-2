@@ -4,6 +4,12 @@ import './EtagereLivres.css';
 export default function EtagereLivres({ books, text = 'livre(s)', height = 12, width = 4, orientation = 'vertical' }) {
     return (
         <>
+            {/* Nombre de livres */}
+            <div style={{ width: '100%'}}>
+                {books.length > 0 && (
+                    <i>{books.length} {text} disponible(s).</i>
+                )}
+            </div>
             {/* Etagere avec des livres cliquable */}
             <div className='flex w-full m-2 gap-2 flex-wrap'>
                 {books.map((book) => (
@@ -41,11 +47,6 @@ export default function EtagereLivres({ books, text = 'livre(s)', height = 12, w
                         </div>
                     </div>
                 ))}
-            </div>
-            <div style={{ width: '100%'}}>
-                {books.length > 0 && (
-                    <i>{books.length} {text} disponible(s).</i>
-                )}
             </div>
         </>
     );

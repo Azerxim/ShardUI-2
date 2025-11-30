@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getData } from './getData';
+import { getData } from '../Functions/getData';
 
 // ===== Constantes =====
 const link_network = 'https://mcapi.us/server/status?ip=spinelle-network.minesr.com';
@@ -27,7 +27,7 @@ export default function ServerEtat() {
     const [NetworkData, setNetworkData] = useState(NetworkDataSrc);
     const [ServerData, setServerData] = useState(ServerDataSrc);
 
-    useEffect(()=>{
+    useEffect(() => {
         setPlayerlist(false);
     }, []);
 
@@ -51,7 +51,7 @@ export default function ServerEtat() {
             .catch((error) => {
                 console.error('Error fetching server data:', error);
             }
-        );
+            );
     }, []);
 
     const reloadComponent = () => {
@@ -82,24 +82,24 @@ export default function ServerEtat() {
         <div>
             <div className='flex flex-row justify-between gap-2' style={{ margin: "10px 0" }}>
                 <div className='flex gap-2'>
-                    <div className='flex gap-2 items-center bg-[#f2f2f2]' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
+                    <div className='flex gap-2 items-center bg-base-200' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
                         <strong>MC {ServerData.server.name}</strong>
                     </div>
-                    { ServerData.online === true ?
-                        <div className='flex gap-2 items-center bg-green-200' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
-                            <span>En ligne</span>
+                    {ServerData.online === true ?
+                        <div className='flex gap-2 items-center bg-accent' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
+                            <span className='text-accent-content'>En ligne</span>
                         </div>
                         :
-                        <div className='flex gap-2 items-center bg-red-200' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
-                            <span>Éteint</span>
+                        <div className='flex gap-2 items-center bg-error' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
+                            <span className='text-error-content'>Éteint</span>
                         </div>
                     }
                 </div>
                 <div className='flex gap-2 items-center'>
-                    <div className='btn flex gap-2 items-center bg-[#f2f2f2] border-[#f2f2f2]' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }} onClick={() => reloadComponent()}>
+                    <div className='btn flex gap-2 items-center bg-base-200 btn-ghost' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }} onClick={() => reloadComponent()}>
                         <FontAwesomeIcon icon="fa-solid fa-rotate-right" />
                     </div>
-                    <div className='btn flex gap-2 items-center bg-[#f2f2f2] border-[#f2f2f2]' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }} onClick={() => setPlayerlist(!Playerlist)}>
+                    <div className='btn flex gap-2 items-center bg-base-200 btn-ghost' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }} onClick={() => setPlayerlist(!Playerlist)}>
                         <FontAwesomeIcon icon="fa-solid fa-people-group" />
                         <div className='flex gap-1'>
                             <span id="player">{NetworkData.players.now}</span> / <span id="players">{NetworkData.players.max}</span>
@@ -110,9 +110,9 @@ export default function ServerEtat() {
                     </div>
                 </div>
             </div>
-            {Playerlist && <div id='servplayers' className='flex gap-5 items-center flex-col bg-[#f2f2f2]' style={{ borderRadius: "20px", width: "100%", paddingTop: "10px", marginBottom: "10px" }}>
+            {Playerlist && <div id='servplayers' className='flex gap-5 items-center flex-col bg-base-200' style={{ borderRadius: "20px", width: "100%", paddingTop: "10px", marginBottom: "10px" }}>
                 <FontAwesomeIcon icon="fa-solid fa-people-group" />
-                <div id="playerslist" className='flex gap-10 items-center bg-[#f2f2f2]' style={{ padding: "10px 30px" }}>
+                <div id="playerslist" className='flex gap-10 items-center bg-base-200' style={{ padding: "10px 30px" }}>
                     {ServerData.players.now == 0 && <div id="list" className='flex items-center'>Il n'y a personne !</div>}
                     {ServerData.players.sample.map((player, index) => {
                         // console.log(player, index)

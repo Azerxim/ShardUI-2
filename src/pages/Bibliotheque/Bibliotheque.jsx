@@ -1,8 +1,11 @@
 import './Bibliotheque.css';
 import { useState, useEffect } from 'react';
-import TitleH2 from '../../components/TitleH2';
-import TitleH1 from '../../components/TitleH1';
-import EtagereLivres from '../../components/EtagereLivres';
+
+import Navbar from "../../components/Navigation/Navbar";
+import ServerEtat from '../../components/Sections/ServerEtat';
+import TitleH2 from '../../components/Sections/TitleH2';
+import TitleH1 from '../../components/Sections/TitleH1';
+import EtagereLivres from '../../components/Sections/EtagereLivres';
 
 const journaux_exemple = [
     { id: 1, title: "Journal 1", cover_color: "#5865F2", cover_icon: "fab fa-discord", link: "#", description: "Contenu du journal 1..." },
@@ -28,7 +31,12 @@ export default function BibliothequePage() {
             .then((response) => response.json())
             .then((data) => {
                 // console.log('Journaux fetched:', data);
-                setJournaux(data);
+                // Ajouter les liens pour redirection vers la page de détail
+                const journauxWithLinks = data.map(journal => ({
+                    ...journal,
+                    link: `/bibliotheque/journal/${journal.id}`
+                }));
+                setJournaux(journauxWithLinks);
                 // setJournaux(journaux_exemple); // Temporary: use example journals until API is ready
             })
             .catch((error) => {
@@ -56,33 +64,36 @@ export default function BibliothequePage() {
     };
 
     const journaux_fonctions = [
-        { "id": 1, "title": "Nouveau", "icon": "fas fa-plus", "function": testFunction }
+        { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, function: testFunction }
     ];
 
     return (
-        <div>
-            <main className="container mx-auto px-4 py-2">
+        <>
+            <Navbar active="bibliotheque" />
+            <section className="container mx-auto px-4 py-2">
+                <ServerEtat />
+            </section>
+            <div className="container mx-auto px-4 py-2">
                 <div className="flex items-center justify-center flex-col gap-2">
-                    {/* <h1>Bibliothèque</h1> */}
                     <TitleH1 text="Bibliothèque" />
                     <p>Bienvenue dans la bibliothèque.</p>
 
                     <TitleH2 text="Journaux" fonctions={journaux_fonctions} />
                     {journaux.length === 0 ? (
-                        <div style={{ width: '100%'}}>
+                        <div style={{ width: '100%' }}>
                             <i>Aucun journal disponible.</i>
                         </div>
                     ) : <EtagereLivres books={journaux} text='journaux' height={4} width={12} orientation='horizontal' />}
 
                     <TitleH2 text="Livres" />
                     {livres.length === 0 ? (
-                        <div style={{ width: '100%'}}>
+                        <div style={{ width: '100%' }}>
                             <i>Aucun livre disponible.</i>
                         </div>
                     ) : <EtagereLivres books={livres} text='livre(s)' />}
 
                 </div>
-            </main>
-        </div>
+            </div>
+        </>
     );
 }

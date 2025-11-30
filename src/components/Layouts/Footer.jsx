@@ -2,6 +2,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export default function Footer() {
     const year = new Date().getFullYear();
+    let HTMLyear = `${year}`;
+    if (year > 2025) {
+        HTMLyear = `2025 - ${year}`;
+    }
     return (
         <>
             <footer className="footer sm:footer-horizontal bg-base-200 text-base-content items-center p-4">
@@ -10,7 +14,7 @@ export default function Footer() {
                     <span className='flex items-center gap-1'>
                         Spinelle Galaxie
                         <FontAwesomeIcon icon="far fa-copyright" size="2xs" />
-                        {year} - Tout droits réservés
+                        {HTMLyear} - Tout droits réservés
                     </span>
                 </aside>
                 <nav className="grid-flow-col gap-4 md:place-self-center md:justify-self-end items-center">

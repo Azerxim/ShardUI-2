@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function CopyBtn({ text, icon, classes = "btn btn-success", style = { padding: "24px", fontSize: "1.25rem" }, textCopy = text }) {
+export default function CopyButton({ text, icon, classes = "btn btn-success", style = { padding: "24px", fontSize: "1.25rem" }, textCopy = text }) {
     // Initial text
     const [textToCopy, setTextToCopy] = useState(textCopy); 
     // State to manage notification visibility
@@ -28,16 +28,13 @@ export default function CopyBtn({ text, icon, classes = "btn btn-success", style
             {/* Notification */}
             {showNotification && (
                 <div
+                className="bg-info rounded-xl shadow-xl"
                 style={{
                     position: "fixed",
                     bottom: "20px",
                     left: "50%",
                     transform: "translateX(-50%)",
-                    backgroundColor: "#333",
-                    color: "#fff",
                     padding: "10px 20px",
-                    borderRadius: "4px",
-                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
                     zIndex: 1000,
                     transition: "opacity 0.3s ease-in-out",
                 }}

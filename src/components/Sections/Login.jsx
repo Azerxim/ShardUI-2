@@ -8,7 +8,7 @@ export default function Login() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
 
-    async function handleLogin(e){
+    async function handleLogin(e) {
         e.preventDefault()
         // sql injection protection
         if (email.includes("'") || email.includes('"') || email.includes(";") || password.includes("'") || password.includes('"') || password.includes(";") || email.includes("--") || password.includes("--")) {
@@ -26,28 +26,28 @@ export default function Login() {
             },
             body: JSON.stringify({ email, password }),
         })
-        .then((res) => res.json())
-        .then((data) => {
-            // console.log(data);
-            if (data.error == 200) {
-                localStorage.setItem("user", JSON.stringify(data.user))
-                navigate("/profil")
-            } else {
+            .then((res) => res.json())
+            .then((data) => {
+                // console.log(data);
+                if (data.error == 200) {
+                    localStorage.setItem("user", JSON.stringify(data.user))
+                    navigate("/profil")
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: data.text,
+                    });
+                }
+            })
+            .catch((error) => {
+                // console.log(error);
                 Swal.fire({
                     icon: "error",
                     title: "Oops...",
-                    text: data.text,
+                    text: error.response.data.message,
                 });
-            }
-        })
-        .catch((error) => {
-            // console.log(error);
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: error.response.data.message,
             });
-        });
     }
 
     return (
@@ -56,13 +56,20 @@ export default function Login() {
             <div className="card bg-base-200 w-full max-w-sm shrink-0 shadow-2xl">
                 <form onSubmit={handleLogin}>
                     <div className="card-body">
-                        <fieldset className="fieldset">
-                            <label className="label">Email</label>
-                            <input onChange={e => {setEmail(e.target.value)}} type="email" className="input" placeholder="Email" id="email" />
-                            <label className="label">Mot de passe</label>
-                            <input onChange={e => {setPassword(e.target.value)}} type="password" className="input" placeholder="Mot de passe" id="password" />
+                        <fieldset className="fieldset gap-3">
+                            <label className="floating-label">
+                                <span>Adresse email</span>
+                                <input onChange={e => { setEmail(e.target.value) }} type="text" placeholder="mail@site.com" className="input input-md bg-base-100" id="email" required />
+                            </label>
+
+                            <label className="floating-label">
+                                <span>Mot de passe</span>
+                                <input onChange={e => { setPassword(e.target.value) }} type="password" placeholder="Mot de passe" className="input input-md bg-base-100" id="password" required />
+                            </label>
                             {/* <div><a className="link link-hover">Mot de passe oublié?</a></div> */}
-                            <button className="btn btn-neutral mt-4" type="submit">Connexion</button>
+
+                            <a href="/register" className="link link-hover">Pas encore de compte? Inscrivez-vous</a>
+                            <button className="btn mt-4 btn-success" type="submit">Connexion</button>
                         </fieldset>
                     </div>
                 </form>
