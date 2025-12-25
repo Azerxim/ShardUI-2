@@ -155,10 +155,8 @@ export default function JournalDetailPage() {
 
   return (
     <>
-      <Navbar active="journal" />
-      <section className="container mx-auto px-4 py-2">
-        <ServerEtat />
-      </section>
+      <Navbar active="bibliotheque" />
+      <ServerEtat />
       <div className="container mx-auto px-4 py-2">
         <div className="flex items-center justify-center flex-col gap-2">
           {loading && (

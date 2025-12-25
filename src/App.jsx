@@ -13,24 +13,10 @@ import JournalDetailPage from './pages/Bibliotheque/JournalDetail';
 import Footer from './components/Layouts/Footer'
 
 export default function App() {
-  const [theme, setTheme] = useState(() => {
-    const saved = localStorage.getItem('theme');
-    return saved || 'light';
-  });
-
-  useEffect(() => {
-    const html = document.documentElement;
-    if (theme === 'dark') {
-      html.setAttribute('data-theme', 'dark');
-    } else {
-      html.removeAttribute('data-theme');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
   return (
-    <div>
+    <div className='mx-auto py-16'>
       <Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -40,7 +26,7 @@ export default function App() {
         <Route path="/bibliotheque/journal/:id" element={<JournalDetailPage />} />
         <Route path="/bibliotheque/journal" element={<Navigate to="/bibliotheque" replace />} />
       </Routes>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

@@ -8,9 +8,7 @@ export default function TestPage() {
   return (
     <>
       <Navbar active="test" />
-      <section className="container mx-auto px-4 py-2">
-        <ServerEtat />
-      </section>
+      <ServerEtat />
       <main className="container mx-auto px-4 py-2">
         <div className="flex items-center justify-center">
           <Skeleton></Skeleton>

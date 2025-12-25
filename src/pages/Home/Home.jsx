@@ -5,13 +5,12 @@ import ServerEtat from '../../components/Sections/ServerEtat';
 import Hero from '../../components/Layouts/Hero'
 import CopyBtn from '../../components/Buttons/CopyButton'
 
+
 export default function HomePage() {
   return (
     <>
       <Navbar active="home" />
-      <section className="container mx-auto px-4 py-2">
-        <ServerEtat />
-      </section>
+      <ServerEtat />
       <div className="bg-base-100">
         <main className="container mx-auto px-4 py-2">
           {/* About / Roleplay */}

@@ -15,10 +15,8 @@ export default function ProfilPage() {
   }
   return (
     <>
-      <Navbar active="test" />
-      <section className="container mx-auto px-4 py-2">
-        <ServerEtat />
-      </section>
+      <Navbar active="profil" />
+      <ServerEtat />
       <main className="container mx-auto px-4 py-2">
         {User ? (
           <div className="py-2 bg-sky-800 text-base-300 rounded-3xl">

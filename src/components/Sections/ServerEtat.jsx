@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getData } from '../Functions/getData';
 
+import './ServerEtat.css';
+
 // ===== Constantes =====
 const link_network = 'https://mcapi.us/server/status?ip=spinelle-network.minesr.com';
 const link_serv = 'https://mcapi.us/server/status?ip=mbu-tetrago.minesr.com';
@@ -79,28 +81,36 @@ export default function ServerEtat() {
     // console.log(NetworkData)
     // console.log(ServerData)
     return (
-        <div>
+        <div className='server-etat-container'>
             <div className='flex flex-row justify-between gap-2' style={{ margin: "10px 0" }}>
                 <div className='flex gap-2'>
-                    <div className='flex gap-2 items-center bg-base-200' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
-                        <strong>MC {ServerData.server.name}</strong>
+                    <div className='flex gap-2 items-center bg-base-200 shadow-xl' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
+                        <strong className='flex gap-1'><span className='hidden sm:flex'>MC</span><span>{ServerData.server.name}</span></strong>
                     </div>
                     {ServerData.online === true ?
-                        <div className='flex gap-2 items-center bg-accent' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
-                            <span className='text-accent-content'>En ligne</span>
+                        <div className='flex gap-2 items-center bg-accent shadow-xl' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
+                            <div className='flex text-accent-content'><FontAwesomeIcon icon="fa-regular fa-circle-check" /></div>
+                            <span className='hidden sm:flex text-accent-content'>En ligne</span>
                         </div>
                         :
-                        <div className='flex gap-2 items-center bg-error' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
-                            <span className='text-error-content'>Éteint</span>
+                        <div className='flex gap-2 items-center bg-error shadow-xl' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
+                            <div className='flex text-error-content'><FontAwesomeIcon icon="fa-regular fa-circle-xmark" /></div>
+                            <span className='hidden sm:flex text-error-content'>Éteint</span>
                         </div>
                     }
                 </div>
+                <div>
+                    <a href='/' className="btn btn-ghost text-xl">
+                        <img src="/galaxie.png" alt="logo" width={24} height={24} />
+                        <span className="hidden sm:flex">Tetrago</span>
+                    </a>
+                </div>
                 <div className='flex gap-2 items-center'>
-                    <div className='btn flex gap-2 items-center bg-base-200 btn-ghost' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }} onClick={() => reloadComponent()}>
+                    <div className='btn flex gap-2 items-center bg-base-200 btn-ghost shadow-xl' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }} onClick={() => reloadComponent()}>
                         <FontAwesomeIcon icon="fa-solid fa-rotate-right" />
                     </div>
-                    <div className='btn flex gap-2 items-center bg-base-200 btn-ghost' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }} onClick={() => setPlayerlist(!Playerlist)}>
-                        <FontAwesomeIcon icon="fa-solid fa-people-group" />
+                    <div className='btn flex gap-2 items-center bg-base-200 btn-ghost shadow-xl' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }} onClick={() => setPlayerlist(!Playerlist)}>
+                        <div className='hidden sm:flex'><FontAwesomeIcon icon="fa-solid fa-people-group" /></div>
                         <div className='flex gap-1'>
                             <span id="player">{NetworkData.players.now}</span> / <span id="players">{NetworkData.players.max}</span>
                         </div>
@@ -110,7 +120,7 @@ export default function ServerEtat() {
                     </div>
                 </div>
             </div>
-            {Playerlist && <div id='servplayers' className='flex gap-5 items-center flex-col bg-base-200' style={{ borderRadius: "20px", width: "100%", paddingTop: "10px", marginBottom: "10px" }}>
+            {Playerlist && <div id='servplayers' className='flex gap-5 items-center flex-col bg-base-200 shadow-xl' style={{ borderRadius: "20px", width: "100%", paddingTop: "10px", marginBottom: "10px" }}>
                 <FontAwesomeIcon icon="fa-solid fa-people-group" />
                 <div id="playerslist" className='flex gap-10 items-center bg-base-200' style={{ padding: "10px 30px" }}>
                     {ServerData.players.now == 0 && <div id="list" className='flex items-center'>Il n'y a personne !</div>}

@@ -1,0 +1,8 @@
+.server-etat-container {
+    position: fixed;
+    z-index: 990;
+    top: 0rem;
+    left: 0rem;
+    padding: 0.5rem;
+    width: 100%;
+}
