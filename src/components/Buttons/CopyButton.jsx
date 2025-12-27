@@ -19,11 +19,9 @@ export default function CopyButton({ text, icon, classes = "btn btn-success", st
     };
 
     return (
-        <div>
-            <button className={`${classes}`} onClick={handleCopy} style={style}>
-                {icon}
-                <span>{text}</span>
-            </button>
+        <a className={`${classes}`} onClick={handleCopy} style={style}>
+            {icon}
+            <span>{text}</span>
 
             {/* Notification */}
             {showNotification && (
@@ -42,6 +40,6 @@ export default function CopyButton({ text, icon, classes = "btn btn-success", st
                 Copié dans le presse-papier !
                 </div>
             )}
-        </div>
+        </a>
     );
 }

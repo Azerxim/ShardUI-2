@@ -7,31 +7,26 @@ import './Navbar.css';
 export default function Navbar2({ active = '' }) {
     const [theme, setTheme] = useState(() => {
         const saved = localStorage.getItem('theme');
-        return saved || 'light';
+        if (saved) {
+            return saved;
+        }
+        // Use system preference
+        const prefersDark = window.matchMedia(
+            "(prefers-color-scheme: dark)"
+        ).matches;
+        return prefersDark ? "dark" : "light";
     });
 
     useEffect(() => {
-        const savedtheme = localStorage.getItem('theme');
-        if (savedtheme) {
-            setTheme(savedtheme);
-        } else {
-            // Use system preference
-            const prefersDark = window.matchMedia(
-                "(prefers-color-scheme: dark)"
-            ).matches;
-            const systemTheme = prefersDark ? "dark" : "light";
-            setTheme(systemTheme);
-        }
-        console.log("Current theme:", theme);
+        // Apply the theme to the DOM whenever it changes
+        const html = document.documentElement;
+        html.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        // console.log("Current theme:", theme);
     }, [theme]);
 
     const updateTheme = (newTheme) => {
         setTheme(newTheme);
-        const html = document.documentElement;
-        html.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-
-        console.log("Theme updated to:", newTheme);
     }
 
     const User = JSON.parse(localStorage.getItem('user'));
@@ -60,7 +55,7 @@ export default function Navbar2({ active = '' }) {
 
     return (
         <>
-            <div className='fixed flex flex-row-reverse justify-between items-center gap-2 px-2 z-999 bottom-3 right-0 w-full'>
+            <div className='fixed flex flex-row-reverse justify-between items-center gap-2 px-2 py-3 z-999 bottom-0 right-0 w-full' style={{ backgroundImage: 'linear-gradient(to top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0))' }}>
                 <div className="flex flex-row-reverse items-center flex-wrap-reverse gap-2">
                     {/* <!-- NavBar --> */}
                     <div className="dropdown dropdown-top dropdown-end">
@@ -72,6 +67,12 @@ export default function Navbar2({ active = '' }) {
                                 <a href="/" className={`justify-end flex-row gap-2 rounded-box rounded-3xl ${active === 'home' ? 'bg-primary text-primary-content' : ''}`}>
                                     <span>Accueil</span>
                                     <FontAwesomeIcon icon="house" className="ml-2" />
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://map.amethyst.spinelle.eu" className={`justify-end flex-row gap-2 rounded-box rounded-3xl`}>
+                                    <span>Cartographie</span>
+                                    <FontAwesomeIcon icon="map" className="ml-2" />
                                 </a>
                             </li>
                             <li>
@@ -129,7 +130,7 @@ export default function Navbar2({ active = '' }) {
                                 </>
                             ) : (
                                 <>
-                                    <li>                                    
+                                    <li>
                                         <a href="/login" className={`justify-end flex-row gap-2 rounded-box rounded-3xl ${active === 'login' ? 'bg-primary text-primary-content' : ''}`}>
                                             <span>Connexion</span>
                                             <FontAwesomeIcon icon="right-to-bracket" className="ml-2" />
@@ -149,11 +150,11 @@ export default function Navbar2({ active = '' }) {
                     {/* <!-- Themes --> */}
                     <div className="dropdown dropdown-top dropdown-end">
                         <div tabIndex="0" role="button" className="btn bg-base-200 rounded-box rounded-3xl btn-ghost shadow-xl">
-                        <FontAwesomeIcon icon="fa-solid fa-palette" />
+                            <FontAwesomeIcon icon="fa-solid fa-palette" />
                         </div>
                         <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-box rounded-3xl z-1 p-2 m-1 mb-2 shadow-xl flex-col gap-1">
                             <li>
-                                <a className="justify-end flex-row gap-2 rounded-box rounded-3xl" onClick={() => {updateTheme('light')}}>
+                                <a className="justify-end flex-row gap-2 rounded-box rounded-3xl" onClick={() => { updateTheme('light') }}>
                                     <span>Clair</span>
                                     <FontAwesomeIcon icon="sun" className="ml-2" />
                                 </a>
@@ -171,7 +172,7 @@ export default function Navbar2({ active = '' }) {
                                 </a>
                             </li> */}
                             <li>
-                                <a className="justify-end flex-row gap-2 rounded-box rounded-3xl" onClick={() => {updateTheme('dark')}}>
+                                <a className="justify-end flex-row gap-2 rounded-box rounded-3xl" onClick={() => { updateTheme('dark') }}>
                                     <span>Sombre</span>
                                     <FontAwesomeIcon icon="moon" className="ml-2" />
                                 </a>
@@ -219,7 +220,7 @@ export default function Navbar2({ active = '' }) {
                         </a>
                     </div>
                 </div>
-                
+
             </div>
         </>
     )
