@@ -12,10 +12,16 @@ export default defineConfig({
     },
     proxy: {
       "/api": {
-        target: "https://api.amethyst.spinelle.eu", // the real API URL
+        target: "https://api.amethyst.spinelle.eu/api/", // the real API URL
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+      "/security": {
+        target: "https://api.amethyst.spinelle.eu/", // the real API URL
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/security/, ""),
       },
     },
   },

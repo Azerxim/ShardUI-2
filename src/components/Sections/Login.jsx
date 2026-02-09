@@ -19,7 +19,7 @@ export default function Login() {
             });
             return;
         }
-        fetch(`/api/user/login/`, {
+        fetch(`/api/users/login/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -28,8 +28,8 @@ export default function Login() {
         })
             .then((res) => res.json())
             .then((data) => {
-                // console.log(data);
-                if (data.error == 200) {
+                console.log(data);
+                if (data.code == 200) {
                     localStorage.setItem("user", JSON.stringify(data.user))
                     navigate("/profil")
                 } else {

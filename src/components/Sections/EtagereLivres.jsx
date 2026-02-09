@@ -7,7 +7,7 @@ export default function EtagereLivres({ books, text = 'livre(s)', height = 12, w
             {/* Nombre de livres */}
             <div style={{ width: '100%'}}>
                 {books.length > 0 && (
-                    <i>{books.length} {text} disponible(s).</i>
+                    <i>{books.length} {text} disponible.</i>
                 )}
             </div>
             {/* Etagere avec des livres cliquable */}

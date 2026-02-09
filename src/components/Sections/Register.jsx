@@ -17,7 +17,7 @@ export default function Register() {
             params.append('username', import.meta.env.VITE_API_USER);
             params.append('password', import.meta.env.VITE_API_PASSWORD);
 
-            const response = await fetch(`/api/token`, {
+            const response = await fetch(`/security/token`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
@@ -74,7 +74,7 @@ export default function Register() {
             // Récupérer le token d'authentification
             const token = await getAuthToken();
 
-            const response = await fetch(`/api/user/create/`, {
+            const response = await fetch(`/api/users/create/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -82,6 +82,7 @@ export default function Register() {
                 },
                 body: JSON.stringify({ username, pseudo, email, password }),
             });
+            // console.log("Réponse brute de l'API:", response);
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -90,18 +91,10 @@ export default function Register() {
             }
 
             const data = await response.json();
-            // console.log("Inscription réussie:", data);
+            console.log("Inscription réussie:", data);
 
-            if (data.error == 200) {
-                localStorage.setItem("user", JSON.stringify(data.user))
-                navigate("/profil")
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Oops...",
-                    text: data.text || "Erreur lors de l'inscription",
-                });
-            }
+            localStorage.setItem("user", JSON.stringify(data))
+            navigate("/profil")
         } catch (error) {
             console.error("Erreur:", error);
             Swal.fire({

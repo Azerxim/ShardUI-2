@@ -9,6 +9,7 @@ import RegisterPage from './pages/User/Register';
 import ProfilPage from './pages/User/Profil';
 import BibliothequePage from './pages/Bibliotheque/Bibliotheque';
 import JournalDetailPage from './pages/Bibliotheque/JournalDetail';
+import CivilisationsPage from './pages/Civilisations/Civilisations';
 
 import Footer from './components/Layouts/Footer'
 
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/bibliotheque" element={<BibliothequePage />} />
         <Route path="/bibliotheque/journal/:id" element={<JournalDetailPage />} />
         <Route path="/bibliotheque/journal" element={<Navigate to="/bibliotheque" replace />} />
+        <Route path="/civilisations" element={<CivilisationsPage />} />
       </Routes>
       {/* <Footer /> */}
     </div>

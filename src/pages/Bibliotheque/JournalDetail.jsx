@@ -68,7 +68,7 @@ export default function JournalDetailPage() {
     const fetchJournal = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/journaux/read/${id}`);
+        const response = await fetch(`/api/bibliotheque/journaux/read/${id}`);
 
         if (!response.ok) {
           throw new Error(`Erreur ${response.status}: ${response.statusText}`);
@@ -90,7 +90,7 @@ export default function JournalDetailPage() {
     const fetchContent = async () => {
       try {
         setLoadingContent(true);
-        const response = await fetch(`/api/journaux/contents/${id}`);
+        const response = await fetch(`/api/bibliotheque/journaux/contents/${id}`);
 
         if (!response.ok) {
           throw new Error(`Erreur ${response.status}: ${response.statusText}`);
@@ -131,7 +131,7 @@ export default function JournalDetailPage() {
   const reloadContent = async () => {
     try {
       setLoadingContent(true);
-      const response = await fetch(`/api/journaux/contents/${id}`);
+      const response = await fetch(`/api/bibliotheque/journaux/contents/${id}`);
 
       if (!response.ok) {
         throw new Error(`Erreur ${response.status}: ${response.statusText}`);
@@ -233,12 +233,16 @@ export default function JournalDetailPage() {
                               <div className="space-y-2">
                                 {group.map((message) => (
                                   <div key={message.id}>
-                                    <p className="">{message.content}</p>
                                     {message.attachments && message.attachments.length > 0 && (
-                                      <div className="mt-1">
-                                        <span className="text-xs text-gray-500">{message.attachments.length} pièce(s) jointe(s)</span>
+                                      <div className="mb-2">
+                                        {message.attachments.map((att, index) => (
+                                          <div key={index} className="p-2 rounded">
+                                            <img src={att.url} alt={`${att.filename}`} className="max-w-full rounded" />
+                                          </div>
+                                        ))}
                                       </div>
                                     )}
+                                    <p className="">{message.content}</p>
                                     {message.reactions && Object.keys(message.reactions).length > 0 && (
                                       <div className="mt-2 flex flex-wrap gap-2">
                                         {Object.entries(message.reactions).map(([emoji, count]) => (

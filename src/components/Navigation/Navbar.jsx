@@ -30,28 +30,6 @@ export default function Navbar2({ active = '' }) {
     }
 
     const User = JSON.parse(localStorage.getItem('user'));
-    const HTMLMenu = (
-        <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-box rounded-3xl z-1 p-2 m-1 mb-2 shadow-xl flex-col-reverse gap-1">
-            <li>
-                <a href="/" className={`justify-end flex-row gap-2 rounded-box rounded-3xl ${active === 'home' ? 'bg-primary text-primary-content' : ''}`}>
-                    <span>Accueil</span>
-                    <FontAwesomeIcon icon="house" className="ml-2" />
-                </a>
-            </li>
-            <li>
-                <a href="/bibliotheque" className={`justify-end flex-row gap-2 rounded-box rounded-3xl ${active === 'bibliotheque' ? 'bg-primary text-primary-content' : ''}`}>
-                    <span>Bibliothèque</span>
-                    <FontAwesomeIcon icon="book" className="ml-2" />
-                </a>
-            </li>
-            <li>
-                <a href="/test" className={`justify-end flex-row gap-2 rounded-box rounded-3xl ${active === 'test' ? 'bg-primary text-primary-content' : ''}`}>
-                    <span>Test</span>
-                    <FontAwesomeIcon icon="vial" className="ml-2" />
-                </a>
-            </li>
-        </ul>
-    );
 
     return (
         <>
@@ -79,6 +57,12 @@ export default function Navbar2({ active = '' }) {
                                 <a href="/bibliotheque" className={`justify-end flex-row gap-2 rounded-box rounded-3xl ${active === 'bibliotheque' ? 'bg-primary text-primary-content' : ''}`}>
                                     <span>Bibliothèque</span>
                                     <FontAwesomeIcon icon="book" className="ml-2" />
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/civilisations" className={`justify-end flex-row gap-2 rounded-box rounded-3xl ${active === 'civilisations' ? 'bg-primary text-primary-content' : ''}`}>
+                                    <span>Civilisations</span>
+                                    <FontAwesomeIcon icon="flag" className="ml-2" />
                                 </a>
                             </li>
                             <li>

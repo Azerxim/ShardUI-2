@@ -6,9 +6,10 @@ import ServerEtat from '../../components/Sections/ServerEtat';
 import TitleH2 from '../../components/Sections/TitleH2';
 import TitleH1 from '../../components/Sections/TitleH1';
 import EtagereLivres from '../../components/Sections/EtagereLivres';
+import link from 'daisyui/components/link';
 
 const journaux_exemple = [
-    { id: 1, title: "Journal 1", cover_color: "#5865F2", cover_icon: "fab fa-discord", link: "#", description: "Contenu du journal 1..." },
+    { id: 1, title: "Journal 1", cover_color: "#5865F2", cover_icon: "fab fa-discord", link: "#", description: "Contenu du journal 1...", link: "/bibliotheque/journal/1" },
     { id: 2, title: "Journal 2", cover_color: "#8A2BE2", cover_icon: "fas fa-file-alt", link: "#", description: "Contenu du journal 2..." },
     { id: 3, title: "Journal 3", cover_color: "#20B2AA", cover_icon: "fas fa-file-invoice", link: "#", description: "Contenu du journal 3..." }
 ];
@@ -27,7 +28,7 @@ export default function BibliothequePage() {
     const [livres, setLivres] = useState([]);
 
     useEffect(() => {
-        fetch('/api/journaux/read/')
+        fetch('/api/bibliotheque/journaux/list/')
             .then((response) => response.json())
             .then((data) => {
                 // console.log('Journaux fetched:', data);
@@ -45,19 +46,19 @@ export default function BibliothequePage() {
             });
     }, []);
 
-    useEffect(() => {
-        fetch('/api/livres/read/')
-            .then((response) => response.json())
-            .then((data) => {
-                // console.log('Livres fetched:', data);
-                setLivres(data);
-                // setLivres(livres_exemple); // Temporary: use example books until API is ready
-            })
-            .catch((error) => {
-                console.error('Error fetching livres:', error);
-                setLivres([]);
-            });
-    }, []);
+    // useEffect(() => {
+    //     fetch('/api/bibliotheque/livres/list/')
+    //         .then((response) => response.json())
+    //         .then((data) => {
+    //             // console.log('Livres fetched:', data);
+    //             setLivres(data);
+    //             setLivres(livres_exemple); // Temporary: use example books until API is ready
+    //         })
+    //         .catch((error) => {
+    //             console.error('Error fetching livres:', error);
+    //             setLivres([]);
+    //         });
+    // }, []);
 
     const testFunction = () => {
         alert("Fonction test déclenchée !");
@@ -74,7 +75,7 @@ export default function BibliothequePage() {
                 <ServerEtat />
             </section>
             <div className="container mx-auto px-4 py-2">
-                <div className="flex items-center justify-center flex-col gap-2">
+                <div className="flex flex-col items-center justify-center flex-col gap-2">
                     <TitleH1 text="Bibliothèque" />
                     <p>Bienvenue dans la bibliothèque.</p>
 
@@ -85,12 +86,12 @@ export default function BibliothequePage() {
                         </div>
                     ) : <EtagereLivres books={journaux} text='journaux' height={4} width={12} orientation='horizontal' />}
 
-                    <TitleH2 text="Livres" />
+                    {/* <TitleH2 text="Livres" />
                     {livres.length === 0 ? (
                         <div style={{ width: '100%' }}>
                             <i>Aucun livre disponible.</i>
                         </div>
-                    ) : <EtagereLivres books={livres} text='livre(s)' />}
+                    ) : <EtagereLivres books={livres} text='livre(s)' />} */}
 
                 </div>
             </div>
