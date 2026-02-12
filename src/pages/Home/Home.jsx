@@ -1,7 +1,6 @@
 import './Home.css'
 
 import Navbar from "../../components/Navigation/Navbar";
-import ServerEtat from '../../components/Sections/ServerEtat';
 import Hero from '../../components/Layouts/Hero'
 import CopyBtn from '../../components/Buttons/CopyButton'
 
@@ -10,9 +9,8 @@ export default function HomePage() {
   return (
     <>
       <Navbar active="home" />
-      <ServerEtat />
       <div className="bg-base-100">
-        <main className="container mx-auto px-4 py-2">
+        <main className="container mx-auto p-4">
           {/* About / Roleplay */}
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4">À propos</h2>
@@ -26,7 +24,7 @@ export default function HomePage() {
                 </ul>
               </div>
               <div>
-                <img src="/baniere.png" alt="Bannière du serveur" className="rounded-lg shadow-md w-full" onError={(e) => { e.target.src = '/images/baniere.png' }} />
+                {/* <img src="/baniere.png" alt="Bannière du serveur" className="rounded-lg shadow-md w-full" onError={(e) => { e.target.src = '/images/baniere.png' }} /> */}
               </div>
             </div>
           </section>

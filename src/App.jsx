@@ -10,6 +10,7 @@ import ProfilPage from './pages/User/Profil';
 import BibliothequePage from './pages/Bibliotheque/Bibliotheque';
 import JournalDetailPage from './pages/Bibliotheque/JournalDetail';
 import CivilisationsPage from './pages/Civilisations/Civilisations';
+import NotFoundPage from './pages/NotFound/NotFound';
 
 import Footer from './components/Layouts/Footer'
 
@@ -17,7 +18,6 @@ export default function App() {
   return (
     <div className='mx-auto py-16'>
       <Routes>
-        <Route path="*" element={<Navigate to="/" replace />} />
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -27,8 +27,9 @@ export default function App() {
         <Route path="/bibliotheque/journal/:id" element={<JournalDetailPage />} />
         <Route path="/bibliotheque/journal" element={<Navigate to="/bibliotheque" replace />} />
         <Route path="/civilisations" element={<CivilisationsPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
-      {/* <Footer /> */}
+      <Footer />
     </div>
   );
 }

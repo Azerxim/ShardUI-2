@@ -2,7 +2,6 @@ import './Bibliotheque.css';
 import { useState, useEffect } from 'react';
 
 import Navbar from "../../components/Navigation/Navbar";
-import ServerEtat from '../../components/Sections/ServerEtat';
 import TitleH2 from '../../components/Sections/TitleH2';
 import TitleH1 from '../../components/Sections/TitleH1';
 import EtagereLivres from '../../components/Sections/EtagereLivres';
@@ -71,10 +70,7 @@ export default function BibliothequePage() {
     return (
         <>
             <Navbar active="bibliotheque" />
-            <section className="container mx-auto px-4 py-2">
-                <ServerEtat />
-            </section>
-            <div className="container mx-auto px-4 py-2">
+            <div className="container mx-auto p-4">
                 <div className="flex flex-col items-center justify-center flex-col gap-2">
                     <TitleH1 text="Bibliothèque" />
                     <p>Bienvenue dans la bibliothèque.</p>

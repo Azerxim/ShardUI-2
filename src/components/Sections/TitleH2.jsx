@@ -8,7 +8,7 @@ export default function TitleH2({ text, icon = '', classes = 'bg-base-200', styl
                 {icon && <FontAwesomeIcon icon={icon} />}
                 <h2>{text}</h2>
             </div>
-            <div style={{ fontSize: '0.9rem' }}>
+            <div className='flex flex-row gap-2 items-center' style={{ fontSize: '0.9rem' }}>
                 {fonctions.map((func) => (
                     (User || !func.connected) && func.link ? (
                         <a key={func.id} href={func.link} className={`flex flex-wrap gap-2 items-center ${func.class}`} style={{ color: func.color ? func.color : '', backgroundColor: func.background ? func.background : '', padding: '0.5rem', borderRadius: '0.5rem', cursor: 'pointer' }}>

@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect } from 'react';
 
 import Navbar from "../../components/Navigation/Navbar";
-import ServerEtat from '../../components/Sections/ServerEtat';
 import TitleH1 from "../../components/Sections/TitleH1";
 
 import './Civilisations.css';
@@ -33,10 +32,7 @@ export default function CivilisationsPage() {
   return (
     <>
       <Navbar active="civilisations" />
-      <section className="container mx-auto px-4 py-2">
-        <ServerEtat />
-      </section>
-      <main className="container mx-auto px-4 py-2">
+      <main className="container mx-auto p-4">
         <div className="flex flex-col items-center justify-center gap-2">
           <TitleH1 text="Civilisations" />
           <p>Listes des civilisations.</p>

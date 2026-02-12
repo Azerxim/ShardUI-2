@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import './Journal.css';
 import Navbar from '../../components/Navigation/Navbar';
-import ServerEtat from '../../components/Sections/ServerEtat';
 import TitleH1 from '../../components/Sections/TitleH1';
 import TitleH2 from '../../components/Sections/TitleH2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -150,14 +149,14 @@ export default function JournalDetailPage() {
   const btnReturn = { text: 'Retour à la bibliothèque', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/bibliotheque' };
 
   const content_fonctions = [
+    { id: 0, title: 'Modifier', icon: "fas fa-pen", class: "btn-ghost bg-base-200 hover:bg-base-300", connected: true, function: "" },
     { id: 1, title: "Rafraichir", icon: "fas fa-rotate-right", class: "bg-base-200 hover:bg-base-300", connected: false, function: reloadContent }
   ];
 
   return (
     <>
       <Navbar active="bibliotheque" />
-      <ServerEtat />
-      <div className="container mx-auto px-4 py-2">
+      <div className="container mx-auto p-4">
         <div className="flex items-center justify-center flex-col gap-2">
           {loading && (
             <div className="flex justify-center items-center py-12">

@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom"
 
 import Navbar from "../../components/Navigation/Navbar";
-import ServerEtat from '../../components/Sections/ServerEtat';
 import UserButton from '../../components/Buttons/UserButton'
 import './Profil.css'
 
@@ -16,8 +15,7 @@ export default function ProfilPage() {
   return (
     <>
       <Navbar active="profil" />
-      <ServerEtat />
-      <main className="container mx-auto px-4 py-2">
+      <main className="container mx-auto p-4">
         {User ? (
           <div className="py-2 bg-sky-800 text-base-300 rounded-3xl">
             <div className='flex flex-col justify-items-center items-center space-x-4 space-y-2 mb-4'>
