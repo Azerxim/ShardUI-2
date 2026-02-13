@@ -5,10 +5,14 @@ import Navbar from "../../components/Navigation/Navbar";
 import TitleH2 from '../../components/Sections/TitleH2';
 import TitleH1 from '../../components/Sections/TitleH1';
 import EtagereLivres from '../../components/Sections/EtagereLivres';
-import link from 'daisyui/components/link';
+import Modal from '../../components/Modals/Modal';
+
+import { showModal } from '../../components/Functions/showModal';
+import { ModalJournalAddConfig } from '../../components/Modals/ModalConfig';
+
 
 const journaux_exemple = [
-    { id: 1, title: "Journal 1", cover_color: "#5865F2", cover_icon: "fab fa-discord", link: "#", description: "Contenu du journal 1...", link: "/bibliotheque/journal/1" },
+    { id: 1, title: "Hydrogen", cover_color: "#5865F2", cover_icon: "fab fa-discord", link: "/bibliotheque/journal/1", description: "Contenu du journal 1..." },
     { id: 2, title: "Journal 2", cover_color: "#8A2BE2", cover_icon: "fas fa-file-alt", link: "#", description: "Contenu du journal 2..." },
     { id: 3, title: "Journal 3", cover_color: "#20B2AA", cover_icon: "fas fa-file-invoice", link: "#", description: "Contenu du journal 3..." }
 ];
@@ -22,7 +26,6 @@ const livres_exemple = [
 ];
 
 export default function BibliothequePage() {
-
     const [journaux, setJournaux] = useState([]);
     const [livres, setLivres] = useState([]);
 
@@ -34,7 +37,7 @@ export default function BibliothequePage() {
                 // Ajouter les liens pour redirection vers la page de détail
                 const journauxWithLinks = data.map(journal => ({
                     ...journal,
-                    link: `/bibliotheque/journal/${journal.id}`
+                    // link: `/bibliotheque/journal/${journal.id}`
                 }));
                 setJournaux(journauxWithLinks);
                 // setJournaux(journaux_exemple); // Temporary: use example journals until API is ready
@@ -44,6 +47,10 @@ export default function BibliothequePage() {
                 setJournaux([]);
             });
     }, []);
+
+    const updateJournal = (journal) => {
+        setJournaux((prevJournaux) => [...prevJournaux, journal]);
+    };
 
     // useEffect(() => {
     //     fetch('/api/bibliotheque/livres/list/')
@@ -59,12 +66,8 @@ export default function BibliothequePage() {
     //         });
     // }, []);
 
-    const testFunction = () => {
-        alert("Fonction test déclenchée !");
-    };
-
     const journaux_fonctions = [
-        { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, function: testFunction }
+        { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, function: () => showModal(ModalJournalAddConfig) }
     ];
 
     return (
@@ -81,6 +84,8 @@ export default function BibliothequePage() {
                             <i>Aucun journal disponible.</i>
                         </div>
                     ) : <EtagereLivres books={journaux} text='journaux' height={4} width={12} orientation='horizontal' />}
+
+                    <Modal config={ModalJournalAddConfig} onSubmit={(journal) => { updateJournal(journal) }} />
 
                     {/* <TitleH2 text="Livres" />
                     {livres.length === 0 ? (

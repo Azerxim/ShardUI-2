@@ -16,7 +16,7 @@ import Footer from './components/Layouts/Footer'
 
 export default function App() {
   return (
-    <div className='mx-auto py-16'>
+    <div className='mx-auto pt-16'>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
