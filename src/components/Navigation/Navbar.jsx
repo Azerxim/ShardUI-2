@@ -162,15 +162,7 @@ export default function Navbar({ active = '' }) {
                     <div className="dropdown dropdown-bottom dropdown-start">
                         <div tabIndex="0" role="button" className="btn bg-base-200 rounded-3xl btn-ghost">
                             {User ? (
-                                User.image_url != "" && User.image_url != null ? (
-                                    <div className="w-10 rounded-full">
-                                        <img
-                                            alt="Profile Menu"
-                                            src={User.image_url} />
-                                    </div>
-                                ) : (
-                                    <FontAwesomeIcon icon="fa-solid fa-user-check" />
-                                )
+                                <FontAwesomeIcon icon="fa-solid fa-user-check" />
                             ) : (
                                 <FontAwesomeIcon icon="fa-solid fa-user-plus" />
                             )}
@@ -286,7 +278,12 @@ export default function Navbar({ active = '' }) {
                 </div>
                 <div className="navbar-center">
                     <a href='/' className="btn btn-ghost text-xl rounded-3xl">
-                        <img src="/images/logo/tetrago_black_contour.png" alt="logo" width={36} height={36} />
+                        <img
+                            src={theme === 'dark' ? "/images/logo/tetrago_white_contour.png" : "/images/logo/tetrago_black_contour.png"}
+                            alt="logo"
+                            width={36}
+                            height={36}
+                        />
                         <span className="hidden sm:flex">Tetrago</span>
                     </a>
                 </div>
@@ -296,7 +293,7 @@ export default function Navbar({ active = '' }) {
                             <div className='btn flex gap-2 items-center bg-base-200 btn-ghost rounded-3xl' onClick={() => reloadComponent()}>
                                 <FontAwesomeIcon icon="fa-solid fa-rotate-right" />
                             </div>
-                            
+
                             {ServerData.online === true ?
                                 <div className='btn btn-ghost flex gap-2 items-center bg-base-200 rounded-3xl' style={{ paddingLeft: "0px", paddingRight: "15px" }} onClick={() => setPlayerlist(!Playerlist)}>
                                     <div className='flex gap-2 items-center bg-accent' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
@@ -311,7 +308,7 @@ export default function Navbar({ active = '' }) {
                                     </div>
                                 </div>
                                 :
-                                <div className='btn btn-ghost flex gap-2 items-center bg-base-200 rounded-3xl' style={{padding: "0"}} onClick={() => setPlayerlist(false)}>
+                                <div className='btn btn-ghost flex gap-2 items-center bg-base-200 rounded-3xl' style={{ padding: "0" }} onClick={() => setPlayerlist(false)}>
                                     <div className='flex gap-2 items-center bg-error' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
                                         <div className='flex text-error-content'><FontAwesomeIcon icon="fa-regular fa-circle-xmark" /></div>
                                         <span className='hidden md:flex text-error-content'>Éteint</span>

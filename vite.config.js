@@ -5,20 +5,20 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [tailwindcss(), react()],
   server: {
-    allowedHosts: ["amethyst.spinelle.eu"],
+    allowedHosts: ["beta.tetrago.fr"],
     hmr: {
-      host: "amethyst.spinelle.eu",
+      host: "beta.tetrago.fr",
       port: 5173,
     },
     proxy: {
       "/api": {
-        target: "https://api.amethyst.spinelle.eu/api/", // the real API URL
+        target: "https://api.beta.tetrago.fr/api/", // the real API URL
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
       "/security": {
-        target: "https://api.amethyst.spinelle.eu/", // the real API URL
+        target: "https://api.beta.tetrago.fr/", // the real API URL
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path.replace(/^\/security/, ""),

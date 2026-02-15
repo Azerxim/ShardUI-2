@@ -4,9 +4,9 @@ import './App.css'
 
 import HomePage from './pages/Home/Home';
 import TestPage from './pages/Test/Test';
-import LoginPage from './pages/User/Login';
-import RegisterPage from './pages/User/Register';
-import ProfilPage from './pages/User/Profil';
+import LoginPage from './pages/Users/Login';
+import RegisterPage from './pages/Users/Register';
+import ProfilPage from './pages/Users/Profil';
 import BibliothequePage from './pages/Bibliotheque/Bibliotheque';
 import JournalDetailPage from './pages/Bibliotheque/JournalDetail';
 import CivilisationsPage from './pages/Civilisations/Civilisations';
