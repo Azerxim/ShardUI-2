@@ -17,7 +17,7 @@ export default function Register() {
             params.append('username', import.meta.env.VITE_API_USER);
             params.append('password', import.meta.env.VITE_API_PASSWORD);
 
-            const response = await fetch(`/security/token`, {
+            const response = await fetch(`/api/users/token`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
@@ -74,11 +74,10 @@ export default function Register() {
             // Récupérer le token d'authentification
             const token = await getAuthToken();
 
-            const response = await fetch(`/api/users/create/`, {
+            const response = await fetch(`/api/users/create`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
                 },
                 body: JSON.stringify({ username, pseudo, email, password }),
             });

@@ -30,7 +30,7 @@ export default function BibliothequePage() {
     const [livres, setLivres] = useState([]);
 
     useEffect(() => {
-        fetch('/api/bibliotheque/journaux/list/')
+        fetch('/api/bibliotheque/journaux/list')
             .then((response) => response.json())
             .then((data) => {
                 // console.log('Journaux fetched:', data);
@@ -53,7 +53,7 @@ export default function BibliothequePage() {
     };
 
     // useEffect(() => {
-    //     fetch('/api/bibliotheque/livres/list/')
+    //     fetch('/api/bibliotheque/livres/list')
     //         .then((response) => response.json())
     //         .then((data) => {
     //             // console.log('Livres fetched:', data);

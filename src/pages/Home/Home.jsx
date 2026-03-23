@@ -4,6 +4,7 @@ import Navbar from "../../components/Navigation/Navbar";
 import Hero from '../../components/Layouts/Hero'
 import CopyBtn from '../../components/Buttons/CopyButton'
 
+const serverURL = import.meta.env.VITE_SERVER_URL || "play.tetrago.fr";
 
 export default function HomePage() {
   return (
@@ -53,7 +54,7 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold mb-4">Prêt à nous rejoindre ?</h2>
             <p className="mb-6">Rejoignez la communauté et commencez votre aventure role-play aujourd'hui.</p>
             <div className="flex flex-col gap-3 md:flex-row md:justify-center">
-              <CopyBtn text="Rejoindre le serveur" textCopy="play.tetrago.fr" classes="btn btn-primary" style={{}} />
+              <CopyBtn text="Rejoindre le serveur" textCopy={serverURL} classes="btn btn-primary" style={{}} />
               <a className="btn btn-success" href="/login">Se connecter</a>
             </div>
           </section>

@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Swal from "sweetalert2"
+import { getUserToken } from "../../Functions/getAuthToken"
 
 export default function Login() {
     const navigate = useNavigate()
@@ -19,7 +20,7 @@ export default function Login() {
             });
             return;
         }
-        fetch(`/api/users/login/`, {
+        fetch(`/api/users/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -28,10 +29,20 @@ export default function Login() {
         })
             .then((res) => res.json())
             .then((data) => {
-                console.log(data);
+                // console.log(data);
                 if (data.code == 200) {
                     localStorage.setItem("user", JSON.stringify(data.user))
-                    navigate("/profil")
+                    getUserToken(data.user.username, password).then(token => {
+                        localStorage.setItem("token", token);
+                        // console.log("Token d'authentification récupéré:", token);
+                        navigate("/profil");
+                    }).catch(error => {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: error.message || "Erreur lors de la récupération du token",
+                        });
+                    });
                 } else {
                     Swal.fire({
                         icon: "error",
@@ -45,7 +56,7 @@ export default function Login() {
                 Swal.fire({
                     icon: "error",
                     title: "Oops...",
-                    text: error.response.data.message,
+                    text: error.response?.data?.message || "Une erreur est survenue",
                 });
             });
     }

@@ -31,7 +31,7 @@ export default function Modal({ config, onSubmit }) {
     e.preventDefault();
     // Logic to save the entry
     console.log("Form values:", formValues);
-    const token = await getAuthToken();
+    const token = localStorage.getItem('token');
     await fetch(config.api, {
       method: 'POST',
       headers: {
@@ -71,20 +71,82 @@ export default function Modal({ config, onSubmit }) {
     let value = formValues[champ.name] ?? champ.defaultValue;
 
     switch (champ.type) {
+      case "checkbox":
+        return (
+          <div className="flex gap-2">
+            <label className="label">
+              <span className="label-text text-base-content">{champ.label}</span>
+            </label>
+            <input
+              type={champ.type}
+              name={champ.name}
+              checked={value}
+              onChange={(e) => handleInputChange(champ.name, e.target.checked)}
+              className="checkbox"
+              required={champ.required}
+            />
+          </div>
+        );
       case "textarea":
         return (
-          <textarea
-            name={champ.name}
-            placeholder={champ.placeholder}
-            className="textarea textarea-bordered w-full"
-            required={champ.required}
-            value={value}
-            onChange={(e) => handleInputChange(champ.name, e.target.value)}
-          ></textarea>
+          <>
+            <label className="label">
+              <span className="label-text text-base-content">{champ.label}</span>
+            </label>
+            <textarea
+              name={champ.name}
+              placeholder={champ.placeholder}
+              className="textarea textarea-bordered w-full"
+              required={champ.required}
+              value={value}
+              onChange={(e) => handleInputChange(champ.name, e.target.value)}
+            ></textarea>
+          </>
         );
       case "color":
         return (
-          <div className="rounded-xl" style={{ backgroundColor: value}}>
+          <>
+            <label className="label">
+              <span className="label-text text-base-content">{champ.label}</span>
+            </label>
+            <div className="rounded-xl" style={{ backgroundColor: value}}>
+              <input
+                type={champ.type}
+                name={champ.name}
+                placeholder={champ.placeholder}
+                value={value}
+                onChange={(e) => handleInputChange(champ.name, e.target.value)}
+                className="input input-bordered w-full"
+                style={{opacity: 0, cursor: 'pointer'}}
+                required={champ.required}
+              />
+            </div>
+          </>
+        );
+      case "date":
+        return (
+          <>
+            <label className="label">
+              <span className="label-text text-base-content">{champ.label}</span>
+            </label>
+            <input
+              type={champ.type}
+              name={champ.name}
+              placeholder={champ.placeholder}
+              value={value}
+              onChange={(e) => handleInputChange(champ.name, e.target.value)}
+              style={{cursor: 'pointer'}}
+              className="input input-bordered w-full"
+              required={champ.required}
+            />
+          </>
+        );
+      default:
+        return (
+          <>
+            <label className="label">
+              <span className="label-text text-base-content">{champ.label}</span>
+            </label>
             <input
               type={champ.type}
               name={champ.name}
@@ -92,35 +154,9 @@ export default function Modal({ config, onSubmit }) {
               value={value}
               onChange={(e) => handleInputChange(champ.name, e.target.value)}
               className="input input-bordered w-full"
-              style={{opacity: 0, cursor: 'pointer'}}
               required={champ.required}
             />
-          </div>
-        );
-      case "date":
-        return (
-          <input
-            type={champ.type}
-            name={champ.name}
-            placeholder={champ.placeholder}
-            value={value}
-            onChange={(e) => handleInputChange(champ.name, e.target.value)}
-            style={{cursor: 'pointer'}}
-            className="input input-bordered w-full"
-            required={champ.required}
-          />
-        );
-      default:
-        return (
-          <input
-            type={champ.type}
-            name={champ.name}
-            placeholder={champ.placeholder}
-            value={value}
-            onChange={(e) => handleInputChange(champ.name, e.target.value)}
-            className="input input-bordered w-full"
-            required={champ.required}
-          />
+          </>
         );
     }
   }
@@ -135,9 +171,6 @@ export default function Modal({ config, onSubmit }) {
             <div className="modal-content flex flex-col gap-2">
               {config.champs.map((champ, index) => (
                 <div key={index} className={`form-control flex flex-col gap-1 w-full ${champ.display ? '' : 'hidden'}`}>
-                  <label className="label">
-                    <span className="label-text text-base-content">{champ.label}</span>
-                  </label>
                   {renderInput(champ)}
                 </div>
               ))}

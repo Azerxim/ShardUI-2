@@ -18,7 +18,7 @@ export default function Profil({ User }) {
         const fetchUserData = async () => {
             if (User?.id) {
                 try {
-                    const response = await fetch(`/api/users/id/${User.id}/`, {
+                    const response = await fetch(`/api/users/id/${User.id}`, {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
@@ -72,10 +72,12 @@ export default function Profil({ User }) {
         e.preventDefault()
 
         try {
-            const response = await fetch(`/api/users/update/${User.id}/`, {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`/api/users/update/${User.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
                 },
                 body: JSON.stringify({
                     full_name: fullName,

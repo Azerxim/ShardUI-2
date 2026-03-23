@@ -9,7 +9,7 @@ export default function UserButton({ userid, bgColor = "", textColor = "" }) {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await fetch(`/api/users/id/${userid}/`, {
+                const response = await fetch(`/api/users/id/${userid}`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",

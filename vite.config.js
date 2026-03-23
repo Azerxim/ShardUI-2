@@ -2,23 +2,28 @@ import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 
+const baseURL = "beta.tetrago.fr";
+const apiURL = "api.beta.tetrago.fr";
+const protocolURL = "https"
+
 export default defineConfig({
   plugins: [tailwindcss(), react()],
+  base: "/",
   server: {
-    allowedHosts: ["beta.tetrago.fr"],
+    allowedHosts: [baseURL, "localhost", "192.168.1.49"],
     hmr: {
-      host: "beta.tetrago.fr",
+      host: baseURL,
       port: 5173,
     },
     proxy: {
       "/api": {
-        target: "https://api.beta.tetrago.fr/api/", // the real API URL
+        target: `${protocolURL}://${apiURL}/api/`, // the real API URL
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
       "/security": {
-        target: "https://api.beta.tetrago.fr/", // the real API URL
+        target: `${protocolURL}://${apiURL}/`, // the real API URL
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path.replace(/^\/security/, ""),
