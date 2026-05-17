@@ -90,7 +90,7 @@ export default function Register() {
             }
 
             const data = await response.json();
-            console.log("Inscription réussie:", data);
+            // console.log("Inscription réussie:", data);
 
             localStorage.setItem("user", JSON.stringify(data))
             navigate("/profil")

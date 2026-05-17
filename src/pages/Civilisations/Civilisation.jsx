@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { getData } from "../../components/Functions/getData";
@@ -8,27 +8,28 @@ import Skeleton from "../../components/Sections/Skeleton";
 import TitleH1 from "../../components/Sections/TitleH1";
 import TitleH2 from "../../components/Sections/TitleH2";
 import UserButton from "../../components/Buttons/UserButton";
-import ModalAdd from '../../components/Modals/ModalAdd';
+import DynamicModal from '../../components/Modals/DynamicModal';
 
 import { showModal } from '../../components/Functions/showModal';
-import { ModalCivilisationModifyConfig } from '../../components/Modals/ModalCivilisationModifyConfig';
+import { Config_Modal_Civilisation } from '../../components/Modals/Config_Modal_Civilisation';
 
 export default function CivilisationPage() {
     const { id } = useParams();
+    const navigate = useNavigate()
     const [data, setData] = useState(null);
     const [civilisation, setCivilisation] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`/api/civilisations/id/${id}`);
+                const response = await fetch(`/api/civilisations/read/${id}`);
 
                 if (!response.ok) {
                     throw new Error(`Erreur ${response.status}: ${response.statusText}`);
                 }
 
                 const data = await response.json();
-                console.log('Data fetched:', data);
+                // console.log('Data fetched:', data);
                 setData(data);
                 setCivilisation(data.civilisation ? data.civilisation : null);
             } catch (err) {
@@ -43,12 +44,16 @@ export default function CivilisationPage() {
     }, [id]);
 
     const updateCivilisation = (data) => {
-        console.log("Civilisation mise à jour:", data);
-        // setCivilisations((prevCivilisations) => [...prevCivilisations, { ...data.civilisation, members: [data.member], link: `/civilisation/${data.civilisation.id}` }]);
+        // console.log("Civilisation mise à jour:", data);
+        setCivilisation(data.civilisation ? data.civilisation : null);
+    };
+
+    const handleDelete = () => {
+        navigate('/civilisations');
     };
 
     const FctModify = [
-        { id: 1, title: "Modifier", icon: "fas fa-wrench", class: "bg-base-200 hover:bg-base-300", connected: true, function: () => showModal(ModalCivilisationModifyConfig) }
+        { id: 1, title: "Modifier", icon: "fas fa-wrench", class: "bg-base-200 hover:bg-base-300", connected: true, function: () => showModal(Config_Modal_Civilisation, "edit") }
     ];
 
     const btnReturn = { text: 'Retour aux civilisations', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/civilisations' };
@@ -87,7 +92,7 @@ export default function CivilisationPage() {
                 <div className="flex flex-col items-center justify-center gap-2">
                     {!data ? <Skeleton width="200px" height="32px" /> : BodyHTML}
 
-                    <ModalAdd config={ModalCivilisationModifyConfig} onSubmit={(civilisation) => { updateCivilisation(civilisation) }} />
+                    <DynamicModal config={Config_Modal_Civilisation} mode="edit" onSubmit={(civilisation) => { updateCivilisation(civilisation) }} onDelete={handleDelete} />
                 </div>
             </main>
         </>

@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './Journal.css';
+
 import Navbar from '../../components/Navigation/Navbar';
 import TitleH1 from '../../components/Sections/TitleH1';
 import TitleH2 from '../../components/Sections/TitleH2';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import DynamicModal from '../../components/Modals/DynamicModal';
+
+import { showModal } from '../../components/Functions/showModal';
+import { Config_Modal_Journal } from '../../components/Modals/Config_Modal_Journal';
 
 export default function JournalDetailPage() {
   const { id } = useParams();
@@ -74,7 +79,7 @@ export default function JournalDetailPage() {
         }
 
         const data = await response.json();
-        console.log('Journal fetched:', data);
+        // console.log('Journal fetched:', data);
         setJournal(data.journal);
         setError(null);
       } catch (err) {
@@ -96,7 +101,7 @@ export default function JournalDetailPage() {
         }
 
         const data = await response.json();
-        console.log('Journal content fetched:', data);
+        // console.log('Journal content fetched:', data);
         setContent(data.content);
       } catch (err) {
         console.error(err);
@@ -137,7 +142,7 @@ export default function JournalDetailPage() {
       }
 
       const data = await response.json();
-      console.log('Journal content reloaded:', data);
+      // console.log('Journal content reloaded:', data);
       setContent(data.content);
     } catch (err) {
       console.error('Erreur lors du rechargement du contenu:', err);
@@ -149,15 +154,26 @@ export default function JournalDetailPage() {
   const btnReturn = { text: 'Retour à la bibliothèque', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/bibliotheque' };
 
   const content_fonctions = [
-    { id: 0, title: 'Modifier', icon: "fas fa-pen", class: "btn-ghost bg-base-200 hover:bg-base-300", connected: true, function: "" },
+    { id: 0, title: 'Modifier', icon: "fas fa-pen", class: "btn-ghost bg-base-200 hover:bg-base-300", connected: true, function: () => showModal(Config_Modal_Journal, "edit") },
     { id: 1, title: "Rafraichir", icon: "fas fa-rotate-right", class: "bg-base-200 hover:bg-base-300", connected: false, function: reloadContent }
   ];
+
+  const updateJournal = (data) => {
+      // console.log("Journal mis à jour:", data);
+      setJournal(data.journal ? data.journal : null);
+  };
+
+  const handleDelete = () => {
+    navigate('/bibliotheque');
+  };
 
   return (
     <>
       <Navbar active="bibliotheque" />
       <div className="container mx-auto p-4">
         <div className="flex items-center justify-center flex-col gap-2">
+          <DynamicModal config={Config_Modal_Journal} mode="edit" onSubmit={(journal) => { updateJournal(journal) }} onDelete={handleDelete} />
+
           {loading && (
             <div className="flex justify-center items-center py-12">
               <div className="loading loading-spinner loading-lg"></div>
@@ -232,6 +248,7 @@ export default function JournalDetailPage() {
                               <div className="space-y-2">
                                 {group.map((message) => (
                                   <div key={message.id}>
+                                    <p className="">{message.content}</p>
                                     {message.attachments && message.attachments.length > 0 && (
                                       <div className="mb-2">
                                         {message.attachments.map((att, index) => (
@@ -241,7 +258,6 @@ export default function JournalDetailPage() {
                                         ))}
                                       </div>
                                     )}
-                                    <p className="">{message.content}</p>
                                     {message.reactions && Object.keys(message.reactions).length > 0 && (
                                       <div className="mt-2 flex flex-wrap gap-2">
                                         {Object.entries(message.reactions).map(([emoji, count]) => (

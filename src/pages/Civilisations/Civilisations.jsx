@@ -5,10 +5,10 @@ import { useState, useEffect } from 'react';
 import Navbar from "../../components/Navigation/Navbar";
 import TitleH1 from "../../components/Sections/TitleH1";
 import TitleH2 from "../../components/Sections/TitleH2";
-import ModalAdd from '../../components/Modals/ModalAdd';
+import DynamicModal from '../../components/Modals/DynamicModal';
 
 import { showModal } from '../../components/Functions/showModal';
-import { ModalCivilisationAddConfig } from '../../components/Modals/ModalCivilisationAddConfig';
+import { Config_Modal_Civilisation } from '../../components/Modals/Config_Modal_Civilisation';
 
 import './Civilisations.css';
 
@@ -20,7 +20,7 @@ export default function CivilisationsPage() {
     fetch('/api/civilisations/list')
       .then((response) => response.json())
       .then((data) => {
-        console.log('Civilisations fetched:', data);
+        // console.log('Civilisations fetched:', data);
         // Ajouter les liens pour redirection vers la page de détail
         const CivilisationsWithLinks = data.map(({ civilisation, members }) => ({
           ...civilisation,
@@ -36,13 +36,13 @@ export default function CivilisationsPage() {
   }, []);
 
   const updateCivilisation = (data) => {
-    console.log("Nouvelle civilisation ajoutée:", data);
+    // console.log("Nouvelle civilisation ajoutée:", data);
     setCivilisations((prevCivilisations) => [...prevCivilisations, { ...data.civilisation, members: [data.member], link: `/civilisation/${data.civilisation.id}` }]);
-    console.log("Civilisations mises à jour:", civilisations);
+    // console.log("Civilisations mises à jour:", civilisations);
   };
 
   const civilisations_fonctions = [
-    { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, function: () => showModal(ModalCivilisationAddConfig) }
+    { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, function: () => showModal(Config_Modal_Civilisation, "add") }
   ];
 
   return (
@@ -76,7 +76,7 @@ export default function CivilisationsPage() {
             </div>
           )}
 
-          <ModalAdd config={ModalCivilisationAddConfig} onSubmit={(civilisation) => { updateCivilisation(civilisation) }} />
+          <DynamicModal config={Config_Modal_Civilisation} mode="add" onSubmit={(civilisation) => { updateCivilisation(civilisation) }} />
 
         </div>
       </main>

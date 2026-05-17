@@ -1,6 +1,24 @@
-export const ModalCivilisationModifyConfig = {
-  id: "CivilisationModifyModal",
-  title: "Modifier une civilisation",
+export const Config_Modal_Civilisation = {
+  id: {
+    default: "Modal",
+    add: "Modal_Add_Civilisation",
+    edit: "Modal_Edit_Civilisation",
+  },
+  title: {
+    default: "Modal",
+    add: "Ajouter une civilisation",
+    edit: "Modifier une civilisation",
+  },
+  success: {
+    default: "Succès",
+    add: "Civilisation créée avec succès.",
+    edit: "Civilisation modifiée avec succès."
+  },
+  error: {
+    default: "Erreur",
+    add: "Erreur lors de la création de la civilisation.",
+    edit: "Erreur lors de la modification de la civilisation."
+  },
   champs: [
     {
       name: "title",
@@ -42,6 +60,19 @@ export const ModalCivilisationModifyConfig = {
       param: false,
     },
     {
+      name: "gouvernement_id",
+      label: "Gouvernement",
+      description: null,
+      placeholder: "Gouvernement de la civilisation",
+      type: "number",
+      defaultValue: 0,
+      render: null,
+      option: [],
+      required: false,
+      display: false,
+      param: false,
+    },
+    {
       name: "is_public",
       label: "La civilisation est-elle publique ?",
       description: null,
@@ -58,7 +89,11 @@ export const ModalCivilisationModifyConfig = {
       param: false,
     },
   ],
-  api: "/api/civilisations/update",
-  success: { text: "Civilisation modifiée avec succès." },
-  error: { text: "Erreur lors de la modification de la civilisation." },
+  api: {
+    get: { method: "GET", url: "/api/civilisations/read/$id" },
+    create: { method: "POST", url: "/api/civilisations/create" },
+    update: { method: "PUT", url: "/api/civilisations/update/$id" },
+    delete: { method: "DELETE", url: "/api/civilisations/delete/$id" },
+  },
+  dataKey: "civilisation",
 };

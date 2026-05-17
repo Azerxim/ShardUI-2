@@ -1,6 +1,24 @@
-export const ModalJournalAddConfig = {
-  id: "JournalAddModal",
-  title: "Ajouter un journal",
+export const Config_Modal_Journal = {
+  id: {
+    default: "Modal",
+    add: "Modal_Add_Journal",
+    edit: "Modal_Edit_Journal",
+  },
+  title: {
+    default: "Modal",
+    add: "Ajouter un journal",
+    edit: "Modifier un journal",
+  },
+  success: {
+    default: "Succès",
+    add: "Journal créé avec succès.",
+    edit: "Journal modifié avec succès."
+  },
+  error: {
+    default: "Erreur",
+    add: "Erreur lors de la création du journal.",
+    edit: "Erreur lors de la modification du journal."
+  },
   champs: [
     {
       name: "title",
@@ -17,9 +35,9 @@ export const ModalJournalAddConfig = {
     },
     {
       name: "author",
-      label: "Auteur",
+      label: "Auteur role-play",
       description: null,
-      placeholder: "Auteur du journal",
+      placeholder: "Auteur RP du journal",
       type: "text",
       defaultValue: "",
       render: null,
@@ -81,7 +99,11 @@ export const ModalJournalAddConfig = {
       param: false,
     },
   ],
-  api: "/api/bibliotheque/journaux/create",
-  success: { text: "Journal créé avec succès." },
-  error: { text: "Erreur lors de la création du journal." },
+  api: {
+    get: { method: "GET", url: "/api/bibliotheque/journaux/read/$id" },
+    create: { method: "POST", url: "/api/bibliotheque/journaux/create" },
+    update: { method: "PUT", url: "/api/bibliotheque/journaux/update/$id" },
+    delete: { method: "DELETE", url: "/api/bibliotheque/journaux/delete/$id" },
+  },
+  dataKey: "journal",
 };

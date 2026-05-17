@@ -5,10 +5,10 @@ import Navbar from "../../components/Navigation/Navbar";
 import TitleH2 from '../../components/Sections/TitleH2';
 import TitleH1 from '../../components/Sections/TitleH1';
 import EtagereLivres from '../../components/Sections/EtagereLivres';
-import ModalAdd from '../../components/Modals/ModalAdd';
+import DynamicModal from '../../components/Modals/DynamicModal';
 
 import { showModal } from '../../components/Functions/showModal';
-import { ModalJournalAddConfig } from '../../components/Modals/ModalJournalAddConfig';
+import { Config_Modal_Journal } from '../../components/Modals/Config_Modal_Journal';
 
 
 const journaux_exemple = [
@@ -67,7 +67,7 @@ export default function BibliothequePage() {
     // }, []);
 
     const journaux_fonctions = [
-        { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, function: () => showModal(ModalJournalAddConfig) }
+        { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, function: () => showModal(Config_Modal_Journal, "add") }
     ];
 
     return (
@@ -85,7 +85,7 @@ export default function BibliothequePage() {
                         </div>
                     ) : <EtagereLivres books={journaux} text='journaux' height={4} width={12} orientation='horizontal' />}
 
-                    <ModalAdd config={ModalJournalAddConfig} onSubmit={(journal) => { updateJournal(journal) }} />
+                    <DynamicModal config={Config_Modal_Journal} mode="add" onSubmit={(journal) => { updateJournal(journal) }} />
 
                     {/* <TitleH2 text="Livres" />
                     {livres.length === 0 ? (
