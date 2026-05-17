@@ -10,7 +10,7 @@ export default defineConfig({
   plugins: [tailwindcss(), react()],
   base: "/",
   server: {
-    allowedHosts: [baseURL, "localhost", "192.168.1.49"],
+    allowedHosts: [baseURL, "localhost", "192.168.5.100"],
     hmr: {
       host: baseURL,
       port: 5173,
