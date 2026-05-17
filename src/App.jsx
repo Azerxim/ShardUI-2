@@ -10,6 +10,7 @@ import ProfilPage from './pages/Users/Profil';
 import BibliothequePage from './pages/Bibliotheque/Bibliotheque';
 import JournalDetailPage from './pages/Bibliotheque/JournalDetail';
 import CivilisationsPage from './pages/Civilisations/Civilisations';
+import CivilisationPage from './pages/Civilisations/Civilisation';
 import NotFoundPage from './pages/NotFound/NotFound';
 
 import Footer from './components/Layouts/Footer'
@@ -23,10 +24,15 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/profil" element={<ProfilPage />} />
         <Route path="/test" element={<TestPage />} />
+        
         <Route path="/bibliotheque" element={<BibliothequePage />} />
         <Route path="/bibliotheque/journal/:id" element={<JournalDetailPage />} />
         <Route path="/bibliotheque/journal" element={<Navigate to="/bibliotheque" replace />} />
+
         <Route path="/civilisations" element={<CivilisationsPage />} />
+        <Route path="/civilisation" element={<Navigate to="/civilisations" replace />} />
+        <Route path="/civilisation/:id" element={<CivilisationPage />} />
+        
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Footer />

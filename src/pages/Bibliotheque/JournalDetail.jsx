@@ -206,7 +206,7 @@ export default function JournalDetailPage() {
                   </>
                 )}
 
-                <TitleH2 text="Contenu" fonctions={content_fonctions} style_add={{ marginBottom: '1rem' }} />
+                <TitleH2 text="Contenu" fonctions={content_fonctions} style_box={{ marginBottom: '1rem' }} />
 
                 {loadingContent && (
                   <div className="flex justify-center items-center py-12">

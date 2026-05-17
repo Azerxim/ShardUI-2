@@ -5,10 +5,10 @@ import Navbar from "../../components/Navigation/Navbar";
 import TitleH2 from '../../components/Sections/TitleH2';
 import TitleH1 from '../../components/Sections/TitleH1';
 import EtagereLivres from '../../components/Sections/EtagereLivres';
-import Modal from '../../components/Modals/Modal';
+import ModalAdd from '../../components/Modals/ModalAdd';
 
 import { showModal } from '../../components/Functions/showModal';
-import { ModalJournalAddConfig } from '../../components/Modals/ModalConfig';
+import { ModalJournalAddConfig } from '../../components/Modals/ModalJournalAddConfig';
 
 
 const journaux_exemple = [
@@ -85,7 +85,7 @@ export default function BibliothequePage() {
                         </div>
                     ) : <EtagereLivres books={journaux} text='journaux' height={4} width={12} orientation='horizontal' />}
 
-                    <Modal config={ModalJournalAddConfig} onSubmit={(journal) => { updateJournal(journal) }} />
+                    <ModalAdd config={ModalJournalAddConfig} onSubmit={(journal) => { updateJournal(journal) }} />
 
                     {/* <TitleH2 text="Livres" />
                     {livres.length === 0 ? (

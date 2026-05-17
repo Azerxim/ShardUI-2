@@ -5,10 +5,10 @@ import { useState, useEffect } from 'react';
 import Navbar from "../../components/Navigation/Navbar";
 import TitleH1 from "../../components/Sections/TitleH1";
 import TitleH2 from "../../components/Sections/TitleH2";
-import Modal from '../../components/Modals/Modal';
+import ModalAdd from '../../components/Modals/ModalAdd';
 
 import { showModal } from '../../components/Functions/showModal';
-import { ModalCivilisationAddConfig } from '../../components/Modals/ModalConfig';
+import { ModalCivilisationAddConfig } from '../../components/Modals/ModalCivilisationAddConfig';
 
 import './Civilisations.css';
 
@@ -76,7 +76,7 @@ export default function CivilisationsPage() {
             </div>
           )}
 
-          <Modal config={ModalCivilisationAddConfig} onSubmit={(civilisation) => { updateCivilisation(civilisation) }} />
+          <ModalAdd config={ModalCivilisationAddConfig} onSubmit={(civilisation) => { updateCivilisation(civilisation) }} />
 
         </div>
       </main>

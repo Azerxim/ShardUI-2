@@ -132,7 +132,7 @@ export default function Navbar({ active = '' }) {
                                 </a>
                             </li>
                             <li>
-                                <a href="https://map.amethyst.spinelle.eu" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl`}>
+                                <a href="https://map.beta.tetrago.fr" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl`}>
                                     <FontAwesomeIcon icon="map" />
                                     <span>Cartographie</span>
                                 </a>
@@ -153,6 +153,12 @@ export default function Navbar({ active = '' }) {
                                 <a href="/test" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'test' ? 'bg-primary text-primary-content' : ''}`}>
                                     <FontAwesomeIcon icon="vial" />
                                     <span>Test</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://api.beta.tetrago.fr" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'api' ? 'bg-primary text-primary-content' : ''}`}>
+                                    <FontAwesomeIcon icon="fa-solid fa-server" />
+                                    <span>API</span>
                                 </a>
                             </li>
                         </ul>
