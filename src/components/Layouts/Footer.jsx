@@ -8,7 +8,7 @@ export default function Footer() {
     }
     return (
         <>
-            <footer className="footer sm:footer-horizontal bg-base-200 text-base-content items-center p-4">
+            <footer className="footer sm:footer-horizontal bg-base-200 text-base-content items-center p-4 m-3 w-auto rounded-3xl">
                 <aside className="grid-flow-col items-center">
                     <img src="/images/logo/galaxie.png" alt="logo" width={24} height={24} />
                     <span className='flex items-center gap-1.5'>

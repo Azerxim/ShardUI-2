@@ -17,24 +17,26 @@ import Footer from './components/Layouts/Footer'
 
 export default function App() {
   return (
-    <div className='mx-auto pt-16'>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/profil" element={<ProfilPage />} />
-        <Route path="/test" element={<TestPage />} />
-        
-        <Route path="/bibliotheque" element={<BibliothequePage />} />
-        <Route path="/bibliotheque/journal/:id" element={<JournalDetailPage />} />
-        <Route path="/bibliotheque/journal" element={<Navigate to="/bibliotheque" replace />} />
+    <div className='mx-auto pt-20 min-h-screen flex flex-col'>
+      <main className='flex-1'>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/profil" element={<ProfilPage />} />
+          <Route path="/test" element={<TestPage />} />
 
-        <Route path="/civilisations" element={<CivilisationsPage />} />
-        <Route path="/civilisation" element={<Navigate to="/civilisations" replace />} />
-        <Route path="/civilisation/:id" element={<CivilisationPage />} />
-        
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+          <Route path="/bibliotheque" element={<BibliothequePage />} />
+          <Route path="/bibliotheque/journal/:id" element={<JournalDetailPage />} />
+          <Route path="/bibliotheque/journal" element={<Navigate to="/bibliotheque" replace />} />
+
+          <Route path="/civilisations" element={<CivilisationsPage />} />
+          <Route path="/civilisation" element={<Navigate to="/civilisations" replace />} />
+          <Route path="/civilisation/:id" element={<CivilisationPage />} />
+
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </main>
       <Footer />
     </div>
   );

@@ -117,7 +117,7 @@ export default function Navbar({ active = '' }) {
     // Render
     return (
         <>
-            <div className="navbar fixed flex flex-row justify-between items-center gap-2 px-2 py-3 z-999 top-0 left-0 w-full bg-base-200 shadow-lg">
+            <div className="navbar fixed flex flex-row justify-between items-center gap-2 px-2 py-3 z-999 top-3 left-3 right-3 w-auto rounded-3xl bg-base-200 shadow-lg">
                 <div className="navbar-start">
                     {/* <!-- Navigation --> */}
                     <div className="dropdown dropdown-bottom dropdown-start">
@@ -326,7 +326,7 @@ export default function Navbar({ active = '' }) {
                 </div>
             </div>
 
-            <div className='fixed top-17 left-0 w-full z-990'>
+            <div className='fixed top-20 left-3 right-3 w-auto z-990'>
                 {Playerlist && <div id='servplayers' className='flex gap-5 items-center flex-col bg-base-200 shadow-lg' style={{ borderRadius: "20px", paddingTop: "1rem", margin: "0.5rem 1rem" }}>
                     <FontAwesomeIcon icon="fa-solid fa-people-group" />
                     <div id="playerslist" className='flex gap-10 items-center bg-base-200' style={{ padding: "10px 30px" }}>
