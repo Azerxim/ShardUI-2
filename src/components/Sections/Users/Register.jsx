@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Swal from "sweetalert2"
+import { getApiURL } from "../../../services/api"
 
 export default function Register() {
     const navigate = useNavigate()
@@ -10,35 +11,36 @@ export default function Register() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
+    const apiURL = getApiURL()
 
-    async function getAuthToken() {
-        try {
-            const params = new URLSearchParams();
-            params.append('username', import.meta.env.VITE_API_USER);
-            params.append('password', import.meta.env.VITE_API_PASSWORD);
+    // async function getAuthToken() {
+    //     try {
+    //         const params = new URLSearchParams();
+    //         params.append('username', import.meta.env.VITE_API_USER);
+    //         params.append('password', import.meta.env.VITE_API_PASSWORD);
 
-            const response = await fetch(`/api/users/token`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-                body: params.toString(),
-            });
+    //         const response = await fetch(`${apiURL}/users/token`, {
+    //             method: "POST",
+    //             headers: {
+    //                 "Content-Type": "application/x-www-form-urlencoded",
+    //             },
+    //             body: params.toString(),
+    //         });
 
-            if (!response.ok) {
-                throw new Error("Erreur d'authentification");
-            }
+    //         if (!response.ok) {
+    //             throw new Error("Erreur d'authentification");
+    //         }
 
-            const data = await response.json();
-            // console.log("Token d'authentification récupéré:", data);
-            return data.access_token;
-        } catch (error) {
-            console.error("Erreur lors de la récupération du token:", error);
-            throw error;
-        }
-    }
+    //         const data = await response.json();
+    //         // console.log("Token d'authentification récupéré:", data);
+    //         return data.access_token;
+    //     } catch (error) {
+    //         console.error("Erreur lors de la récupération du token:", error);
+    //         throw error;
+    //     }
+    // }
 
-    async function handleLogin(e) {
+    async function handleRegister(e) {
         e.preventDefault()
 
         // Vérifier que tous les champs sont remplis
@@ -72,16 +74,16 @@ export default function Register() {
 
         try {
             // Récupérer le token d'authentification
-            const token = await getAuthToken();
+            // const token = await getAuthToken();
 
-            const response = await fetch(`/api/users/create`, {
+            const response = await fetch(`${apiURL}/users/create`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ username, pseudo, email, password }),
             });
-            // console.log("Réponse brute de l'API:", response);
+            console.log("Réponse brute de l'API:", response);
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -108,7 +110,7 @@ export default function Register() {
         <div className="flex flex-col gap-5 justify-center items-center" style={{ margin: '20px 0 40px 0' }}>
             <h1 className="text-5xl font-bold">Inscription</h1>
             <div className="card bg-base-200 w-full max-w-sm shrink-0 shadow-2xl">
-                <form onSubmit={handleLogin}>
+                <form onSubmit={handleRegister}>
                     <div className="card-body">
                         <fieldset className="fieldset gap-3">
                             <label className="floating-label">

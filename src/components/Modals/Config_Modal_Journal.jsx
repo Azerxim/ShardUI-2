@@ -100,10 +100,10 @@ export const Config_Modal_Journal = {
     },
   ],
   api: {
-    get: { method: "GET", url: "/api/bibliotheque/journaux/read/$id" },
-    create: { method: "POST", url: "/api/bibliotheque/journaux/create" },
-    update: { method: "PUT", url: "/api/bibliotheque/journaux/update/$id" },
-    delete: { method: "DELETE", url: "/api/bibliotheque/journaux/delete/$id" },
+    get: { method: "GET", url: "$apiURL/bibliotheque/journaux/read/$id" },
+    create: { method: "POST", url: "$apiURL/bibliotheque/journaux/create" },
+    update: { method: "PUT", url: "$apiURL/bibliotheque/journaux/update/$id" },
+    delete: { method: "DELETE", url: "$apiURL/bibliotheque/journaux/delete/$id" },
   },
   dataKey: "journal",
 };

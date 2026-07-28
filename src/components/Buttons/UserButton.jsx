@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    getUserById
+} from '../../services/api'
 
 export default function UserButton({ userid, bgColor = "", textColor = "" }) {
     const [username, setUsername] = useState("Utilisateur inconnu");
@@ -9,18 +12,7 @@ export default function UserButton({ userid, bgColor = "", textColor = "" }) {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await fetch(`/api/users/id/${userid}`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error("Erreur lors de la récupération des informations utilisateur");
-                }
-
-                const data = await response.json();
+                const data = await getUserById(userid);
                 setUsername(data.full_name);
                 setImageUrl(data.image_url);
                 setLinkUrl(`/profil/${data.id}`);

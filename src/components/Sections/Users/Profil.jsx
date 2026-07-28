@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import Swal from "sweetalert2"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { getApiURL } from "../../../services/api"
 
 export default function Profil({ User }) {
     const navigate = useNavigate()
@@ -12,13 +13,14 @@ export default function Profil({ User }) {
     const [username, setUsername] = useState(User?.username || "")
     const [isVisible, setIsVisible] = useState(User?.is_visible || false)
     const [userData, setUserData] = useState(User)
+    const apiURL = getApiURL()
 
     useEffect(() => {
         // Récupérer les données utilisateur à jour
         const fetchUserData = async () => {
             if (User?.id) {
                 try {
-                    const response = await fetch(`/api/users/id/${User.id}`, {
+                    const response = await fetch(`${apiURL}/users/id/${User.id}`, {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
@@ -73,7 +75,7 @@ export default function Profil({ User }) {
 
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`/api/users/update/${User.id}`, {
+            const response = await fetch(`${apiURL}/users/update/${User.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

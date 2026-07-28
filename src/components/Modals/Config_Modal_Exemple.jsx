@@ -35,10 +35,10 @@ const Config_Modal_Exemple = {
     },
   ],
   api: {
-    get: { method: "GET", url: "/api/.../$id" },        // Endpoint pour récupérer les données d'un élément (remplacer $id par l'identifiant de l'élément)
-    create: { method: "POST", url: "/api/..." },        // Endpoint pour créer un nouvel élément
-    update: { method: "PUT", url: "/api/.../$id" },     // Endpoint pour mettre à jour un élément (remplacer $id par l'identifiant de l'élément)
-    delete: { method: "DELETE", url: "/api/.../$id" },  // Endpoint pour supprimer un élément (remplacer $id par l'identifiant de l'élément)
+    get: { method: "GET", url: "$apiURL/.../$id" },        // Endpoint pour récupérer les données d'un élément (remplacer $id par l'identifiant de l'élément)
+    create: { method: "POST", url: "$apiURL/..." },        // Endpoint pour créer un nouvel élément
+    update: { method: "PUT", url: "$apiURL/.../$id" },     // Endpoint pour mettre à jour un élément (remplacer $id par l'identifiant de l'élément)
+    delete: { method: "DELETE", url: "$apiURL/.../$id" },  // Endpoint pour supprimer un élément (remplacer $id par l'identifiant de l'élément)
   },
   dataKey: "exemple",                       // Clé pour accéder aux données dans la réponse de l'API (ex: data.exemple)
 };

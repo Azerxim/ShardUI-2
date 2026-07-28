@@ -10,6 +10,7 @@ import DynamicModal from '../../components/Modals/DynamicModal';
 
 import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Journal } from '../../components/Modals/Config_Modal_Journal';
+import { getApiURL } from "../../services/api"
 
 export default function JournalDetailPage() {
   const { id } = useParams();
@@ -24,6 +25,7 @@ export default function JournalDetailPage() {
     const saved = localStorage.getItem('messagesPerPage');
     return saved ? Number(saved) : 20;
   });
+  const apiURL = getApiURL()
 
   const setMessagesPerPage = (value) => {
     setMessagesPerPageState(value);
@@ -72,7 +74,7 @@ export default function JournalDetailPage() {
     const fetchJournal = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/bibliotheque/journaux/read/${id}`);
+        const response = await fetch(`${apiURL}/bibliotheque/journaux/read/${id}`);
 
         if (!response.ok) {
           throw new Error(`Erreur ${response.status}: ${response.statusText}`);
@@ -94,7 +96,7 @@ export default function JournalDetailPage() {
     const fetchContent = async () => {
       try {
         setLoadingContent(true);
-        const response = await fetch(`/api/bibliotheque/journaux/contents/${id}`);
+        const response = await fetch(`${apiURL}/bibliotheque/journaux/contents/${id}`);
 
         if (!response.ok) {
           throw new Error(`Erreur ${response.status}: ${response.statusText}`);
@@ -135,7 +137,7 @@ export default function JournalDetailPage() {
   const reloadContent = async () => {
     try {
       setLoadingContent(true);
-      const response = await fetch(`/api/bibliotheque/journaux/contents/${id}`);
+      const response = await fetch(`${apiURL}/bibliotheque/journaux/contents/${id}`);
 
       if (!response.ok) {
         throw new Error(`Erreur ${response.status}: ${response.statusText}`);

@@ -9,15 +9,17 @@ import DynamicModal from '../../components/Modals/DynamicModal';
 
 import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Civilisation } from '../../components/Modals/Config_Modal_Civilisation';
+import { getApiURL } from "../../services/api"
 
 import './Civilisations.css';
 
 export default function CivilisationsPage() {
 
   const [civilisations, setCivilisations] = useState([]);
+  const apiURL = getApiURL()
 
   useEffect(() => {
-    fetch('/api/civilisations/list')
+    fetch(`${apiURL}/civilisations/list`)
       .then((response) => response.json())
       .then((data) => {
         // console.log('Civilisations fetched:', data);

@@ -9,6 +9,7 @@ import DynamicModal from '../../components/Modals/DynamicModal';
 
 import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Journal } from '../../components/Modals/Config_Modal_Journal';
+import { getApiURL } from "../../services/api"
 
 
 const journaux_exemple = [
@@ -28,9 +29,10 @@ const livres_exemple = [
 export default function BibliothequePage() {
     const [journaux, setJournaux] = useState([]);
     const [livres, setLivres] = useState([]);
+    const apiURL = getApiURL()
 
     useEffect(() => {
-        fetch('/api/bibliotheque/journaux/list')
+        fetch(`${apiURL}/bibliotheque/journaux/list`)
             .then((response) => response.json())
             .then((data) => {
                 // console.log('Journaux fetched:', data);
@@ -53,7 +55,7 @@ export default function BibliothequePage() {
     };
 
     // useEffect(() => {
-    //     fetch('/api/bibliotheque/livres/list')
+    //     fetch(`${apiURL}/bibliotheque/livres/list`)
     //         .then((response) => response.json())
     //         .then((data) => {
     //             // console.log('Livres fetched:', data);

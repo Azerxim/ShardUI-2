@@ -90,10 +90,10 @@ export const Config_Modal_Civilisation = {
     },
   ],
   api: {
-    get: { method: "GET", url: "/api/civilisations/read/$id" },
-    create: { method: "POST", url: "/api/civilisations/create" },
-    update: { method: "PUT", url: "/api/civilisations/update/$id" },
-    delete: { method: "DELETE", url: "/api/civilisations/delete/$id" },
+    get: { method: "GET", url: "$apiURL/civilisations/read/$id" },
+    create: { method: "POST", url: "$apiURL/civilisations/create" },
+    update: { method: "PUT", url: "$apiURL/civilisations/update/$id" },
+    delete: { method: "DELETE", url: "$apiURL/civilisations/delete/$id" },
   },
   dataKey: "civilisation",
 };

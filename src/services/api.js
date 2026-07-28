@@ -1,0 +1,74 @@
+const baseURL = import.meta.env.VITE_API_BASE_URL;
+const apiURL = `${baseURL}/api`;
+
+export function getApiURL() {
+  return apiURL;
+}
+
+//_____________________________________LDAP_____________________________________
+
+// export async function loginLDAP(username, password) {
+//   const response = await fetch(`${apiURL}/auth/ldap`, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({ username, password }),
+//   });
+//   return response;
+// }
+
+//_____________________________________TOKEN_____________________________________
+
+export async function postToken(params) {
+  const response = await fetch(`${apiURL}/users/token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: params.toString(),
+  });
+
+  if (!response.ok) {
+    throw new Error("Erreur d'authentification");
+  }
+  return response.json();
+}
+
+//_____________________________________USERS_____________________________________
+
+export async function getUserById(userId) {
+  const response = await fetch(`${apiURL}/users/id/${userId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+//
+export async function dynamicLoadData(url, method, token = null) {
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  const response = await fetch(url.replace("$apiURL", apiURL), {
+    method: method,
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+//_____________________________________DATA_____________________________________
+
+export async function getData(url) {
+  const res = await fetch(url, { cache: "no-store" });
+  const data = await res.json();
+  return data;
+}

@@ -2,12 +2,14 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Swal from "sweetalert2"
 import { getUserToken } from "../../Functions/getAuthToken"
+import { getApiURL } from "../../../services/api"
 
 export default function Login() {
     const navigate = useNavigate()
 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const apiURL = getApiURL()
 
     async function handleLogin(e) {
         e.preventDefault()
@@ -20,7 +22,7 @@ export default function Login() {
             });
             return;
         }
-        fetch(`/api/users/login`, {
+        fetch(`${apiURL}/users/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
