@@ -9,6 +9,9 @@ import Home_Creative from './pages/Home/Home_Creative';
 import LoginPage from './pages/Users/Login';
 import RegisterPage from './pages/Users/Register';
 import ProfilPage from './pages/Users/Profil';
+import UserProfilPage from './pages/Users/UserProfil';
+import AdminProfilPage from './pages/Users/AdminProfil';
+import UsersPage from './pages/Users/Users';
 import BibliothequePage from './pages/Bibliotheque/Bibliotheque';
 import JournalDetailPage from './pages/Bibliotheque/JournalDetail';
 import LivreDetailPage from './pages/Bibliotheque/LivreDetail';
@@ -28,9 +31,13 @@ export default function App() {
           <Route path="/home-classique" element={<Home_Classique />} />
           <Route path="/home-innovante" element={<Home_Innovante />} />
           <Route path="/home-creative" element={<Home_Creative />} />
+
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profil" element={<ProfilPage />} />
+          <Route path="/profil/:user_id" element={<UserProfilPage />} />
+          <Route path="/users" element={<UsersPage />} />
+          <Route path="/users/:user_id" element={<AdminProfilPage />} />
 
           <Route path="/bibliotheque" element={<BibliothequePage />} />
           <Route path="/bibliotheque/journal/:id" element={<JournalDetailPage />} />

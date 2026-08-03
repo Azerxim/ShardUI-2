@@ -66,6 +66,34 @@ export async function getUserById(userId) {
   return response.json();
 }
 
+export async function getUserByUsername(username) {
+  const response = await fetch(`${apiURL}/users/name/${username}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function getUsers() {
+  const response = await fetch(`${apiURL}/users/list`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+  return response.json();
+}
+
 //
 export async function dynamicLoadData(url, method, token = null) {
   const headers = token ? { Authorization: `Bearer ${token}` } : {};

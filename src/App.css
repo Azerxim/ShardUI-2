@@ -3,7 +3,7 @@
 
 @plugin "daisyui/theme" {
   name: "light";
-  default: true;
+  default: false;
   prefersdark: false;
   color-scheme: "light";
   /* Palette inspirée du logo : ciel brumeux, continents verts, anneau doré */
@@ -42,7 +42,7 @@
 
 @plugin "daisyui/theme" {
   name: "dark";
-  default: false;
+  default: true;
   prefersdark: false;
   color-scheme: "dark";
   /* Palette inspirée du logo : profondeurs océaniques, continents lumineux, anneau doré */

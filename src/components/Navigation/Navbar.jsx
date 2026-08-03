@@ -31,6 +31,8 @@ export default function Navbar({ active = '' }) {
         const checkSession = async () => {
             const token = localStorage.getItem("token");
             const user = localStorage.getItem("user");
+            // console.log("Token:", token);
+            console.log("User:", user);
 
             if (token) {
                 try {
@@ -152,19 +154,19 @@ export default function Navbar({ active = '' }) {
                         </div>
                         <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 m-1 mt-6 shadow-xl flex-col gap-1">
                             <li>
-                                <a href="/" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'home' ? 'bg-primary text-primary-content' : ''}`}>
+                                <a href="/" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'home' ? 'bg-secondary text-secondary-content' : ''}`}>
                                     <FontAwesomeIcon icon="house" />
                                     <span>Accueil</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="/bibliotheque" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'bibliotheque' ? 'bg-primary text-primary-content' : ''}`}>
+                                <a href="/bibliotheque" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'bibliotheque' ? 'bg-secondary text-secondary-content' : ''}`}>
                                     <FontAwesomeIcon icon="book" />
                                     <span>Bibliothèque</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="/civilisations" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'civilisations' ? 'bg-primary text-primary-content' : ''}`}>
+                                <a href="/civilisations" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'civilisations' ? 'bg-secondary text-secondary-content' : ''}`}>
                                     <FontAwesomeIcon icon="flag" />
                                     <span>Civilisations</span>
                                 </a>
@@ -175,12 +177,15 @@ export default function Navbar({ active = '' }) {
                                     <span>Cartographie</span>
                                 </a>
                             </li>
-                            <li>
-                                <a href="https://api.beta.tetrago.fr" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'api' ? 'bg-primary text-primary-content' : ''}`}>
-                                    <FontAwesomeIcon icon="fa-solid fa-server" />
-                                    <span>API</span>
-                                </a>
-                            </li>
+                            {User.is_admin && (
+                                <li>
+                                    <a href="https://api.beta.tetrago.fr" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'api' ? 'bg-secondary text-secondary-content' : ''}`}>
+                                        <FontAwesomeIcon icon="fa-solid fa-server" />
+                                        <span>API</span>
+                                        <span className="badge bg-error text-error-content">Admin</span>
+                                    </a>
+                                </li>
+                            )}
                         </ul>
                     </div>
 
@@ -197,20 +202,35 @@ export default function Navbar({ active = '' }) {
                             {User ? (
                                 <>
                                     <li>
-                                        <a href="/profil" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl ${active === 'profil' ? 'bg-primary text-primary-content' : ''}`}>
+                                        <div className='flex flex-col gap-2 rounded-3xl bg-base-200'>
+                                            <i>Connecté en tant que</i>
+                                            <b className='text-primary'>{User.full_name || User.username}</b>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a href="/profil" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl ${active === 'profil' ? 'bg-secondary text-secondary-content' : ''}`}>
                                             <FontAwesomeIcon icon="fa-solid fa-user" />
                                             <span>Profil</span>
                                         </a>
                                     </li>
-                                    <li>
-                                        <a href="/parametres" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl ${active === 'parametres' ? 'bg-primary text-primary-content' : ''}`}>
+                                    {/* <li>
+                                        <a href="/parametres" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl ${active === 'parametres' ? 'bg-secondary text-secondary-content' : ''}`}>
                                             <FontAwesomeIcon icon="fa-solid fa-gear" />
                                             <span>Paramètres</span>
                                             <span className="badge">New</span>
                                         </a>
-                                    </li>
+                                    </li> */}
+                                    {User.is_admin && (
+                                        <li>
+                                            <a href="/users" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl ${active === 'users' ? 'bg-secondary text-secondary-content' : ''}`}>
+                                                <FontAwesomeIcon icon="fa-solid fa-users" />
+                                                <span>Utilisateurs</span>
+                                                <span className="badge bg-error text-error-content">Admin</span>
+                                            </a>
+                                        </li>
+                                    )}
                                     <li>
-                                        <button className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl hover:bg-error`} onClick={() => {
+                                        <button className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl hover:bg-error hover:text-error-content`} onClick={() => {
                                             localStorage.removeItem('user')
                                             window.location.reload()
                                         }}>
@@ -222,13 +242,13 @@ export default function Navbar({ active = '' }) {
                             ) : (
                                 <>
                                     <li>
-                                        <a href="/login" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl ${active === 'login' ? 'bg-primary text-primary-content' : ''}`}>
+                                        <a href="/login" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl ${active === 'login' ? 'bg-secondary text-secondary-content' : ''}`}>
                                             <FontAwesomeIcon icon="right-to-bracket" />
                                             <span>Connexion</span>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="/register" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl ${active === 'register' ? 'bg-primary text-primary-content' : ''}`}>
+                                        <a href="/register" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl ${active === 'register' ? 'bg-secondary text-secondary-content' : ''}`}>
                                             <FontAwesomeIcon icon="user-plus" />
                                             <span>Inscription</span>
                                         </a>

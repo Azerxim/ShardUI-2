@@ -18,7 +18,7 @@ const books = [
 
 const steps = [
   { icon: "fa-solid fa-user-plus", title: "Créez votre compte", description: "Inscrivez-vous en quelques secondes." },
-  { icon: "fa-solid fa-network-wired", title: "Rejoignez le serveur", description: `Connectez-vous avec l'IP copiée: <b>${serverURL}</b>` },
+  { icon: "fa-solid fa-network-wired", title: "Rejoignez le serveur", description: `Connectez-vous avec l'IP copiée: <b class="text-primary">${serverURL}</b>` },
   { icon: "fa-solid fa-feather-pointed", title: "Écrivez votre histoire", description: "Faites vivre votre personnage et sa civilisation." },
 ];
 
