@@ -96,4 +96,7 @@ export const Config_Modal_Civilisation = {
     delete: { method: "DELETE", url: "$apiURL/civilisations/delete/$id" },
   },
   dataKey: "civilisation",
+  is_activate: {
+    delete: true,
+  },
 };

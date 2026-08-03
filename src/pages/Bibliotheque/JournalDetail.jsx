@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import './Journal.css';
 
 import Navbar from '../../components/Navigation/Navbar';
 import TitleH1 from '../../components/Sections/TitleH1';
@@ -155,8 +154,11 @@ export default function JournalDetailPage() {
 
   const btnReturn = { text: 'Retour à la bibliothèque', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/bibliotheque' };
 
+  const fonctions = [
+    { id: 0, title: 'Modifier', icon: "fas fa-pen", class: "btn-ghost bg-base-200 hover:bg-base-300", connected: true, function: () => showModal(Config_Modal_Journal, "edit") }
+  ];
+
   const content_fonctions = [
-    { id: 0, title: 'Modifier', icon: "fas fa-pen", class: "btn-ghost bg-base-200 hover:bg-base-300", connected: true, function: () => showModal(Config_Modal_Journal, "edit") },
     { id: 1, title: "Rafraichir", icon: "fas fa-rotate-right", class: "bg-base-200 hover:bg-base-300", connected: false, function: reloadContent }
   ];
 
@@ -194,7 +196,7 @@ export default function JournalDetailPage() {
           )}
           {!loading && journal && (
             <>
-              <TitleH1 text={journal.title} btn={btnReturn} />
+              <TitleH1 text={journal.title} btn={btnReturn} fonctions={fonctions} />
               <article className="w-full mt-1">
                 <div className="mb-4">
                   <div className="flex gap-4">

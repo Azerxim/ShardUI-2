@@ -1,0 +1,73 @@
+/* Fond étoilé animé pour la page d'accueil créative */
+.grimoire-hero {
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+  overflow: hidden;
+  position: relative;
+}
+
+.grimoire-stars,
+.grimoire-stars2,
+.grimoire-stars3 {
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat;
+  animation: grimoire-twinkle 6s ease-in-out infinite alternate;
+}
+
+.grimoire-stars {
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, #ffffff, transparent),
+    radial-gradient(1px 1px at 90px 80px, #ffffff, transparent),
+    radial-gradient(1px 1px at 150px 20px, #ffffff, transparent),
+    radial-gradient(1px 1px at 210px 110px, #ffffff, transparent),
+    radial-gradient(1px 1px at 260px 60px, #ffffff, transparent);
+  background-size: 280px 160px;
+  opacity: 0.8;
+}
+
+.grimoire-stars2 {
+  background-image:
+    radial-gradient(1.5px 1.5px at 40px 60px, #ffe9a8, transparent),
+    radial-gradient(1.5px 1.5px at 120px 20px, #ffe9a8, transparent),
+    radial-gradient(1.5px 1.5px at 200px 100px, #ffe9a8, transparent);
+  background-size: 240px 200px;
+  animation-duration: 9s;
+  animation-delay: 1s;
+  opacity: 0.6;
+}
+
+.grimoire-stars3 {
+  background-image:
+    radial-gradient(2px 2px at 60px 40px, #9ecbff, transparent),
+    radial-gradient(2px 2px at 180px 90px, #9ecbff, transparent);
+  background-size: 320px 260px;
+  animation-duration: 12s;
+  animation-delay: 2s;
+  opacity: 0.5;
+}
+
+@keyframes grimoire-twinkle {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 0.9;
+  }
+}
+
+/* Étagère de "livres" représentant les pages du site */
+.grimoire-shelf {
+  perspective: 1000px;
+}
+
+.grimoire-book {
+  transform: rotate(var(--tilt, -2deg));
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.grimoire-book:hover {
+  transform: rotate(0deg) translateY(-10px) scale(1.04);
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.45);
+}

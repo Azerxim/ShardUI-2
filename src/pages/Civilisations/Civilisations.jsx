@@ -11,8 +11,6 @@ import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Civilisation } from '../../components/Modals/Config_Modal_Civilisation';
 import { getApiURL } from "../../services/api"
 
-import './Civilisations.css';
-
 export default function CivilisationsPage() {
 
   const [civilisations, setCivilisations] = useState([]);

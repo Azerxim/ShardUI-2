@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { 
+import {
   dynamicLoadData,
   getApiURL
 } from "../../services/api";
@@ -12,7 +12,7 @@ import { getAuthToken } from "../Functions/getAuthToken";
 export default function DynamicModal({
   config,
   onSubmit,
-  onDelete = () => {},
+  onDelete = () => { },
   mode = "default",
 }) {
   const User = JSON.parse(localStorage.getItem("user"));
@@ -445,18 +445,20 @@ export default function DynamicModal({
                   </button>
                 </div>
               </div>
-              <div className="flex flex-row gap-2">
-                <div className="tooltip tooltip-error" data-tip="Supprimer">
-                  <button
-                    type="button"
-                    className={`btn btn-error ${mode === "edit" ? "" : "hidden"}`}
-                    onClick={() => handleDelete()}
-                  >
-                    <FontAwesomeIcon icon="fas fa-trash" />
-                    {/* <span>Supprimer</span> */}
-                  </button>
+              {config.is_activate.delete && (
+                <div className="flex flex-row gap-2">
+                  <div className="tooltip tooltip-error" data-tip="Supprimer">
+                    <button
+                      type="button"
+                      className={`btn btn-error ${mode === "edit" ? "" : "hidden"}`}
+                      onClick={() => handleDelete()}
+                    >
+                      <FontAwesomeIcon icon="fas fa-trash" />
+                      {/* <span>Supprimer</span> */}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </form>
         </div>

@@ -19,7 +19,7 @@ export default function TitleH1({ text, icon = '', btn = { text: '', link: '', i
                     <h1>{text}</h1>
                 </div>
             </div>
-            <TitleButtons classes='' fonctions={fonctions} />
+            <TitleButtons fonctions={fonctions} />
         </div>
     );
 }

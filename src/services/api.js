@@ -20,8 +20,11 @@ export function getApiURL() {
 
 //_____________________________________TOKEN_____________________________________
 
-export async function postToken(params) {
-  const response = await fetch(`${apiURL}/users/token`, {
+export async function postToken(params, expiryHours = 24) {
+  const url = new URL(`${apiURL}/users/token`);
+  url.searchParams.append("expiry_hours", expiryHours);
+
+  const response = await fetch(url.toString(), {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -33,6 +36,18 @@ export async function postToken(params) {
     throw new Error("Erreur d'authentification");
   }
   return response.json();
+}
+
+export async function verifyToken(token) {
+  const response = await fetch(`${apiURL}/users/verify`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response;
 }
 
 //_____________________________________USERS_____________________________________

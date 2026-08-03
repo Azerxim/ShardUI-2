@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import './Navbar.css';
+import { verifyToken } from '../../services/api';
 
 // ===== Constantes =====
 const link_network = 'https://mcapi.us/server/status?ip=spinelle-network.minesr.com';
@@ -27,6 +28,31 @@ export default function Navbar({ active = '' }) {
     const [ServerData, setServerData] = useState(null);
 
     useEffect(() => {
+        const checkSession = async () => {
+            const token = localStorage.getItem("token");
+            const user = localStorage.getItem("user");
+
+            if (token) {
+                try {
+                    const response = await verifyToken(token);
+                    if (!response.ok) {
+                        // Token invalide ou expiré
+                        localStorage.removeItem("token");
+                        localStorage.removeItem("user");
+                        console.warn("Token invalide ou expiré");
+                    } else {
+                        const data = await response.json();
+                        console.log("Session valide:", data);
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la vérification du token:', error);
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                }
+            }
+        };
+
+        checkSession();
         setPlayerlist(false);
     }, []);
 
@@ -132,12 +158,6 @@ export default function Navbar({ active = '' }) {
                                 </a>
                             </li>
                             <li>
-                                <a href="https://map.beta.tetrago.fr" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl`}>
-                                    <FontAwesomeIcon icon="map" />
-                                    <span>Cartographie</span>
-                                </a>
-                            </li>
-                            <li>
                                 <a href="/bibliotheque" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'bibliotheque' ? 'bg-primary text-primary-content' : ''}`}>
                                     <FontAwesomeIcon icon="book" />
                                     <span>Bibliothèque</span>
@@ -150,9 +170,9 @@ export default function Navbar({ active = '' }) {
                                 </a>
                             </li>
                             <li>
-                                <a href="/test" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'test' ? 'bg-primary text-primary-content' : ''}`}>
-                                    <FontAwesomeIcon icon="vial" />
-                                    <span>Test</span>
+                                <a href="https://map.beta.tetrago.fr" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl`}>
+                                    <FontAwesomeIcon icon="map" />
+                                    <span>Cartographie</span>
                                 </a>
                             </li>
                             <li>

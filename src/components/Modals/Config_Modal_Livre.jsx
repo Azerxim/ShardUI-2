@@ -1,30 +1,30 @@
-export const Config_Modal_Journal = {
+export const Config_Modal_Livre = {
   id: {
     default: "Modal",
-    add: "Modal_Add_Journal",
-    edit: "Modal_Edit_Journal",
+    add: "Modal_Add_Livre",
+    edit: "Modal_Edit_Livre",
   },
   title: {
     default: "Modal",
-    add: "Ajouter un journal",
-    edit: "Modifier un journal",
+    add: "Ajouter un livre",
+    edit: "Modifier un livre",
   },
   success: {
     default: "Succès",
-    add: "Journal créé avec succès.",
-    edit: "Journal modifié avec succès."
+    add: "Livre créé avec succès.",
+    edit: "Livre modifié avec succès."
   },
   error: {
     default: "Erreur",
-    add: "Erreur lors de la création du journal.",
-    edit: "Erreur lors de la modification du journal."
+    add: "Erreur lors de la création du livre.",
+    edit: "Erreur lors de la modification du livre."
   },
   champs: [
     {
       name: "title",
       label: "Titre",
       description: null,
-      placeholder: "Titre du journal",
+      placeholder: "Titre du livre",
       type: "text",
       defaultValue: "",
       render: null,
@@ -37,7 +37,7 @@ export const Config_Modal_Journal = {
       name: "author",
       label: "Auteur role-play",
       description: null,
-      placeholder: "Auteur RP du journal",
+      placeholder: "Auteur RP du livre",
       type: "text",
       defaultValue: "",
       render: null,
@@ -63,7 +63,7 @@ export const Config_Modal_Journal = {
       name: "description",
       label: "Description",
       description: null,
-      placeholder: "Description du journal",
+      placeholder: "Description du livre",
       type: "textarea",
       defaultValue: "",
       render: null,
@@ -100,12 +100,12 @@ export const Config_Modal_Journal = {
     },
   ],
   api: {
-    get: { method: "GET", url: "$apiURL/bibliotheque/journaux/read/$id" },
-    create: { method: "POST", url: "$apiURL/bibliotheque/journaux/create" },
-    update: { method: "PUT", url: "$apiURL/bibliotheque/journaux/update/$id" },
-    delete: { method: "DELETE", url: "$apiURL/bibliotheque/journaux/delete/$id" },
+    get: { method: "GET", url: "$apiURL/bibliotheque/livres/read/$id" },
+    create: { method: "POST", url: "$apiURL/bibliotheque/livres/create" },
+    update: { method: "PUT", url: "$apiURL/bibliotheque/livres/update/$id" },
+    delete: { method: "DELETE", url: "$apiURL/bibliotheque/livres/delete/$id" },
   },
-  dataKey: "journal",
+  dataKey: "livre",
   is_activate: {
     delete: true,
   },

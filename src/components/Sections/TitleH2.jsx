@@ -11,7 +11,7 @@ export default function TitleH2({ text, icon = '', classes = 'bg-base-200', styl
                     <h2>{text}</h2>
                 </div>
             </div>
-            <TitleButtons classes='' fonctions={fonctions} />
+            <TitleButtons fonctions={fonctions} />
         </div>
     );
 }

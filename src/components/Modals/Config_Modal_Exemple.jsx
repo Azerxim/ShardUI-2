@@ -41,4 +41,7 @@ const Config_Modal_Exemple = {
     delete: { method: "DELETE", url: "$apiURL/.../$id" },  // Endpoint pour supprimer un élément (remplacer $id par l'identifiant de l'élément)
   },
   dataKey: "exemple",                       // Clé pour accéder aux données dans la réponse de l'API (ex: data.exemple)
+  is_activate: {
+    delete: true,
+  },
 };

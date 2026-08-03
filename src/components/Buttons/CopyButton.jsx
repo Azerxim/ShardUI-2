@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function CopyButton({ text, icon, classes = "btn btn-success", style = { padding: "24px", fontSize: "1.25rem" }, textCopy = text }) {
+export default function CopyButton({ text, icon, classes = "btn btn-success", style = { padding: "24px", fontSize: "1.25rem" }, textCopy = text, tooltip = {text: "Copier", position: "bottom"}}) {
     // Initial text
     const [textToCopy, setTextToCopy] = useState(textCopy); 
     // State to manage notification visibility
@@ -19,6 +19,7 @@ export default function CopyButton({ text, icon, classes = "btn btn-success", st
     };
 
     return (
+        <div className={`tooltip tooltip-${tooltip.position}`} data-tip={tooltip.text}>
         <a className={`${classes}`} onClick={handleCopy} style={style}>
             {icon}
             <span>{text}</span>
@@ -41,5 +42,6 @@ export default function CopyButton({ text, icon, classes = "btn btn-success", st
                 </div>
             )}
         </a>
+        </div>
     );
 }

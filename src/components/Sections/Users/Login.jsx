@@ -9,6 +9,7 @@ export default function Login() {
 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [expiryHours, setExpiryHours] = useState(24)
     const apiURL = getApiURL()
 
     async function handleLogin(e) {
@@ -34,7 +35,7 @@ export default function Login() {
                 // console.log(data);
                 if (data.code == 200) {
                     localStorage.setItem("user", JSON.stringify(data.user))
-                    getUserToken(data.user.username, password).then(token => {
+                    getUserToken(data.user.username, password, parseInt(expiryHours)).then(token => {
                         localStorage.setItem("token", token);
                         // console.log("Token d'authentification récupéré:", token);
                         navigate("/profil");
@@ -69,16 +70,63 @@ export default function Login() {
             <div className="card bg-base-200 w-full max-w-sm shrink-0 shadow-2xl">
                 <form onSubmit={handleLogin}>
                     <div className="card-body">
-                        <fieldset className="fieldset gap-3">
-                            <label className="floating-label">
-                                <span>Adresse email</span>
-                                <input onChange={e => { setEmail(e.target.value) }} type="text" placeholder="mail@site.com" className="input input-md bg-base-100" id="email" required />
-                            </label>
+                        <fieldset className="fieldset gap-2">
+                            <label className="label">Adresse email</label>
+                            <input
+                                onChange={e => { setEmail(e.target.value) }}
+                                type="text"
+                                className="input input-md input-ghost bg-base-100 w-full"
+                                placeholder="mail@site.com"
+                                id="email"
+                                value={email}
+                            />
 
-                            <label className="floating-label">
+                            <label className="label">Mot de passe</label>
+                            <input
+                                onChange={e => { setPassword(e.target.value) }}
+                                type="password"
+                                className="input input-md input-ghost bg-base-100 w-full"
+                                placeholder="Mot de passe"
+                                id="password"
+                                value={password}
+                            />
+
+                            <label className="label">Durée de validité du session</label>
+                            <select
+                                onChange={e => { setExpiryHours(parseInt(e.target.value)) }}
+                                value={expiryHours}
+                                className="select select-md select-ghost bg-base-100 w-full"
+                                id="expiry"
+                            >
+                                <option value="1">1 heure</option>
+                                <option value="6">6 heures</option>
+                                <option value="24">24 heures (par défaut)</option>
+                                <option value="72">3 jours</option>
+                                <option value="168">7 jours</option>
+                                <option value="720">30 jours</option>
+                            </select>
+
+                            {/* <label className="floating-label">
+                                <span>Adresse email</span>
+                                <input onChange={e => { setEmail(e.target.value) }} type="text" placeholder="mail@site.com" className="input input-md input-ghost bg-base-100 w-full" id="email" required />
+                            </label> */}
+
+                            {/* <label className="floating-label">
                                 <span>Mot de passe</span>
-                                <input onChange={e => { setPassword(e.target.value) }} type="password" placeholder="Mot de passe" className="input input-md bg-base-100" id="password" required />
-                            </label>
+                                <input onChange={e => { setPassword(e.target.value) }} type="password" placeholder="Mot de passe" className="input input-md input-ghost bg-base-100 w-full" id="password" required />
+                            </label> */}
+
+                            {/* <label className="floating-label">
+                                <span>Durée de validité du session</span>
+                                <select onChange={e => { setExpiryHours(parseInt(e.target.value)) }} value={expiryHours} className="select select-md select-ghost bg-base-100 w-full" id="expiry">
+                                    <option value="1">1 heure</option>
+                                    <option value="6">6 heures</option>
+                                    <option value="24">24 heures (par défaut)</option>
+                                    <option value="72">3 jours</option>
+                                    <option value="168">7 jours</option>
+                                    <option value="720">30 jours</option>
+                                </select>
+                            </label> */}
                             {/* <div><a className="link link-hover">Mot de passe oublié?</a></div> */}
 
                             <a href="/register" className="link link-hover">Pas encore de compte? Inscrivez-vous</a>
