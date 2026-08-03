@@ -375,7 +375,15 @@ export default function Navbar({ active = '' }) {
                             // console.log(player, index)
                             return (
                                 <div key={index} className='flex flex-col gap-2 items-center' style={{ margin: "0 10px" }}>
-                                    <img src={`https://starlightskins.lunareclipse.studio/render/${SRT[getRandomInt(SRTsize)]}/${player.name}/face/`} alt={`${player.name} head`} className='h-16' />
+                                    <img
+                                        src={`https://starlightskins.lunareclipse.studio/render/${SRT[getRandomInt(SRTsize)]}/${player.name}/face/`}
+                                        alt={`${player.name} head`}
+                                        className='h-16'
+                                        onError={(e) => {
+                                            e.currentTarget.onerror = null;
+                                            e.currentTarget.src = `https://render.crafty.gg/2d/head/${player.name}`;
+                                        }}
+                                    />
                                     <span>{player.name}</span>
                                 </div>
                             )
