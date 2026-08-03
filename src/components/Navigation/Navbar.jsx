@@ -32,7 +32,7 @@ export default function Navbar({ active = '' }) {
             const token = localStorage.getItem("token");
             const user = localStorage.getItem("user");
             // console.log("Token:", token);
-            console.log("User:", user);
+            // console.log("User:", user);
 
             if (token) {
                 try {
@@ -177,7 +177,7 @@ export default function Navbar({ active = '' }) {
                                     <span>Cartographie</span>
                                 </a>
                             </li>
-                            {User.is_admin && (
+                            {User && User.is_admin && (
                                 <li>
                                     <a href="https://api.beta.tetrago.fr" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'api' ? 'bg-secondary text-secondary-content' : ''}`}>
                                         <FontAwesomeIcon icon="fa-solid fa-server" />
@@ -202,7 +202,7 @@ export default function Navbar({ active = '' }) {
                             {User ? (
                                 <>
                                     <li>
-                                        <div className='flex flex-col gap-2 rounded-3xl bg-base-200'>
+                                        <div className='flex flex-col gap-2 rounded-3xl bg-base-200' style={{ minWidth: "170px" }}>
                                             <i>Connecté en tant que</i>
                                             <b className='text-primary'>{User.full_name || User.username}</b>
                                         </div>
