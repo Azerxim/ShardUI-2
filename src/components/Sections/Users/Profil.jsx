@@ -160,7 +160,7 @@ export default function Profil({ User }) {
                                     <div className="mt-4">
                                         <span className="badge badge-lg badge-ghost">
                                             <FontAwesomeIcon icon="fa-solid fa-calendar" className="mr-2" />
-                                            Membre depuis {new Date(userData?.created_at || Date.now()).toLocaleDateString('fr-FR')}
+                                            Membre depuis le {new Date(userData?.created_at || Date.now()).toLocaleDateString('fr-FR')}
                                         </span>
                                     </div>
                                 </div>
@@ -168,7 +168,7 @@ export default function Profil({ User }) {
                                 {/* Bouton de déconnexion */}
                                 <div>
                                     <button
-                                        className="btn btn-error btn-outline"
+                                        className="btn btn-error btn-md"
                                         onClick={handleLogout}
                                     >
                                         <FontAwesomeIcon icon="fa-solid fa-right-from-bracket" />

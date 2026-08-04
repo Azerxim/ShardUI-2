@@ -1,10 +1,10 @@
 import { useState } from "react";
 
-export default function CopyButton({ text, icon, classes = "btn btn-success", style = { padding: "24px", fontSize: "1.25rem" }, textCopy = text, tooltip = {text: "Copier", position: "bottom"}}) {
+export default function CopyButton({ text, icon, classes = "btn btn-success", style = { padding: "24px", fontSize: "1.25rem" }, textCopy = text, tooltip = { text: "Copier", position: "bottom" } }) {
     // Initial text
-    const [textToCopy, setTextToCopy] = useState(textCopy); 
+    const [textToCopy, setTextToCopy] = useState(textCopy);
     // State to manage notification visibility
-    const [showNotification, setShowNotification] = useState(false); 
+    const [showNotification, setShowNotification] = useState(false);
 
     const handleCopy = async () => {
         try {
@@ -12,7 +12,7 @@ export default function CopyButton({ text, icon, classes = "btn btn-success", st
             await navigator.clipboard.writeText(textToCopy);
             setShowNotification(true); // Show notification
             // Hide notification after 3 seconds
-            setTimeout(() => setShowNotification(false), 3000); 
+            setTimeout(() => setShowNotification(false), 3000);
         } catch (err) {
             console.error("Failed to copy text:", err);
         }
@@ -20,28 +20,28 @@ export default function CopyButton({ text, icon, classes = "btn btn-success", st
 
     return (
         <div className={`tooltip tooltip-${tooltip.position}`} data-tip={tooltip.text}>
-        <a className={`${classes}`} onClick={handleCopy} style={style}>
-            {icon}
-            <span>{text}</span>
+            <a className={`${classes}`} onClick={handleCopy} style={style}>
+                {icon}
+                <span>{text}</span>
 
-            {/* Notification */}
-            {showNotification && (
-                <div
-                className="bg-info rounded-xl shadow-xl"
-                style={{
-                    position: "fixed",
-                    bottom: "20px",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    padding: "10px 20px",
-                    zIndex: 1000,
-                    transition: "opacity 0.3s ease-in-out",
-                }}
-                >
-                Copié dans le presse-papier !
-                </div>
-            )}
-        </a>
+                {/* Notification */}
+                {showNotification && (
+                    <div
+                        className="bg-info rounded-xl shadow-xl"
+                        style={{
+                            position: "fixed",
+                            bottom: "20px",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            padding: "10px 20px",
+                            zIndex: 1000,
+                            transition: "opacity 0.3s ease-in-out",
+                        }}
+                    >
+                        Copié dans le presse-papier !
+                    </div>
+                )}
+            </a>
         </div>
     );
 }

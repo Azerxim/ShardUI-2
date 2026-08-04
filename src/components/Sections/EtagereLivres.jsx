@@ -41,7 +41,7 @@ export default function EtagereLivres({ books, text = 'livre(s)', height = 12, w
                         >
                             <a
                                 href={book.link}
-                                className={`rounded-2xl cursor-pointer shadow-md transition-all duration-300 group-hover:scale-110 group-hover:z-10 flex border-0 border-white ${orientation === 'vertical' ? 'flex-col' : 'flex-row items-center gap-2'}`}
+                                className={`rounded-3xl cursor-pointer shadow-md transition-all duration-300 group-hover:scale-110 group-hover:z-10 flex border-0 border-white ${orientation === 'vertical' ? 'flex-col' : 'flex-row items-center gap-2'}`}
                                 style={{ backgroundColor: book.cover_color, width: `${width}rem`, height: `${height}rem` }}
                             >
                                 {orientation === 'vertical' ? (
@@ -64,7 +64,7 @@ export default function EtagereLivres({ books, text = 'livre(s)', height = 12, w
                                     </>
                                 )}
                             </a>
-                            <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap bg-gray-800 text-white px-2 py-1 rounded text-xs">
+                            <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap bg-gray-800 text-white px-2 py-1 rounded-3xl text-xs">
                                 {book.description || 'Pas de description disponible.'}
                             </div>
                         </div>

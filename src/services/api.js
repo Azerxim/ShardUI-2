@@ -96,6 +96,7 @@ export async function getUsers() {
 
 //
 export async function dynamicLoadData(url, method, token = null) {
+  // console.log("dynamicLoadData called with url:", url, "method:", method, "token:", token);
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const response = await fetch(url.replace("$apiURL", apiURL), {
     method: method,

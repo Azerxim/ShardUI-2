@@ -6,6 +6,7 @@ import Navbar from '../../components/Navigation/Navbar';
 import TitleH1 from '../../components/Sections/TitleH1';
 import TitleH2 from '../../components/Sections/TitleH2';
 import DynamicModal from '../../components/Modals/DynamicModal';
+import LinkifiedText from '../../components/Sections/LinkifiedText';
 
 import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Journal } from '../../components/Modals/Config_Modal_Journal';
@@ -196,7 +197,7 @@ export default function JournalDetailPage() {
           )}
           {!loading && journal && (
             <>
-              <TitleH1 text={journal.title} btn={btnReturn} fonctions={fonctions} />
+              <TitleH1 text={`Journal: ${journal.title}`} btn={btnReturn} fonctions={fonctions} />
               <article className="w-full mt-1">
                 <div className="mb-4">
                   <div className="flex gap-4">
@@ -252,7 +253,7 @@ export default function JournalDetailPage() {
                               <div className="space-y-2">
                                 {group.map((message) => (
                                   <div key={message.id}>
-                                    <p className="">{message.content}</p>
+                                    <p className=""><LinkifiedText text={message.content} /></p>
                                     {message.attachments && message.attachments.length > 0 && (
                                       <div className="mb-2">
                                         {message.attachments.map((att, index) => (

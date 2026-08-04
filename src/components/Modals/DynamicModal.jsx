@@ -14,10 +14,14 @@ export default function DynamicModal({
   onSubmit,
   onDelete = () => { },
   mode = "default",
+  local = { id: null },
 }) {
   const User = JSON.parse(localStorage.getItem("user"));
   const params = useParams();
   const apiURL = getApiURL();
+
+  // console.log("DynamicModal params:", params);
+  // console.log("DynamicModal local:", local);
 
   // Initialize state with default values from config
   const [formValues, setFormValues] = useState({});
@@ -27,6 +31,10 @@ export default function DynamicModal({
     config.champs.forEach((champ) => {
       if (champ.param && champ.name === "user_id") {
         initialValues[champ.name] = User ? User.id : champ.defaultValue;
+      } else if (champ.param && champ.description == "url" && champ.label == "id") {
+        initialValues[champ.name] = params.id ? parseInt(params.id) : champ.defaultValue;
+      } else if (champ.param && champ.description == "local" && champ.label == "id") {
+        initialValues[champ.name] = local.id ? parseInt(local.id) : champ.defaultValue;
       } else {
         initialValues[champ.name] = champ.defaultValue;
       }
@@ -36,8 +44,8 @@ export default function DynamicModal({
   const fetchLoadData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const api = config.api.get;
-      const data = await dynamicLoadData(api.url.replace("$id", params.id), api.method, token);
+      let api = config.api.get;
+      const data = await dynamicLoadData(api.url.replace("$id", params.id).replace("$local-id", local.id), api.method, token);
       return data ? data[config.dataKey] : {};
     } catch (err) {
       console.error(err);
@@ -72,8 +80,9 @@ export default function DynamicModal({
     const token = localStorage.getItem("token");
     if (mode != "default") {
       const api = mode === "add" ? config.api.create : config.api.update;
-      const apiUrl =
+      let apiUrl =
         mode === "add" ? api.url : api.url.replace("$id", params.id);
+      apiUrl = apiUrl.replace("$local-id", local.id);
       await fetch(apiUrl.replace("$apiURL", apiURL), {
         method: api.method,
         headers: {
@@ -107,13 +116,13 @@ export default function DynamicModal({
           });
         });
     }
-    document.getElementById(config.id[mode]).close();
+    document.getElementById(config.id[mode].replace("$local-id", local.id)).close();
   };
 
   const handleDelete = async () => {
     const token = localStorage.getItem("token");
     const api = config.api.delete;
-    const apiUrl = api.url.replace("$id", params.id);
+    const apiUrl = api.url.replace("$id", params.id).replace("$local-id", local.id);
     await fetch(apiUrl.replace("$apiURL", apiURL), {
       method: api.method,
       headers: {
@@ -145,7 +154,7 @@ export default function DynamicModal({
           text: error.message,
         });
       });
-    document.getElementById(config.id[mode]).close();
+    document.getElementById(config.id[mode].replace("$local-id", local.id)).close();
   };
 
   const renderInput = (config, champ) => {
@@ -322,7 +331,7 @@ export default function DynamicModal({
             <fieldset className="fieldset">
               <legend className="fieldset-legend">{champ.label}</legend>
 
-              <div className="rounded-xl" style={{ backgroundColor: value }}>
+              <div className="rounded-3xl" style={{ backgroundColor: value }}>
                 <input
                   type={champ.type}
                   name={champ.name}
@@ -400,7 +409,7 @@ export default function DynamicModal({
 
   return (
     <>
-      <dialog id={config.id[mode]} className="modal">
+      <dialog id={config.id[mode].replace("$local-id", local.id)} className="modal">
         <div className="modal-box">
           <h3 className="flex justify-center w-full font-bold text-2xl">
             {config.title[mode]}
@@ -408,9 +417,9 @@ export default function DynamicModal({
           <div className="divider divider-neutral"></div>
           <form onSubmit={saveData}>
             <button
-              className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4"
+              className="btn btn-md btn-circle btn-ghost absolute right-4 top-4"
               type="button"
-              onClick={() => document.getElementById(config.id[mode]).close()}
+              onClick={() => document.getElementById(config.id[mode].replace("$local-id", local.id)).close()}
             >
               <FontAwesomeIcon icon="fas fa-xmark" size="xl" />
             </button>
@@ -429,9 +438,9 @@ export default function DynamicModal({
                 <div className="tooltip" data-tip="Annuler">
                   <button
                     type="button"
-                    className="btn"
+                    className="btn btn-md rounded-3xl"
                     onClick={() =>
-                      document.getElementById(config.id[mode]).close()
+                      document.getElementById(config.id[mode].replace("$local-id", local.id)).close()
                     }
                   >
                     <FontAwesomeIcon icon="fas fa-xmark" />
@@ -439,7 +448,7 @@ export default function DynamicModal({
                   </button>
                 </div>
                 <div className="tooltip tooltip-primary" data-tip="Sauvegarder">
-                  <button type="submit" className="btn btn-primary gap-2">
+                  <button type="submit" className="btn btn-md btn-primary rounded-3xl gap-2">
                     <FontAwesomeIcon icon="fas fa-check" />
                     {/* <span>Sauvegarder</span> */}
                   </button>
@@ -450,7 +459,7 @@ export default function DynamicModal({
                   <div className="tooltip tooltip-error" data-tip="Supprimer">
                     <button
                       type="button"
-                      className={`btn btn-error ${mode === "edit" ? "" : "hidden"}`}
+                      className={`btn btn-md btn-error rounded-3xl ${mode === "edit" ? "" : "hidden"}`}
                       onClick={() => handleDelete()}
                     >
                       <FontAwesomeIcon icon="fas fa-trash" />

@@ -1,4 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { version } from '../../../package.json'
 
 export default function Footer() {
     const year = new Date().getFullYear();
@@ -20,10 +21,11 @@ export default function Footer() {
                     </span>
                 </aside>
                 <nav className="grid-flow-col gap-4 justify-self-end items-center">
-                    <a href="https://discord.gg/nUFwE9S" target="_blank" rel="noopener noreferrer">
+                    <p className="text-sm text-gray-400"><i>ShardUI</i> v{version}</p>
+                    <a href="https://discord.gg/nUFwE9S" target="_blank" rel="noopener noreferrer" className="tooltip tooltip-left" data-tip="Rejoindre le Discord">
                         <FontAwesomeIcon icon="fa-brands fa-discord" size='xl' />
                     </a>
-                    <a href="https://github.com/Azerxim" target="_blank" rel="noopener noreferrer">
+                    <a href="https://github.com/Azerxim/ShardUI-2" target="_blank" rel="noopener noreferrer" className="tooltip tooltip-left" data-tip="Voir le code source sur GitHub">
                         <FontAwesomeIcon icon="fa-brands fa-github" size='xl' />
                     </a>
                 </nav>

@@ -27,7 +27,7 @@ export default function UserButton({ userid, bgColor = "", textColor = "" }) {
     }, [userid]);
     return (
         <a href={linkUrl} className='w-min'>
-            <div className={`btn ${bgColor} ${textColor} rounded-2xl shadow-md p-2 h-10 w-min`}>
+            <div className={`btn ${bgColor} ${textColor} rounded-3xl shadow-md p-2 h-10 w-min`}>
                 <div className="flex items-center space-x-2 flex-nowrap">
                     <div className="avatar">
                         <div className="mask mask-circle w-6 px-1">
