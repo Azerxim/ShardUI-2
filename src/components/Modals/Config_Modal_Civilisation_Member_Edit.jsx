@@ -1,8 +1,8 @@
-export const Config_Modal_Civilisation_Member = {
+export const Config_Modal_Civilisation_Member_Edit = {
   id: {
     default: "Modal",
-    add: "Modal_Add_Civilisation_Member",
-    edit: "Modal_Edit_Civilisation_Member",
+    add: "Modal_Add_Civilisation_Member_Edit_$local-id",
+    edit: "Modal_Edit_Civilisation_Member_Edit_$local-id",
   },
   title: {
     default: "Modal",
@@ -22,16 +22,16 @@ export const Config_Modal_Civilisation_Member = {
   champs: [
     {
       name: "user_id",
-      label: "Utilisateur",
-      description: "L'utilisateur à ajouter à la civilisation.",
-      placeholder: "Sélectionner un utilisateur",
-      type: "users",
-      defaultValue: "",
+      label: "id",
+      description: "local",
+      placeholder: "0",
+      type: "text",
+      defaultValue: "0",
       render: null,
       option: [],
       required: true,
-      display: true,
-      param: false,
+      display: false,
+      param: true,
     },
     {
       name: "role",
@@ -53,11 +53,11 @@ export const Config_Modal_Civilisation_Member = {
   api: {
     get: { method: "GET", url: "$apiURL/civilisations/members/$id/list" },
     create: { method: "POST", url: "$apiURL/civilisations/members/$id/add" },
-    update: { method: "PUT", url: "$apiURL/civilisations/members/$id/update" },
+    update: { method: "PUT", url: "$apiURL/civilisations/members/$id/$local-id/update" },
     delete: { method: "DELETE", url: "$apiURL/civilisations/members/$id/remove" },
   },
-  dataKey: "civilisation_member",
+  dataKey: "civilisation_member_edit",
   is_activate: {
-    delete: true,
+    delete: false,
   },
 };

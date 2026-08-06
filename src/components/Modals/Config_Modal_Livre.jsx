@@ -91,7 +91,7 @@ export const Config_Modal_Livre = {
       description: null,
       placeholder: "",
       type: "color",
-      defaultValue: "#5865F2",
+      defaultValue: "#cd9f5aff",
       render: null,
       option: [],
       required: true,

@@ -2,8 +2,8 @@ import { useParams, Link } from "react-router-dom"
 
 import Navbar from "../../components/Navigation/Navbar";
 import '../Users/Profil.css'
-import AdminProfil from "../../components/Sections/Users/AdminProfil";
-import TitleH1 from "../../components/Sections/TitleH1";
+import AdminProfil from "../../components/Objects/Users/AdminProfil";
+import TitleH1 from "../../components/Objects/TitleH1";
 
 export default function AdminProfilPage() {
     const { user_id } = useParams()

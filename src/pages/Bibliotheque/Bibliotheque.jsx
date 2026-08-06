@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 
 import Navbar from "../../components/Navigation/Navbar";
-import TitleH2 from '../../components/Sections/TitleH2';
-import TitleH1 from '../../components/Sections/TitleH1';
-import EtagereLivres from '../../components/Sections/EtagereLivres';
+import TitleH2 from '../../components/Objects/TitleH2';
+import TitleH1 from '../../components/Objects/TitleH1';
+import EtagereLivres from '../../components/Objects/EtagereLivres';
 import DynamicModal from '../../components/Modals/DynamicModal';
 
 import { showModal } from '../../components/Functions/showModal';
@@ -12,19 +12,22 @@ import { Config_Modal_Livre } from '../../components/Modals/Config_Modal_Livre';
 import { getApiURL } from "../../services/api"
 
 
-const journaux_exemple = [
-    { id: 1, title: "Hydrogen", cover_color: "#5865F2", cover_icon: "fab fa-discord", link: "/bibliotheque/journal/0", description: "Contenu du journal 1..." },
-    { id: 2, title: "Journal 2", cover_color: "#8A2BE2", cover_icon: "fas fa-file-alt", link: "#", description: "Contenu du journal 2..." },
-    { id: 3, title: "Journal 3", cover_color: "#f2f2f2", cover_icon: "fas fa-file-invoice", link: "#", description: "Contenu du journal 3..." }
-];
+// const journaux_exemple = [
+//     { id: 1, title: "Hydrogen", cover_color: "#5865F2", cover_icon: "fab fa-discord", link: "/bibliotheque/journal/0", description: "Contenu du journal 1..." },
+//     { id: 2, title: "Journal 2", cover_color: "#8A2BE2", cover_icon: "fas fa-file-alt", link: "#", description: "Contenu du journal 2..." },
+//     { id: 3, title: "Journal 3", cover_color: "#f2f2f2", cover_icon: "fas fa-file-invoice", link: "#", description: "Contenu du journal 3..." }
+// ];
 
-const livres_exemple = [
-    { id: 1, title: "Livre 1", cover_color: "#3CB371", cover_icon: "fas fa-book", link: "/bibliotheque/livre/0", description: "Contenu du livre 1..." },
-    { id: 2, title: "Livre 2", cover_color: "#20B2AA", cover_icon: "fas fa-book-open", link: "#", description: "Contenu du livre 2..." },
-    { id: 3, title: "Livre 3", cover_color: "#70db90ff", cover_icon: "fas fa-scroll", link: "#", description: "Contenu du livre 3..." },
-    { id: 4, title: "Livre 4", cover_color: "#68cfeeff", cover_icon: "fas fa-book-atlas", link: "#", description: "Contenu du livre 4..." },
-    { id: 5, title: "Livre 5", cover_color: "#cd9f5aff", cover_icon: "fas fa-bookmark", link: "#", description: "Contenu du livre 5..." }
-];
+// const livres_exemple = [
+//     { id: 1, title: "Livre 1", cover_color: "#3CB371", cover_icon: "fas fa-book", link: "/bibliotheque/livre/0", description: "Contenu du livre 1..." },
+//     { id: 2, title: "Livre 2", cover_color: "#20B2AA", cover_icon: "fas fa-book-open", link: "#", description: "Contenu du livre 2..." },
+//     { id: 3, title: "Livre 3", cover_color: "#70db90ff", cover_icon: "fas fa-scroll", link: "#", description: "Contenu du livre 3..." },
+//     { id: 4, title: "Livre 4", cover_color: "#68cfeeff", cover_icon: "fas fa-book-atlas", link: "#", description: "Contenu du livre 4..." },
+//     { id: 5, title: "Livre 5", cover_color: "#cd9f5aff", cover_icon: "fas fa-bookmark", link: "#", description: "Contenu du livre 5..." }
+// ];
+
+const journaux_exemple = []
+const livres_exemple = []
 
 export default function BibliothequePage() {
     const [journaux, setJournaux] = useState([]);
@@ -59,7 +62,7 @@ export default function BibliothequePage() {
         fetch(`${apiURL}/bibliotheque/livres/list`)
             .then((response) => response.json())
             .then((data) => {
-                console.log('Livres fetched:', data);
+                // console.log('Livres fetched:', data);
                 setLivres([...data, ...livres_exemple]);
                 // setLivres(livres_exemple); // Temporary: use example books until API is ready
             })
@@ -74,11 +77,11 @@ export default function BibliothequePage() {
     };
 
     const journaux_fonctions = [
-        { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, function: () => showModal(Config_Modal_Journal, "add") }
+        { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: true, function: () => showModal(Config_Modal_Journal, "add") }
     ];
 
     const livres_fonctions = [
-        { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, function: () => showModal(Config_Modal_Livre, "add") }
+        { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: true, function: () => showModal(Config_Modal_Livre, "add") }
     ];
 
     return (

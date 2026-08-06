@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect } from 'react';
 
 import Navbar from "../../components/Navigation/Navbar";
-import TitleH1 from "../../components/Sections/TitleH1";
-import TitleH2 from "../../components/Sections/TitleH2";
+import TitleH1 from "../../components/Objects/TitleH1";
+import TitleH2 from "../../components/Objects/TitleH2";
 import DynamicModal from '../../components/Modals/DynamicModal';
 
 import { showModal } from '../../components/Functions/showModal';
@@ -42,7 +42,7 @@ export default function CivilisationsPage() {
   };
 
   const civilisations_fonctions = [
-    { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, function: () => showModal(Config_Modal_Civilisation, "add") }
+    { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: true, function: () => showModal(Config_Modal_Civilisation, "add") }
   ];
 
   return (

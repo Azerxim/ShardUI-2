@@ -5,19 +5,6 @@ export function getApiURL() {
   return apiURL;
 }
 
-//_____________________________________LDAP_____________________________________
-
-// export async function loginLDAP(username, password) {
-//   const response = await fetch(`${apiURL}/auth/ldap`, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify({ username, password }),
-//   });
-//   return response;
-// }
-
 //_____________________________________TOKEN_____________________________________
 
 export async function postToken(params, expiryHours = 24) {
@@ -115,4 +102,61 @@ export async function getData(url) {
   const res = await fetch(url, { cache: "no-store" });
   const data = await res.json();
   return data;
+}
+
+
+// _____________________________________API_____________________________________
+
+export async function getLivreById(livreId) {
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  };
+
+  const response = await fetch(`${apiURL}/bibliotheque/livres/read/${livreId}`, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function getJournalById(journalId) {
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  };
+
+  const response = await fetch(`${apiURL}/bibliotheque/journaux/read/${journalId}`, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function getCivilisationById(civilisationId) {
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  };
+
+  const response = await fetch(`${apiURL}/civilisations/read/${civilisationId}`, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
 }

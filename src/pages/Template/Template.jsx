@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import Navbar from "../../components/Navigation/Navbar";
-import Skeleton from "../../components/Sections/Skeleton";
+import Skeleton from "../../components/Objects/Skeleton";
 
 import './Template.css';
 

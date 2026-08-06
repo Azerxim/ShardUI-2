@@ -1,6 +1,6 @@
 import Navbar from "../../components/Navigation/Navbar";
-import Skeleton from '../../components/Sections/Skeleton';
-import Login from '../../components/Sections/Users/Login';
+import Skeleton from '../../components/Objects/Skeleton';
+import Login from '../../components/Objects/Users/Login';
 
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 

@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import TitreButtons from './TitleButtons';
+import TitleButtons from './TitleButtons';
 
 export default function TitleH3({ text, icon = '', classes = 'bg-base-200', style = { width: '100%', fontSize: '1.2rem', padding: '0.5rem 1rem' }, style_box = {}, fonctions = [] }) {
     const User = JSON.parse(localStorage.getItem('user'));
@@ -11,7 +11,7 @@ export default function TitleH3({ text, icon = '', classes = 'bg-base-200', styl
                     <h3>{text}</h3>
                 </div>
             </div>
-            <TitreButtons fonctions={fonctions} />
+            <TitleButtons fonctions={fonctions} />
         </div>
     );
 }

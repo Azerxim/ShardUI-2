@@ -1,17 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    checkUserID,
+    checkMemberAuth
+} from "../../services/authorisation";
 
 import Navbar from '../../components/Navigation/Navbar';
-import TitleH1 from '../../components/Sections/TitleH1';
-import TitleH2 from '../../components/Sections/TitleH2';
-import LivreChapitre from '../../components/Sections/LivreChapitre';
+import TitleH1 from '../../components/Objects/TitleH1';
+import TitleH2 from '../../components/Objects/TitleH2';
+import LivreChapitre from '../../components/Objects/LivreChapitre';
 import DynamicModal from '../../components/Modals/DynamicModal';
 
 import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Livre } from '../../components/Modals/Config_Modal_Livre';
 import { Config_Modal_Livre_Content } from '../../components/Modals/Config_Modal_Livre_Content';
-import { getApiURL } from "../../services/api"
+import {
+    getApiURL,
+    getLivreById,
+    getCivilisationById,
+} from "../../services/api"
 
 export default function LivreDetailPage() {
     const { id } = useParams();
@@ -21,49 +29,50 @@ export default function LivreDetailPage() {
     const [loading, setLoading] = useState(true);
     const [loadingContent, setLoadingContent] = useState(false);
     const [error, setError] = useState(null);
+    const [auth, setAuth] = useState(false);
     const apiURL = getApiURL()
 
     useEffect(() => {
         const fetchLivre = async () => {
-          try {
-            setLoading(true);
-            const response = await fetch(`${apiURL}/bibliotheque/livres/read/${id}`);
-
-            if (!response.ok) {
-              throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+            try {
+                setLoading(true);
+                const data = await getLivreById(id);
+                // console.log('Livre fetched:', data);
+                setLivre(data.livre);
+                if (data?.livre?.civilisation_id == null || data?.livre?.civilisation_id == undefined || data?.livre?.civilisation_id == 0) {
+                    checkUserID(data.livre?.user_id, setAuth);
+                } else {
+                    const civilisationData = await getCivilisationById(data.livre?.civilisation_id);
+                    checkMemberAuth(civilisationData ? civilisationData.members : [], setAuth);
+                }
+                setError(null);
+            } catch (err) {
+                setError('Erreur lors du chargement du livre');
+                console.error(err);
+                setLivre(null);
+            } finally {
+                setLoading(false);
             }
-
-            const data = await response.json();
-            // console.log('Livre fetched:', data);
-            setLivre(data.livre);
-            setError(null);
-          } catch (err) {
-            setError('Erreur lors du chargement du livre');
-            console.error(err);
-            setLivre(null);
-          } finally {
-            setLoading(false);
-          }
         };
 
         const fetchContent = async () => {
-          try {
-            setLoadingContent(true);
-            const response = await fetch(`${apiURL}/bibliotheque/livres/contents/read/${id}`);
+            try {
+                setLoadingContent(true);
+                const response = await fetch(`${apiURL}/bibliotheque/livres/contents/read/${id}`);
 
-            if (!response.ok) {
-              throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+                if (!response.ok) {
+                    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                // console.log('Livre content fetched:', data);
+                setContent(data.contents);
+            } catch (err) {
+                console.error(err);
+                setContent(null);
+            } finally {
+                setLoadingContent(false);
             }
-
-            const data = await response.json();
-            // console.log('Livre content fetched:', data);
-            setContent(data.contents);
-          } catch (err) {
-            console.error(err);
-            setContent(null);
-          } finally {
-            setLoadingContent(false);
-          }
         };
 
         if (id) {
@@ -94,12 +103,12 @@ export default function LivreDetailPage() {
     const btnReturn = { text: 'Retour à la bibliothèque', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/bibliotheque' };
 
     const fonctions = [
-        { id: 0, title: 'Modifier', icon: "fas fa-pen", class: "btn-ghost bg-base-200 hover:bg-base-300", connected: true, function: () => showModal(Config_Modal_Livre, "edit") }
+        { id: 0, title: 'Modifier', icon: "fas fa-pen", class: "btn-ghost bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(Config_Modal_Livre, "edit") }
     ];
 
     const content_fonctions = [
-        { id: 1, title: "Rafraichir", icon: "fas fa-rotate-right", class: "bg-base-200 hover:bg-base-300", connected: false, function: reloadContent },
-        { id: 2, title: "Ajouter", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, tooltip: {text: "Ajouter un nouveau chapitre", position: "bottom"}, function: () => showModal(Config_Modal_Livre_Content, "add") }
+        // { id: 1, title: "Rafraichir", icon: "fas fa-rotate-right", class: "bg-base-200 hover:bg-base-300", connected: false, authorisation: true, function: reloadContent },
+        { id: 2, title: "Ajouter", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, tooltip: { text: "Ajouter un nouveau chapitre", position: "bottom" }, function: () => showModal(Config_Modal_Livre_Content, "add") }
     ];
 
     const updateLivre = (data) => {
@@ -195,7 +204,7 @@ export default function LivreDetailPage() {
                                         <div className="prose prose-lg max-w-none mb-4">
                                             {content && content.length > 0 ? (
                                                 content.map((chapitre, index) => (
-                                                    <LivreChapitre key={index} livre={livre} content={chapitre} updateLivreContent={updateLivreContent} deleteLivreContent={deleteLivreContent} />
+                                                    <LivreChapitre key={index} livre={livre} content={chapitre} authorisation={auth} updateLivreContent={updateLivreContent} deleteLivreContent={deleteLivreContent} />
                                                 ))
                                             ) : (
                                                 <p>Aucun chapitre disponible.</p>

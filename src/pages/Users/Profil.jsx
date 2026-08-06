@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom"
 
 import Navbar from "../../components/Navigation/Navbar";
 import './Profil.css'
-import Profil from "../../components/Sections/Users/Profil";
+import Profil from "../../components/Objects/Users/Profil";
 
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 

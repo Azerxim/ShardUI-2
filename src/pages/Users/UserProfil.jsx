@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom"
 
 import Navbar from "../../components/Navigation/Navbar";
 import '../Users/Profil.css'
-import PublicProfil from "../../components/Sections/Users/PublicProfil";
+import PublicProfil from "../../components/Objects/Users/PublicProfil";
 
 export default function UserProfilPage() {
     const { user_id } = useParams()

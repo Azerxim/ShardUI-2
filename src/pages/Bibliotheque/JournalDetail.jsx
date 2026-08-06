@@ -3,10 +3,11 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Navbar from '../../components/Navigation/Navbar';
-import TitleH1 from '../../components/Sections/TitleH1';
-import TitleH2 from '../../components/Sections/TitleH2';
+import TitleH1 from '../../components/Objects/TitleH1';
+import TitleH2 from '../../components/Objects/TitleH2';
 import DynamicModal from '../../components/Modals/DynamicModal';
-import LinkifiedText from '../../components/Sections/LinkifiedText';
+import LinkifiedText from '../../components/Objects/LinkifiedText';
+import { checkUserID } from "../../services/authorisation";
 
 import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Journal } from '../../components/Modals/Config_Modal_Journal';
@@ -20,6 +21,7 @@ export default function JournalDetailPage() {
   const [loading, setLoading] = useState(true);
   const [loadingContent, setLoadingContent] = useState(false);
   const [error, setError] = useState(null);
+  const [auth, setAuth] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [messagesPerPage, setMessagesPerPageState] = useState(() => {
     const saved = localStorage.getItem('messagesPerPage');
@@ -83,6 +85,7 @@ export default function JournalDetailPage() {
         const data = await response.json();
         // console.log('Journal fetched:', data);
         setJournal(data.journal);
+        checkUserID(data.journal?.user_id, setAuth);
         setError(null);
       } catch (err) {
         setError('Erreur lors du chargement du journal');
@@ -156,16 +159,16 @@ export default function JournalDetailPage() {
   const btnReturn = { text: 'Retour à la bibliothèque', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/bibliotheque' };
 
   const fonctions = [
-    { id: 0, title: 'Modifier', icon: "fas fa-pen", class: "btn-ghost bg-base-200 hover:bg-base-300", connected: true, function: () => showModal(Config_Modal_Journal, "edit") }
+    { id: 0, title: 'Modifier', icon: "fas fa-pen", class: "btn-ghost bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(Config_Modal_Journal, "edit") }
   ];
 
   const content_fonctions = [
-    { id: 1, title: "Rafraichir", icon: "fas fa-rotate-right", class: "bg-base-200 hover:bg-base-300", connected: false, function: reloadContent }
+    { id: 1, title: "Rafraichir", icon: "fas fa-rotate-right", class: "bg-base-200 hover:bg-base-300", connected: false, authorisation: true, function: reloadContent }
   ];
 
   const updateJournal = (data) => {
-      // console.log("Journal mis à jour:", data);
-      setJournal(data.journal ? data.journal : null);
+    // console.log("Journal mis à jour:", data);
+    setJournal(data.journal ? data.journal : null);
   };
 
   const handleDelete = () => {

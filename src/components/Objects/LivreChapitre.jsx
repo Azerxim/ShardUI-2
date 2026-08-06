@@ -1,8 +1,8 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import TitleH2 from '../Sections/TitleH2';
-import TitleH3 from '../Sections/TitleH3';
+import TitleH2 from '../Objects/TitleH2';
+import TitleH3 from '../Objects/TitleH3';
 import DynamicModal from '../Modals/DynamicModal';
-import MarkdownTextEditor from '../Sections/MarkdownTextEditor';
+import MarkdownTextEditor from '../Objects/MarkdownTextEditor';
 
 import { showModal } from '../Functions/showModal';
 import { Config_Modal_Livre_Content_Local } from '../Modals/Config_Modal_Livre_Content_Local';
@@ -10,13 +10,13 @@ import { getApiURL } from "../../services/api";
 import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
-export default function LivreChapitre({ livre, content, updateLivreContent = () => { }, deleteLivreContent = () => { } }) {
+export default function LivreChapitre({ livre, content, authorisation = false, updateLivreContent = () => { }, deleteLivreContent = () => { } }) {
     // console.log("LivreChapitre content:", content);
     const apiURL = getApiURL();
     const params = useParams();
 
     const content_fonctions = [
-        { id: 0, title: "Modifier", icon: "fas fa-edit", class: "bg-base-250 hover:bg-base-300", connected: true, tooltip: { text: "Modifier ce chapitre", position: "bottom" }, function: () => showModal(Config_Modal_Livre_Content_Local, "edit", { id: content.id }) }
+        { id: 0, title: "Modifier", icon: "fas fa-edit", class: "bg-base-250 hover:bg-base-300", connected: true, authorisation: authorisation, tooltip: { text: "Modifier ce chapitre", position: "bottom" }, function: () => showModal(Config_Modal_Livre_Content_Local, "edit", { id: content.id }) }
     ];
 
     const saveContent = async (data) => {
@@ -63,7 +63,7 @@ export default function LivreChapitre({ livre, content, updateLivreContent = () 
             <div className="mb-4 bg-base-250 p-4 rounded-3xl shadow-md">
                 <TitleH2 text={content.chapitre} classes="" fonctions={content_fonctions} />
                 <DynamicModal config={Config_Modal_Livre_Content_Local} local={{ id: content.id }} mode="edit" onSubmit={(content) => { updateLivreContent(content) }} onDelete={() => { deleteLivreContent(content) }} />
-                <MarkdownTextEditor value={content.content} onChange={(newValue) => { updateContent(newValue) }} />
+                <MarkdownTextEditor value={content.content} authorisation={authorisation} onChange={(newValue) => { updateContent(newValue) }} />
             </div>
         </>
     );

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   dynamicLoadData,
-  getApiURL
+  getApiURL,
+  getUsers
 } from "../../services/api";
 import Swal from "sweetalert2";
 import { useParams } from "react-router-dom";
@@ -32,8 +33,10 @@ export default function DynamicModal({
       if (champ.param && champ.name === "user_id") {
         initialValues[champ.name] = User ? User.id : champ.defaultValue;
       } else if (champ.param && champ.description == "url" && champ.label == "id") {
+        // console.log("params.id:", params.id);
         initialValues[champ.name] = params.id ? parseInt(params.id) : champ.defaultValue;
       } else if (champ.param && champ.description == "local" && champ.label == "id") {
+        // console.log("local.id:", local.id);
         initialValues[champ.name] = local.id ? parseInt(local.id) : champ.defaultValue;
       } else {
         initialValues[champ.name] = champ.defaultValue;
@@ -76,14 +79,11 @@ export default function DynamicModal({
   const saveData = async (e) => {
     e.preventDefault();
     // Logic to save the entry
-    // console.log("Form values:", formValues);
+    console.log("Save Form values:", formValues);
     const token = localStorage.getItem("token");
     if (mode != "default") {
       const api = mode === "add" ? config.api.create : config.api.update;
-      let apiUrl =
-        mode === "add" ? api.url : api.url.replace("$id", params.id);
-      apiUrl = apiUrl.replace("$local-id", local.id);
-      await fetch(apiUrl.replace("$apiURL", apiURL), {
+      await fetch(api.url.replace("$id", params.id).replace("$local-id", local.id).replace("$apiURL", apiURL), {
         method: api.method,
         headers: {
           "Content-Type": "application/json",
@@ -158,7 +158,13 @@ export default function DynamicModal({
   };
 
   const renderInput = (config, champ) => {
-    let value = formValues[champ.name] ?? champ.defaultValue;
+    let value
+    try {
+      value = formValues[champ.name] ?? champ.defaultValue;
+    } catch (error) {
+      // console.error(`Error accessing formValues for champ.name: ${champ.name}`, error);
+      value = champ.defaultValue;
+    }
 
     switch (champ.type) {
       case "custom":
@@ -166,6 +172,50 @@ export default function DynamicModal({
           return champ.render({ config, params }, value, handleInputChange);
         }
         return "Invalid custom render function";
+
+      case "users":
+        const [users, setUsers] = useState([]);
+
+        useEffect(() => {
+          const fetchUsers = async () => {
+            const usersData = await getUsers();
+            setUsers(usersData);
+          };
+          fetchUsers();
+        }, []);
+        // console.log("Users fetched:", users);
+        return (
+          <>
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend">{champ.label}</legend>
+
+              <select
+                defaultValue={champ.placeholder}
+                className="select select-ghost bg-base-100 brightness-98 w-full"
+                onChange={(e) => handleInputChange(champ.name, e.target.value)}
+                required={champ.required}
+              >
+                <option key="placeholder" disabled={true}>
+                  {champ.placeholder}
+                </option>
+                {users.map((user) => (
+                  <option
+                    key={user.id}
+                    value={parseInt(user.id)}
+                    selected={value === parseInt(user.id)}
+                  >
+                    {user.full_name ? user.full_name : user.username}
+                  </option>
+                ))}
+              </select>
+
+              {champ.description && (
+                <p className="label">{champ.description}</p>
+              )}
+              {!champ.required && <span className="label">Optional</span>}
+            </fieldset>
+          </>
+        );
 
       case "toggle":
         return (
@@ -410,8 +460,8 @@ export default function DynamicModal({
   return (
     <>
       <dialog id={config.id[mode].replace("$local-id", local.id)} className="modal">
-        <div className="modal-box">
-          <h3 className="flex justify-center w-full font-bold text-2xl">
+        <div className="modal-box max-h-[90dvh] overflow-y-auto">
+          <h3 className="flex justify-center w-full font-bold text-2xl pr-5">
             {config.title[mode]}
           </h3>
           <div className="divider divider-neutral"></div>

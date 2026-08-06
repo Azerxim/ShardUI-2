@@ -56,9 +56,9 @@ const TOOLBAR_ACTIONS = [
     { id: 'hr', icon: 'fas fa-minus', tip: 'Séparateur' },
 ];
 
-export default function MarkdownTextEditor({ value = '', onChange = () => { }, placeholder = 'Cliquez pour ajouter du contenu...', connected = true, classes = '' }) {
+export default function MarkdownTextEditor({ value = '', onChange = () => { }, placeholder = 'Cliquez pour ajouter du contenu...', connected = true, authorisation = false, classes = '' }) {
     const User = JSON.parse(localStorage.getItem('user'));
-    const editable = connected ? !!User : true;
+    const editable = connected ? (!!User && authorisation) : true;
 
     const [editing, setEditing] = useState(false);
     const [preview, setPreview] = useState(false);

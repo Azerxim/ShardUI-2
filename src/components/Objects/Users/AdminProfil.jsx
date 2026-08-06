@@ -188,7 +188,7 @@ export default function AdminProfil({ user_id }) {
                                 className="btn btn-primary btn-sm"
                                 onClick={() => setIsEditing(true)}
                             >
-                                <FontAwesomeIcon icon="fa-solid fa-pen" />
+                                <FontAwesomeIcon icon="fa-solid fa-edit" />
                                 Modifier
                             </button>
                         )}

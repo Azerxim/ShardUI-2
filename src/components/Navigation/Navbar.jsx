@@ -322,7 +322,7 @@ export default function Navbar({ active = '' }) {
                     </div>
 
                 </div>
-                <div className="navbar-center">
+                <div className="navbar-center hidden sm:flex">
                     <a href='/' className="btn btn-ghost text-xl rounded-3xl">
                         <img
                             src={theme === 'dark' ? "/images/logo/tetrago_white_contour.png" : "/images/logo/tetrago_black_contour.png"}
@@ -346,8 +346,8 @@ export default function Navbar({ active = '' }) {
                                         <div className='flex text-accent-content'><FontAwesomeIcon icon="fa-regular fa-circle-check" /></div>
                                         <span className='hidden md:flex text-accent-content'>En ligne</span>
                                     </div>
-                                    <div className='flex'><FontAwesomeIcon icon="fa-solid fa-people-group" /></div>
-                                    <div className='flex gap-1'>
+                                    <div className='flex hidden sm:flex'><FontAwesomeIcon icon="fa-solid fa-people-group" /></div>
+                                    <div className='flex gap-1 hidden sm:flex'>
                                         <span id="player">{NetworkData.players.now}</span>
                                         <span className='hidden sm:flex'>/</span>
                                         <span id="players" className='hidden sm:flex'>{NetworkData.players.max}</span>
