@@ -20,6 +20,7 @@ import { Config_Modal_Gouvernement } from '../../components/Modals/Config_Modal_
 import { Config_Modal_Civilisation_Member } from '../../components/Modals/Config_Modal_Civilisation_Member';
 import { Config_Modal_Civilisation_Member_Edit } from '../../components/Modals/Config_Modal_Civilisation_Member_Edit';
 import { Config_Modal_Livre } from '../../components/Modals/Config_Modal_Livre';
+import { Config_Modal_Ville } from '../../components/Modals/Config_Modal_Ville';
 import { getApiURL } from "../../services/api"
 import Swal from "sweetalert2";
 
@@ -30,6 +31,7 @@ export default function CivilisationPage() {
     const [civilisation, setCivilisation] = useState(null);
     const [gouvernement, setGouvernement] = useState(null);
     const [livres, setLivres] = useState([]);
+    const [villes, setVilles] = useState([]);
     const [auth, setAuth] = useState(false);
     const apiURL = getApiURL()
 
@@ -43,10 +45,11 @@ export default function CivilisationPage() {
                 }
 
                 const data = await response.json();
-                // console.log('Data fetched:', data);
+                console.log('Data fetched:', data);
                 setData(data);
                 setCivilisation(data.civilisation ? data.civilisation : null);
                 setGouvernement(data.gouvernement ? data.gouvernement : null);
+                setVilles(data.villes ? data.villes : []);
                 checkMemberAuth(data ? data.members : [], setAuth);
             } catch (err) {
                 console.error(err);
@@ -158,8 +161,12 @@ export default function CivilisationPage() {
         }
     };
 
-    const updateLivre = (livre) => {
+    const updateLivres = (livre) => {
         setLivres((prevLivres) => [...prevLivres, livre]);
+    };
+
+    const updateVilles = (ville) => {
+        setVilles((prevVilles) => [...prevVilles, ville]);
     };
 
     const FctModify = [
@@ -176,6 +183,10 @@ export default function CivilisationPage() {
 
     const livres_fonctions = [
         { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(Config_Modal_Livre, "add") }
+    ];
+
+    const villes_fonctions = [
+        { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(Config_Modal_Ville, "add") }
     ];
 
     const btnReturn = { text: 'Retour aux civilisations', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/civilisations' };
@@ -236,6 +247,23 @@ export default function CivilisationPage() {
                 </>
             ) : null}
 
+            <TitleH2 text="Villes" fonctions={villes_fonctions} icon="fas fa-city" />
+            {villes.length === 0 ? (
+                <div style={{ width: '100%' }}>
+                    <i>Aucune ville disponible.</i>
+                </div>
+            ) : (
+                <div className="flex flex-col gap-2 w-full bg-base-100 p-4 rounded-2xl">
+                    {villes.map((ville) => (
+                        <div key={ville.id} className="flex flex-row gap-4 w-full">
+                            <p>{ville.title}</p>
+                            {ville.population ? <p>Population: {ville.population}</p> : null}
+                            {ville.founded_date ? <p>Date de fondation: {ville.founded_date}</p> : null}
+                        </div>
+                    ))}
+                </div>
+            )}
+
             <TitleH2 text="Livres" fonctions={livres_fonctions} icon="fas fa-book" />
             {livres.length === 0 ? (
                 <div style={{ width: '100%' }}>
@@ -256,7 +284,8 @@ export default function CivilisationPage() {
                     <DynamicModal config={Config_Modal_Civilisation_Member} mode="add" onSubmit={(member) => { addCivilisationMember(member) }} />
                     <DynamicModal config={Config_Modal_Gouvernement} mode="edit" onSubmit={(gouvernement) => { updateGouvernement(gouvernement) }} onDelete={handleGouvernementDelete} />
 
-                    <DynamicModal config={Config_Modal_Livre} mode="add" onSubmit={(livre) => { updateLivre(livre) }} />
+                    <DynamicModal config={Config_Modal_Livre} mode="add" onSubmit={(livre) => { updateLivres(livre) }} />
+                    <DynamicModal config={Config_Modal_Ville} mode="add" onSubmit={(ville) => { updateVilles(ville) }} />
                 </div>
             </main>
         </>
