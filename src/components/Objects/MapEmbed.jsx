@@ -10,7 +10,7 @@ export default function MapEmbed({ dimension, x, z, zoom = 0, embed = 'civilisat
 
     return (
         <iframe
-            src={`https://map.beta.tetrago.fr/${dimension.link}-embed-${embed}#x=${x}&z=${z}&zoom=${zoom}`}
+            src={`https://map.beta.tetrago.fr/${dimension.link}-embedfull-${embed}#x=${x}&z=${z}&zoom=${zoom}`}
             title={title}
             style={{ width, height, ...style }}
             className={`rounded-2xl ${className}`}
