@@ -13,6 +13,7 @@ import UserButton from "../../components/Buttons/UserButton";
 import MemberButton from "../../components/Buttons/MemberButton";
 import DynamicModal from '../../components/Modals/DynamicModal';
 import EtagereLivres from "../../components/Objects/EtagereLivres";
+import Ville from "../../components/Objects/Ville";
 
 import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Civilisation } from '../../components/Modals/Config_Modal_Civilisation';
@@ -27,6 +28,7 @@ import Swal from "sweetalert2";
 export default function CivilisationPage() {
     const { id } = useParams();
     const navigate = useNavigate()
+    const [dimensions, setDimensions] = useState(null);
     const [data, setData] = useState(null);
     const [civilisation, setCivilisation] = useState(null);
     const [gouvernement, setGouvernement] = useState(null);
@@ -51,6 +53,10 @@ export default function CivilisationPage() {
                 setGouvernement(data.gouvernement ? data.gouvernement : null);
                 setVilles(data.villes ? data.villes : []);
                 checkMemberAuth(data ? data.members : [], setAuth);
+                const responseDimensions = await fetch(`${apiURL}/cartographie/dimensions/read`);
+                const dimensions = await responseDimensions.json();
+                // console.log('Dimensions fetched:', dimensions);
+                setDimensions(dimensions);
             } catch (err) {
                 console.error(err);
                 setData(null);
@@ -211,7 +217,11 @@ export default function CivilisationPage() {
                 <>
                     <TitleH2 text="Date de fondation" icon="fas fa-calendar" />
                     <div className="flex flex-col gap-2 w-full bg-base-100 p-4 rounded-2xl">
-                        <p className="flex flex-row gap-4 w-full">{civilisation.date_founded}</p>
+                        <p className="flex flex-row gap-4 w-full">{civilisation.date_founded ? new Date(civilisation.date_founded).toLocaleDateString('fr-FR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      }) : null}</p>
                     </div>
                 </>
             ) : null}
@@ -253,13 +263,9 @@ export default function CivilisationPage() {
                     <i>Aucune ville disponible.</i>
                 </div>
             ) : (
-                <div className="flex flex-col gap-2 w-full bg-base-100 p-4 rounded-2xl">
+                <div className="flex flex-col gap-2 w-full bg-base-100 rounded-2xl">
                     {villes.map((ville) => (
-                        <div key={ville.id} className="flex flex-row gap-4 w-full">
-                            <p>{ville.title}</p>
-                            {ville.population ? <p>Population: {ville.population}</p> : null}
-                            {ville.founded_date ? <p>Date de fondation: {ville.founded_date}</p> : null}
-                        </div>
+                        <Ville key={ville.id} info={ville} dimensions={dimensions} auth={auth} />
                     ))}
                 </div>
             )}

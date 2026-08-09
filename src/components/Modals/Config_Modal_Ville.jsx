@@ -2,7 +2,7 @@ export const Config_Modal_Ville = {
   id: {
     default: "Modal",
     add: "Modal_Add_Ville",
-    edit: "Modal_Edit_Ville",
+    edit: "Modal_Edit_Ville_$local-id",
   },
   title: {
     default: "Modal",
@@ -171,10 +171,10 @@ export const Config_Modal_Ville = {
     },
   ],
   api: {
-    get: { method: "GET", url: "$apiURL/civilisations/villes/read/$id" },
+    get: { method: "GET", url: "$apiURL/civilisations/villes/read/$local-id" },
     create: { method: "POST", url: "$apiURL/civilisations/villes/create" },
-    update: { method: "PUT", url: "$apiURL/civilisations/villes/update/$id" },
-    delete: { method: "DELETE", url: "$apiURL/civilisations/villes/delete/$id" },
+    update: { method: "PUT", url: "$apiURL/civilisations/villes/update/$local-id" },
+    delete: { method: "DELETE", url: "$apiURL/civilisations/villes/delete/$local-id" },
   },
   dataKey: "civilisation",
   is_activate: {
