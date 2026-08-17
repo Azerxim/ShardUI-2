@@ -5,6 +5,7 @@ import TitleH2 from '../../components/Objects/TitleH2';
 import TitleH1 from '../../components/Objects/TitleH1';
 import EtagereLivres from '../../components/Objects/EtagereLivres';
 import DynamicModal from '../../components/Modals/DynamicModal';
+import GrimoireHero from '../../components/Layouts/GrimoireHero';
 
 import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Journal } from '../../components/Modals/Config_Modal_Journal';
@@ -89,8 +90,12 @@ export default function BibliothequePage() {
             <Navbar active="bibliotheque" />
             <div className="container mx-auto p-4">
                 <div className="flex flex-col items-center justify-center flex-col gap-2">
-                    <TitleH1 text="Bibliothèque" />
-                    <p>Bienvenue dans la bibliothèque.</p>
+
+                    <GrimoireHero
+                        icon="fa-solid fa-book"
+                        title="La Bibliothèque de Tetrago"
+                        description="Chaque journal est un souvenir, chaque livre un monde : ici s'accumulent les récits que la communauté refuse de laisser s'effacer. Venez les lire, ou déposez-y les vôtres."
+                    />
 
                     <TitleH2 text="Journaux" fonctions={journaux_fonctions} />
                     {journaux.length === 0 ? (

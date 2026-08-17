@@ -17,6 +17,7 @@ import JournalDetailPage from './pages/Bibliotheque/JournalDetail';
 import LivreDetailPage from './pages/Bibliotheque/LivreDetail';
 import CivilisationsPage from './pages/Civilisations/Civilisations';
 import CivilisationPage from './pages/Civilisations/Civilisation';
+import ReglesPage from './pages/Regles/Regles';
 import NotFoundPage from './pages/NotFound/NotFound';
 
 import Footer from './components/Layouts/Footer'
@@ -48,6 +49,8 @@ export default function App() {
           <Route path="/civilisations" element={<CivilisationsPage />} />
           <Route path="/civilisation" element={<Navigate to="/civilisations" replace />} />
           <Route path="/civilisation/:id" element={<CivilisationPage />} />
+
+          <Route path="/regles" element={<ReglesPage />} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

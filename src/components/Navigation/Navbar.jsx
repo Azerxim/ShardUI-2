@@ -148,7 +148,7 @@ export default function Navbar({ active = '' }) {
             <div className="navbar fixed flex flex-row justify-between items-center gap-2 px-2 py-3 z-999 top-3 left-3 right-3 w-auto rounded-3xl bg-base-200 shadow-lg">
                 <div className="navbar-start">
                     {/* <!-- Navigation --> */}
-                    <div className="dropdown dropdown-bottom dropdown-start">
+                    <div className="dropdown dropdown-bottom dropdown-start tooltip tooltip-right" data-tip="Menu">
                         <div tabIndex={0} role="button" className="btn bg-base-200 rounded-3xl btn-ghost">
                             <FontAwesomeIcon icon="fa-solid fa-bars-staggered" />
                         </div>
@@ -157,6 +157,12 @@ export default function Navbar({ active = '' }) {
                                 <a href="/" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'home' ? 'bg-secondary text-secondary-content' : ''}`}>
                                     <FontAwesomeIcon icon="house" />
                                     <span>Accueil</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/regles" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'regles' ? 'bg-secondary text-secondary-content' : ''}`}>
+                                    <FontAwesomeIcon icon="fa-brands fa-readme" />
+                                    <span>Regles</span>
                                 </a>
                             </li>
                             <li>
@@ -172,7 +178,7 @@ export default function Navbar({ active = '' }) {
                                 </a>
                             </li>
                             <li>
-                                <a href="https://map.beta.tetrago.fr" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl`}>
+                                <a href="https://map.beta.tetrago.fr/tetrago-civilisations" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl`}>
                                     <FontAwesomeIcon icon="map" />
                                     <span>Cartographie</span>
                                 </a>
@@ -190,7 +196,7 @@ export default function Navbar({ active = '' }) {
                     </div>
 
                     {/* <!-- Profil --> */}
-                    <div className="dropdown dropdown-bottom dropdown-start">
+                    <div className="dropdown dropdown-bottom dropdown-start tooltip tooltip-right" data-tip="Profil">
                         <div tabIndex="0" role="button" className="btn bg-base-200 rounded-3xl btn-ghost">
                             {User ? (
                                 <FontAwesomeIcon icon="fa-solid fa-user-check" />
@@ -202,7 +208,7 @@ export default function Navbar({ active = '' }) {
                             {User ? (
                                 <>
                                     <li>
-                                        <div className='flex flex-col gap-2 rounded-3xl bg-base-200' style={{ minWidth: "170px" }}>
+                                        <div className='flex flex-col gap-2 rounded-3xl bg-base-200 cursor-default' style={{ minWidth: "170px" }}>
                                             <i>Connecté en tant que</i>
                                             <b className='text-primary'>{User.full_name || User.username}</b>
                                         </div>
@@ -259,7 +265,7 @@ export default function Navbar({ active = '' }) {
                     </div>
 
                     {/* <!-- Themes --> */}
-                    <div className="dropdown dropdown-bottom dropdown-start">
+                    <div className="dropdown dropdown-bottom dropdown-start tooltip tooltip-right" data-tip="Theme">
                         <div tabIndex="0" role="button" className="btn bg-base-200 rounded-3xl btn-ghost">
                             <FontAwesomeIcon icon="fa-solid fa-palette" />
                         </div>
@@ -336,7 +342,7 @@ export default function Navbar({ active = '' }) {
                 <div className="navbar-end">
                     {(ServerData && NetworkData ? (
                         <div className='flex gap-2'>
-                            <div className='btn flex gap-2 items-center bg-base-200 btn-ghost rounded-3xl' onClick={() => reloadComponent()}>
+                            <div className='btn flex gap-2 items-center bg-base-200 btn-ghost rounded-3xl tooltip tooltip-left' data-tip='Actualiser' onClick={() => reloadComponent()}>
                                 <FontAwesomeIcon icon="fa-solid fa-rotate-right" />
                             </div>
 

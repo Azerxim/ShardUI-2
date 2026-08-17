@@ -10,6 +10,7 @@ import DynamicModal from '../../components/Modals/DynamicModal';
 import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Civilisation } from '../../components/Modals/Config_Modal_Civilisation';
 import { getApiURL } from "../../services/api"
+import GrimoireHero from "../../components/Layouts/GrimoireHero";
 
 export default function CivilisationsPage() {
 
@@ -50,8 +51,11 @@ export default function CivilisationsPage() {
       <Navbar active="civilisations" />
       <main className="container mx-auto p-4">
         <div className="flex flex-col items-center justify-center gap-2">
-          <TitleH1 text="Civilisations" />
-          <p>Listes des civilisations.</p>
+          <GrimoireHero
+            icon="fa-solid fa-flag"
+            title="Les Civilisations de Tetrago"
+            description="Des clans aux royaumes, chaque civilisation porte sa loi, son territoire et son peuple : voici la carte vivante de Tetrago. Rejoignez-en une, ou forgez la vôtre."
+          />
 
           <TitleH2 text="Civilisations" fonctions={civilisations_fonctions} />
           {civilisations.length === 0 ? (

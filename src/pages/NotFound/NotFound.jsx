@@ -62,6 +62,7 @@ export default function NotFound() {
                         <p className="text-sm text-base-content/60 mb-4">Vous cherchez peut-être :</p>
                         <div className="flex flex-wrap gap-2 justify-center">
                             <Link to="/" className="btn btn-ghost btn-sm">Accueil</Link>
+                            <Link to="/regles" className="btn btn-ghost btn-sm">Règles</Link>
                             <Link to="/bibliotheque" className="btn btn-ghost btn-sm">Bibliothèque</Link>
                             <Link to="/civilisations" className="btn btn-ghost btn-sm">Civilisations</Link>
                         </div>

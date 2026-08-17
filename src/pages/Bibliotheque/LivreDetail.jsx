@@ -191,6 +191,30 @@ export default function LivreDetailPage() {
                                     </>
                                 )}
 
+                                {!loadingContent && content && content.length > 1 && (
+                                    <>
+                                        <TitleH2 text="Sommaire" style_box={{ marginBottom: '1rem' }} />
+                                        <nav className="w-full mb-6 bg-base-250 rounded-3xl p-4">
+                                            <ol className="flex flex-col gap-1 list-decimal list-inside marker:text-primary marker:font-semibold">
+                                                {content.map((chapitre, index) => (
+                                                    <li key={chapitre.id ?? index}>
+                                                        <a
+                                                            href={`#chapitre-${chapitre.id ?? index}`}
+                                                            className="link link-hover"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                document.getElementById(`chapitre-${chapitre.id ?? index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                                            }}
+                                                        >
+                                                            {chapitre.chapitre}
+                                                        </a>
+                                                    </li>
+                                                ))}
+                                            </ol>
+                                        </nav>
+                                    </>
+                                )}
+
                                 <TitleH2 text="Contenu" fonctions={content_fonctions} style_box={{ marginBottom: '1rem' }} />
 
                                 {loadingContent && (
@@ -204,7 +228,7 @@ export default function LivreDetailPage() {
                                         <div className="prose prose-lg max-w-none mb-4">
                                             {content && content.length > 0 ? (
                                                 content.map((chapitre, index) => (
-                                                    <LivreChapitre key={index} livre={livre} content={chapitre} authorisation={auth} updateLivreContent={updateLivreContent} deleteLivreContent={deleteLivreContent} />
+                                                    <LivreChapitre key={index} index={index} livre={livre} content={chapitre} authorisation={auth} updateLivreContent={updateLivreContent} deleteLivreContent={deleteLivreContent} />
                                                 ))
                                             ) : (
                                                 <p>Aucun chapitre disponible.</p>

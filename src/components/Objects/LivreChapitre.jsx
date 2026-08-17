@@ -10,7 +10,7 @@ import { getApiURL } from "../../services/api";
 import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
-export default function LivreChapitre({ livre, content, authorisation = false, updateLivreContent = () => { }, deleteLivreContent = () => { } }) {
+export default function LivreChapitre({ livre, content, index = 0, authorisation = false, updateLivreContent = () => { }, deleteLivreContent = () => { } }) {
     // console.log("LivreChapitre content:", content);
     const apiURL = getApiURL();
     const params = useParams();
@@ -60,8 +60,8 @@ export default function LivreChapitre({ livre, content, authorisation = false, u
 
     return (
         <>
-            <div className="mb-4 bg-base-250 p-4 rounded-3xl shadow-md">
-                <TitleH2 text={content.chapitre} classes="" fonctions={content_fonctions} />
+            <div id={`chapitre-${content.id ?? index}`} className="mb-4 bg-base-250 p-4 rounded-3xl shadow-md scroll-mt-24">
+                <TitleH2 text={`${index + 1}. ${content.chapitre}`} classes="" fonctions={content_fonctions} />
                 <DynamicModal config={Config_Modal_Livre_Content_Local} local={{ id: content.id }} mode="edit" onSubmit={(content) => { updateLivreContent(content) }} onDelete={() => { deleteLivreContent(content) }} />
                 <MarkdownTextEditor value={content.content} authorisation={authorisation} onChange={(newValue) => { updateContent(newValue) }} />
             </div>
