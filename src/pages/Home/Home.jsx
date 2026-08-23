@@ -47,14 +47,10 @@ export default function HomePage() {
             className="rounded-3xl mb-14 py-24 px-4 w-full"
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <CopyBtn
-                text="Franchir le portail"
-                textCopy={serverURL}
-                icon={<FontAwesomeIcon icon="fa-solid fa-hat-wizard" />}
-                classes="btn btn-warning"
-                style={{}}
-                tooltip={{ text: `Copier l'adresse du serveur (${serverURL})`, position: "bottom" }}
-              />
+              <a className="btn btn-error flex items-center gap-2" href="/login">
+                <FontAwesomeIcon icon="fa-brands fa-readme" />
+                Règlement
+              </a>
               {isLoggedIn ? (
                 <a className="btn btn-success flex items-center gap-2" href="/profil">
                   <FontAwesomeIcon icon="fa-solid fa-user" />
@@ -66,6 +62,14 @@ export default function HomePage() {
                   Se connecter
                 </a>
               )}
+              <CopyBtn
+                text="Franchir le portail"
+                textCopy={serverURL}
+                icon={<FontAwesomeIcon icon="fa-solid fa-hat-wizard" />}
+                classes="btn btn-warning"
+                style={{}}
+                tooltip={{ text: `Copier l'adresse du serveur (${serverURL})`, position: "bottom" }}
+              />
             </div>
           </GrimoireHero>
 

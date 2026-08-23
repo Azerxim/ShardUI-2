@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import Swal from "sweetalert2"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { getUserById, getApiURL } from "../../../services/api"
 
 export default function AdminProfil({ user_id }) {
+    const navigate = useNavigate()
     const [userData, setUserData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -103,6 +104,60 @@ export default function AdminProfil({ user_id }) {
         setIsEditing(false)
     }
 
+    const handleDeleteProfile = async () => {
+        const result = await Swal.fire({
+            icon: "warning",
+            title: "Êtes-vous sûr ?",
+            text: `Le profil de ${userData.full_name || userData.username} sera définitivement supprimé.`,
+            showCancelButton: true,
+            confirmButtonText: "Supprimer",
+            cancelButtonText: "Annuler",
+            confirmButtonColor: "#d33",
+        })
+
+        if (!result.isConfirmed) return
+
+        try {
+            const token = localStorage.getItem("token")
+            const response = await fetch(`${apiURL}/users/delete/${user_id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            })
+
+            if (!response.ok) {
+                throw new Error(`Erreur ${response.status}: ${response.statusText}`)
+            }
+
+            await Swal.fire({
+                icon: "success",
+                title: "Profil supprimé",
+                text: "Le profil a été supprimé avec succès.",
+                timer: 2000,
+                showConfirmButton: false,
+            })
+
+            const connectedUser = JSON.parse(localStorage.getItem("user") || "null")
+            if (connectedUser && String(connectedUser.id) === String(user_id)) {
+                // L'utilisateur vient de supprimer son propre compte : sa session n'a plus lieu d'être.
+                localStorage.removeItem("token")
+                localStorage.removeItem("user")
+                navigate("/login")
+            } else {
+                navigate("/users")
+            }
+        } catch (error) {
+            console.error("Erreur lors de la suppression du profil:", error)
+            Swal.fire({
+                icon: "error",
+                title: "Erreur",
+                text: "Impossible de supprimer le profil",
+            })
+        }
+    }
+
     if (loading) {
         return (
             <div className="flex justify-center py-12">
@@ -124,7 +179,7 @@ export default function AdminProfil({ user_id }) {
     }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="w-full space-y-6">
             {/* En-tête du profil */}
             <div className="card bg-gradient-to-br from-sky-800 to-sky-900 text-white shadow-xl">
                 <div className="card-body">
@@ -184,13 +239,22 @@ export default function AdminProfil({ user_id }) {
                             Informations du profil
                         </h2>
                         {!isEditing && (
-                            <button
-                                className="btn btn-primary btn-sm"
-                                onClick={() => setIsEditing(true)}
-                            >
-                                <FontAwesomeIcon icon="fa-solid fa-edit" />
-                                Modifier
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    className="btn btn-primary btn-sm"
+                                    onClick={() => setIsEditing(true)}
+                                >
+                                    <FontAwesomeIcon icon="fa-solid fa-edit" />
+                                    Modifier
+                                </button>
+                                <button
+                                    className="btn btn-error btn-sm"
+                                    onClick={handleDeleteProfile}
+                                >
+                                    <FontAwesomeIcon icon="fa-solid fa-trash" />
+                                    Supprimer le profil
+                                </button>
+                            </div>
                         )}
                     </div>
 

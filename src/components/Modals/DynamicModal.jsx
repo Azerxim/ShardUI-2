@@ -3,10 +3,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   dynamicLoadData,
   getApiURL,
-  getUsers
+  getUsers,
+  getDimensions
 } from "../../services/api";
 import Swal from "sweetalert2";
 import { useParams } from "react-router-dom";
+
+import MapEmbedLocalisation from "../Objects/MapEmbedLocalisation";
 
 import { getAuthToken } from "../Functions/getAuthToken";
 
@@ -49,7 +52,7 @@ export default function DynamicModal({
       const token = localStorage.getItem("token");
       let api = config.api.get;
       const data = await dynamicLoadData(api.url.replace("$id", params.id).replace("$local-id", local.id), api.method, token);
-      return data ? data[config.dataKey] : {};
+      return (data && data[config.dataKey]) ? data[config.dataKey] : {};
     } catch (err) {
       console.error(err);
       return {};
@@ -172,6 +175,104 @@ export default function DynamicModal({
           return champ.render({ config, params }, value, handleInputChange);
         }
         return "Invalid custom render function";
+
+      case "localisation":
+        const [dimensions, setDimensions] = useState([]);
+        const [mapZoom, setMapZoom] = useState(0);
+
+        useEffect(() => {
+          const fetchDimensions = async () => {
+            const dimensionsData = await getDimensions();
+            setDimensions(dimensionsData);
+          };
+          fetchDimensions();
+        }, []);
+        // console.log("Dimensions fetched:", dimensions);
+        return (
+          <>
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend">{champ.label}</legend>
+
+              <div className="flex flex-row gap-2 w-full bg-base-200 rounded-3xl pr-4 pl-4 pt-1 pb-4">
+                <div className="flex-2">
+                  <legend className="fieldset-legend">Dimension</legend>
+
+                  <select
+                    defaultValue={champ.placeholder}
+                    className="select select-ghost bg-base-100 brightness-98 w-full"
+                    onChange={(e) => handleInputChange("dimension_id", e.target.value)}
+                    required={champ.required}
+                  >
+                    <option key="placeholder" disabled={true}>
+                      {champ.placeholder}
+                    </option>
+                    {dimensions.map((dimension) => (
+                      <option
+                        key={dimension.id}
+                        value={parseInt(dimension.id)}
+                        selected={value === parseInt(dimension.id)}
+                      >
+                        {dimension.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <legend className="fieldset-legend">Coordonnées X</legend>
+
+                  <input
+                    type="number"
+                    name="x"
+                    placeholder="Coordonnée X de la ville"
+                    value={formValues?.x ?? 0}
+                    onChange={(e) => handleInputChange("x", e.target.value)}
+                    className="input input-ghost bg-base-100 brightness-98 w-full"
+                    required={champ.required}
+                  />
+                </div>
+                <div className="flex-1">
+                  <legend className="fieldset-legend">Coordonnées Z</legend>
+
+                  <input
+                    type="number"
+                    name="z"
+                    placeholder="Coordonnée Z de la ville"
+                    value={formValues?.z ?? 0}
+                    onChange={(e) => handleInputChange("z", e.target.value)}
+                    className="input input-ghost bg-base-100 brightness-98 w-full"
+                    required={champ.required}
+                  />
+                </div>
+              </div>
+
+              <div className="hidden lg:flex">
+                {formValues?.dimension_id !== undefined ? (
+                  <MapEmbedLocalisation
+                    dimension={dimensions ? dimensions.find(dim => dim.id === parseInt(formValues.dimension_id)) : null}
+                    width={450}
+                    height={200}
+                    embed="civilisations"
+                    x={formValues?.x}
+                    z={formValues?.z}
+                    zoom={mapZoom}
+                    onMove={({ x, z, zoom }) => {
+                      setMapZoom(zoom);
+                      handleInputChange("x", x);
+                      handleInputChange("z", z);
+                    }}
+                  />
+                ) : null}
+              </div>
+
+
+              {champ.description && (
+                <p className="label">{champ.description}</p>
+              )}
+              {!champ.required && <span className="label">Optional</span>}
+            </fieldset>
+          </>
+        );
+
 
       case "users":
         const [users, setUsers] = useState([]);

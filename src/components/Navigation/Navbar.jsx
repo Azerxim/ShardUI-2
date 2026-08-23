@@ -146,7 +146,7 @@ export default function Navbar({ active = '' }) {
     return (
         <>
             <div className="navbar fixed flex flex-row justify-between items-center gap-2 px-2 py-3 z-999 top-3 left-3 right-3 w-auto rounded-3xl bg-base-200 shadow-lg">
-                <div className="navbar-start">
+                <div className="navbar-start gap-2">
                     {/* <!-- Navigation --> */}
                     <div className="dropdown dropdown-bottom dropdown-start tooltip tooltip-right" data-tip="Menu">
                         <div tabIndex={0} role="button" className="btn bg-base-200 rounded-3xl btn-ghost">

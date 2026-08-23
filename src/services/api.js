@@ -160,3 +160,17 @@ export async function getCivilisationById(civilisationId) {
 
   return response.json();
 }
+
+export async function getDimensions() {
+  const response = await fetch(`${apiURL}/cartographie/dimensions/read`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+  return response.json();
+}
