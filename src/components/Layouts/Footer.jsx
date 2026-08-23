@@ -34,13 +34,13 @@ export default function Footer() {
                                 </a>
                             </li>
                             <li>
-                                <a href="https://mbu.spinelle.eu/rp" className={`justify-start flex-row gap-1 nowrap pr-5 pl-4 rounded-box rounded-3xl`}>
+                                <a href="https://s2.tetgrago.fr/rp" className={`justify-start flex-row gap-1 nowrap pr-5 pl-4 rounded-box rounded-3xl`}>
                                     <span>Saison</span>
                                     <span>2</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="https://mbu.spinelle.eu/s1" className={`justify-start flex-row gap-1 nowrap pr-5 pl-4 rounded-box rounded-3xl`}>
+                                <a href="https://s1.tetgrago.fr/" className={`justify-start flex-row gap-1 nowrap pr-5 pl-4 rounded-box rounded-3xl`}>
                                     <span>Saison</span>
                                     <span>1</span>
                                 </a>
