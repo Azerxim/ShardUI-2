@@ -66,6 +66,7 @@ export default function DynamicModal({
     } else if (mode === "edit") {
       fetchLoadData().then((data) => {
         setFormValues(data);
+        // console.log("DynamicModal fetched data for edit mode:", data);
       });
     } else {
       setFormValues({});

@@ -1,34 +1,39 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { useState, useEffect } from 'react';
+import { checkMemberAuth } from "../../services/authorisation";
 
 import Navbar from "../../components/Navigation/Navbar";
 import TitleH1 from "../../components/Objects/TitleH1";
 import TitleH2 from "../../components/Objects/TitleH2";
 import DynamicModal from '../../components/Modals/DynamicModal';
+import DynamicNavbar from "../../components/Navigation/DynamicNavbar";
 
 import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Civilisation } from '../../components/Modals/Config_Modal_Civilisation';
-import { getApiURL } from "../../services/api"
+import { Config_RP_Navbar } from '../../components/Navigation/Config_RP_Navbar';
+import {
+  getCivilisations
+} from "../../services/api"
 import GrimoireHero from "../../components/Layouts/GrimoireHero";
 
 export default function CivilisationsPage() {
 
   const [civilisations, setCivilisations] = useState([]);
-  const apiURL = getApiURL()
 
   useEffect(() => {
-    fetch(`${apiURL}/civilisations/list`)
-      .then((response) => response.json())
+    getCivilisations()
       .then((data) => {
         // console.log('Civilisations fetched:', data);
         // Ajouter les liens pour redirection vers la page de détail
         const CivilisationsWithLinks = data.map(({ civilisation, members }) => ({
           ...civilisation,
           members,
+          auth: checkMemberAuth(members ? members : []),
           link: `/civilisation/${civilisation.id}`
         }));
         setCivilisations(CivilisationsWithLinks);
+        // console.log('Civilisations mises à jour:', CivilisationsWithLinks);
       })
       .catch((error) => {
         console.error('Error fetching civilisations:', error);
@@ -42,10 +47,6 @@ export default function CivilisationsPage() {
     // console.log("Civilisations mises à jour:", civilisations);
   };
 
-  const civilisations_fonctions = [
-    { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: true, function: () => showModal(Config_Modal_Civilisation, "add") }
-  ];
-
   return (
     <>
       <Navbar active="civilisations" />
@@ -55,21 +56,31 @@ export default function CivilisationsPage() {
             icon="fa-solid fa-flag"
             title="Les Civilisations de Tetrago"
             description="Des clans aux royaumes, chaque civilisation porte sa loi, son territoire et son peuple : voici la carte vivante de Tetrago. Rejoignez-en une, ou forgez la vôtre."
+            topRight={
+              <div className="flex flex-col gap-2">
+                <button onClick={() => showModal(Config_Modal_Civilisation, "add")} className={`flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left`} data-tip="Nouvelle Civilisation" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
+                  <span className="flex">Civilisation</span>
+                  <FontAwesomeIcon icon="fas fa-plus" />
+                </button>
+              </div>
+            }
           />
+          <DynamicNavbar active_id="civilisations" navigation={Config_RP_Navbar.navigation} shadow="md" />
 
-          <TitleH2 text="Civilisations" fonctions={civilisations_fonctions} />
           {civilisations.length === 0 ? (
             <p>Aucune civilisation disponible.</p>
           ) : (
             <div className="flex flex-col gap-4 w-full">
               {civilisations.map((civilisation) => (
-                <a key={civilisation.id} href={civilisation.link} className="civilisation-card p-4 bg-base-200 rounded-lg shadow-md w-full">
-                  <div className="flex items-center justify-start">
-                    <FontAwesomeIcon icon="flag" className="civilisation-icon mr-2" />
-                    <h2 className="civilisation-title text-xl font-bold">{civilisation.title}</h2>
-                  </div>
-                  <p className="civilisation-description">{civilisation.description}</p>
-                </a>
+                (civilisation.is_public || civilisation.auth) ? (
+                    <a key={civilisation.id} href={civilisation.link} className="civilisation-card p-4 bg-base-200 rounded-3xl shadow-md w-full">
+                      <div className="flex items-center justify-start">
+                        <FontAwesomeIcon icon="fas fa-flag" className="civilisation-icon mr-2" />
+                        <h2 className="civilisation-title text-xl font-bold">{civilisation.title}</h2>
+                      </div>
+                      <p className="civilisation-description">{civilisation.description}</p>
+                    </a>
+                  ) : null
               ))}
               {/* Nombre de civilisations */}
               <div style={{ width: '100%' }}>

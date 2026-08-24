@@ -3,7 +3,6 @@ import { checkMemberAuth } from "../../services/authorisation";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { getData } from "../../components/Functions/getData";
 import Navbar from "../../components/Navigation/Navbar";
 import Skeleton from "../../components/Objects/Skeleton";
 import TitleH1 from "../../components/Objects/TitleH1";
@@ -19,10 +18,14 @@ import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Civilisation } from '../../components/Modals/Config_Modal_Civilisation';
 import { Config_Modal_Gouvernement } from '../../components/Modals/Config_Modal_Gouvernement';
 import { Config_Modal_Civilisation_Member } from '../../components/Modals/Config_Modal_Civilisation_Member';
-import { Config_Modal_Civilisation_Member_Edit } from '../../components/Modals/Config_Modal_Civilisation_Member_Edit';
 import { Config_Modal_Livre } from '../../components/Modals/Config_Modal_Livre';
 import { Config_Modal_Ville } from '../../components/Modals/Config_Modal_Ville';
-import { getApiURL } from "../../services/api"
+import {
+    getCivilisationById,
+    getDimensions,
+    getLivresBycivilisationId,
+    deleteMemberCivilisation
+} from "../../services/api"
 import Swal from "sweetalert2";
 
 export default function CivilisationPage() {
@@ -35,43 +38,37 @@ export default function CivilisationPage() {
     const [livres, setLivres] = useState([]);
     const [villes, setVilles] = useState([]);
     const [auth, setAuth] = useState(false);
-    const apiURL = getApiURL()
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch(`${apiURL}/civilisations/read/${id}`);
-
-                if (!response.ok) {
-                    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                console.log('Data fetched:', data);
+        getCivilisationById(id)
+            .then((data) => {
+                // console.log('Civilisation fetched:', data);
                 setData(data);
                 setCivilisation(data.civilisation ? data.civilisation : null);
                 setGouvernement(data.gouvernement ? data.gouvernement : null);
                 setVilles(data.villes ? data.villes : []);
                 checkMemberAuth(data ? data.members : [], setAuth);
-                const responseDimensions = await fetch(`${apiURL}/cartographie/dimensions/read`);
-                const dimensions = await responseDimensions.json();
-                // console.log('Dimensions fetched:', dimensions);
-                setDimensions(dimensions);
-            } catch (err) {
-                console.error(err);
+                getDimensions()
+                    .then((dimensions) => {
+                        // console.log('Dimensions fetched:', dimensions);
+                        setDimensions(dimensions);
+                    })
+                    .catch((error) => {
+                        console.error('Error fetching dimensions:', error);
+                        setDimensions(null);
+                    });
+            })
+            .catch((error) => {
+                console.error('Error fetching civilisation:', error);
                 setData(null);
-            }
-        };
-
-        if (id) {
-            fetchData();
-        }
-
-    }, [id, apiURL, auth]);
+                setCivilisation(null);
+                setGouvernement(null);
+                setVilles([]);
+            });
+    }, [id, auth]);
 
     useEffect(() => {
-        fetch(`${apiURL}/bibliotheque/livres/civilisation/${id}/list`)
-            .then((response) => response.json())
+        getLivresBycivilisationId(id)
             .then((data) => {
                 // console.log('Livres fetched:', data);
                 setLivres(data);
@@ -133,38 +130,29 @@ export default function CivilisationPage() {
 
         if (!result.isConfirmed) return;
 
-        try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${apiURL}/civilisations/members/${id}/remove?member_id=${member.user_id}`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+        await deleteMemberCivilisation(id, member.user_id)
+            .then((response) => {
+                // console.log("Membre supprimé de la civilisation:", response);
+                setData((prevData) => ({
+                    ...prevData,
+                    members: prevData.members.filter((m) => m.user_id !== member.user_id),
+                }));
 
-            if (!response.ok) {
-                throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-            }
-
-            setData((prevData) => ({
-                ...prevData,
-                members: prevData.members.filter((m) => m.user_id !== member.user_id),
-            }));
-
-            Swal.fire({
-                icon: "success",
-                title: "Succès",
-                text: "Membre supprimé de la civilisation avec succès.",
+                Swal.fire({
+                    icon: "success",
+                    title: "Succès",
+                    text: "Membre supprimé de la civilisation avec succès.",
+                });
+            })
+            .catch((error) => {
+                console.error("Erreur lors de la suppression du membre:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Erreur lors de la suppression du membre.",
+                });
+                throw error;
             });
-        } catch (error) {
-            console.error(error);
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Erreur lors de la suppression du membre.",
-            });
-        }
     };
 
     const updateLivres = (livre) => {
@@ -197,6 +185,12 @@ export default function CivilisationPage() {
 
     const btnReturn = { text: 'Retour aux civilisations', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/civilisations' };
 
+    const date_founded = civilisation && civilisation.date_founded ? `: ${new Date(civilisation.date_founded).toLocaleDateString('fr-FR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    })}` : '';
+
     let BodyHTML = (
         <>
             <TitleH1 text={civilisation ? civilisation.title : "Civilisation inconnue"} btn={btnReturn} fonctions={FctModify} />
@@ -215,14 +209,7 @@ export default function CivilisationPage() {
 
             {civilisation && civilisation.date_founded ? (
                 <>
-                    <TitleH2 text="Date de fondation" icon="fas fa-calendar" />
-                    <div className="flex flex-col gap-2 w-full bg-base-100 p-4 rounded-2xl">
-                        <p className="flex flex-row gap-4 w-full">{civilisation.date_founded ? new Date(civilisation.date_founded).toLocaleDateString('fr-FR', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      }) : null}</p>
-                    </div>
+                    <TitleH2 text={`Date de fondation ${date_founded}`} icon="fas fa-calendar" />
                 </>
             ) : null}
 
@@ -265,7 +252,9 @@ export default function CivilisationPage() {
             ) : (
                 <div className="flex flex-col gap-2 w-full bg-base-100 rounded-2xl">
                     {villes.map((ville) => (
-                        <Ville key={ville.id} info={ville} dimensions={dimensions} auth={auth} />
+                        <a href={`/civilisation/${civilisation.id}/ville/${ville.id}`}>
+                            <Ville key={ville.id} info={ville} dimensions={dimensions} auth={auth} />
+                        </a>
                     ))}
                 </div>
             )}

@@ -11,7 +11,10 @@ import { checkUserID } from "../../services/authorisation";
 
 import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Journal } from '../../components/Modals/Config_Modal_Journal';
-import { getApiURL } from "../../services/api"
+import { 
+  getJournalById,
+  getJournalContentById
+} from "../../services/api"
 
 export default function JournalDetailPage() {
   const { id } = useParams();
@@ -27,7 +30,6 @@ export default function JournalDetailPage() {
     const saved = localStorage.getItem('messagesPerPage');
     return saved ? Number(saved) : 20;
   });
-  const apiURL = getApiURL()
 
   const setMessagesPerPage = (value) => {
     setMessagesPerPageState(value);
@@ -74,46 +76,38 @@ export default function JournalDetailPage() {
 
   useEffect(() => {
     const fetchJournal = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`${apiURL}/bibliotheque/journaux/read/${id}`);
-
-        if (!response.ok) {
-          throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        // console.log('Journal fetched:', data);
-        setJournal(data.journal);
-        checkUserID(data.journal?.user_id, setAuth);
-        setError(null);
-      } catch (err) {
-        setError('Erreur lors du chargement du journal');
-        console.error(err);
-        setJournal(null);
-      } finally {
-        setLoading(false);
-      }
+      setLoading(true);
+      getJournalById(id)
+        .then((data) => {
+          // console.log('Journal fetched:', data);
+          setJournal(data.journal);
+          checkUserID(data.journal?.user_id, setAuth);
+          setError(null);
+        })
+        .catch((err) => {
+          setError('Erreur lors du chargement du journal');
+          console.error(err);
+          setJournal(null);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     };
 
     const fetchContent = async () => {
-      try {
-        setLoadingContent(true);
-        const response = await fetch(`${apiURL}/bibliotheque/journaux/contents/${id}`);
-
-        if (!response.ok) {
-          throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        // console.log('Journal content fetched:', data);
-        setContent(data.content);
-      } catch (err) {
-        console.error(err);
-        setContent(null);
-      } finally {
-        setLoadingContent(false);
-      }
+      setLoadingContent(true);
+      getJournalContentById(id)
+        .then((data) => {
+          // console.log('Journal content fetched:', data);
+          setContent(data.content);
+        })
+        .catch((err) => {
+          console.error(err);
+          setContent(null);
+        })
+        .finally(() => {
+          setLoadingContent(false);
+        });
     };
 
     if (id) {
@@ -138,22 +132,18 @@ export default function JournalDetailPage() {
   };
 
   const reloadContent = async () => {
-    try {
-      setLoadingContent(true);
-      const response = await fetch(`${apiURL}/bibliotheque/journaux/contents/${id}`);
-
-      if (!response.ok) {
-        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      // console.log('Journal content reloaded:', data);
-      setContent(data.content);
-    } catch (err) {
-      console.error('Erreur lors du rechargement du contenu:', err);
-    } finally {
-      setLoadingContent(false);
-    }
+    setLoadingContent(true);
+    getJournalContentById(id)
+      .then((data) => {
+        // console.log('Journal content reloaded:', data);
+        setContent(data.content);
+      })
+      .catch((err) => {
+        console.error('Erreur lors du rechargement du contenu:', err);
+      })
+      .finally(() => {
+        setLoadingContent(false);
+      });
   };
 
   const btnReturn = { text: 'Retour à la bibliothèque', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/bibliotheque' };

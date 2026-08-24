@@ -2,6 +2,7 @@ const baseURL = import.meta.env.VITE_API_BASE_URL;
 const apiURL = `${baseURL}/api`;
 
 export function getApiURL() {
+  // console.log("API URL:", apiURL); // Log the API URL for debugging
   return apiURL;
 }
 
@@ -81,9 +82,10 @@ export async function getUsers() {
   return response.json();
 }
 
-//
+// __________________________________DYNAMIC____________________________________
+
 export async function dynamicLoadData(url, method, token = null) {
-  // console.log("dynamicLoadData called with url:", url, "method:", method, "token:", token);
+  console.log("dynamicLoadData called with url:", url, "method:", method, "token:", token);
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const response = await fetch(url.replace("$apiURL", apiURL), {
     method: method,
@@ -93,7 +95,10 @@ export async function dynamicLoadData(url, method, token = null) {
   if (!response.ok) {
     throw new Error(`Erreur ${response.status}: ${response.statusText}`);
   }
-  return response.json();
+
+  const responseData = await response.json();
+  console.log("dynamicLoadData response:", responseData);
+  return responseData;
 }
 
 //_____________________________________DATA_____________________________________
@@ -104,8 +109,63 @@ export async function getData(url) {
   return data;
 }
 
-
 // _____________________________________API_____________________________________
+
+// _________________________________Bibliotheque________________________________
+
+export async function getLivres() {
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  };
+
+  const response = await fetch(`${apiURL}/bibliotheque/livres/list`, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function getJournaux() {
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  };
+
+  const response = await fetch(`${apiURL}/bibliotheque/journaux/list`, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function getLivresBycivilisationId(civilisationId) {
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  };
+
+  const response = await fetch(`${apiURL}/bibliotheque/livres/civilisation/${civilisationId}/list`, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
+}
 
 export async function getLivreById(livreId) {
   const headers = {
@@ -114,6 +174,24 @@ export async function getLivreById(livreId) {
   };
 
   const response = await fetch(`${apiURL}/bibliotheque/livres/read/${livreId}`, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function getLivreContentById(livreId) {
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  };
+
+  const response = await fetch(`${apiURL}/bibliotheque/livres/contents/read/${livreId}`, {
     method: "GET",
     headers,
   });
@@ -143,11 +221,34 @@ export async function getJournalById(journalId) {
   return response.json();
 }
 
+export async function getJournalContentById(journalId) {
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  };
+
+  const response = await fetch(`${apiURL}/bibliotheque/journaux/contents/${journalId}`, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+
+// ________________________________Civilisations________________________________
+
 export async function getCivilisationById(civilisationId) {
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${localStorage.getItem("token")}`,
   };
+
+  // console.log("Fetching civilisation with ID:", civilisationId);
 
   const response = await fetch(`${apiURL}/civilisations/read/${civilisationId}`, {
     method: "GET",
@@ -160,6 +261,50 @@ export async function getCivilisationById(civilisationId) {
 
   return response.json();
 }
+
+export async function getCivilisations() {
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  };
+
+  // console.log("Fetching all civilisations");
+
+  const response = await fetch(`${apiURL}/civilisations/list`, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+
+  const response_json = response.json()
+
+  // console.log("Civilisations fetched successfully: ", response_json);
+
+  return response_json;
+}
+
+export async function deleteMemberCivilisation(civilisationId, memberId) {
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  };
+
+  const response = await fetch(`${apiURL}/civilisations/members/${civilisationId}/remove?member_id=${memberId}`, {
+    method: "DELETE",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+// __________________________________Dimensions_________________________________
 
 export async function getDimensions() {
   const response = await fetch(`${apiURL}/cartographie/dimensions/read`, {
@@ -174,3 +319,54 @@ export async function getDimensions() {
   }
   return response.json();
 }
+
+// __________________________________Religions__________________________________
+
+export async function getReligions() {
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  };
+
+  // console.log("Fetching all religions");
+
+  const response = await fetch(`${apiURL}/religions/list`, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+
+  const response_json = response.json()
+
+  // console.log("Religions fetched successfully: ", response_json);
+
+  return response_json;
+}
+
+export async function getReligionById(religionId) {
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  };
+
+  // console.log("Fetching religion with ID:", religionId);
+
+  const response = await fetch(`${apiURL}/religions/read/${religionId}`, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+// __________________________________Alliances__________________________________
+
+
+// ___________________________________Autres____________________________________

@@ -9,11 +9,6 @@ export default function Ville({ info, dimensions, auth = false, updateVille = ()
     // console.log(info, dimensions)
     const dimension = dimensions ? dimensions.find(dim => dim.id === info.dimension_id) : null;
 
-    const villes_fonctions = [
-        // { id: 0, title: "Modifier", icon: "fas fa-pen", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(Config_Modal_Ville, "edit", { id: info.id }) },
-        // { id: 1, title: "Transfert", icon: "fas fa-exchange-alt", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => {}}
-    ];
-
     return (
         <>
         <div className="flex flex-row gap-2 w-full">
@@ -62,9 +57,8 @@ export default function Ville({ info, dimensions, auth = false, updateVille = ()
                     </div>
                 </div>
             </div>
-            <TitleButtons classes = 'flex flex-col gap-2 items-center' fonctions={villes_fonctions} />
+            <TitleButtons classes = 'flex flex-col gap-2 items-center' />
         </div>
-        {/* <DynamicModal config={Config_Modal_Ville} mode="edit" local={{ id: info.id }} onSubmit={(ville) => { updateVille(ville) }} onDelete={ (ville) => { deleteVille(ville) }} /> */}
         </>
     );
 }

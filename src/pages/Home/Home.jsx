@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import Hero from '../../components/Layouts/Hero'
 import Navbar from "../../components/Navigation/Navbar";
 import CopyBtn from '../../components/Buttons/CopyButton'
 import GrimoireHero from '../../components/Layouts/GrimoireHero';
-import { getApiURL } from "../../services/api"
 
 const serverURL = import.meta.env.VITE_SERVER_URL;
 const link_serv = 'https://mcapi.us/server/status?ip=mbu-tetrago.minesr.com';
@@ -70,6 +68,10 @@ export default function HomePage() {
                 style={{}}
                 tooltip={{ text: `Copier l'adresse du serveur (${serverURL})`, position: "bottom" }}
               />
+              <a className="btn btn-base-100 flex items-center gap-2" href="/civilisations">
+                <FontAwesomeIcon icon="fa-solid fa-pen" />
+                Ecrire mon histoire
+              </a>
             </div>
           </GrimoireHero>
 

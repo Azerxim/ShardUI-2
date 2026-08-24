@@ -14,11 +14,14 @@ export function checkMemberAuth(members, setAuth = () => { }) {
             (checkMemberID && checkMemberRole) ||
             checkUserAdmin) {
             setAuth(true);
+            return true;
         } else {
             setAuth(false);
+            return false;
         }
     } else {
         setAuth(false);
+        return false;
     }
 }
 

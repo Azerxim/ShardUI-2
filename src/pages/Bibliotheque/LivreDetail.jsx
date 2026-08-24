@@ -16,8 +16,8 @@ import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Livre } from '../../components/Modals/Config_Modal_Livre';
 import { Config_Modal_Livre_Content } from '../../components/Modals/Config_Modal_Livre_Content';
 import {
-    getApiURL,
     getLivreById,
+    getLivreContentById,
     getCivilisationById,
 } from "../../services/api"
 
@@ -30,49 +30,45 @@ export default function LivreDetailPage() {
     const [loadingContent, setLoadingContent] = useState(false);
     const [error, setError] = useState(null);
     const [auth, setAuth] = useState(false);
-    const apiURL = getApiURL()
 
     useEffect(() => {
         const fetchLivre = async () => {
-            try {
-                setLoading(true);
-                const data = await getLivreById(id);
-                // console.log('Livre fetched:', data);
-                setLivre(data.livre);
-                if (data?.livre?.civilisation_id == null || data?.livre?.civilisation_id == undefined || data?.livre?.civilisation_id == 0) {
-                    checkUserID(data.livre?.user_id, setAuth);
-                } else {
-                    const civilisationData = await getCivilisationById(data.livre?.civilisation_id);
-                    checkMemberAuth(civilisationData ? civilisationData.members : [], setAuth);
-                }
-                setError(null);
-            } catch (err) {
-                setError('Erreur lors du chargement du livre');
-                console.error(err);
-                setLivre(null);
-            } finally {
-                setLoading(false);
-            }
+            setLoading(true);
+            getLivreById(id)
+                .then(async (data) => {
+                    setLivre(data.livre);
+                    if (data?.livre?.civilisation_id == null || data?.livre?.civilisation_id == undefined || data?.livre?.civilisation_id == 0) {
+                        checkUserID(data.livre?.user_id, setAuth);
+                    } else {
+                        const civilisationData = await getCivilisationById(data.livre?.civilisation_id);
+                        checkMemberAuth(civilisationData ? civilisationData.members : [], setAuth);
+                    }
+                    setError(null);
+                })
+                .catch((err) => {
+                    setError('Erreur lors du chargement du livre');
+                    console.error(err);
+                    setLivre(null);
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
         };
 
         const fetchContent = async () => {
-            try {
-                setLoadingContent(true);
-                const response = await fetch(`${apiURL}/bibliotheque/livres/contents/read/${id}`);
-
-                if (!response.ok) {
-                    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                // console.log('Livre content fetched:', data);
-                setContent(data.contents);
-            } catch (err) {
-                console.error(err);
-                setContent(null);
-            } finally {
-                setLoadingContent(false);
-            }
+            setLoadingContent(true);
+            getLivreContentById(id)
+                .then((data) => {
+                    // console.log('Livre content fetched:', data);
+                    setContent(data.contents);
+                })
+                .catch((err) => {
+                    console.error(err);
+                    setContent(null);
+                })
+                .finally(() => {
+                    setLoadingContent(false);
+                });
         };
 
         if (id) {
@@ -82,22 +78,18 @@ export default function LivreDetailPage() {
     }, [id]);
 
     const reloadContent = async () => {
-        try {
-            setLoadingContent(true);
-            const response = await fetch(`${apiURL}/bibliotheque/livres/contents/read/${id}`);
-
-            if (!response.ok) {
-                throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            console.log('Livre content reloaded:', data);
-            setContent(data.contents);
-        } catch (err) {
-            console.error('Erreur lors du rechargement du contenu:', err);
-        } finally {
-            setLoadingContent(false);
-        }
+        setLoadingContent(true);
+        getLivreContentById(id)
+            .then((data) => {
+                console.log('Livre content reloaded:', data);
+                setContent(data.contents);
+            })
+            .catch((err) => {
+                console.error('Erreur lors du rechargement du contenu:', err);
+            })
+            .finally(() => {
+                setLoadingContent(false);
+            });
     };
 
     const btnReturn = { text: 'Retour à la bibliothèque', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/bibliotheque' };

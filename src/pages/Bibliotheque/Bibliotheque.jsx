@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Navbar from "../../components/Navigation/Navbar";
 import TitleH2 from '../../components/Objects/TitleH2';
@@ -6,11 +7,16 @@ import TitleH1 from '../../components/Objects/TitleH1';
 import EtagereLivres from '../../components/Objects/EtagereLivres';
 import DynamicModal from '../../components/Modals/DynamicModal';
 import GrimoireHero from '../../components/Layouts/GrimoireHero';
+import DynamicNavbar from "../../components/Navigation/DynamicNavbar";
 
 import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Journal } from '../../components/Modals/Config_Modal_Journal';
 import { Config_Modal_Livre } from '../../components/Modals/Config_Modal_Livre';
-import { getApiURL } from "../../services/api"
+import { Config_RP_Navbar } from '../../components/Navigation/Config_RP_Navbar';
+import {
+    getJournaux,
+    getLivres
+} from "../../services/api"
 
 
 // const journaux_exemple = [
@@ -34,11 +40,8 @@ export default function BibliothequePage() {
     const [journaux, setJournaux] = useState([]);
     const [livres, setLivres] = useState([]);
 
-    const apiURL = getApiURL()
-
     useEffect(() => {
-        fetch(`${apiURL}/bibliotheque/journaux/list`)
-            .then((response) => response.json())
+        getJournaux()
             .then((data) => {
                 // console.log('Journaux fetched:', data);
                 // Ajouter les liens pour redirection vers la page de détail
@@ -60,8 +63,7 @@ export default function BibliothequePage() {
     };
 
     useEffect(() => {
-        fetch(`${apiURL}/bibliotheque/livres/list`)
-            .then((response) => response.json())
+        getLivres()
             .then((data) => {
                 // console.log('Livres fetched:', data);
                 setLivres([...data, ...livres_exemple]);
@@ -78,11 +80,11 @@ export default function BibliothequePage() {
     };
 
     const journaux_fonctions = [
-        { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: true, function: () => showModal(Config_Modal_Journal, "add") }
+        // { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: true, function: () => showModal(Config_Modal_Journal, "add") }
     ];
 
     const livres_fonctions = [
-        { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: true, function: () => showModal(Config_Modal_Livre, "add") }
+        // { id: 1, title: "Nouveau", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: true, function: () => showModal(Config_Modal_Livre, "add") }
     ];
 
     return (
@@ -95,7 +97,20 @@ export default function BibliothequePage() {
                         icon="fa-solid fa-book"
                         title="La Bibliothèque de Tetrago"
                         description="Chaque journal est un souvenir, chaque livre un monde : ici s'accumulent les récits que la communauté refuse de laisser s'effacer. Venez les lire, ou déposez-y les vôtres."
+                        topRight={
+                            <div className="flex flex-col gap-2">
+                                <button onClick={() => showModal(Config_Modal_Journal, "add")} className={`flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left`} data-tip="Nouveau Journal" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
+                                    <span className="flex">Journal</span>
+                                    <FontAwesomeIcon icon="fas fa-plus" />
+                                </button>
+                                <button onClick={() => showModal(Config_Modal_Livre, "add")} className={`flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left`} data-tip="Nouveau Livre" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
+                                    <span className="flex">Livre</span>
+                                    <FontAwesomeIcon icon="fas fa-plus" />
+                                </button>
+                            </div>
+                        }
                     />
+                    <DynamicNavbar active_id="bibliotheque" navigation={Config_RP_Navbar.navigation} shadow="md" />
 
                     <TitleH2 text="Journaux" fonctions={journaux_fonctions} />
                     {journaux.length === 0 ? (
