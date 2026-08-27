@@ -278,7 +278,7 @@ export default function CivilisationPage() {
             <Navbar active="civilisations" />
             <main className="container mx-auto p-4">
                 <div className="flex flex-col items-center justify-center gap-2">
-                    {!data ? <Skeleton width="200px" height="32px" /> : BodyHTML}
+                    {!data ? null : BodyHTML}
 
                     <DynamicModal config={Config_Modal_Civilisation} mode="edit" onSubmit={(civilisation) => { updateCivilisation(civilisation) }} onDelete={handleDelete} />
                     <DynamicModal config={Config_Modal_Civilisation_Member} mode="add" onSubmit={(member) => { addCivilisationMember(member) }} />

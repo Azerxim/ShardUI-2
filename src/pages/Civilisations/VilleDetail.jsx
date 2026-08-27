@@ -143,7 +143,7 @@ export default function VilleDetailPage() {
             <Navbar active="civilisations" />
             <main className="container mx-auto p-4">
                 <div className="flex items-center justify-center gap-2">
-                    {!ville ? <Skeleton width="200px" height="32px" /> : BodyHTML}
+                    {!ville ? null : BodyHTML}
 
                     <DynamicModal config={Config_Modal_Ville} mode="edit" onSubmit={(ville) => { updateVille(ville) }} onDelete={handleDelete} />
                 </div>
