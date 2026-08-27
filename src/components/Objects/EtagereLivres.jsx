@@ -24,14 +24,8 @@ function getContrastTextColor(bgColor) {
 export default function EtagereLivres({ books, text = 'livre(s)', height = 12, width = 4, orientation = 'vertical' }) {
     return (
         <>
-            {/* Nombre de livres */}
-            <div style={{ width: '100%' }}>
-                {books.length > 0 && (
-                    <i>{books.length} {text} disponible.</i>
-                )}
-            </div>
             {/* Etagere avec des livres cliquable */}
-            <div className='flex w-full m-2 gap-3 flex-wrap'>
+            <div className='flex w-full m-2 gap-3 flex-wrap items-end'>
                 {books.map((book) => {
                     const textColor = getContrastTextColor(book.cover_color);
                     return (
@@ -41,11 +35,12 @@ export default function EtagereLivres({ books, text = 'livre(s)', height = 12, w
                         >
                             <a
                                 href={book.link}
-                                className={`rounded-3xl cursor-pointer shadow-md transition-all duration-300 group-hover:scale-110 group-hover:z-10 flex border-0 border-white ${orientation === 'vertical' ? 'flex-col' : 'flex-row items-center gap-2'}`}
+                                className={`book-spine cursor-pointer shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:z-10 flex border-0 ${orientation === 'vertical' ? 'book-spine-vertical rounded-t-sm rounded-b-md flex-col' : 'book-spine-horizontal rounded-l-sm rounded-r-md flex-row items-center gap-2'}`}
                                 style={{ backgroundColor: book.cover_color, width: `${width}rem`, height: `${height}rem` }}
                             >
                                 {orientation === 'vertical' ? (
                                     <>
+                                        <div className="book-pages-top" />
                                         <div className="flex-1 flex items-center p-2 font-bold text-sm text-center overflow-hidden writing-mode-vertical-upward" style={{ color: textColor }}>
                                             <span className="line-clamp-1 truncate">{book.title}</span>
                                         </div>
@@ -61,6 +56,7 @@ export default function EtagereLivres({ books, text = 'livre(s)', height = 12, w
                                         <div className="flex-1 flex items-center p-2 font-bold text-sm text-center overflow-hidden" style={{ color: textColor }}>
                                             <span className="line-clamp-1 truncate">{book.title}</span>
                                         </div>
+                                        <div className="book-pages-side" />
                                     </>
                                 )}
                             </a>

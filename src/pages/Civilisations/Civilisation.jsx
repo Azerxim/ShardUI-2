@@ -38,6 +38,7 @@ export default function CivilisationPage() {
     const [livres, setLivres] = useState([]);
     const [villes, setVilles] = useState([]);
     const [auth, setAuth] = useState(false);
+    const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
 
     useEffect(() => {
         getCivilisationById(id)
@@ -198,7 +199,11 @@ export default function CivilisationPage() {
             <div className="flex flex-row gap-4 w-full">
                 {data && data.members && data.members.length > 0 ? (
                     data.members.map((member) => {
-                        return (<MemberButton key={member.user_id} member={member} auth={auth} onDelete={handleMemberDelete} onModifyMember={handleMemberModify} />);
+                        return member.role == "Fondateur" ? (
+                            <MemberButton key={member.user_id} member={member} auth={(member.user_id == user?.id) ? true : false} onDelete={handleMemberDelete} onModifyMember={handleMemberModify} />
+                        ) : (
+                            <MemberButton key={member.user_id} member={member} auth={auth} onDelete={handleMemberDelete} onModifyMember={handleMemberModify} />
+                        )
                     })
                 ) : data && data.members ? (
                     <p>Aucun membre trouvé pour cette civilisation.</p>

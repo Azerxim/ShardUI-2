@@ -7,7 +7,7 @@ export const Config_Modal_Gouvernement = {
   title: {
     default: "Modal",
     add: "Ajouter un gouvernement",
-    edit: "Modifier un gouvernement",
+    edit: "Modifier mon gouvernement",
   },
   success: {
     default: "Succès",

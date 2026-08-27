@@ -11,3 +11,101 @@
   text-orientation: mixed;
   transform: rotate(180deg);
 }
+
+/* Légère inclinaison aléatoire, comme des livres posés sans être parfaitement alignés */
+.book-spine {
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.book-container:nth-child(odd) .book-spine {
+  transform: rotate(-0.6deg);
+}
+.book-container:nth-child(even) .book-spine {
+  transform: rotate(0.6deg);
+}
+.book-container:nth-child(3n) .book-spine {
+  transform: rotate(0deg);
+}
+.book-container:hover .book-spine {
+  transform: translateY(-0.3rem) scale(1.05) rotate(0deg);
+}
+
+/* Dos de livre vertical : dégradé simulant l'arrondi de la reliure + bandes embossées */
+.book-spine-vertical {
+  background-image:
+    linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.4) 0%,
+      rgba(255, 255, 255, 0.3) 12%,
+      rgba(255, 255, 255, 0) 30%,
+      rgba(255, 255, 255, 0) 70%,
+      rgba(0, 0, 0, 0.3) 100%
+    );
+}
+.book-spine-vertical::before,
+.book-spine-vertical::after {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.35);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.book-spine-vertical::before {
+  top: 16%;
+}
+.book-spine-vertical::after {
+  bottom: 16%;
+}
+
+/* Tranche de pages visible en haut du livre debout */
+.book-pages-top {
+  height: 0.35rem;
+  width: 88%;
+  margin: 0 auto;
+  background-color: #f4ecd8;
+  background-image: repeating-linear-gradient(to right, rgba(0, 0, 0, 0.18) 0 1px, transparent 1px 3px);
+  border-radius: 0 0 2px 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) inset;
+}
+
+/* Dos de livre horizontal : dégradé simulant l'épaisseur du livre couché */
+.book-spine-horizontal {
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.35) 0%,
+      rgba(255, 255, 255, 0.3) 15%,
+      rgba(255, 255, 255, 0) 35%,
+      rgba(255, 255, 255, 0) 65%,
+      rgba(0, 0, 0, 0.3) 100%
+    );
+}
+.book-spine-horizontal::before,
+.book-spine-horizontal::after {
+  content: '';
+  position: absolute;
+  top: 12%;
+  bottom: 12%;
+  width: 2px;
+  background: rgba(0, 0, 0, 0.35);
+  box-shadow: 1px 0 0 rgba(255, 255, 255, 0.25);
+}
+.book-spine-horizontal::before {
+  left: 8%;
+}
+.book-spine-horizontal::after {
+  right: 8%;
+}
+
+/* Tranche de pages visible sur le côté du livre couché */
+.book-pages-side {
+  width: 0.35rem;
+  height: 82%;
+  margin-right: 0.3rem;
+  background-color: #f4ecd8;
+  background-image: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.18) 0 1px, transparent 1px 3px);
+  border-radius: 0 2px 2px 0;
+  box-shadow: inset 1px 0 2px rgba(0, 0, 0, 0.3);
+}

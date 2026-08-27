@@ -7,7 +7,7 @@ export const Config_Modal_Civilisation = {
   title: {
     default: "Modal",
     add: "Ajouter une civilisation",
-    edit: "Modifier une civilisation",
+    edit: "Modifier ma civilisation",
   },
   success: {
     default: "Succès",

@@ -5,6 +5,7 @@ import Navbar from "../../components/Navigation/Navbar";
 import TitleH2 from '../../components/Objects/TitleH2';
 import TitleH1 from '../../components/Objects/TitleH1';
 import EtagereLivres from '../../components/Objects/EtagereLivres';
+import EtagereJournaux from '../../components/Objects/EtagereJournaux';
 import DynamicModal from '../../components/Modals/DynamicModal';
 import GrimoireHero from '../../components/Layouts/GrimoireHero';
 import DynamicNavbar from "../../components/Navigation/DynamicNavbar";
@@ -39,8 +40,14 @@ const livres_exemple = []
 export default function BibliothequePage() {
     const [journaux, setJournaux] = useState([]);
     const [livres, setLivres] = useState([]);
+    const [loadingJournaux, setLoadingJournaux] = useState(true);
+    const [loadingLivres, setLoadingLivres] = useState(true);
+    const [storageJournaux, setStorageJournaux] = useState(JSON.parse(localStorage.getItem('journaux')) || []);
+    const [storageLivres, setStorageLivres] = useState(JSON.parse(localStorage.getItem('livres')) || []);
 
     useEffect(() => {
+        const MIN_LOADING_TIME = 1000;
+        const startTime = Date.now();
         getJournaux()
             .then((data) => {
                 // console.log('Journaux fetched:', data);
@@ -50,33 +57,76 @@ export default function BibliothequePage() {
                     // link: `/bibliotheque/journal/${journal.id}`
                 }));
                 setJournaux([...journauxWithLinks, ...journaux_exemple]);
+                setStorageJournaux([...journauxWithLinks, ...journaux_exemple]);
+                localStorage.setItem('journaux', JSON.stringify([...journauxWithLinks, ...journaux_exemple]));
+                const elapsedTime = Date.now() - startTime;
+                const remainingTime = MIN_LOADING_TIME - elapsedTime;
+                if (remainingTime > 0) {
+                    setTimeout(() => setLoadingJournaux(false), remainingTime);
+                } else {
+                    setLoadingJournaux(false);
+                }
                 // setJournaux(journaux_exemple); // Temporary: use example journals until API is ready
             })
             .catch((error) => {
                 console.error('Error fetching journaux:', error);
                 setJournaux([]);
+                setStorageJournaux([]);
+                localStorage.removeItem('journaux');
+                const elapsedTime = Date.now() - startTime;
+                const remainingTime = MIN_LOADING_TIME - elapsedTime;
+                if (remainingTime > 0) {
+                    setTimeout(() => setLoadingJournaux(false), remainingTime);
+                } else {
+                    setLoadingJournaux(false);
+                }
             });
     }, []);
 
     const updateJournal = (journal) => {
         setJournaux((prevJournaux) => [...prevJournaux, journal]);
+        setStorageJournaux((prevStorageJournaux) => [...prevStorageJournaux, journal]);
+        localStorage.setItem('journaux', JSON.stringify([...storageJournaux, journal]));
     };
 
     useEffect(() => {
+        const MIN_LOADING_TIME = 1000;
+        const startTime = Date.now();
+
         getLivres()
             .then((data) => {
                 // console.log('Livres fetched:', data);
                 setLivres([...data, ...livres_exemple]);
+                setStorageLivres([...data, ...livres_exemple]);
+                localStorage.setItem('livres', JSON.stringify([...data, ...livres_exemple]));
+                const elapsedTime = Date.now() - startTime;
+                const remainingTime = MIN_LOADING_TIME - elapsedTime;
+                if (remainingTime > 0) {
+                    setTimeout(() => setLoadingLivres(false), remainingTime);
+                } else {
+                    setLoadingLivres(false);
+                }
                 // setLivres(livres_exemple); // Temporary: use example books until API is ready
             })
             .catch((error) => {
                 console.error('Error fetching livres:', error);
                 setLivres([]);
+                setStorageLivres([]);
+                localStorage.removeItem('livres');
+                const elapsedTime = Date.now() - startTime;
+                const remainingTime = MIN_LOADING_TIME - elapsedTime;
+                if (remainingTime > 0) {
+                    setTimeout(() => setLoadingLivres(false), remainingTime);
+                } else {
+                    setLoadingLivres(false);
+                }
             });
     }, []);
 
     const updateLivre = (livre) => {
         setLivres((prevLivres) => [...prevLivres, livre]);
+        setStorageLivres((prevStorageLivres) => [...prevStorageLivres, livre]);
+        localStorage.setItem('livres', JSON.stringify([...storageLivres, livre]));
     };
 
     const journaux_fonctions = [
@@ -113,20 +163,40 @@ export default function BibliothequePage() {
                     <DynamicNavbar active_id="bibliotheque" navigation={Config_RP_Navbar.navigation} shadow="md" />
 
                     <TitleH2 text="Journaux" fonctions={journaux_fonctions} />
-                    {journaux.length === 0 ? (
-                        <div style={{ width: '100%' }}>
-                            <i>Aucun journal disponible.</i>
-                        </div>
-                    ) : <EtagereLivres books={journaux} text='journaux' height={4} width={12} orientation='horizontal' />}
+                    {loadingJournaux ? (
+                        storageJournaux.length === 0 ? (
+                            <div style={{ width: '100%' }}>
+                                <i>Chargement des journaux...</i>
+                            </div>
+                        ) : (
+                            <EtagereJournaux books={storageJournaux} text='journaux' height={6} width={24} orientation='horizontal' />
+                        )
+                    ) : (
+                        journaux.length === 0 ? (
+                            <div style={{ width: '100%' }}>
+                                <i>Aucun journal disponible.</i>
+                            </div>
+                        ) : <EtagereJournaux books={journaux} text='journaux' height={6} width={24} orientation='horizontal' />
+                    )}
 
                     <DynamicModal config={Config_Modal_Journal} mode="add" onSubmit={(journal) => { updateJournal(journal) }} />
 
                     <TitleH2 text="Livres" fonctions={livres_fonctions} />
-                    {livres.length === 0 ? (
-                        <div style={{ width: '100%' }}>
-                            <i>Aucun livre disponible.</i>
-                        </div>
-                    ) : <EtagereLivres books={livres} text='livre(s)' />}
+                    {loadingLivres ? (
+                        storageLivres.length === 0 ? (
+                            <div style={{ width: '100%' }}>
+                                <i>Chargement des livres...</i>
+                            </div>
+                        ) : (
+                            <EtagereLivres books={storageLivres} text='livre(s)' height={12} width={4} orientation='vertical' />
+                        )
+                    ) : (
+                        livres.length === 0 ? (
+                            <div style={{ width: '100%' }}>
+                                <i>Aucun livre disponible.</i>
+                            </div>
+                        ) : <EtagereLivres books={livres} text='livre(s)' height={12} width={4} orientation='vertical' />
+                    )}
 
                     <DynamicModal config={Config_Modal_Livre} mode="add" onSubmit={(livre) => { updateLivre(livre) }} />
 

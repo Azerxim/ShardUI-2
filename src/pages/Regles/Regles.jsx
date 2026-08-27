@@ -4,6 +4,8 @@ import Navbar from "../../components/Navigation/Navbar";
 import GrimoireHero from "../../components/Layouts/GrimoireHero";
 import TitleH1 from "../../components/Objects/TitleH1";
 import TitleH2 from "../../components/Objects/TitleH2";
+import { Config_RP_Navbar } from "../../components/Navigation/Config_RP_Navbar";
+import DynamicNavbar from "../../components/Navigation/DynamicNavbar";
 
 // ===== Contenu du codex =====
 // Chaque article peut porter `warn: true` pour les fautes à tolérance zéro.
@@ -149,9 +151,10 @@ export default function ReglesPage() {
             title="Le Codex de Tetrago"
             description="Deux livres tiennent ce monde debout : la loi qui protège le serveur, et le codex qui protège l'histoire que nous écrivons ensemble. Le lire n'est pas une option — c'en est la condition."
           />
+          <DynamicNavbar active_id="codex" navigation={Config_RP_Navbar.navigation} shadow="md" />
 
           {/* Sommaire */}
-          <section className="mb-14 scroll-mt-24">
+          <section className="mb-14 scroll-mt-24 mt-2">
             <TitleH2 text="Sommaire" icon="fa-solid fa-list-ul" />
             <div className="flex flex-wrap gap-2 mt-3">
               {sommaire.map((chapitre) => (

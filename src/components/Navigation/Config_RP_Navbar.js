@@ -2,6 +2,17 @@ export const Config_RP_Navbar = {
   navigation: {
     start: [
       {
+        id: "codex",
+        text: "Codex",
+        href: "/regles",
+        icon: "fas fa-scroll",
+        tooltip: {
+          text: "Règles",
+          position: "bottom",
+        },
+        dropdown: [],
+      },
+      {
         id: "bibliotheque",
         text: "Bibliothèque",
         href: "/bibliotheque",

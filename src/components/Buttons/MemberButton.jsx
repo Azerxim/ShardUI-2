@@ -7,7 +7,7 @@ import { Config_Modal_Civilisation_Member_Edit } from '../Modals/Config_Modal_Ci
 import DynamicModal from '../Modals/DynamicModal';
 import { showModal } from '../Functions/showModal';
 
-export default function MemberButton({ member, auth = false, tooltip = { position: "bottom" }, bgColor = "", textColor = "", onDelete = () => { }, onModifyMember = () => { } }) {
+export default function MemberButton({ member, auth = false, tooltip = { position: "bottom" }, bgColor = "", textColor = "", icon = null, onDelete = () => { }, onModifyMember = () => { } }) {
     const [username, setUsername] = useState("Utilisateur inconnu");
     const [imageUrl, setImageUrl] = useState("");
     const [linkUrl, setLinkUrl] = useState("");
@@ -55,6 +55,8 @@ export default function MemberButton({ member, auth = false, tooltip = { positio
         setMenuOpen(true);
     };
 
+    icon = member.role == "Fondateur" ? "fa-solid fa-crown" : null;
+
     return (
         <div className="relative w-min" ref={menuRef}>
             <a
@@ -65,6 +67,7 @@ export default function MemberButton({ member, auth = false, tooltip = { positio
             >
                 <div className={`btn ${bgColor} ${textColor} rounded-3xl shadow-md p-2 h-10 w-min`}>
                     <div className="flex items-center space-x-2 flex-nowrap">
+                        {icon && <FontAwesomeIcon icon={icon} />}
                         <div className="avatar">
                             <div className="mask mask-circle w-6 px-1">
                                 {imageUrl != "" && imageUrl != null ? (<img src={imageUrl} />) : (<FontAwesomeIcon icon="fa-solid fa-user" />)}
@@ -100,6 +103,21 @@ export default function MemberButton({ member, auth = false, tooltip = { positio
                         >
                             <FontAwesomeIcon icon="fa-solid fa-trash" />
                             <span>Supprimer</span>
+                        </button>
+                    </li>
+                </ul>
+            )}
+
+            {auth && menuOpen && member.role == "Fondateur" && (
+                <ul className="menu absolute left-0 top-full z-50 mt-1 w-40 rounded-box bg-base-100 shadow-md">
+                    <li>
+                        <button
+                            type="button"
+                            className="text-warning"
+                            onClick={() => {}}
+                        >
+                            <FontAwesomeIcon icon="fa-solid fa-arrow-right-from-bracket" />
+                            <span>Transférer</span>
                         </button>
                     </li>
                 </ul>

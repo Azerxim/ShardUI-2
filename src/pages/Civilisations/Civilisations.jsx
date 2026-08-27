@@ -8,6 +8,7 @@ import TitleH1 from "../../components/Objects/TitleH1";
 import TitleH2 from "../../components/Objects/TitleH2";
 import DynamicModal from '../../components/Modals/DynamicModal';
 import DynamicNavbar from "../../components/Navigation/DynamicNavbar";
+import SkeletonCivilisation from "../../components/Objects/SkeletonCivilisation";
 
 import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Civilisation } from '../../components/Modals/Config_Modal_Civilisation';
@@ -20,8 +21,13 @@ import GrimoireHero from "../../components/Layouts/GrimoireHero";
 export default function CivilisationsPage() {
 
   const [civilisations, setCivilisations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [storageCivilisations, setStorageCivilisations] = useState(JSON.parse(localStorage.getItem('civilisations')) || []);
 
   useEffect(() => {
+    const MIN_LOADING_TIME = 1000;
+    const startTime = Date.now();
+
     getCivilisations()
       .then((data) => {
         // console.log('Civilisations fetched:', data);
@@ -33,17 +39,32 @@ export default function CivilisationsPage() {
           link: `/civilisation/${civilisation.id}`
         }));
         setCivilisations(CivilisationsWithLinks);
+        setStorageCivilisations(CivilisationsWithLinks);
+        localStorage.setItem('civilisations', JSON.stringify(CivilisationsWithLinks));
         // console.log('Civilisations mises à jour:', CivilisationsWithLinks);
       })
       .catch((error) => {
         console.error('Error fetching civilisations:', error);
         setCivilisations([]);
+        setStorageCivilisations([]);
+        localStorage.removeItem('civilisations');
+      })
+      .finally(() => {
+        const elapsed = Date.now() - startTime;
+        const remaining = MIN_LOADING_TIME - elapsed;
+        if (remaining > 0) {
+          setTimeout(() => setLoading(false), remaining);
+        } else {
+          setLoading(false);
+        }
       });
   }, []);
 
   const updateCivilisation = (data) => {
     // console.log("Nouvelle civilisation ajoutée:", data);
     setCivilisations((prevCivilisations) => [...prevCivilisations, { ...data.civilisation, members: [data.member], link: `/civilisation/${data.civilisation.id}` }]);
+    setStorageCivilisations((prevStorageCivilisations) => [...prevStorageCivilisations, { ...data.civilisation, members: [data.member], link: `/civilisation/${data.civilisation.id}` }]);
+    localStorage.setItem('civilisations', JSON.stringify([...storageCivilisations, { ...data.civilisation, members: [data.member], link: `/civilisation/${data.civilisation.id}` }]));
     // console.log("Civilisations mises à jour:", civilisations);
   };
 
@@ -67,27 +88,45 @@ export default function CivilisationsPage() {
           />
           <DynamicNavbar active_id="civilisations" navigation={Config_RP_Navbar.navigation} shadow="md" />
 
-          {civilisations.length === 0 ? (
-            <p>Aucune civilisation disponible.</p>
-          ) : (
-            <div className="flex flex-col gap-4 w-full">
-              {civilisations.map((civilisation) => (
-                (civilisation.is_public || civilisation.auth) ? (
+          {loading ? (
+            storageCivilisations.length === 0 ? (
+              <div className="flex flex-col gap-4 w-full">
+                <SkeletonCivilisation />
+                <SkeletonCivilisation />
+                <SkeletonCivilisation />
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4 w-full">
+                {storageCivilisations.map((civilisation) => (
+                  (civilisation.is_public || civilisation.auth) ? (
                     <a key={civilisation.id} href={civilisation.link} className="civilisation-card p-4 bg-base-200 rounded-3xl shadow-md w-full">
                       <div className="flex items-center justify-start">
                         <FontAwesomeIcon icon="fas fa-flag" className="civilisation-icon mr-2" />
+                        {!civilisation.is_public && <FontAwesomeIcon icon="fas fa-eye-slash" className="private-icon mr-2" />}
                         <h2 className="civilisation-title text-xl font-bold">{civilisation.title}</h2>
                       </div>
                       <p className="civilisation-description">{civilisation.description}</p>
                     </a>
                   ) : null
-              ))}
-              {/* Nombre de civilisations */}
-              <div style={{ width: '100%' }}>
-                {civilisations.length > 0 && (
-                  <i>{civilisations.length} civilisation(s) disponible.</i>
-                )}
+                ))}
               </div>
+            )
+          ) : civilisations.length === 0 ? (
+            <p>Aucune civilisation disponible.</p>
+          ) : (
+            <div className="flex flex-col gap-4 w-full">
+              {civilisations.map((civilisation) => (
+                (civilisation.is_public || civilisation.auth) ? (
+                  <a key={civilisation.id} href={civilisation.link} className="civilisation-card p-4 bg-base-200 rounded-3xl shadow-md w-full">
+                    <div className="flex items-center justify-start">
+                      <FontAwesomeIcon icon="fas fa-flag" className="civilisation-icon mr-2" />
+                      {!civilisation.is_public && <FontAwesomeIcon icon="fas fa-eye-slash" className="private-icon mr-2" />}
+                      <h2 className="civilisation-title text-xl font-bold">{civilisation.title}</h2>
+                    </div>
+                    <p className="civilisation-description">{civilisation.description}</p>
+                  </a>
+                ) : null
+              ))}
             </div>
           )}
 

@@ -48,7 +48,7 @@ export default function DynamicNavbar({
     return (
         <>
             <div className={`navbar flex ${direction === 'horizontal' ? 'flex-row' : 'flex-col'} justify-between items-center gap-2 z-800 w-${width} rounded-${rounded} bg-${background} shadow-${shadow} mb-1`}>
-                <div className="navbar-start gap-2 flex-wrap">
+                <div className="navbar-start gap-2 flex-wrap w-full">
                     {/* <!-- Navigation --> */}
                     {navigation.start.map((item, index) => (
                         (item.dropdown && item.dropdown.length > 0) ? (

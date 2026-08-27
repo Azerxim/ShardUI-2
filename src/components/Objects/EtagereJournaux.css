@@ -1,0 +1,106 @@
+/* EtagereJournaux - Styles personnalisés */
+
+/* Conteneur de journal pour gérer le z-index */
+.journal-container {
+  display: inline-block;
+}
+
+/* Écriture verticale pour le titre le long du rouleau */
+.writing-mode-vertical-upward {
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+}
+
+/* Légère inclinaison aléatoire pour un effet de pile de journaux posés en vrac */
+.journal-container:nth-child(odd) .journal-card {
+  transform: rotate(-1.5deg);
+}
+.journal-container:nth-child(even) .journal-card {
+  transform: rotate(1deg);
+}
+.journal-container:nth-child(3n) .journal-card {
+  transform: rotate(0.5deg);
+}
+.journal-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.journal-container:hover .journal-card {
+  transform: rotate(0deg) translateY(-0.35rem) scale(1.05);
+}
+
+/* --- Orientation verticale : rouleau de journal ficelé --- */
+.journal-scroll {
+  position: relative;
+  border-radius: 40% / 8%;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.28) 0%,
+    rgba(0, 0, 0, 0.06) 10%,
+    #f4ecd8 22%,
+    #fbf6e9 50%,
+    #f4ecd8 78%,
+    rgba(0, 0, 0, 0.06) 90%,
+    rgba(0, 0, 0, 0.28) 100%
+  );
+}
+
+.journal-scroll::before,
+.journal-scroll::after {
+  content: '';
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  height: 12%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, #ede1c2 0%, #d8cba6 65%, rgba(0, 0, 0, 0.25) 100%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+.journal-scroll::before {
+  top: -6%;
+}
+.journal-scroll::after {
+  bottom: -6%;
+}
+
+.journal-ribbon {
+  background-color: #6b2b28;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35) inset, 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* --- Orientation horizontale : feuille de journal dépliée --- */
+.journal-sheet {
+  position: relative;
+  background-color: #f4ecd8;
+  background-image: repeating-linear-gradient(rgba(0, 0, 0, 0.03) 0 1px, transparent 1px 5px);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+/* Coin corné, comme une page de papier journal usée */
+.journal-sheet::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0.9rem;
+  height: 0.9rem;
+  background: linear-gradient(135deg, transparent 50%, rgba(0, 0, 0, 0.18) 50%);
+}
+
+.journal-masthead {
+  color: #2b2620;
+  border-bottom: 3px double rgba(43, 38, 32, 0.6);
+  letter-spacing: 0.08em;
+}
+
+.journal-line {
+  height: 0.2rem;
+  border-radius: 1px;
+  background: rgba(43, 38, 32, 0.35);
+}
+
+.journal-stamp {
+  width: 1.4rem;
+  height: 1.4rem;
+  background-color: #6b2b28;
+}
