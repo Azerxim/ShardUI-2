@@ -44,7 +44,7 @@ export default function Navbar({ active = '' }) {
                         console.warn("Token invalide ou expiré");
                     } else {
                         const data = await response.json();
-                        console.log("Session valide:", data);
+                        // console.log("Session valide:", data);
                     }
                 } catch (error) {
                     console.error('Erreur lors de la vérification du token:', error);

@@ -4,14 +4,13 @@ import { useState, useEffect } from 'react';
 import { checkMemberAuth } from "../../services/authorisation";
 
 import Navbar from "../../components/Navigation/Navbar";
-import TitleH1 from "../../components/Objects/TitleH1";
-import TitleH2 from "../../components/Objects/TitleH2";
 import DynamicModal from '../../components/Modals/DynamicModal';
 import DynamicNavbar from "../../components/Navigation/DynamicNavbar";
 import SkeletonCivilisation from "../../components/Objects/SkeletonCivilisation";
 
 import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Civilisation } from '../../components/Modals/Config_Modal_Civilisation';
+import { Config_Modal_Religion } from '../../components/Modals/Config_Modal_Religion';
 import { Config_RP_Navbar } from '../../components/Navigation/Config_RP_Navbar';
 import {
   getCivilisations
@@ -83,6 +82,10 @@ export default function CivilisationsPage() {
                   <span className="flex">Civilisation</span>
                   <FontAwesomeIcon icon="fas fa-plus" />
                 </button>
+                <button onClick={() => showModal(Config_Modal_Religion, "add")} className={`flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left`} data-tip="Nouvelle Religion" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
+                  <span className="flex">Religion</span>
+                  <FontAwesomeIcon icon="fas fa-plus" />
+                </button>
               </div>
             }
           />
@@ -131,6 +134,8 @@ export default function CivilisationsPage() {
           )}
 
           <DynamicModal config={Config_Modal_Civilisation} mode="add" onSubmit={(civilisation) => { updateCivilisation(civilisation) }} />
+          
+          <DynamicModal config={Config_Modal_Religion} mode="add" />
 
         </div>
       </main>

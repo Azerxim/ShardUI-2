@@ -34,17 +34,17 @@ export const Config_RP_Navbar = {
         },
         dropdown: [],
       },
-      // {
-      //   id: "religions",
-      //   text: "Religions",
-      //   href: "/religions",
-      //   icon: "fas fa-cross",
-      //   tooltip: {
-      //     text: "",
-      //     position: "bottom",
-      //   },
-      //   dropdown: [],
-      // },
+      {
+        id: "religions",
+        text: "Religions",
+        href: "/religions",
+        icon: "fas fa-cross",
+        tooltip: {
+          text: "",
+          position: "bottom",
+        },
+        dropdown: [],
+      },
       // {
       //   id: "alliances",
       //   text: "Alliances",

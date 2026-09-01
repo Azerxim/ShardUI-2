@@ -11,13 +11,15 @@ import TitleH2 from "../../components/Objects/TitleH2";
 import TitleH3 from "../../components/Objects/TitleH3";
 import UserButton from "../../components/Buttons/UserButton";
 import MemberButton from "../../components/Buttons/MemberButton";
+import ReligionButton from "../../components/Buttons/ReligionButton";
 import DynamicModal from '../../components/Modals/DynamicModal';
+import VilleReligionAddModal from '../../components/Modals/VilleReligionAddModal';
 import EtagereLivres from "../../components/Objects/EtagereLivres";
 import Ville from "../../components/Objects/Ville";
 import MapEmbed from "../../components/Objects/MapEmbed";
 import MarkdownTextEditor from "../../components/Objects/MarkdownTextEditor";
 
-import { showModal } from '../../components/Functions/showModal';
+import { showModal, showModalID } from '../../components/Functions/showModal';
 import { Config_Modal_Civilisation } from '../../components/Modals/Config_Modal_Civilisation';
 import { Config_Modal_Gouvernement } from '../../components/Modals/Config_Modal_Gouvernement';
 import { Config_Modal_Civilisation_Member } from '../../components/Modals/Config_Modal_Civilisation_Member';
@@ -36,6 +38,7 @@ export default function VilleDetailPage() {
     const [dimensions, setDimensions] = useState(null);
     const [data, setData] = useState(null);
     const [ville, setVille] = useState(null);
+    const [religions, setReligions] = useState([]);
     const [civilisation, setCivilisation] = useState(null);
     const [auth, setAuth] = useState(false);
 
@@ -49,6 +52,7 @@ export default function VilleDetailPage() {
                 setData(data);
                 setCivilisation(data.civilisation ? data.civilisation : null);
                 setVille(data.villes ? data.villes.find(v => v.id === parseInt(id)) : null);
+                setReligions(data.villes && data.villes.find(v => v.id === parseInt(id)) ? data.villes.find(v => v.id === parseInt(id)).religions : []);
                 checkMemberAuth(data ? data.members : [], setAuth);
                 getDimensions()
                     .then((dimensions) => {
@@ -62,14 +66,44 @@ export default function VilleDetailPage() {
             })
             .catch((error) => {
                 console.error('Error fetching civilisations:', error);
+                setData(null);
                 setCivilisation(null);
                 setVille(null);
+                setReligions([]);
+                setDimensions(null);
             });
     }, []);
 
     const updateVille = (data) => {
         // console.log("Ville mise à jour:", data);
         setVille(data.ville ? data.ville : null);
+    };
+
+    const addReligion = (data) => {
+        console.log("Religion ajoutée:", data);
+        setReligions([...religions, data.religion]);
+        setVille({
+            ...ville,
+            religions: [...religions, data.religion]
+        });
+    };
+
+    const updateReligion = (data) => {
+        console.log("Religion mise à jour:", data);
+        setReligions(religions.map(religion => religion.id === data.religion.id ? data.religion : religion));
+        setVille({
+            ...ville,
+            religions: religions.map(religion => religion.id === data.religion.id ? data.religion : religion)
+        });
+    };
+
+    const deleteReligion = (data) => {
+        console.log("Religion supprimée:", data);
+        setReligions(religions.filter(religion => religion.id !== data.id));
+        setVille({
+            ...ville,
+            religions: religions.filter(religion => religion.id !== data.id)
+        });
     };
 
     const handleDelete = () => {
@@ -129,6 +163,19 @@ export default function VilleDetailPage() {
                         </div>
                         <span className="flex-1">{ville.population}</span>
                     </div>
+                    <div className="flex flex-row gap-2 w-full justify-between items-center">
+                        <div className="flex-1">
+                            <TitleH2 text="Religions" icon="fas fa-praying-hands" />
+                        </div>
+                        <span className="flex flex-row items-center flex-1 gap-2">
+                            {auth && (
+                                <button className="btn btn-sm btn-primary rounded-3xl tooltip tooltip-left" data-tip="Ajouter une religion" onClick={() => { showModalID("ville-religion-add-modal") }}>
+                                    <FontAwesomeIcon icon="fas fa-plus" />
+                                </button>
+                            )}
+                            {religions.length > 0 ? religions.map(religion => <ReligionButton key={religion.id} religion={religion} ville={ville} auth={auth} onModify={(data) => { updateReligion(data) }} onDelete={(data) => { deleteReligion(data) }} />) : 'Aucune religion'}
+                        </span>
+                    </div>
                     <TitleH3 text="Description" icon="fas fa-info-circle" />
                     <MarkdownTextEditor value={ville.description ? ville.description : 'Aucune description'} />
                 </div>
@@ -138,6 +185,8 @@ export default function VilleDetailPage() {
         <p>Ville non trouvée.</p>
     );
 
+    // console.log(ville)
+
     return (
         <>
             <Navbar active="civilisations" />
@@ -146,6 +195,8 @@ export default function VilleDetailPage() {
                     {!ville ? null : BodyHTML}
 
                     <DynamicModal config={Config_Modal_Ville} mode="edit" onSubmit={(ville) => { updateVille(ville) }} onDelete={handleDelete} />
+                    <VilleReligionAddModal id="ville-religion-add-modal" ville_id={id} onSubmit={(data) => { addReligion(data) }} />
+                    
                 </div>
             </main>
         </>

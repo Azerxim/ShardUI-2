@@ -85,7 +85,7 @@ export async function getUsers() {
 // __________________________________DYNAMIC____________________________________
 
 export async function dynamicLoadData(url, method, token = null) {
-  console.log("dynamicLoadData called with url:", url, "method:", method, "token:", token);
+  // console.log("dynamicLoadData called with url:", url, "method:", method, "token:", token);
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const response = await fetch(url.replace("$apiURL", apiURL), {
     method: method,
@@ -97,7 +97,7 @@ export async function dynamicLoadData(url, method, token = null) {
   }
 
   const responseData = await response.json();
-  console.log("dynamicLoadData response:", responseData);
+  // console.log("dynamicLoadData response:", responseData);
   return responseData;
 }
 
@@ -355,6 +355,24 @@ export async function getReligionById(religionId) {
   // console.log("Fetching religion with ID:", religionId);
 
   const response = await fetch(`${apiURL}/religions/read/${religionId}`, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function getVilleReligionById(ville_id, religion_id) {
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  };
+
+  const response = await fetch(`${apiURL}/religions/ville/${ville_id}/read/${religion_id}`, {
     method: "GET",
     headers,
   });

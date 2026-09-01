@@ -6,4 +6,12 @@ const showModal = (config, mode = "default", local = { id: null }) => {
     }
 };
 
-export { showModal };
+const showModalID = (id) => {
+    const modal = document.getElementById(id);
+    // console.log("showModal", id, local.id, modal);
+    if (modal) {
+        modal.showModal();
+    }
+};
+
+export { showModal, showModalID };

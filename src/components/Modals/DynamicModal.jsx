@@ -11,11 +11,9 @@ import { useParams } from "react-router-dom";
 
 import MapEmbedLocalisation from "../Objects/MapEmbedLocalisation";
 
-import { getAuthToken } from "../Functions/getAuthToken";
-
 export default function DynamicModal({
   config,
-  onSubmit,
+  onSubmit = () => { },
   onDelete = () => { },
   mode = "default",
   local = { id: null },
@@ -83,7 +81,7 @@ export default function DynamicModal({
   const saveData = async (e) => {
     e.preventDefault();
     // Logic to save the entry
-    console.log("Save Form values:", formValues);
+    // console.log("Save Form values:", formValues);
     const token = localStorage.getItem("token");
     if (mode != "default") {
       const api = mode === "add" ? config.api.create : config.api.update;
