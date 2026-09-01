@@ -77,7 +77,7 @@ export const Config_Modal_Religion = {
     },
   ],
   api: {
-    get: { method: "GET", url: "$apiURL/religions/id/$id" },
+    get: { method: "GET", url: "$apiURL/religions/read/$id" },
     create: { method: "POST", url: "$apiURL/religions/create" },
     update: { method: "PUT", url: "$apiURL/religions/update/$id" },
     delete: { method: "DELETE", url: "$apiURL/religions/delete/$id" },

@@ -37,12 +37,14 @@ export default function ReligionsPage() {
         setReligions(ReligionsWithLinks);
         setStorageReligions(ReligionsWithLinks);
         localStorage.setItem('religions', JSON.stringify(ReligionsWithLinks));
+        setLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching religions:', error);
         setReligions([]);
         setStorageReligions([]);
         localStorage.removeItem('religions');
+        setLoading(false);
       });
   }, []);
 
