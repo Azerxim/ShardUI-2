@@ -4,7 +4,8 @@ import {
   dynamicLoadData,
   getApiURL,
   getUsers,
-  getDimensions
+  getDimensions,
+  getCivilisations
 } from "../../services/api";
 import Swal from "sweetalert2";
 import { useParams } from "react-router-dom";
@@ -273,7 +274,69 @@ export default function DynamicModal({
         );
 
 
-      case "users":
+      case "civilisation_dirigeante":
+        const [civilisationList, setCivilisationList] = useState([]);
+
+        useEffect(() => {
+          const fetchCivilisations = async () => {
+            const civData = await getCivilisations();
+            setCivilisationList(civData);
+          };
+          fetchCivilisations();
+        }, []);
+        // console.log("Civilisation list fetched:", civilisationList);
+        return (
+          <>
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend">{champ.label}</legend>
+
+              <div className="flex gap-2">
+                <input
+                  type="checkbox"
+                  name={champ.name}
+                  checked={value}
+                  onChange={(e) =>
+                    handleInputChange(champ.name, e.target.checked)
+                  }
+                  className="toggle toggle-primary"
+                  required={champ.required}
+                />
+                <label className="label">
+                  <span className="label-text text-base-content">
+                    {champ.option[0].label}
+                  </span>
+                </label>
+              </div>
+
+              {champ.description && (
+                <p className="label">{champ.description}</p>
+              )}
+
+              { civilisationList.length > 0 && value == false && (
+                <select
+                defaultValue={champ.placeholder}
+                className="select select-ghost bg-base-100 brightness-98 w-full"
+                onChange={(e) => handleInputChange("dirigeante_civilisation_id", e.target.value)}
+              >
+                <option key="placeholder" disabled={true}>
+                  {champ.placeholder}
+                </option>
+                {civilisationList.map((item) => (
+                  <option
+                    key={item.civilisation.id}
+                    value={parseInt(item.civilisation.id)}
+                    selected={value === parseInt(item.civilisation.id)}
+                  >
+                    {item.civilisation.title ? item.civilisation.title : item.civilisation.id}
+                  </option>
+                ))}
+              </select>
+              )}
+            </fieldset>
+          </>
+        );
+      
+        case "users":
         const [users, setUsers] = useState([]);
 
         useEffect(() => {
@@ -325,7 +388,7 @@ export default function DynamicModal({
 
               <div className="flex gap-2">
                 <input
-                  type={champ.type}
+                  type="checkbox"
                   name={champ.name}
                   checked={value}
                   onChange={(e) =>
@@ -357,7 +420,7 @@ export default function DynamicModal({
 
               <div className="flex gap-2">
                 <input
-                  type={champ.type}
+                  type="checkbox"
                   name={champ.name}
                   checked={value}
                   onChange={(e) =>

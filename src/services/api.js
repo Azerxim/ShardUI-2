@@ -281,7 +281,7 @@ export async function getCivilisations() {
 
   const response_json = response.json()
 
-  // console.log("Civilisations fetched successfully: ", response_json);
+  console.log("Civilisations fetched successfully: ", response_json);
 
   return response_json;
 }

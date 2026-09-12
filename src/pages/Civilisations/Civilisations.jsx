@@ -17,6 +17,61 @@ import {
 } from "../../services/api"
 import GrimoireHero from "../../components/Layouts/GrimoireHero";
 
+// Regroupe les civilisations dirigees (dirigeante_civilisation_id != 0)
+// sous la civilisation dont l'id correspond.
+const buildCivilisationTree = (list) => {
+  const visibles = list.filter((civilisation) => civilisation.is_public || civilisation.auth);
+  const parIdentifiant = new Map(visibles.map((civilisation) => [civilisation.id, civilisation]));
+
+  const racines = [];
+  const dirigees = new Map();
+
+  visibles.forEach((civilisation) => {
+    const dirigeanteId = civilisation.dirigeante_civilisation_id;
+    // Rattachee a une dirigeante visible : on l'imbrique. Sinon elle reste a la racine.
+    if (dirigeanteId && dirigeanteId !== civilisation.id && parIdentifiant.has(dirigeanteId)) {
+      dirigees.set(dirigeanteId, [...(dirigees.get(dirigeanteId) || []), civilisation]);
+    } else {
+      racines.push(civilisation);
+    }
+  });
+
+  const result = racines.map((civilisation) => ({
+    ...civilisation,
+    dirigees: dirigees.get(civilisation.id) || [],
+  }));
+  // console.log(result);
+  return result;
+};
+
+const CivilisationCard = ({ civilisation, dirigee = false }) => (
+  <a href={civilisation.link} className="civilisation-card p-4 bg-base-200 rounded-3xl shadow-md w-full">
+    <div className="flex items-center justify-start">
+      <FontAwesomeIcon icon={dirigee ? "fas fa-flag-checkered" : "fas fa-flag"} className="civilisation-icon mr-2" />
+      {!civilisation.is_public && <FontAwesomeIcon icon="fas fa-eye-slash" className="private-icon mr-2" />}
+      <h2 className={`civilisation-title font-bold ${dirigee ? "text-lg" : "text-xl"}`}>{civilisation.title}</h2>
+    </div>
+    <p className="civilisation-description">{civilisation.description}</p>
+  </a>
+);
+
+const CivilisationList = ({ civilisations }) => (
+  <div className="flex flex-col gap-4 w-full">
+    {buildCivilisationTree(civilisations).map((civilisation) => (
+      <div key={civilisation.id} className="flex flex-col gap-2 w-full">
+        <CivilisationCard civilisation={civilisation} />
+        {civilisation.dirigees.length > 0 && (
+          <div className="flex flex-col gap-2 ml-4 pl-6 border-l-2 border-base-300">
+            {civilisation.dirigees.map((sousCivilisation) => (
+              <CivilisationCard key={sousCivilisation.id} civilisation={sousCivilisation} dirigee />
+            ))}
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+);
+
 export default function CivilisationsPage() {
 
   const [civilisations, setCivilisations] = useState([]);
@@ -99,38 +154,12 @@ export default function CivilisationsPage() {
                 <SkeletonCivilisation />
               </div>
             ) : (
-              <div className="flex flex-col gap-4 w-full">
-                {storageCivilisations.map((civilisation) => (
-                  (civilisation.is_public || civilisation.auth) ? (
-                    <a key={civilisation.id} href={civilisation.link} className="civilisation-card p-4 bg-base-200 rounded-3xl shadow-md w-full">
-                      <div className="flex items-center justify-start">
-                        <FontAwesomeIcon icon="fas fa-flag" className="civilisation-icon mr-2" />
-                        {!civilisation.is_public && <FontAwesomeIcon icon="fas fa-eye-slash" className="private-icon mr-2" />}
-                        <h2 className="civilisation-title text-xl font-bold">{civilisation.title}</h2>
-                      </div>
-                      <p className="civilisation-description">{civilisation.description}</p>
-                    </a>
-                  ) : null
-                ))}
-              </div>
+              <CivilisationList civilisations={storageCivilisations} />
             )
           ) : civilisations.length === 0 ? (
             <p>Aucune civilisation disponible.</p>
           ) : (
-            <div className="flex flex-col gap-4 w-full">
-              {civilisations.map((civilisation) => (
-                (civilisation.is_public || civilisation.auth) ? (
-                  <a key={civilisation.id} href={civilisation.link} className="civilisation-card p-4 bg-base-200 rounded-3xl shadow-md w-full">
-                    <div className="flex items-center justify-start">
-                      <FontAwesomeIcon icon="fas fa-flag" className="civilisation-icon mr-2" />
-                      {!civilisation.is_public && <FontAwesomeIcon icon="fas fa-eye-slash" className="private-icon mr-2" />}
-                      <h2 className="civilisation-title text-xl font-bold">{civilisation.title}</h2>
-                    </div>
-                    <p className="civilisation-description">{civilisation.description}</p>
-                  </a>
-                ) : null
-              ))}
-            </div>
+            <CivilisationList civilisations={civilisations} />
           )}
 
           <DynamicModal config={Config_Modal_Civilisation} mode="add" onSubmit={(civilisation) => { updateCivilisation(civilisation) }} />
