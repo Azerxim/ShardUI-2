@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Navbar from "../../components/Navigation/Navbar";
 import CopyBtn from '../../components/Buttons/CopyButton'
 import GrimoireHero from '../../components/Layouts/GrimoireHero';
+import ImageHero from '../../components/Layouts/ImageHero';
 
 const serverURL = import.meta.env.VITE_SERVER_URL;
 const link_serv = 'https://mcapi.us/server/status?ip=mbu-tetrago.minesr.com';
@@ -38,7 +39,9 @@ export default function HomePage() {
       <div className="bg-base-100">
         <main className="container mx-auto p-4">
           {/* Hero façon grimoire étoilé, cohérent avec le reste du site */}
-          <GrimoireHero
+          <ImageHero
+            image="/images/minecraft/spawn_01.png"
+            blur={2}
             icon="fa-solid fa-book-open"
             title="Ouvrez le Grimoire de Tetrago"
             description="Chaque joueur y écrit un chapitre. Factions, récits, cartes et légendes : votre histoire commence ici, sous les étoiles d'un monde à bâtir ensemble."
@@ -73,7 +76,7 @@ export default function HomePage() {
                 Ecrire mon histoire
               </a>
             </div>
-          </GrimoireHero>
+          </ImageHero>
 
           {/* Parcours */}
           <section id="parcours" className="mb-12 scroll-mt-24">

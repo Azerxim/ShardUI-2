@@ -1,0 +1,22 @@
+/* Bannière avec image de fond floutée, variante de GrimoireHero */
+.image-hero {
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+}
+
+.image-hero-bg {
+  position: absolute;
+  inset: -20px;
+  background-image: var(--image-hero-bg);
+  background-size: cover;
+  background-position: center;
+  filter: blur(var(--image-hero-blur, 12px));
+  transform: scale(1.1);
+}
+
+.image-hero-overlay {
+  position: absolute;
+  inset: 0;
+  /* background: rgba(9, 10, 15, 0.55); */
+}
