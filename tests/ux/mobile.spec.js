@@ -1,0 +1,34 @@
+import { test, expect } from "@playwright/test";
+import { apiPost, blockExternalRequests, createSession, signIn, uniqueSuffix } from "./helpers.js";
+
+// Sur téléphone, les libellés des boutons sont masqués : chaque action doit rester identifiable.
+test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+
+test.beforeEach(async ({ page }) => {
+  await blockExternalRequests(page);
+});
+
+test.describe("Mobile", () => {
+  for (const path of ["/", "/civilisations", "/religions", "/commerces", "/bibliotheque", "/register"]) {
+    test(`${path} ne défile pas horizontalement`, async ({ page }) => {
+      await page.goto(path);
+      await page.waitForLoadState("networkidle");
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      expect(overflow).toBeLessThanOrEqual(1);
+    });
+  }
+
+  test("sur la fiche de son commerce, chaque bouton est identifiable", async ({ page, context }) => {
+    const session = await createSession("mobile");
+    const created = await apiPost("/commerces/create", session.token, { title: `Échoppe mobile ${uniqueSuffix()}` });
+    await signIn(context, session);
+
+    await page.goto(`/commerce/${created.commerce.id}`);
+    await expect(page.locator("main.container").getByRole("button", { name: "Ajouter" }).first()).toBeVisible();
+
+    const unnamed = await page.locator("main.container").locator("a:visible, button:visible").evaluateAll((elements) => elements
+      .filter((element) => !element.innerText.trim() && !element.getAttribute("aria-label") && !element.getAttribute("data-tip") && !element.getAttribute("title"))
+      .map((element) => element.outerHTML.slice(0, 120)));
+    expect(unnamed).toEqual([]);
+  });
+});

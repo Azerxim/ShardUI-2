@@ -9,6 +9,7 @@ import TitleH1 from "../../components/Objects/TitleH1";
 import TitleH2 from "../../components/Objects/TitleH2";
 import Stat from "../../components/Objects/Stat";
 import InfoLine from "../../components/Objects/InfoLine";
+import JoinHint from "../../components/Objects/JoinHint";
 import MemberButton from "../../components/Buttons/MemberButton";
 import TransferFounderModal from '../../components/Modals/TransferFounderModal';
 import DynamicModal from '../../components/Modals/DynamicModal';
@@ -313,6 +314,7 @@ export default function CivilisationPage() {
                     <i>Aucun membre pour cette civilisation.</i>
                 )}
             </div>
+            <JoinHint members={members} entity="cette civilisation" />
 
             <TitleH2 text="Villes" icon="fas fa-city" fonctions={FctVilles} />
             {villes.length === 0 ? (

@@ -11,6 +11,7 @@ import ListCardTree from "../../components/Objects/ListCardTree";
 import { plural } from "../../components/Functions/plural";
 
 import { showModal } from "../../components/Functions/showModal";
+import { requireLogin } from "../../components/Functions/requireLogin";
 import { Config_Modal_Commerce } from "../../components/Modals/Config_Modal_Commerce";
 import { Config_RP_Navbar } from "../../components/Navigation/Config_RP_Navbar";
 import { getCommerces } from "../../services/api";
@@ -94,12 +95,12 @@ export default function CommercesPage() {
                         icon="fa-solid fa-shop"
                         title="Les Commerces de Tetrago"
                         description="Échoppes, comptoirs et grandes enseignes : découvrez les commerces des joueurs et leurs magasins à travers le monde. Ouvrez le vôtre."
-                        topRight={user ? (
-                            <button onClick={() => showModal(Config_Modal_Commerce, "add")} className="flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left" data-tip="Nouveau commerce" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
+                        topRight={
+                            <button onClick={() => requireLogin(() => showModal(Config_Modal_Commerce, "add"), "ouvrir un commerce")} className="flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left" data-tip="Nouveau commerce" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
                                 <span className="flex">Commerce</span>
                                 <FontAwesomeIcon icon="fas fa-plus" />
                             </button>
-                        ) : null}
+                        }
                     />
                     <DynamicNavbar active_id="commerces" navigation={Config_RP_Navbar.navigation} shadow="md" />
 

@@ -5,6 +5,7 @@ import {
   getApiURL
 } from "../../services/api";
 import Swal from "sweetalert2";
+import { describeApiError } from "../Functions/apiError";
 import { useParams } from "react-router-dom";
 
 import DynamicField from "./DynamicFields/DynamicField";
@@ -80,8 +81,8 @@ export default function DynamicModal({
           if (!response.ok) {
             Swal.fire({
               icon: "error",
-              title: "Oops...",
-              text: config.error[mode],
+              title: "Action impossible",
+              text: `${config.error[mode]} ${await describeApiError(response, config.champs)}`,
             });
           } else {
             const data = await response.json();
@@ -119,8 +120,8 @@ export default function DynamicModal({
         if (!response.ok) {
           Swal.fire({
             icon: "error",
-            title: "Oops...",
-            text: "Erreur API lors de la suppression.",
+            title: "Suppression impossible",
+            text: await describeApiError(response, config.champs),
           });
         } else {
           const data = await response.json();

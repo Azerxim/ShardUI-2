@@ -11,6 +11,7 @@ import ListCard from "../../components/Objects/ListCard";
 import { plural } from "../../components/Functions/plural";
 
 import { showModal } from '../../components/Functions/showModal';
+import { requireLogin } from '../../components/Functions/requireLogin';
 import { religionColor, religionIcon } from '../../components/Functions/religionColor';
 import { Config_Modal_Religion } from '../../components/Modals/Config_Modal_Religion';
 import { Config_RP_Navbar } from '../../components/Navigation/Config_RP_Navbar';
@@ -106,7 +107,7 @@ export default function ReligionsPage() {
             description="Des cultes aux grandes religions, chaque foi porte ses croyances, ses rituels et ses fidèles : voici la carte vivante de Tetrago. Rejoignez-en une, ou fondez la vôtre."
             topRight={
               <div className="flex flex-col gap-2">
-                <button onClick={() => showModal(Config_Modal_Religion, "add")} className={`flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left`} data-tip="Nouvelle Religion" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
+                <button onClick={() => requireLogin(() => showModal(Config_Modal_Religion, "add"), "fonder une religion")} className={`flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left`} data-tip="Nouvelle Religion" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
                   <span className="flex">Religion</span>
                   <FontAwesomeIcon icon="fas fa-plus" />
                 </button>

@@ -1,22 +1,17 @@
-import { useNavigate } from "react-router-dom"
-
 import Navbar from "../../components/Navigation/Navbar";
 import './Profil.css'
 import Profil from "../../components/Objects/Users/Profil";
-
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import UserMemberships from "../../components/Objects/Users/UserMemberships";
 
 export default function ProfilPage() {
+  // Sans compte, le composant Profil affiche « Vous n'êtes pas connecté » avec un lien de connexion
   const User = JSON.parse(localStorage.getItem('user'));
-  const navigate = useNavigate()
-  if (!User) {
-    navigate("/login")
-  }
   return (
     <>
       <Navbar active="profil" />
       <main className="container mx-auto p-4">
         <Profil User={User} />
+        {User ? <UserMemberships userId={User.id} /> : null}
       </main>
     </>
   );

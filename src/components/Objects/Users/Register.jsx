@@ -2,107 +2,82 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Swal from "sweetalert2"
 import { getApiURL } from "../../../services/api"
+import { getUserToken } from "../../Functions/getAuthToken"
+
+const FORBIDDEN_SEQUENCES = ["'", '"', ";", "--"];
+
+function Field({ id, label, help, type = "text", value, onChange, autoComplete }) {
+    return (
+        <label className="flex flex-col gap-1" htmlFor={id}>
+            <span className="font-semibold text-sm">{label}</span>
+            <input
+                id={id}
+                type={type}
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                className="input input-md bg-base-100 w-full"
+                autoComplete={autoComplete}
+                required
+            />
+            {help ? <span className="text-xs opacity-70">{help}</span> : null}
+        </label>
+    );
+}
 
 export default function Register() {
     const navigate = useNavigate()
-
-    const [username, setUsername] = useState("")
-    const [pseudo, setPseudo] = useState("")
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [confirmPassword, setConfirmPassword] = useState("")
     const apiURL = getApiURL()
+    const [form, setForm] = useState({ username: "", pseudo: "", email: "", password: "", confirmPassword: "" })
+    const [submitting, setSubmitting] = useState(false)
 
-    // async function getAuthToken() {
-    //     try {
-    //         const params = new URLSearchParams();
-    //         params.append('username', import.meta.env.VITE_API_USER);
-    //         params.append('password', import.meta.env.VITE_API_PASSWORD);
-
-    //         const response = await fetch(`${apiURL}/users/token`, {
-    //             method: "POST",
-    //             headers: {
-    //                 "Content-Type": "application/x-www-form-urlencoded",
-    //             },
-    //             body: params.toString(),
-    //         });
-
-    //         if (!response.ok) {
-    //             throw new Error("Erreur d'authentification");
-    //         }
-
-    //         const data = await response.json();
-    //         // console.log("Token d'authentification récupéré:", data);
-    //         return data.access_token;
-    //     } catch (error) {
-    //         console.error("Erreur lors de la récupération du token:", error);
-    //         throw error;
-    //     }
-    // }
+    const update = (name) => (value) => setForm((prev) => ({ ...prev, [name]: value }))
+    const fail = (text) => Swal.fire({ icon: "error", title: "Inscription impossible", text })
 
     async function handleRegister(e) {
         e.preventDefault()
+        const { username, pseudo, email, password, confirmPassword } = form
 
-        // Vérifier que tous les champs sont remplis
-        if (!username.trim() || !pseudo.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Tous les champs sont obligatoires",
-            });
-            return;
+        if (![username, pseudo, email, password, confirmPassword].every((value) => value.trim())) {
+            return fail("Tous les champs sont obligatoires.")
         }
-
-        // Vérifier que les mots de passe correspondent
+        if (/\s/.test(username.trim())) {
+            return fail("Le nom d'utilisateur ne doit pas contenir d'espace.")
+        }
         if (password !== confirmPassword) {
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Les mots de passe ne correspondent pas",
-            });
-            return;
+            return fail("Les mots de passe ne correspondent pas.")
         }
-        // sql injection protection
-        if (email.includes("'") || email.includes('"') || email.includes(";") || password.includes("'") || password.includes('"') || password.includes(";") || email.includes("--") || password.includes("--")) {
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Caractères spéciaux non autorisés",
-            });
-            return;
+        if ([email, password].some((value) => FORBIDDEN_SEQUENCES.some((sequence) => value.includes(sequence)))) {
+            return fail("L'adresse email et le mot de passe ne peuvent pas contenir ' \" ; ou --.")
         }
 
+        setSubmitting(true)
         try {
-            // Récupérer le token d'authentification
-            // const token = await getAuthToken();
-
             const response = await fetch(`${apiURL}/users/create`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ username, pseudo, email, password }),
-            });
-            console.log("Réponse brute de l'API:", response);
-
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: username.trim(), full_name: pseudo.trim(), email: email.trim(), password }),
+            })
+            const data = await response.json().catch(() => ({}))
             if (!response.ok) {
-                const errorData = await response.json();
-                console.error("Erreur API:", errorData);
-                throw new Error(errorData.detail || errorData.text || "Erreur lors de l'inscription");
+                throw new Error(typeof data.detail === "string" ? data.detail : "Erreur lors de l'inscription.")
             }
 
-            const data = await response.json();
-            // console.log("Inscription réussie:", data);
-
+            // Session ouverte tout de suite, avec le même jeton que depuis la page de connexion
+            let token
+            try {
+                token = await getUserToken(data.username, password)
+            } catch {
+                await Swal.fire({ icon: "info", title: "Compte créé", text: "Votre compte est prêt : connectez-vous pour commencer." })
+                navigate("/login")
+                return
+            }
             localStorage.setItem("user", JSON.stringify(data))
+            localStorage.setItem("token", token)
             navigate("/profil")
         } catch (error) {
-            console.error("Erreur:", error);
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: error.message || "Erreur lors de l'inscription",
-            });
+            fail(error.message || "Erreur lors de l'inscription.")
+        } finally {
+            setSubmitting(false)
         }
     }
 
@@ -112,33 +87,18 @@ export default function Register() {
             <div className="card bg-base-200 w-full max-w-sm shrink-0 shadow-2xl">
                 <form onSubmit={handleRegister}>
                     <div className="card-body">
-                        <fieldset className="fieldset gap-3">
-                            <label className="floating-label">
-                                <span>Nom d'utilisateur</span>
-                                <input onChange={e => { setUsername(e.target.value) }} type="text" placeholder="Nom d'utilisateur" className="input input-md bg-base-100" id="username" required />
-                            </label>
+                        <fieldset className="fieldset gap-4">
+                            <Field id="username" label="Nom d'utilisateur" help="Identifiant unique, sans espace (ex. steve42)." value={form.username} onChange={update("username")} autoComplete="username" />
+                            <Field id="pseudo" label="Pseudo" help="Nom affiché aux autres joueurs, idéalement votre pseudo Minecraft." value={form.pseudo} onChange={update("pseudo")} autoComplete="nickname" />
+                            <Field id="email" type="email" label="Adresse email" help="Vous l'utiliserez pour vous connecter." value={form.email} onChange={update("email")} autoComplete="email" />
+                            <Field id="password" type="password" label="Mot de passe" value={form.password} onChange={update("password")} autoComplete="new-password" />
+                            <Field id="confirmPassword" type="password" label="Confirmer le mot de passe" value={form.confirmPassword} onChange={update("confirmPassword")} autoComplete="new-password" />
 
-                            <label className="floating-label">
-                                <span>Pseudo</span>
-                                <input onChange={e => { setPseudo(e.target.value) }} type="text" placeholder="Pseudo" className="input input-md bg-base-100" id="pseudo" required />
-                            </label>
-
-                            <label className="floating-label">
-                                <span>Adresse email</span>
-                                <input onChange={e => { setEmail(e.target.value) }} type="text" placeholder="mail@site.com" className="input input-md bg-base-100" id="email" required />
-                            </label>
-
-                            <label className="floating-label">
-                                <span>Mot de passe</span>
-                                <input onChange={e => { setPassword(e.target.value) }} type="password" placeholder="Mot de passe" className="input input-md bg-base-100" id="password" required />
-                            </label>
-
-                            <label className="floating-label">
-                                <span>Confirmer le mot de passe</span>
-                                <input onChange={e => { setConfirmPassword(e.target.value) }} type="password" placeholder="Confirmer le mot de passe" className="input input-md bg-base-100" id="confirmPassword" required />
-                            </label>
-
-                            <button className="btn mt-4 btn-info" type="submit">Inscription</button>
+                            <button className="btn mt-2 btn-info" type="submit" disabled={submitting}>
+                                {submitting ? <span className="loading loading-spinner loading-sm"></span> : null}
+                                Inscription
+                            </button>
+                            <a href="/login" className="link link-hover text-sm text-center">Déjà un compte ? Connectez-vous</a>
                         </fieldset>
                     </div>
                 </form>

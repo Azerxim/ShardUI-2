@@ -19,8 +19,9 @@ export default function CopyButton({ text, icon, classes = "btn btn-success", st
     };
 
     return (
-        <div className={`tooltip tooltip-${tooltip.position}`} data-tip={tooltip.text}>
-            <a className={`${classes}`} onClick={handleCopy} style={style}>
+        // shrink-0 / whitespace-nowrap : dans une rangée de boutons, le bloc d'infobulle ne doit pas se comprimer
+        <div className={`tooltip tooltip-${tooltip.position} shrink-0`} data-tip={tooltip.text}>
+            <a className={`${classes} whitespace-nowrap`} onClick={handleCopy} style={style}>
                 {icon}
                 <span>{text}</span>
 

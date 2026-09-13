@@ -11,6 +11,7 @@ import GrimoireHero from '../../components/Layouts/GrimoireHero';
 import DynamicNavbar from "../../components/Navigation/DynamicNavbar";
 
 import { showModal } from '../../components/Functions/showModal';
+import { requireLogin } from '../../components/Functions/requireLogin';
 import { Config_Modal_Journal } from '../../components/Modals/Config_Modal_Journal';
 import { Config_Modal_Livre } from '../../components/Modals/Config_Modal_Livre';
 import { Config_RP_Navbar } from '../../components/Navigation/Config_RP_Navbar';
@@ -149,11 +150,11 @@ export default function BibliothequePage() {
                         description="Chaque journal est un souvenir, chaque livre un monde : ici s'accumulent les récits que la communauté refuse de laisser s'effacer. Venez les lire, ou déposez-y les vôtres."
                         topRight={
                             <div className="flex flex-col gap-2">
-                                <button onClick={() => showModal(Config_Modal_Journal, "add")} className={`flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left`} data-tip="Nouveau Journal" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
+                                <button onClick={() => requireLogin(() => showModal(Config_Modal_Journal, "add"), "publier un journal")} className={`flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left`} data-tip="Nouveau Journal" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
                                     <span className="flex">Journal</span>
                                     <FontAwesomeIcon icon="fas fa-plus" />
                                 </button>
-                                <button onClick={() => showModal(Config_Modal_Livre, "add")} className={`flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left`} data-tip="Nouveau Livre" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
+                                <button onClick={() => requireLogin(() => showModal(Config_Modal_Livre, "add"), "écrire un livre")} className={`flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left`} data-tip="Nouveau Livre" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
                                     <span className="flex">Livre</span>
                                     <FontAwesomeIcon icon="fas fa-plus" />
                                 </button>

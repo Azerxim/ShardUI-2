@@ -7,7 +7,7 @@ export default function TitleH1({ text, icon = '', btn = { text: '', link: '', i
         <div className='flex flex-row gap-2 w-full' style={{ ...style_box }}>
             {btn.text && btn.link && (
                 <div className='flex flex-row gap-2 items-center' style={{ fontSize: '0.9rem' }}>
-                    <a href={btn.link} className={`flex flex-row flex-nowrap gap-5 items-center h-full ${btn.class} rounded-2xl`} style={{ ...btn.style, padding: '1rem', cursor: 'pointer' }}>
+                    <a href={btn.link} aria-label={btn.text} title={btn.text} className={`flex flex-row flex-nowrap gap-5 items-center h-full ${btn.class} rounded-2xl`} style={{ ...btn.style, padding: '1rem', cursor: 'pointer' }}>
                         {btn.icon && <FontAwesomeIcon icon={btn.icon} />}
                         {btn.text && <span className='hidden sm:flex'>{btn.text}</span>}
                     </a>

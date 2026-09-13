@@ -8,6 +8,7 @@ import Skeleton from "../../components/Objects/Skeleton";
 import TitleH1 from "../../components/Objects/TitleH1";
 import TitleH2 from "../../components/Objects/TitleH2";
 import Stat from "../../components/Objects/Stat";
+import JoinHint from "../../components/Objects/JoinHint";
 import MemberButton from "../../components/Buttons/MemberButton";
 import TransferFounderModal from "../../components/Modals/TransferFounderModal";
 import DynamicModal from "../../components/Modals/DynamicModal";
@@ -231,6 +232,7 @@ export default function ReligionPage() {
                     <i>Aucun membre pour cette religion.</i>
                 )}
             </div>
+            <JoinHint members={members} entity="cette religion" />
 
             <TitleH2 text="Présence dans les villes" icon="fas fa-city" />
             {presences.length === 0 ? (

@@ -17,6 +17,7 @@ import { Config_Modal_Commerce } from "../../components/Modals/Config_Modal_Comm
 import { Config_Modal_Magasin } from "../../components/Modals/Config_Modal_Magasin";
 import { Config_Modal_Commerce_Member, Config_Modal_Commerce_Member_Edit } from "../../components/Modals/Config_Modal_Member";
 import MemberButton from "../../components/Buttons/MemberButton";
+import JoinHint from "../../components/Objects/JoinHint";
 import { getCommerceById, getDimensions, getVilles, deleteMemberCommerce } from "../../services/api";
 import Swal from "sweetalert2";
 
@@ -269,6 +270,7 @@ export default function CommercePage() {
                     <i>Aucun membre pour ce commerce.</i>
                 )}
             </div>
+            <JoinHint members={members} entity="ce commerce" />
 
             <TitleH2 text="Magasins" icon="fas fa-store" fonctions={FctMagasins} />
             {visibleMagasins.length === 0 ? (

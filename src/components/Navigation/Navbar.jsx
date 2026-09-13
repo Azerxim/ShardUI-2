@@ -149,8 +149,9 @@ export default function Navbar({ active = '' }) {
                 <div className="navbar-start gap-2">
                     {/* <!-- Navigation --> */}
                     <div className="dropdown dropdown-bottom dropdown-start tooltip tooltip-right" data-tip="Menu">
-                        <div tabIndex={0} role="button" className="btn bg-base-200 rounded-3xl btn-ghost">
+                        <div tabIndex={0} role="button" aria-label="Menu" className="btn bg-base-200 rounded-3xl btn-ghost">
                             <FontAwesomeIcon icon="fa-solid fa-bars-staggered" />
+                            <span className="hidden lg:inline">Menu</span>
                         </div>
                         <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 m-1 mt-6 shadow-xl flex-col gap-1">
                             <li>
@@ -212,12 +213,13 @@ export default function Navbar({ active = '' }) {
 
                     {/* <!-- Profil --> */}
                     <div className="dropdown dropdown-bottom dropdown-start tooltip tooltip-right" data-tip="Profil">
-                        <div tabIndex="0" role="button" className="btn bg-base-200 rounded-3xl btn-ghost">
+                        <div tabIndex="0" role="button" aria-label={User ? "Mon compte" : "Connexion ou inscription"} className="btn bg-base-200 rounded-3xl btn-ghost">
                             {User ? (
                                 <FontAwesomeIcon icon="fa-solid fa-user-check" />
                             ) : (
                                 <FontAwesomeIcon icon="fa-solid fa-user-plus" />
                             )}
+                            <span className="hidden lg:inline">{User ? "Compte" : "Connexion"}</span>
                         </div>
                         <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 m-1 mt-6 shadow-xl flex-col gap-1">
                             {User ? (
@@ -237,6 +239,7 @@ export default function Navbar({ active = '' }) {
                                     <li>
                                         <button className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl hover:bg-error hover:text-error-content`} onClick={() => {
                                             localStorage.removeItem('user')
+                                            localStorage.removeItem('token')
                                             window.location.reload()
                                         }}>
                                             <FontAwesomeIcon icon="right-from-bracket" />
@@ -295,8 +298,9 @@ export default function Navbar({ active = '' }) {
 
                     {/* <!-- Themes --> */}
                     <div className="dropdown dropdown-bottom dropdown-start tooltip tooltip-right" data-tip="Theme">
-                        <div tabIndex="0" role="button" className="btn bg-base-200 rounded-3xl btn-ghost">
+                        <div tabIndex="0" role="button" aria-label="Thème" className="btn bg-base-200 rounded-3xl btn-ghost">
                             <FontAwesomeIcon icon="fa-solid fa-palette" />
+                            <span className="hidden lg:inline">Thème</span>
                         </div>
                         <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 m-1 mt-6 shadow-xl flex-col gap-1">
                             <li>

@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 .env
 .env.development
+
+# Tests d'utilisabilité (Playwright)
+tests/ux/.env-api
+tests/ux/.results
+playwright-report

@@ -17,12 +17,12 @@ const books = [
   { icon: "fa-solid fa-shop", title: "Commerces", description: "Les lieux d'échange et de commerce.", link: "/commerces", color: "var(--color-info)", tilt: "2deg", target: "" },
   // { icon: "fa-solid fa-handshake", title: "Alliances", description: "Les alliances entre factions.", link: "/alliances", color: "var(--color-success)", tilt: "1deg", target: "" },
   { icon: "fa-solid fa-map", title: "Cartographie", description: "Le monde de Tetrago à explorer.", link: "https://map.beta.tetrago.fr", color: "var(--color-accent)", tilt: "-1deg", target: "" },
-  { icon: "fa-brands fa-discord", title: "Discord", description: "Rejoignez la communauté.", link: "https://discord.gg/", color: "var(--color-neutral)", tilt: "-2deg", target: "_blank" },
+  { icon: "fa-brands fa-discord", title: "Discord", description: "Rejoignez la communauté.", link: "https://discord.gg/nUFwE9S",color: "var(--color-neutral)", tilt: "-2deg", target: "_blank" },
 ];
 
 const steps = [
   { icon: "fa-solid fa-scroll", title: "Lisez les règles", description: "Le Codex du serveur, à parcourir avant toute chose.", link: "/codex", priority: true },
-  { icon: "fa-solid fa-user-plus", title: "Créez votre compte", description: "Inscrivez-vous en quelques secondes." },
+  { icon: "fa-solid fa-user-plus", title: "Créez votre compte", description: "Inscrivez-vous en quelques secondes.", link: "/register" },
   { icon: "fa-solid fa-network-wired", title: "Rejoignez le serveur", description: `Connectez-vous avec l'IP copiée: <b class="text-primary">${serverURL}</b>` },
   { icon: "fa-solid fa-feather-pointed", title: "Écrivez votre histoire", description: "Faites vivre votre personnage et sa civilisation." },
 ];
@@ -50,7 +50,7 @@ export default function HomePage() {
             description="Chaque joueur y écrit un chapitre. Factions, récits, cartes et légendes : votre histoire commence ici, sous les étoiles d'un monde à bâtir ensemble."
             className="rounded-3xl mb-14 py-24 px-4 w-full"
           >
-            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
               <a className="btn btn-error flex items-center gap-2" href="/codex">
                 <FontAwesomeIcon icon="fa-solid fa-scroll" />
                 Règlement
@@ -61,16 +61,22 @@ export default function HomePage() {
                   Profil
                 </a>
               ) : (
-                <a className="btn btn-success flex items-center gap-2" href="/login">
-                  <FontAwesomeIcon icon="fa-solid fa-sign-in-alt" />
-                  Se connecter
-                </a>
+                <>
+                  <a className="btn btn-success flex items-center gap-2" href="/login">
+                    <FontAwesomeIcon icon="fa-solid fa-sign-in-alt" />
+                    Se connecter
+                  </a>
+                  <a className="btn btn-info flex items-center gap-2" href="/register">
+                    <FontAwesomeIcon icon="fa-solid fa-user-plus" />
+                    Créer un compte
+                  </a>
+                </>
               )}
               <CopyBtn
-                text="Franchir le portail"
+                text="Copier l'IP du serveur"
                 textCopy={serverURL}
                 icon={<FontAwesomeIcon icon="fa-solid fa-hat-wizard" />}
-                classes="btn btn-warning"
+                classes="btn btn-warning flex items-center gap-2 w-full sm:w-auto"
                 style={{}}
                 tooltip={{ text: `Copier l'adresse du serveur (${serverURL})`, position: "bottom" }}
               />

@@ -58,6 +58,7 @@ export default function Profil({ User }) {
         }).then((result) => {
             if (result.isConfirmed) {
                 localStorage.removeItem('user')
+                localStorage.removeItem('token')
                 navigate('/login')
                 Swal.fire({
                     icon: 'success',
@@ -202,7 +203,7 @@ export default function Profil({ User }) {
                                 <form onSubmit={handleSaveProfile} className="space-y-4">
                                     <div className="form-control">
                                         <label className="label">
-                                            <span className="label-text">Nom complet</span>
+                                            <span className="label-text">Pseudo (nom affiché)</span>
                                         </label>
                                         <input
                                             type="text"
@@ -215,7 +216,7 @@ export default function Profil({ User }) {
 
                                     <div className="form-control">
                                         <label className="label">
-                                            <span className="label-text">Pseudo</span>
+                                            <span className="label-text">Nom d'utilisateur</span>
                                         </label>
                                         <input
                                             type="text"
@@ -282,7 +283,7 @@ export default function Profil({ User }) {
                             ) : (
                                 <div className="space-y-4">
                                     <div className="flex flex-col gap-2">
-                                        <div className="text-sm opacity-70">Nom complet</div>
+                                        <div className="text-sm opacity-70">Pseudo (nom affiché)</div>
                                         <div className="text-lg font-semibold">{userData?.full_name || "Non renseigné"}</div>
                                     </div>
                                     <div className="divider"></div>
