@@ -27,8 +27,16 @@ function ReligionsBar({ religions, total, className = "h-3" }) {
     );
 }
 
-export default function VilleReligions({ religions = [], ville = null, auth = false, compact = false, onModify = () => { }, onDelete = () => { } }) {
+// Lieu des religions : mêmes routes /religions/{scope}/{id}/… pour une ville ou un quartier
+const PLACES = {
+    ville: { this: "cette ville", from: "de la ville" },
+    quartier: { this: "ce quartier", from: "du quartier" },
+};
+
+// ville : lieu affiché (une ville, ou un quartier avec scope="quartier")
+export default function VilleReligions({ religions = [], ville = null, scope = "ville", auth = false, compact = false, onModify = () => { }, onDelete = () => { } }) {
     const navigate = useNavigate();
+    const place = PLACES[scope] ?? PLACES.ville;
 
     const sorted = [...(religions || [])].sort((a, b) => influenceOf(b) - influenceOf(a));
     const total = sorted.reduce((sum, religion) => sum + influenceOf(religion), 0);
@@ -60,7 +68,7 @@ export default function VilleReligions({ religions = [], ville = null, auth = fa
         const confirm = await Swal.fire({
             icon: "warning",
             title: "Retirer la religion ?",
-            text: `${religion.title} ne sera plus associée à ${ville?.title ?? "cette ville"}.`,
+            text: `${religion.title} ne sera plus associée à ${ville?.title ?? place.this}.`,
             showCancelButton: true,
             confirmButtonText: "Retirer",
             cancelButtonText: "Annuler",
@@ -68,7 +76,7 @@ export default function VilleReligions({ religions = [], ville = null, auth = fa
         if (!confirm.isConfirmed) return;
 
         try {
-            const response = await fetch(`${getApiURL()}/religions/ville/${ville?.id ?? 0}/delete/${religion.id}`, {
+            const response = await fetch(`${getApiURL()}/religions/${scope}/${ville?.id ?? 0}/delete/${religion.id}`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
@@ -77,9 +85,9 @@ export default function VilleReligions({ religions = [], ville = null, auth = fa
             });
             const data = await response.json().catch(() => ({}));
             if (!response.ok || data.erreur || data.error) {
-                throw new Error(data.erreur || data.text || "Erreur API lors du retrait de la religion.");
+                throw new Error(data.erreur || data.text || (typeof data.detail === "string" ? data.detail : null) || "Erreur API lors du retrait de la religion.");
             }
-            Swal.fire({ icon: "success", title: "Religion retirée", text: `${religion.title} a été retirée de la ville.` });
+            Swal.fire({ icon: "success", title: "Religion retirée", text: `${religion.title} a été retirée ${place.from}.` });
             onDelete(religion);
         } catch (error) {
             console.error(error);
@@ -126,16 +134,17 @@ export default function VilleReligions({ religions = [], ville = null, auth = fa
                             {auth ? (
                                 <>
                                     <div className="flex flex-row gap-1">
-                                        <button type="button" className="btn btn-sm btn-ghost btn-circle tooltip tooltip-left" data-tip="Modifier l'influence" onClick={() => showModalID(`ville-religion-edit-modal-${religion.id}`)}>
+                                        <button type="button" className="btn btn-sm btn-ghost btn-circle tooltip tooltip-left" data-tip="Modifier l'influence" onClick={() => showModalID(`${scope}-religion-edit-modal-${religion.id}`)}>
                                             <FontAwesomeIcon icon="fa-solid fa-pen" />
                                         </button>
-                                        <button type="button" className="btn btn-sm btn-ghost btn-circle text-error tooltip tooltip-left" data-tip="Retirer de la ville" onClick={() => handleDelete(religion)}>
+                                        <button type="button" className="btn btn-sm btn-ghost btn-circle text-error tooltip tooltip-left" data-tip={`Retirer ${place.from}`} onClick={() => handleDelete(religion)}>
                                             <FontAwesomeIcon icon="fa-solid fa-trash" />
                                         </button>
                                     </div>
                                     <VilleReligionEditModal
-                                        id={`ville-religion-edit-modal-${religion.id}`}
+                                        id={`${scope}-religion-edit-modal-${religion.id}`}
                                         ville_id={ville?.id ?? 0}
+                                        scope={scope}
                                         religion={religion}
                                         onSubmit={onModify}
                                     />

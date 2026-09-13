@@ -5,8 +5,9 @@ import Swal from "sweetalert2";
 
 export default function VilleReligionEditModal({
   id,
-  ville_id,
+  ville_id, // identifiant du lieu : une ville, ou un quartier avec scope="quartier"
   religion,
+  scope = "ville",
   onSubmit = () => { },
 }) {
   // Saisie en cours ; null = valeur actuelle de la religion (suit les mises à jour de la page)
@@ -25,7 +26,7 @@ export default function VilleReligionEditModal({
   const saveData = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch(`${apiURL}/religions/ville/${ville_id}/update/influence`, {
+      const response = await fetch(`${apiURL}/religions/${scope}/${ville_id}/update/influence`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -35,7 +36,7 @@ export default function VilleReligionEditModal({
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.religion) {
-        throw new Error(data.erreur || data.text || "Erreur API lors de la mise à jour de la religion.");
+        throw new Error(data.erreur || data.text || (typeof data.detail === "string" ? data.detail : null) || "Erreur API lors de la mise à jour de la religion.");
       }
       Swal.fire({ icon: "success", title: "Succès", text: "Influence mise à jour avec succès." });
       onSubmit(data);
@@ -86,7 +87,7 @@ export default function VilleReligionEditModal({
                   required={true}
                 />
               </div>
-              <p className="label">Part de la population de la ville suivant cette religion</p>
+              <p className="label">Part de la population {scope === "quartier" ? "du quartier" : "de la ville"} suivant cette religion</p>
             </fieldset>
           </div>
           <div className="modal-action flex flex-row-reverse gap-2 justify-between">

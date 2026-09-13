@@ -19,6 +19,7 @@ import { checkMemberAuth } from "../../services/authorisation";
 import { getSessionUser } from "../../services/session";
 import { showModal, showModalID } from '../../components/Functions/showModal';
 import { Config_Modal_Ville } from '../../components/Modals/Config_Modal_Ville';
+import { Config_Modal_Quartier } from '../../components/Modals/Config_Modal_Quartier';
 import {
     getCivilisationById,
     getCommerces,
@@ -36,28 +37,58 @@ const villeIcon = (ville) => `fa-solid fa-${ville?.is_capital ? 'archway' : 'cit
 // Capitale d'abord, puis ordre alphabétique
 const sortVilles = (list) => [...list].sort((a, b) => Number(Boolean(b.is_capital)) - Number(Boolean(a.is_capital)) || a.title.localeCompare(b.title));
 
-function QuartierCard({ quartier }) {
+// Module d'un quartier : informations à gauche, carte centrée sur le quartier à droite (dessous sur mobile).
+// La carte n'est pas dans un lien : on navigue par le titre ou le bouton.
+function QuartierCard({ quartier, ville, dimension }) {
     const founded = formatDate(quartier.founded_date);
+    const x = quartier.x ?? ville?.x ?? 0;
+    const z = quartier.z ?? ville?.z ?? 0;
+    const href = `/quartier/${quartier.id}`;
+
     return (
-        <div className="flex flex-col gap-2 w-full bg-base-200 rounded-2xl p-4">
-            <span className="flex flex-row flex-wrap items-center gap-2 font-bold">
-                <FontAwesomeIcon icon="fa-solid fa-map-location-dot" className="opacity-80" />
-                <span className="break-words">{quartier.title}</span>
-                {quartier.is_public === false ? <span className="badge badge-sm badge-warning">Privé</span> : null}
-            </span>
-            <div className="flex flex-row flex-wrap gap-x-4 gap-y-1 text-sm opacity-80">
-                <span className="flex flex-row items-center gap-1">
-                    <FontAwesomeIcon icon="fa-solid fa-people-group" className="w-4" />
-                    {formatPopulation(quartier.population)}
-                </span>
-                {founded ? (
-                    <span className="flex flex-row items-center gap-1">
-                        <FontAwesomeIcon icon="fa-solid fa-calendar" className="w-4" />
-                        Fondé le {founded}
+        <div className="flex flex-col lg:flex-row gap-4 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
+            <div className="flex flex-col gap-2 flex-1 min-w-0">
+                <a href={href} className="flex flex-row flex-wrap items-center gap-2 font-bold text-lg link link-hover">
+                    <FontAwesomeIcon icon="fa-solid fa-map-location-dot" className="opacity-80" />
+                    <span className="break-words">{quartier.title}</span>
+                    {quartier.is_public === false ? <span className="badge badge-sm badge-warning">Privé</span> : null}
+                </a>
+
+                <div className="flex flex-col gap-1 text-sm">
+                    <span className="flex flex-row items-center gap-2">
+                        <FontAwesomeIcon icon="fa-solid fa-location-dot" className="opacity-70 w-4" />
+                        <span className="tabular-nums">{dimension ? `${dimension.title} · ` : ""}X {x} · Z {z}</span>
                     </span>
-                ) : null}
+                    {founded ? (
+                        <span className="flex flex-row items-center gap-2">
+                            <FontAwesomeIcon icon="fa-solid fa-calendar" className="opacity-70 w-4" />
+                            <span>Fondé le {founded}</span>
+                        </span>
+                    ) : null}
+                </div>
+
+                {quartier.description ? <p className="break-words line-clamp-3">{quartier.description}</p> : null}
+
+                <a href={href} className="btn btn-sm btn-ghost bg-base-100 self-start mt-auto">
+                    Voir le quartier
+                    <FontAwesomeIcon icon="fa-solid fa-chevron-right" />
+                </a>
             </div>
-            {quartier.description ? <p className="break-words">{quartier.description}</p> : null}
+
+            {dimension ? (
+                <div className="w-full h-48 sm:h-56 lg:w-[360px] shrink-0">
+                    <MapEmbed
+                        dimension={dimension}
+                        width="100%"
+                        height="100%"
+                        embed="civilisations"
+                        x={x}
+                        z={z}
+                        zoom={1}
+                        title={`Carte de ${quartier.title}`}
+                    />
+                </div>
+            ) : null}
         </div>
     );
 }
@@ -154,6 +185,11 @@ export default function VilleDetailPage() {
         setReligions((prev) => prev.filter((item) => item.id !== religion.id));
     };
 
+    const addQuartier = (data) => {
+        const created = data?.quartier ?? (data?.id ? data : null);
+        if (created) setQuartiers((prev) => [...prev, created]);
+    };
+
     const openFrontieresEditor = () => {
         if (!dimension) {
             Swal.fire({ icon: "error", title: "Carte indisponible", text: "La dimension de cette ville est inconnue." });
@@ -169,6 +205,10 @@ export default function VilleDetailPage() {
 
     const FctReligions = [
         { id: 1, title: "Ajouter", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModalID(RELIGION_ADD_MODAL_ID) }
+    ];
+
+    const FctQuartiers = [
+        { id: 1, title: "Ajouter", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, tooltip: { text: "Ajouter un quartier", position: "bottom" }, function: () => showModal(Config_Modal_Quartier, "add") }
     ];
 
     const btnReturn = { text: 'Retour à la civilisation', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: `/civilisation/${civ_id}` };
@@ -250,14 +290,14 @@ export default function VilleDetailPage() {
                 onDelete={deleteReligion}
             />
 
-            {visibleQuartiers.length > 0 ? (
-                <>
-                    <TitleH2 text="Quartiers" icon="fas fa-map-location-dot" />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
-                        {visibleQuartiers.map((quartier) => <QuartierCard key={quartier.id} quartier={quartier} />)}
-                    </div>
-                </>
-            ) : null}
+            <TitleH2 text="Quartiers" icon="fas fa-map-location-dot" fonctions={FctQuartiers} />
+            {visibleQuartiers.length === 0 ? (
+                <i className="w-full">Cette ville n'a pas encore de quartier.</i>
+            ) : (
+                <div className="flex flex-col gap-2 w-full">
+                    {visibleQuartiers.map((quartier) => <QuartierCard key={quartier.id} quartier={quartier} ville={ville} dimension={dimension} />)}
+                </div>
+            )}
 
             <TitleH2 text="Commerces" icon="fas fa-shop" />
             {visibleMagasins.length === 0 ? (
@@ -309,6 +349,7 @@ export default function VilleDetailPage() {
                         <>
                             <DynamicModal config={Config_Modal_Ville} mode="edit" onSubmit={updateVille} onDelete={() => navigate(`/civilisation/${civ_id}`)} />
                             <VilleReligionAddModal id={RELIGION_ADD_MODAL_ID} ville_id={id} ville_religion_list={religions} onSubmit={addReligion} />
+                            <DynamicModal config={Config_Modal_Quartier} mode="add" onSubmit={addQuartier} />
                         </>
                     ) : null}
                 </div>

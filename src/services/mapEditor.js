@@ -1,7 +1,7 @@
 const mapsURL = import.meta.env.VITE_MAPS_BASE_URL || "https://map.beta.tetrago.fr";
 
-// Ouvre l'éditeur de ShardUI-2-Maps sur une civilisation (marqueurs) ou une
-// ville (frontières).
+// Ouvre l'éditeur de ShardUI-2-Maps sur une civilisation (marqueurs), une
+// ville ou un quartier (frontières).
 // Les deux applications ne partagent pas le même localStorage (origines
 // différentes) : l'éditeur demande le jeton par postMessage à cette fenêtre,
 // qui ne répond qu'à la fenêtre ouverte ici et qu'à l'origine de la carte.

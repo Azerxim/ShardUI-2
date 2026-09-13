@@ -278,14 +278,14 @@ export default function ReligionPage() {
                     <TitleH2 text="Présence dans les quartiers" icon="fas fa-map-location-dot" />
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
                         {[...quartiers].sort((a, b) => influenceOf(b.quartiers_religions) - influenceOf(a.quartiers_religions)).map(({ quartier, quartiers_religions }) => (
-                            <div key={quartier.id} className="flex flex-col gap-3 w-full bg-base-200 p-4 rounded-2xl">
+                            <a key={quartier.id} href={`/quartier/${quartier.id}`} className="flex flex-col gap-3 w-full bg-base-200 hover:bg-base-300 transition-colors p-4 rounded-2xl">
                                 <div className="flex flex-row items-center gap-3">
                                     <FontAwesomeIcon icon="fa-solid fa-map-location-dot" className="text-xl" />
                                     <span className="flex-1 font-bold truncate">{quartier.title}</span>
                                     <span className="text-lg font-semibold tabular-nums">{formatInfluence(quartiers_religions?.influence)}</span>
                                 </div>
                                 <InfluenceBar influence={influenceOf(quartiers_religions)} color={color} />
-                            </div>
+                            </a>
                         ))}
                     </div>
                 </>

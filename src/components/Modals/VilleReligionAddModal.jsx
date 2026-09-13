@@ -6,7 +6,8 @@ import Swal from "sweetalert2";
 
 export default function VilleReligionAddModal({
   id,
-  ville_id,
+  ville_id, // identifiant du lieu : une ville, ou un quartier avec scope="quartier"
+  scope = "ville",
   ville_religion_list = [],
   onSubmit = () => { },
 }) {
@@ -38,7 +39,7 @@ export default function VilleReligionAddModal({
   const saveData = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch(`${apiURL}/religions/ville/${ville_id}/add`, {
+      const response = await fetch(`${apiURL}/religions/${scope}/${ville_id}/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -48,7 +49,7 @@ export default function VilleReligionAddModal({
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.religion || data.erreur) {
-        throw new Error(data.erreur || data.text || "Erreur API lors de l'ajout de la religion.");
+        throw new Error(data.erreur || data.text || (typeof data.detail === "string" ? data.detail : null) || "Erreur API lors de l'ajout de la religion.");
       }
       Swal.fire({ icon: "success", title: "Succès", text: "Religion ajoutée avec succès." });
       onSubmit(data);
@@ -83,7 +84,7 @@ export default function VilleReligionAddModal({
             <fieldset className="fieldset">
               <legend className="fieldset-legend">Religion</legend>
               {available.length === 0 && religionList.length > 0 ? (
-                <p className="italic opacity-70">Toutes les religions sont déjà présentes dans cette ville.</p>
+                <p className="italic opacity-70">Toutes les religions sont déjà présentes dans {scope === "quartier" ? "ce quartier" : "cette ville"}.</p>
               ) : (
                 <select
                   value={religion}
@@ -127,7 +128,7 @@ export default function VilleReligionAddModal({
                 />
               </div>
               <p className="label">
-                Influence non attribuée dans la ville : {formatInfluence(remaining)}
+                Influence non attribuée {scope === "quartier" ? "dans le quartier" : "dans la ville"} : {formatInfluence(remaining)}
               </p>
             </fieldset>
           </div>

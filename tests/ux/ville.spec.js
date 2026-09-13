@@ -38,9 +38,12 @@ test("le fondateur voit les informations et les actions de sa ville", async ({ p
   await expect(main(page).locator(".badge", { hasText: "Capitale" })).toBeVisible();
   await expect(main(page).getByText("X 120 · Z -45")).toBeVisible();
   await expect(main(page).getByText("250", { exact: true })).toBeVisible();
-  for (const name of ["Frontières", "Modifier", "Ajouter"]) {
+  for (const name of ["Frontières", "Modifier"]) {
     await expect(main(page).getByRole("button", { name, exact: true })).toBeVisible();
   }
+  // « Ajouter » : une religion, et un quartier
+  await expect(main(page).getByRole("button", { name: "Ajouter", exact: true })).toHaveCount(2);
+  await expect(page.locator('button[data-tip="Ajouter un quartier"]')).toBeVisible();
   await expect(main(page).getByText(/aucun commerce n'est encore implanté/i)).toBeVisible();
 });
 

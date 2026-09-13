@@ -443,6 +443,21 @@ export async function getCommerceById(commerceId) {
   return response.json();
 }
 
+// { quartier, ville, religions } ; lève une erreur si le quartier n'existe pas
+export async function getQuartierById(quartierId) {
+  const response = await fetch(`${apiURL}/civilisations/quartiers/read/${quartierId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+  return response.json();
+}
+
 export async function getQuartiersByVille(villeId) {
   const response = await fetch(`${apiURL}/civilisations/quartiers/ville/${villeId}`, {
     method: "GET",

@@ -32,6 +32,20 @@ test.describe("Mobile", () => {
     expect(overflow).toBeLessThanOrEqual(1);
   });
 
+  test("une fiche quartier ne défile pas horizontalement", async ({ page }) => {
+    const session = await createSession("mobileq");
+    const [dimension] = await apiGet("/cartographie/dimensions/read");
+    const { civilisation } = await apiPost("/civilisations/create", session.token, { title: `Comté mobile ${uniqueSuffix()}`, is_public: true });
+    const ville = await apiPost("/civilisations/villes/create", session.token, { title: "Bourg mobile", civilisation_id: civilisation.id, dimension_id: dimension?.id ?? 1, x: 0, z: 0, is_public: true });
+    const { quartier } = await apiPost("/civilisations/quartiers/create", session.token, { title: "Quartier des artisans du bord de mer", ville_id: ville.id, is_public: true });
+
+    await page.goto(`/quartier/${quartier.id}`);
+    await expect(page.locator("main.container h1")).toContainText(quartier.title);
+    await page.waitForLoadState("networkidle");
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(1);
+  });
+
   test("la carte d'un journal tient dans l'écran", async ({ page }) => {
     await page.goto("/bibliotheque");
     const card = page.locator(".journal-card").first();

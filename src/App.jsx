@@ -14,6 +14,7 @@ import LivreDetailPage from './pages/Bibliotheque/LivreDetail';
 import CivilisationsPage from './pages/Civilisations/Civilisations';
 import CivilisationPage from './pages/Civilisations/Civilisation';
 import VilleDetailPage from './pages/Civilisations/VilleDetail';
+import QuartierDetailPage from './pages/Civilisations/QuartierDetail';
 import ReligionsPage from './pages/Religions/Religions';
 import ReligionPage from './pages/Religions/Religion';
 import CommercesPage from './pages/Commerces/Commerces';
@@ -50,6 +51,7 @@ export default function App() {
           <Route path="/civilisation" element={<Navigate to="/civilisations" replace />} />
           <Route path="/civilisation/:id" element={<CivilisationPage />} />
           <Route path="/civilisation/:civ_id/ville/:id" element={<VilleDetailPage />} />
+          <Route path="/quartier/:id" element={<QuartierDetailPage />} />
 
           <Route path="/religions" element={<ReligionsPage />} />
           <Route path="/religion" element={<Navigate to="/religions" replace />} />
