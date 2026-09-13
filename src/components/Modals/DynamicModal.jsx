@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   dynamicLoadData,
-  getApiURL,
-  getUsers,
-  getDimensions,
-  getCivilisations
+  getApiURL
 } from "../../services/api";
 import Swal from "sweetalert2";
 import { useParams } from "react-router-dom";
 
-import MapEmbedLocalisation from "../Objects/MapEmbedLocalisation";
+import DynamicField from "./DynamicFields/DynamicField";
 
 export default function DynamicModal({
   config,
@@ -23,22 +20,17 @@ export default function DynamicModal({
   const params = useParams();
   const apiURL = getApiURL();
 
-  // console.log("DynamicModal params:", params);
-  // console.log("DynamicModal local:", local);
-
-  // Initialize state with default values from config
-  const [formValues, setFormValues] = useState({});
-  const [loadData, setLoadData] = useState({});
-  const [loadFormValues, setLoadFormValues] = useState(() => {
+  // Mode "add" : valeurs par défaut de la config (et paramètres user / url / local).
+  // Mode "edit" : vide, puis rempli par le chargement ci-dessous.
+  const [formValues, setFormValues] = useState(() => {
+    if (mode !== "add") return {};
     const initialValues = {};
     config.champs.forEach((champ) => {
       if (champ.param && champ.name === "user_id") {
         initialValues[champ.name] = User ? User.id : champ.defaultValue;
       } else if (champ.param && champ.description == "url" && champ.label == "id") {
-        // console.log("params.id:", params.id);
         initialValues[champ.name] = params.id ? parseInt(params.id) : champ.defaultValue;
       } else if (champ.param && champ.description == "local" && champ.label == "id") {
-        // console.log("local.id:", local.id);
         initialValues[champ.name] = local.id ? parseInt(local.id) : champ.defaultValue;
       } else {
         initialValues[champ.name] = champ.defaultValue;
@@ -46,31 +38,23 @@ export default function DynamicModal({
     });
     return initialValues;
   });
-  const fetchLoadData = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      let api = config.api.get;
-      const data = await dynamicLoadData(api.url.replace("$id", params.id).replace("$local-id", local.id), api.method, token);
-      return (data && data[config.dataKey]) ? data[config.dataKey] : {};
-    } catch (err) {
-      console.error(err);
-      return {};
-    }
-  };
 
-  // Load data when component mounts or when mode changes
+  // Mode "edit" : chargement des données existantes
   useEffect(() => {
-    if (mode === "add") {
-      setFormValues(loadFormValues);
-    } else if (mode === "edit") {
-      fetchLoadData().then((data) => {
-        setFormValues(data);
-        // console.log("DynamicModal fetched data for edit mode:", data);
-      });
-    } else {
-      setFormValues({});
-    }
-  }, [config, mode]);
+    if (mode !== "edit") return;
+    let cancelled = false;
+
+    const api = config.api.get;
+    dynamicLoadData(api.url.replace("$id", params.id).replace("$local-id", local.id), api.method, localStorage.getItem("token"))
+      .then((data) => {
+        if (!cancelled) setFormValues(data && data[config.dataKey] ? data[config.dataKey] : {});
+      })
+      .catch((err) => console.error(err));
+
+    return () => {
+      cancelled = true;
+    };
+  }, [config, mode, params.id, local.id]);
 
   const handleInputChange = (name, value) => {
     setFormValues((prev) => ({
@@ -81,8 +65,6 @@ export default function DynamicModal({
 
   const saveData = async (e) => {
     e.preventDefault();
-    // Logic to save the entry
-    // console.log("Save Form values:", formValues);
     const token = localStorage.getItem("token");
     if (mode != "default") {
       const api = mode === "add" ? config.api.create : config.api.update;
@@ -160,465 +142,6 @@ export default function DynamicModal({
     document.getElementById(config.id[mode].replace("$local-id", local.id)).close();
   };
 
-  const renderInput = (config, champ) => {
-    let value
-    try {
-      value = formValues[champ.name] ?? champ.defaultValue;
-    } catch (error) {
-      // console.error(`Error accessing formValues for champ.name: ${champ.name}`, error);
-      value = champ.defaultValue;
-    }
-
-    switch (champ.type) {
-      case "custom":
-        if (champ.render) {
-          return champ.render({ config, params }, value, handleInputChange);
-        }
-        return "Invalid custom render function";
-
-      case "localisation":
-        const [dimensions, setDimensions] = useState([]);
-        const [mapZoom, setMapZoom] = useState(0);
-
-        useEffect(() => {
-          const fetchDimensions = async () => {
-            const dimensionsData = await getDimensions();
-            setDimensions(dimensionsData);
-          };
-          fetchDimensions();
-        }, []);
-        // console.log("Dimensions fetched:", dimensions);
-        return (
-          <>
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">{champ.label}</legend>
-
-              <div className="flex flex-row gap-2 w-full bg-base-200 rounded-3xl pr-4 pl-4 pt-1 pb-4">
-                <div className="flex-2">
-                  <legend className="fieldset-legend">Dimension</legend>
-
-                  <select
-                    defaultValue={champ.placeholder}
-                    className="select select-ghost bg-base-100 brightness-98 w-full"
-                    onChange={(e) => handleInputChange("dimension_id", e.target.value)}
-                    required={champ.required}
-                  >
-                    <option key="placeholder" disabled={true}>
-                      {champ.placeholder}
-                    </option>
-                    {dimensions.map((dimension) => (
-                      <option
-                        key={dimension.id}
-                        value={parseInt(dimension.id)}
-                        selected={value === parseInt(dimension.id)}
-                      >
-                        {dimension.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex-1">
-                  <legend className="fieldset-legend">Coordonnées X</legend>
-
-                  <input
-                    type="number"
-                    name="x"
-                    placeholder="Coordonnée X de la ville"
-                    value={formValues?.x ?? 0}
-                    onChange={(e) => handleInputChange("x", e.target.value)}
-                    className="input input-ghost bg-base-100 brightness-98 w-full"
-                    required={champ.required}
-                  />
-                </div>
-                <div className="flex-1">
-                  <legend className="fieldset-legend">Coordonnées Z</legend>
-
-                  <input
-                    type="number"
-                    name="z"
-                    placeholder="Coordonnée Z de la ville"
-                    value={formValues?.z ?? 0}
-                    onChange={(e) => handleInputChange("z", e.target.value)}
-                    className="input input-ghost bg-base-100 brightness-98 w-full"
-                    required={champ.required}
-                  />
-                </div>
-              </div>
-
-              <div className="hidden lg:flex">
-                {formValues?.dimension_id !== undefined ? (
-                  <MapEmbedLocalisation
-                    dimension={dimensions ? dimensions.find(dim => dim.id === parseInt(formValues.dimension_id)) : null}
-                    width={450}
-                    height={200}
-                    embed="civilisations"
-                    x={formValues?.x}
-                    z={formValues?.z}
-                    zoom={mapZoom}
-                    onMove={({ x, z, zoom }) => {
-                      setMapZoom(zoom);
-                      handleInputChange("x", x);
-                      handleInputChange("z", z);
-                    }}
-                  />
-                ) : null}
-              </div>
-
-
-              {champ.description && (
-                <p className="label">{champ.description}</p>
-              )}
-              {!champ.required && <span className="label">Optional</span>}
-            </fieldset>
-          </>
-        );
-
-      case "civilisation_dirigeante":
-        const [civilisationList, setCivilisationList] = useState([]);
-
-        useEffect(() => {
-          const fetchCivilisations = async () => {
-            const civData = await getCivilisations();
-            setCivilisationList(civData);
-          };
-          fetchCivilisations();
-        }, []);
-        // console.log("Civilisation list fetched:", civilisationList);
-        return (
-          <>
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">{champ.label}</legend>
-
-              <div className="flex gap-2">
-                <input
-                  type="checkbox"
-                  name={champ.name}
-                  checked={value}
-                  onChange={(e) =>
-                    handleInputChange(champ.name, e.target.checked)
-                  }
-                  className="toggle toggle-primary"
-                  required={champ.required}
-                />
-                <label className="label">
-                  <span className="label-text text-base-content">
-                    {champ.option[0].label}
-                  </span>
-                </label>
-              </div>
-
-              {champ.description && (
-                <p className="label">{champ.description}</p>
-              )}
-
-              { civilisationList.length > 0 && value == false && (
-                <select
-                defaultValue={champ.placeholder}
-                className="select select-ghost bg-base-100 brightness-98 w-full"
-                onChange={(e) => handleInputChange("dirigeante_civilisation_id", e.target.value)}
-              >
-                <option key="placeholder" disabled={true}>
-                  {champ.placeholder}
-                </option>
-                {civilisationList.map((item) => (
-                  <option
-                    key={item.civilisation.id}
-                    value={parseInt(item.civilisation.id)}
-                    selected={value === parseInt(item.civilisation.id)}
-                  >
-                    {item.civilisation.title ? item.civilisation.title : item.civilisation.id}
-                  </option>
-                ))}
-              </select>
-              )}
-            </fieldset>
-          </>
-        );
-      
-      case "users":
-        const [users, setUsers] = useState([]);
-
-        useEffect(() => {
-          const fetchUsers = async () => {
-            const usersData = await getUsers();
-            setUsers(usersData);
-          };
-          fetchUsers();
-        }, []);
-        // console.log("Users fetched:", users);
-        return (
-          <>
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">{champ.label}</legend>
-
-              <select
-                defaultValue={champ.placeholder}
-                className="select select-ghost bg-base-100 brightness-98 w-full"
-                onChange={(e) => handleInputChange(champ.name, e.target.value)}
-                required={champ.required}
-              >
-                <option key="placeholder" disabled={true}>
-                  {champ.placeholder}
-                </option>
-                {users.map((user) => (
-                  <option
-                    key={user.id}
-                    value={parseInt(user.id)}
-                    selected={value === parseInt(user.id)}
-                  >
-                    {user.full_name ? user.full_name : user.username}
-                  </option>
-                ))}
-              </select>
-
-              {champ.description && (
-                <p className="label">{champ.description}</p>
-              )}
-              {!champ.required && <span className="label">Optional</span>}
-            </fieldset>
-          </>
-        );
-
-      case "toggle":
-        return (
-          <>
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">{champ.label}</legend>
-
-              <div className="flex gap-2">
-                <input
-                  type="checkbox"
-                  name={champ.name}
-                  checked={value}
-                  onChange={(e) =>
-                    handleInputChange(champ.name, e.target.checked)
-                  }
-                  className="toggle toggle-primary"
-                  required={champ.required}
-                />
-                <label className="label">
-                  <span className="label-text text-base-content">
-                    {champ.option[0].label}
-                  </span>
-                </label>
-              </div>
-
-              {champ.description && (
-                <p className="label">{champ.description}</p>
-              )}
-              {!champ.required && <span className="label">Optional</span>}
-            </fieldset>
-          </>
-        );
-
-      case "checkbox":
-        return (
-          <>
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">{champ.label}</legend>
-
-              <div className="flex gap-2">
-                <input
-                  type="checkbox"
-                  name={champ.name}
-                  checked={value}
-                  onChange={(e) =>
-                    handleInputChange(champ.name, e.target.checked)
-                  }
-                  className="checkbox checkbox-primary"
-                  required={champ.required}
-                />
-                <label className="label">
-                  <span className="label-text text-base-content">
-                    {champ.option[0].label}
-                  </span>
-                </label>
-              </div>
-
-              {champ.description && (
-                <p className="label">{champ.description}</p>
-              )}
-              {!champ.required && <span className="label">Optional</span>}
-            </fieldset>
-          </>
-        );
-
-      case "radio":
-        return (
-          <>
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">{champ.label}</legend>
-
-              <div className="flex flex-row gap-2">
-                {champ.option.map((opt, index) => (
-                  <div key={index} className="flex gap-2">
-                    <input
-                      type={champ.type}
-                      name={champ.name}
-                      value={opt.value}
-                      checked={value.toString() === opt.value.toString()}
-                      onChange={(e) =>
-                        handleInputChange(champ.name, e.target.value)
-                      }
-                      className="radio radio-primary"
-                      required={champ.required}
-                    />
-                    <label className="label">
-                      <span className="label-text text-base-content">
-                        {opt.label}
-                      </span>
-                    </label>
-                  </div>
-                ))}
-              </div>
-
-              {champ.description && (
-                <p className="label">{champ.description}</p>
-              )}
-              {!champ.required && <span className="label">Optional</span>}
-            </fieldset>
-          </>
-        );
-
-      case "select":
-        return (
-          <>
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">{champ.label}</legend>
-
-              <select
-                defaultValue={champ.placeholder}
-                className="select select-ghost bg-base-100 brightness-98 w-full"
-                onChange={(e) => handleInputChange(champ.name, e.target.value)}
-                required={champ.required}
-              >
-                <option key="placeholder" disabled={true}>
-                  {champ.placeholder}
-                </option>
-                {champ.option.map((opt, index) => (
-                  <option
-                    key={index}
-                    value={opt.value}
-                    selected={value.toString() === opt.value.toString()}
-                  >
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-
-              {champ.description && (
-                <p className="label">{champ.description}</p>
-              )}
-              {!champ.required && <span className="label">Optional</span>}
-            </fieldset>
-          </>
-        );
-
-      case "textarea":
-        return (
-          <>
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">{champ.label}</legend>
-
-              <textarea
-                name={champ.name}
-                placeholder={champ.placeholder}
-                className="textarea textarea-ghost bg-base-100 brightness-98 w-full"
-                required={champ.required}
-                value={value}
-                onChange={(e) => handleInputChange(champ.name, e.target.value)}
-              ></textarea>
-
-              {champ.description && (
-                <p className="label">{champ.description}</p>
-              )}
-              {!champ.required && <span className="label">Optional</span>}
-            </fieldset>
-          </>
-        );
-
-      case "color":
-        return (
-          <>
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">{champ.label}</legend>
-
-              <div className="rounded-3xl" style={{ backgroundColor: value }}>
-                <input
-                  type={champ.type}
-                  name={champ.name}
-                  placeholder={champ.placeholder}
-                  value={value}
-                  onChange={(e) =>
-                    handleInputChange(champ.name, e.target.value)
-                  }
-                  className="input input-ghost bg-base-100 brightness-98 w-full"
-                  style={{ opacity: 0, cursor: "pointer" }}
-                  required={champ.required}
-                />
-              </div>
-
-              {champ.description && (
-                <p className="label">{champ.description}</p>
-              )}
-              {!champ.required && <span className="label">Optional</span>}
-            </fieldset>
-          </>
-        );
-
-      case "date":
-        return (
-          <>
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">{champ.label}</legend>
-
-              <input
-                type={champ.type}
-                name={champ.name}
-                placeholder={champ.placeholder}
-                value={value}
-                onChange={(e) => handleInputChange(champ.name, e.target.value)}
-                style={{ cursor: "pointer" }}
-                className="input input-ghost bg-base-100 brightness-98 w-full"
-                required={champ.required}
-              />
-
-              {champ.description && (
-                <p className="label">{champ.description}</p>
-              )}
-              {!champ.required && <span className="label">Optional</span>}
-            </fieldset>
-          </>
-        );
-
-      default:
-        return (
-          <>
-            <fieldset className="fieldset">
-              <legend className="fieldset-legend">{champ.label}</legend>
-
-              <input
-                type={champ.type}
-                name={champ.name}
-                placeholder={champ.placeholder}
-                value={value}
-                onChange={(e) => handleInputChange(champ.name, e.target.value)}
-                className="input input-ghost bg-base-100 brightness-98 w-full"
-                required={champ.required}
-              />
-
-              {champ.description && (
-                <p className="label">{champ.description}</p>
-              )}
-              {!champ.required && <span className="label">Optional</span>}
-            </fieldset>
-          </>
-        );
-    }
-  };
-
-  // console.log("Form values:", formValues);
-
   return (
     <>
       <dialog id={config.id[mode].replace("$local-id", local.id)} className="modal">
@@ -641,7 +164,14 @@ export default function DynamicModal({
                   key={index}
                   className={`form-control flex flex-col gap-1 w-full ${champ.display ? "" : "hidden"}`}
                 >
-                  {renderInput(config, champ)}
+                  <DynamicField
+                    champ={champ}
+                    config={config}
+                    params={params}
+                    value={formValues?.[champ.name] ?? champ.defaultValue}
+                    formValues={formValues}
+                    onChange={handleInputChange}
+                  />
                 </div>
               ))}
             </div>
@@ -656,13 +186,11 @@ export default function DynamicModal({
                     }
                   >
                     <FontAwesomeIcon icon="fas fa-xmark" />
-                    {/* <span>Annuler</span> */}
                   </button>
                 </div>
                 <div className="tooltip tooltip-primary" data-tip="Sauvegarder">
                   <button type="submit" className="btn btn-md btn-primary rounded-3xl gap-2">
                     <FontAwesomeIcon icon="fas fa-check" />
-                    {/* <span>Sauvegarder</span> */}
                   </button>
                 </div>
               </div>
@@ -675,7 +203,6 @@ export default function DynamicModal({
                       onClick={() => handleDelete()}
                     >
                       <FontAwesomeIcon icon="fas fa-trash" />
-                      {/* <span>Supprimer</span> */}
                     </button>
                   </div>
                 </div>

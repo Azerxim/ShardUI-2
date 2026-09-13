@@ -304,6 +304,33 @@ export async function deleteMemberCivilisation(civilisationId, memberId) {
   return response.json();
 }
 
+// Transfère le rôle de fondateur à un autre utilisateur (fondateur actuel ou administrateur).
+// formerRole : nouveau rôle de l'ancien fondateur ("Admin" ou "Membre").
+export function transferFounderCivilisation(civilisationId, userId, formerRole = "Admin") {
+  return transferFounder(`${apiURL}/civilisations/members/${civilisationId}/transfer`, userId, formerRole);
+}
+
+export function transferFounderReligion(religionId, userId, formerRole = "Admin") {
+  return transferFounder(`${apiURL}/religions/members/${religionId}/transfer`, userId, formerRole);
+}
+
+async function transferFounder(url, userId, formerRole) {
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: JSON.stringify({ user_id: parseInt(userId), former_role: formerRole }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(typeof data.detail === "string" ? data.detail : `Erreur ${response.status}: ${response.statusText}`);
+  }
+  return data;
+}
+
 // __________________________________Dimensions_________________________________
 
 export async function getDimensions() {

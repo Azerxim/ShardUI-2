@@ -10,11 +10,12 @@ import TitleH2 from "../../components/Objects/TitleH2";
 import TitleH3 from "../../components/Objects/TitleH3";
 import UserButton from "../../components/Buttons/UserButton";
 import MemberButton from "../../components/Buttons/MemberButton";
+import TransferFounderModal from '../../components/Modals/TransferFounderModal';
 import DynamicModal from '../../components/Modals/DynamicModal';
 import EtagereLivres from "../../components/Objects/EtagereLivres";
 import Ville from "../../components/Objects/Ville";
 
-import { showModal } from '../../components/Functions/showModal';
+import { showModal, showModalID } from '../../components/Functions/showModal';
 import { Config_Modal_Civilisation } from '../../components/Modals/Config_Modal_Civilisation';
 import { Config_Modal_Gouvernement } from '../../components/Modals/Config_Modal_Gouvernement';
 import { Config_Modal_Civilisation_Member } from '../../components/Modals/Config_Modal_Civilisation_Member';
@@ -30,6 +31,7 @@ import { openMapEditor } from "../../services/mapEditor";
 import Swal from "sweetalert2";
 
 const MEMBER_ROLE_ORDER = { Fondateur: 0, Admin: 1 };
+const TRANSFER_MODAL_ID = "civilisation-transfer-founder-modal";
 
 export default function CivilisationPage() {
     const { id } = useParams();
@@ -81,7 +83,7 @@ export default function CivilisationPage() {
                 console.error('Error fetching livres:', error);
                 setLivres([]);
             });
-    }, []);
+    }, [id]);
 
     const updateCivilisation = (data) => {
         // console.log("Civilisation mise à jour:", data);
@@ -135,8 +137,7 @@ export default function CivilisationPage() {
         if (!result.isConfirmed) return;
 
         await deleteMemberCivilisation(id, member.user_id)
-            .then((response) => {
-                // console.log("Membre supprimé de la civilisation:", response);
+            .then(() => {
                 setData((prevData) => ({
                     ...prevData,
                     members: prevData.members.filter((m) => m.user_id !== member.user_id),
@@ -187,6 +188,11 @@ export default function CivilisationPage() {
         { id: 1, title: "Modifier", icon: "fas fa-pen", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(Config_Modal_Gouvernement, "edit") }
     ];
 
+    const handleFounderTransfer = (members) => {
+        setData((prevData) => ({ ...prevData, members }));
+        checkMemberAuth(members, setAuth);
+    };
+
     const FctMembers = [
         { id: 1, title: "Ajouter", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(Config_Modal_Civilisation_Member, "add") }
     ];
@@ -215,7 +221,8 @@ export default function CivilisationPage() {
                 {data && data.members && data.members.length > 0 ? (
                     [...data.members].sort((a, b) => (MEMBER_ROLE_ORDER[a.role] ?? 2) - (MEMBER_ROLE_ORDER[b.role] ?? 2)).map((member) => {
                         return member.role == "Fondateur" ? (
-                            <MemberButton key={member.user_id} member={member} auth={(member.user_id == user?.id) ? true : false} onDelete={handleMemberDelete} onModifyMember={handleMemberModify} />
+                            // Menu du fondateur (transfert) : le fondateur lui-même ou un administrateur du site
+                            <MemberButton key={member.user_id} member={member} auth={member.user_id == user?.id || Boolean(user?.is_admin)} onDelete={handleMemberDelete} onModifyMember={handleMemberModify} onTransfer={() => showModalID(TRANSFER_MODAL_ID)} />
                         ) : (
                             <MemberButton key={member.user_id} member={member} auth={auth} onDelete={handleMemberDelete} onModifyMember={handleMemberModify} />
                         )
@@ -272,8 +279,8 @@ export default function CivilisationPage() {
             ) : (
                 <div className="flex flex-col gap-2 w-full bg-base-100 rounded-2xl">
                     {villes.map((ville) => (
-                        <a href={`/civilisation/${civilisation.id}/ville/${ville.id}`}>
-                            <Ville key={ville.id} info={ville} dimensions={dimensions} auth={auth} />
+                        <a key={ville.id} href={`/civilisation/${civilisation.id}/ville/${ville.id}`}>
+                            <Ville info={ville} dimensions={dimensions} auth={auth} />
                         </a>
                     ))}
                 </div>
@@ -297,6 +304,7 @@ export default function CivilisationPage() {
 
                     <DynamicModal config={Config_Modal_Civilisation} mode="edit" onSubmit={(civilisation) => { updateCivilisation(civilisation) }} onDelete={handleDelete} />
                     <DynamicModal config={Config_Modal_Civilisation_Member} mode="add" onSubmit={(member) => { addCivilisationMember(member) }} />
+                    <TransferFounderModal id={TRANSFER_MODAL_ID} entity="civilisation" entityId={id} members={data?.members || []} onTransfer={handleFounderTransfer} />
                     <DynamicModal config={Config_Modal_Gouvernement} mode="edit" onSubmit={(gouvernement) => { updateGouvernement(gouvernement) }} onDelete={handleGouvernementDelete} />
 
                     <DynamicModal config={Config_Modal_Livre} mode="add" onSubmit={(livre) => { updateLivres(livre) }} />

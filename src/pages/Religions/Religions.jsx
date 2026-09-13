@@ -88,7 +88,7 @@ export default function ReligionsPage() {
               {storageReligions.map((religion) => (
                 <a key={religion.id} href={religion.link} className="religion-card p-4 bg-base-200 rounded-3xl shadow-md w-full">
                   <div className="flex items-center justify-start">
-                    <FontAwesomeIcon icon="fa-solid fa-place-of-worship" className="religion-icon mr-2" />
+                    <FontAwesomeIcon icon={religion.icon ? religion.icon : "fa-solid fa-place-of-worship"} className="religion-icon mr-2" />
                     <h2 className="religion-title text-xl font-bold">{religion.title}</h2>
                   </div>
                   <p className="religion-description">{religion.description}</p>
@@ -103,7 +103,7 @@ export default function ReligionsPage() {
               {religions.map((religion) => (
                 <a key={religion.id} href={religion.link} className="religion-card p-4 bg-base-200 rounded-3xl shadow-md w-full">
                   <div className="flex items-center justify-start">
-                    <FontAwesomeIcon icon="fa-solid fa-place-of-worship" className="religion-icon mr-2" />
+                    <FontAwesomeIcon icon={religion.icon ? religion.icon : "fa-solid fa-place-of-worship"} className="religion-icon mr-2" />
                     <h2 className="religion-title text-xl font-bold">{religion.title}</h2>
                   </div>
                   <p className="religion-description">{religion.description}</p>

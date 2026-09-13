@@ -7,12 +7,13 @@ import Navbar from "../../components/Navigation/Navbar";
 import Skeleton from "../../components/Objects/Skeleton";
 import TitleH1 from "../../components/Objects/TitleH1";
 import TitleH2 from "../../components/Objects/TitleH2";
-import UserButton from "../../components/Buttons/UserButton";
+import MemberButton from "../../components/Buttons/MemberButton";
+import TransferFounderModal from "../../components/Modals/TransferFounderModal";
 import DynamicModal from "../../components/Modals/DynamicModal";
 import MarkdownTextEditor from "../../components/Objects/MarkdownTextEditor";
 import VilleReligions from "../../components/Objects/VilleReligions";
 
-import { showModal } from '../../components/Functions/showModal';
+import { showModal, showModalID } from '../../components/Functions/showModal';
 import { religionColor, religionIcon, formatInfluence } from '../../components/Functions/religionColor';
 import { Config_Modal_Religion } from '../../components/Modals/Config_Modal_Religion';
 import {
@@ -22,6 +23,7 @@ import {
 } from "../../services/api"
 
 const ROLE_ORDER = { Fondateur: 0, Admin: 1 };
+const TRANSFER_MODAL_ID = "religion-transfer-founder-modal";
 
 const influenceOf = (lien) => Math.max(0, Number(lien?.influence) || 0);
 
@@ -56,6 +58,7 @@ export default function ReligionPage() {
     const [civilisations, setCivilisations] = useState({});
     const [loading, setLoading] = useState(true);
     const [auth, setAuth] = useState(false);
+    const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
 
     useEffect(() => {
         getReligionById(id)
@@ -129,6 +132,11 @@ export default function ReligionPage() {
 
     const dominantCount = presences.filter((presence) => presence.dominant).length;
     const averageInfluence = presences.length > 0 ? presences.reduce((sum, presence) => sum + presence.influence, 0) / presences.length : null;
+
+    const handleFounderTransfer = (newMembers) => {
+        setMembers(newMembers);
+        checkMemberAuth(newMembers, setAuth);
+    };
 
     const sortedMembers = [...members].sort((a, b) => (ROLE_ORDER[a.role] ?? 2) - (ROLE_ORDER[b.role] ?? 2));
 
@@ -233,16 +241,15 @@ export default function ReligionPage() {
             <div className="flex flex-row flex-wrap gap-2 w-full">
                 {sortedMembers.length > 0 ? (
                     sortedMembers.map((member) => (
-                        <div key={member.user_id} className="flex flex-row items-center gap-2 bg-base-200 rounded-3xl pr-3">
-                            <UserButton userid={member.user_id} />
-                            {member.role ? (
-                                member.role === "Fondateur" ? (
-                                    <span className="badge badge-sm text-white border-0" style={{ backgroundColor: color }}>{member.role}</span>
-                                ) : (
-                                    <span className="badge badge-sm badge-ghost">{member.role}</span>
-                                )
-                            ) : null}
-                        </div>
+                        // Pas de routes d'édition des membres de religion : seul le transfert (fondateur ou administrateur du site)
+                        <MemberButton
+                            key={member.user_id}
+                            member={member}
+                            roleColor={color}
+                            editConfig={null}
+                            auth={member.role === "Fondateur" && (member.user_id === user?.id || Boolean(user?.is_admin))}
+                            onTransfer={() => showModalID(TRANSFER_MODAL_ID)}
+                        />
                     ))
                 ) : (
                     <i>Aucun membre pour cette religion.</i>
@@ -266,6 +273,7 @@ export default function ReligionPage() {
                     ) : BodyHTML}
 
                     <DynamicModal config={Config_Modal_Religion} mode="edit" onSubmit={(religion) => { updateReligion(religion) }} onDelete={handleDelete} />
+                    <TransferFounderModal id={TRANSFER_MODAL_ID} entity="religion" entityId={id} members={members} onTransfer={handleFounderTransfer} />
                 </div>
             </main>
         </>

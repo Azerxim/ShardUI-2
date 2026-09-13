@@ -55,7 +55,7 @@ export const Config_Modal_Gouvernement = {
       defaultValue: "",
       render: null,
       option: [],
-      required: false,
+      required: true,
       display: true,
       param: false,
     },

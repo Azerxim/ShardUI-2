@@ -7,10 +7,12 @@ import { Config_Modal_Civilisation_Member_Edit } from '../Modals/Config_Modal_Ci
 import DynamicModal from '../Modals/DynamicModal';
 import { showModal } from '../Functions/showModal';
 
-// Même présentation que les membres des religions : utilisateur + rôle en badge.
+// Membre d'une civilisation ou d'une religion : utilisateur + rôle en badge.
 // Les actions (modifier / supprimer / transférer) restent dans le menu, ouvert par
 // le bouton visible ou par clic droit.
-export default function MemberButton({ member, auth = false, bgColor = "", textColor = "", roleColor = "", onDelete = () => { }, onModifyMember = () => { } }) {
+// editConfig : config DynamicModal d'édition du membre ; null = pas de modification ni suppression
+// (ex. religions, sans routes dédiées).
+export default function MemberButton({ member, auth = false, bgColor = "", textColor = "", roleColor = "", editConfig = Config_Modal_Civilisation_Member_Edit, onDelete = () => { }, onModifyMember = () => { }, onTransfer = () => { } }) {
     const [username, setUsername] = useState("Utilisateur inconnu");
     const [imageUrl, setImageUrl] = useState("");
     const [linkUrl, setLinkUrl] = useState("");
@@ -52,12 +54,14 @@ export default function MemberButton({ member, auth = false, bgColor = "", textC
     }, [menuOpen]);
 
     const handleContextMenu = (e) => {
-        if (!auth) return;
+        if (!auth || !(member.role === "Fondateur" || editConfig)) return;
         e.preventDefault();
         setMenuOpen(true);
     };
 
     const isFondateur = member.role === "Fondateur";
+    // Aucune action disponible pour ce membre : pas de bouton ni de menu
+    const hasActions = auth && (isFondateur || Boolean(editConfig));
 
     return (
         <div className="relative flex flex-row items-center gap-2 bg-base-200 rounded-3xl pr-3" ref={menuRef} onContextMenu={handleContextMenu}>
@@ -85,7 +89,7 @@ export default function MemberButton({ member, auth = false, bgColor = "", textC
                 )
             ) : null}
 
-            {auth ? (
+            {hasActions ? (
                 <button
                     type="button"
                     className="btn btn-xs btn-ghost btn-circle -mr-1"
@@ -96,14 +100,14 @@ export default function MemberButton({ member, auth = false, bgColor = "", textC
                 </button>
             ) : null}
 
-            {auth && menuOpen && !isFondateur && (
+            {auth && menuOpen && !isFondateur && editConfig && (
                 <ul className="menu absolute left-0 top-full z-50 mt-1 w-40 rounded-box bg-base-100 shadow-md">
                     <li>
                         <button
                             type="button"
                             onClick={() => {
                                 setMenuOpen(false);
-                                showModal(Config_Modal_Civilisation_Member_Edit, "edit", { id: member.user_id });
+                                showModal(editConfig, "edit", { id: member.user_id });
                             }}
                         >
                             <FontAwesomeIcon icon="fa-solid fa-pen" />
@@ -131,8 +135,10 @@ export default function MemberButton({ member, auth = false, bgColor = "", textC
                     <li>
                         <button
                             type="button"
-                            className="text-warning"
-                            onClick={() => {}}
+                            onClick={() => {
+                                setMenuOpen(false);
+                                onTransfer(member);
+                            }}
                         >
                             <FontAwesomeIcon icon="fa-solid fa-arrow-right-from-bracket" />
                             <span>Transférer</span>
@@ -140,7 +146,9 @@ export default function MemberButton({ member, auth = false, bgColor = "", textC
                     </li>
                 </ul>
             )}
-            <DynamicModal config={Config_Modal_Civilisation_Member_Edit} local={{ id: member.user_id }} mode="edit" onSubmit={(content) => { onModifyMember(content) }} />
+            {editConfig ? (
+                <DynamicModal config={editConfig} local={{ id: member.user_id }} mode="edit" onSubmit={(content) => { onModifyMember(content) }} />
+            ) : null}
         </div>
     );
 }

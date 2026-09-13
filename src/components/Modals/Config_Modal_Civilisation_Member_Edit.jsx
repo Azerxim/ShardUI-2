@@ -51,7 +51,7 @@ export const Config_Modal_Civilisation_Member_Edit = {
     },
   ],
   api: {
-    get: { method: "GET", url: "$apiURL/civilisations/members/$id/list" },
+    get: { method: "GET", url: "$apiURL/civilisations/members/$id/$local-id/read" },
     create: { method: "POST", url: "$apiURL/civilisations/members/$id/add" },
     update: { method: "PUT", url: "$apiURL/civilisations/members/$id/$local-id/update" },
     delete: { method: "DELETE", url: "$apiURL/civilisations/members/$id/remove" },
