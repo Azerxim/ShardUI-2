@@ -9,6 +9,7 @@ import TitleH1 from "../../components/Objects/TitleH1";
 import TitleH2 from "../../components/Objects/TitleH2";
 import Stat from "../../components/Objects/Stat";
 import JoinHint from "../../components/Objects/JoinHint";
+import ConflictsSection from "../../components/Objects/ConflictsSection";
 import MemberButton from "../../components/Buttons/MemberButton";
 import TransferFounderModal from "../../components/Modals/TransferFounderModal";
 import DynamicModal from "../../components/Modals/DynamicModal";
@@ -233,6 +234,8 @@ export default function ReligionPage() {
                 )}
             </div>
             <JoinHint members={members} entity="cette religion" />
+
+            <ConflictsSection entityType="religion" entityId={parseInt(id)} />
 
             <TitleH2 text="Présence dans les villes" icon="fas fa-city" />
             {presences.length === 0 ? (

@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe("Mobile", () => {
-  for (const path of ["/", "/civilisations", "/religions", "/commerces", "/bibliotheque", "/register"]) {
+  for (const path of ["/", "/civilisations", "/religions", "/commerces", "/alliances", "/guerres", "/bibliotheque", "/register"]) {
     test(`${path} ne défile pas horizontalement`, async ({ page }) => {
       await page.goto(path);
       await page.waitForLoadState("networkidle");

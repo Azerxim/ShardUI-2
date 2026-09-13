@@ -15,7 +15,8 @@ const books = [
   { icon: "fa-solid fa-flag", title: "Civilisations", description: "Les factions qui façonnent le monde.", link: "/civilisations", color: "var(--color-secondary)", tilt: "2deg", target: "" },
   { icon: "fa-solid fa-cross", title: "Religions", description: "Les croyances qui influencent le monde.", link: "/religions", color: "var(--color-warning)", tilt: "3deg", target: "" },
   { icon: "fa-solid fa-shop", title: "Commerces", description: "Les lieux d'échange et de commerce.", link: "/commerces", color: "var(--color-info)", tilt: "2deg", target: "" },
-  // { icon: "fa-solid fa-handshake", title: "Alliances", description: "Les alliances entre factions.", link: "/alliances", color: "var(--color-success)", tilt: "1deg", target: "" },
+  { icon: "fa-solid fa-handshake", title: "Alliances", description: "Les pactes entre civilisations.", link: "/alliances", color: "var(--color-success)", tilt: "1deg", target: "" },
+  { icon: "fa-solid fa-shield-halved", title: "Guerres", description: "Les conflits qui ont marqué le monde.", link: "/guerres", color: "#991b1b", tilt: "-2deg", target: "" },
   { icon: "fa-solid fa-map", title: "Cartographie", description: "Le monde de Tetrago à explorer.", link: "https://map.beta.tetrago.fr", color: "var(--color-accent)", tilt: "-1deg", target: "" },
   { icon: "fa-brands fa-discord", title: "Discord", description: "Rejoignez la communauté.", link: "https://discord.gg/nUFwE9S",color: "var(--color-neutral)", tilt: "-2deg", target: "_blank" },
 ];

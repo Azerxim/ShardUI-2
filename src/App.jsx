@@ -19,8 +19,10 @@ import ReligionsPage from './pages/Religions/Religions';
 import ReligionPage from './pages/Religions/Religion';
 import CommercesPage from './pages/Commerces/Commerces';
 import CommercePage from './pages/Commerces/Commerce';
-// import AlliancesPage from './pages/Alliances/Alliances';
-// import AlliancePage from './pages/Alliances/Alliance';
+import AlliancesPage from './pages/Alliances/Alliances';
+import AlliancePage from './pages/Alliances/Alliance';
+import GuerresPage from './pages/Guerres/Guerres';
+import GuerrePage from './pages/Guerres/Guerre';
 import CodexPage from './pages/Codex/Codex';
 import AdminDimensionsPage from './pages/Admin/Dimensions';
 import NotFoundPage from './pages/NotFound/NotFound';
@@ -61,9 +63,13 @@ export default function App() {
           <Route path="/commerce" element={<Navigate to="/commerces" replace />} />
           <Route path="/commerce/:id" element={<CommercePage />} />
 
-          {/* <Route path="/alliances" element={<AlliancesPage />} /> */}
-          {/* <Route path="/alliance" element={<Navigate to="/alliances" replace />} /> */}
-          {/* <Route path="/alliance/:id" element={<AlliancePage />} /> */}
+          <Route path="/alliances" element={<AlliancesPage />} />
+          <Route path="/alliance" element={<Navigate to="/alliances" replace />} />
+          <Route path="/alliance/:id" element={<AlliancePage />} />
+
+          <Route path="/guerres" element={<GuerresPage />} />
+          <Route path="/guerre" element={<Navigate to="/guerres" replace />} />
+          <Route path="/guerre/:id" element={<GuerrePage />} />
 
           <Route path="/codex" element={<CodexPage />} />
 

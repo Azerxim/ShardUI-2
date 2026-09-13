@@ -550,7 +550,68 @@ export async function getVilleReligionById(ville_id, religion_id) {
   return response.json();
 }
 
-// __________________________________Alliances__________________________________
+// ______________________________Alliances et guerres_____________________________
+
+// Requête authentifiée : renvoie le JSON, ou lève une Error avec le message de l'API
+export async function apiRequest(method, path, body = undefined) {
+  const response = await fetch(`${apiURL}${path}`, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const detail = data?.detail;
+    if (response.status === 401) throw new Error("Vous devez être connecté pour effectuer cette action. Votre session a peut-être expiré : reconnectez-vous.");
+    if (Array.isArray(detail)) throw new Error(`Vérifiez les champs : ${[...new Set(detail.map((error) => error.loc?.[error.loc.length - 1]))].join(", ")}.`);
+    throw new Error(typeof detail === "string" ? detail : detail?.text || `Erreur ${response.status}`);
+  }
+  return data;
+}
+
+async function publicGet(path) {
+  const response = await fetch(`${apiURL}${path}`, { headers: { "Content-Type": "application/json" } });
+  if (!response.ok) {
+    const error = new Error(`Erreur ${response.status}: ${response.statusText}`);
+    error.status = response.status;
+    throw error;
+  }
+  return response.json();
+}
+
+// [{ alliance, membres: [{ civilisation, role, joined_at }], chef_de_file }]
+export const getAlliances = () => publicGet("/alliances/list");
+
+// { alliance, membres, chef_de_file, invitations, guerres }
+export const getAllianceById = (allianceId) => publicGet(`/alliances/read/${allianceId}`);
+
+export const getAlliancesOfCivilisation = (civilisationId) => publicGet(`/alliances/civilisation/${civilisationId}`);
+
+export const getMesInvitationsAlliances = () => apiRequest("GET", "/alliances/invitations/mine");
+
+// [{ guerre, camps: { attaquant, defenseur }, declarant, moderateur }] — guerres validées uniquement
+export const getGuerres = () => publicGet("/guerres/list");
+
+// Guerre publique ; sinon, pour un utilisateur connecté, déclaration non validée qui le concerne
+export async function getGuerreById(guerreId) {
+  try {
+    return await publicGet(`/guerres/read/${guerreId}`);
+  } catch (error) {
+    if (error.status === 404 && localStorage.getItem("token")) {
+      return apiRequest("GET", `/guerres/prive/${guerreId}`);
+    }
+    throw error;
+  }
+}
+
+// entityType : "civilisation" ou "religion"
+export const getGuerresOfEntity = (entityType, entityId) => publicGet(`/guerres/entite/${entityType}/${entityId}`);
+
+// { a_valider, mes_guerres, appels }
+export const getMesGuerres = () => apiRequest("GET", "/guerres/mine");
 
 
 // ___________________________________Autres____________________________________

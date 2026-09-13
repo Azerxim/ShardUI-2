@@ -56,17 +56,28 @@ export const Config_RP_Navbar = {
         },
         dropdown: [],
       },
-      // {
-      //   id: "alliances",
-      //   text: "Alliances",
-      //   href: "/alliances",
-      //   icon: "fas fa-handshake",
-      //   tooltip: {
-      //     text: "",
-      //     position: "bottom",
-      //   },
-      //   dropdown: [],
-      // },
+      {
+        id: "alliances",
+        text: "Alliances",
+        href: "/alliances",
+        icon: "fas fa-handshake",
+        tooltip: {
+          text: "",
+          position: "bottom",
+        },
+        dropdown: [],
+      },
+      {
+        id: "guerres",
+        text: "Guerres",
+        href: "/guerres",
+        icon: "fas fa-shield-halved",
+        tooltip: {
+          text: "",
+          position: "bottom",
+        },
+        dropdown: [],
+      },
       //   {
       //     id: "dropdown",
       //     text: "Dropdown",

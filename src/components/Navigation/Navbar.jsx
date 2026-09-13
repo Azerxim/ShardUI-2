@@ -208,6 +208,18 @@ export default function Navbar({ active = '' }) {
                                     <span>Commerces</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="/alliances" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'alliances' ? 'bg-secondary text-secondary-content' : ''}`}>
+                                    <FontAwesomeIcon icon="fa-solid fa-handshake" />
+                                    <span>Alliances</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/guerres" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'guerres' ? 'bg-secondary text-secondary-content' : ''}`}>
+                                    <FontAwesomeIcon icon="fa-solid fa-shield-halved" />
+                                    <span>Guerres</span>
+                                </a>
+                            </li>
                         </ul>
                     </div>
 

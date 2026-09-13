@@ -1,4 +1,16 @@
+import { execFileSync } from "node:child_process";
+import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+
+// Donne le rôle de modérateur RP à un compte, directement dans la copie jetable de la base de test
+export function makeModerateur(username) {
+  const apiDir = path.resolve(process.env.SHARD_API_DIR ?? path.join(here, "../../../Shard-API"));
+  const script = "import sqlite3, sys; db = sqlite3.connect(sys.argv[1]); db.execute('update users set is_moderateur = 1 where username = ?', (sys.argv[2],)); db.commit()";
+  execFileSync(path.join(apiDir, ".venv", "bin", "python"), ["-c", script, path.join(here, ".env-api", "ShardDB.db"), username]);
+}
 
 export const API_URL = process.env.SHARD_TEST_API_URL ?? "http://127.0.0.1:8011/api";
 

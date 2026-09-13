@@ -17,6 +17,7 @@ export default function AdminProfil({ user_id }) {
     const [isVisible, setIsVisible] = useState(false)
     const [isDisabled, setIsDisabled] = useState(false)
     const [isAdmin, setIsAdmin] = useState(false)
+    const [isModerateur, setIsModerateur] = useState(false)
     const apiURL = getApiURL()
 
     const fillForm = (data) => {
@@ -27,6 +28,7 @@ export default function AdminProfil({ user_id }) {
         setIsVisible(data?.is_visible || false)
         setIsDisabled(data?.is_disabled || false)
         setIsAdmin(data?.is_admin || false)
+        setIsModerateur(data?.is_moderateur || false)
     }
 
     useEffect(() => {
@@ -70,6 +72,7 @@ export default function AdminProfil({ user_id }) {
                     is_visible: isVisible,
                     is_disabled: isDisabled,
                     is_admin: isAdmin,
+                    is_moderateur: isModerateur,
                 }),
             })
 
@@ -211,10 +214,13 @@ export default function AdminProfil({ user_id }) {
                             <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
                                 <span className="badge badge-lg badge-ghost">
                                     <FontAwesomeIcon icon="fa-solid fa-calendar" className="mr-2" />
-                                    Membre depuis {new Date(userData.created_at || Date.now()).toLocaleDateString('fr-FR')}
+                                    {userData.created_at ? `Membre depuis le ${new Date(userData.created_at).toLocaleDateString('fr-FR')}` : "Date d'inscription inconnue"}
                                 </span>
                                 {userData.is_admin && (
                                     <span className="badge badge-lg badge-primary">Admin</span>
+                                )}
+                                {userData.is_moderateur && (
+                                    <span className="badge badge-lg badge-secondary">Modérateur RP</span>
                                 )}
                                 {userData.is_disabled && (
                                     <span className="badge badge-lg badge-warning">Désactivé</span>
@@ -346,6 +352,18 @@ export default function AdminProfil({ user_id }) {
                                 </label>
                             </div>
 
+                            <div className="form-control">
+                                <label className="label cursor-pointer">
+                                    <span className="label-text">Modérateur RP (valide et clôt les guerres)</span>
+                                    <input
+                                        type="checkbox"
+                                        className="toggle toggle-secondary ml-5"
+                                        checked={isModerateur}
+                                        onChange={(e) => setIsModerateur(e.target.checked)}
+                                    />
+                                </label>
+                            </div>
+
                             <div className="flex gap-2 justify-end mt-6">
                                 <button
                                     type="button"
@@ -393,6 +411,11 @@ export default function AdminProfil({ user_id }) {
                             <div className="flex flex-col gap-2">
                                 <div className="text-sm opacity-70">Admin</div>
                                 <div className="text-lg">{userData.is_admin ? "Oui" : "Non"}</div>
+                            </div>
+                            <div className="divider"></div>
+                            <div className="flex flex-col gap-2">
+                                <div className="text-sm opacity-70">Modérateur RP</div>
+                                <div className="text-lg">{userData.is_moderateur ? "Oui" : "Non"}</div>
                             </div>
                         </div>
                     )}

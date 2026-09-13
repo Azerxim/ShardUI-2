@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getCivilisations, getReligions, getCommerces } from "../../../services/api";
+import PendingActions from "./PendingActions";
 
 const GROUPS = [
     { key: "civilisations", title: "Mes civilisations", icon: "fa-solid fa-flag", load: getCivilisations, pick: (item) => item.civilisation, href: (entity) => `/civilisation/${entity.id}` },
@@ -44,6 +45,7 @@ export default function UserMemberships({ userId }) {
 
     return (
         <div className="max-w-4xl mx-auto mt-6 flex flex-col gap-6">
+            <PendingActions />
             <section className="card bg-base-200 shadow-xl">
                 <div className="card-body gap-4">
                     <h2 className="card-title text-2xl">
