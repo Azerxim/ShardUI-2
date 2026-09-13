@@ -55,6 +55,16 @@ export async function createSession(prefix = "ux") {
   return { account, user, token };
 }
 
+// Nouveau jeton pour un compte de test : toute connexion (mot de passe ou Discord) ferme les sessions précédentes du compte
+export async function refreshSession(session) {
+  const response = await fetch(`${API_URL}/users/token`, {
+    method: "POST",
+    body: new URLSearchParams({ username: session.account.username, password: session.account.password }),
+  });
+  const { access_token: token } = await response.json();
+  return { ...session, token };
+}
+
 // Ouvre la session dans le navigateur avant chaque chargement de page
 export async function signIn(context, session) {
   await context.addInitScript(([user, token]) => {

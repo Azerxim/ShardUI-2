@@ -8,6 +8,7 @@ import ProfilPage from './pages/Users/Profil';
 import UserProfilPage from './pages/Users/UserProfil';
 import AdminProfilPage from './pages/Users/AdminProfil';
 import UsersPage from './pages/Users/Users';
+import OAuthCallbackPage from './pages/Users/OAuthCallback';
 import BibliothequePage from './pages/Bibliotheque/Bibliotheque';
 import JournalDetailPage from './pages/Bibliotheque/JournalDetail';
 import LivreDetailPage from './pages/Bibliotheque/LivreDetail';
@@ -38,6 +39,7 @@ export default function App() {
 
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/auth/:provider/callback" element={<OAuthCallbackPage />} />
           <Route path="/profil" element={<ProfilPage />} />
           <Route path="/profil/:user_id" element={<UserProfilPage />} />
           <Route path="/users" element={<UsersPage />} />

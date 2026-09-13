@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import Swal from "sweetalert2"
 import { getUserToken } from "../../Functions/getAuthToken"
 import { getApiURL } from "../../../services/api"
+import ExternalLoginButtons from "./ExternalLoginButtons"
 
 export default function Login() {
     const navigate = useNavigate()
@@ -131,6 +132,7 @@ export default function Login() {
 
                             <a href="/register" className="link link-hover">Pas encore de compte? Inscrivez-vous</a>
                             <button className="btn mt-4 btn-success" type="submit">Connexion</button>
+                            <ExternalLoginButtons />
                         </fieldset>
                     </div>
                 </form>

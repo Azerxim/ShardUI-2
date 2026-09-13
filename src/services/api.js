@@ -613,5 +613,24 @@ export const getGuerresOfEntity = (entityType, entityId) => publicGet(`/guerres/
 // { a_valider, mes_guerres, appels }
 export const getMesGuerres = () => apiRequest("GET", "/guerres/mine");
 
+// _______________________________Comptes externes_______________________________
+
+// [{ provider, label, enabled }]
+export const getOAuthProviders = () => publicGet("/users/oauth/providers");
+
+// mode "login" (se connecter avec un compte déjà lié) ou "link" (lier depuis le profil) : adresse du fournisseur
+export async function startOAuth(provider, mode) {
+  const data = await apiRequest("GET", `/users/oauth/${provider}/${mode === "link" ? "link" : "login"}`);
+  return data.url;
+}
+
+// Retour du fournisseur : GET /users/oauth/{provider}/callback?code=…&state=…
+export const completeOAuth = (provider, code, state) => apiRequest("GET", `/users/oauth/${provider}/callback?${new URLSearchParams({ code, state })}`);
+
+// [{ platform, uid, username, avatar_url, linked_at }]
+export const getLinkedPlatforms = () => apiRequest("GET", "/users/platforms");
+
+export const unlinkPlatform = (provider) => apiRequest("DELETE", `/users/platforms/${provider}`);
+
 
 // ___________________________________Autres____________________________________

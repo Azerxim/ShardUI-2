@@ -99,6 +99,7 @@ export default function Register() {
                                 Inscription
                             </button>
                             <a href="/login" className="link link-hover text-sm text-center">Déjà un compte ? Connectez-vous</a>
+                            <p className="text-xs opacity-70 text-center">Vous pourrez ensuite lier Discord depuis votre profil pour vous connecter avec.</p>
                         </fieldset>
                     </div>
                 </form>

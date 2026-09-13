@@ -5,6 +5,7 @@ import { defineConfig, devices } from "@playwright/test";
 // et un serveur Vite relié à cette API, sur des ports dédiés (la vraie base n'est jamais modifiée).
 const API_PORT = 8011;
 const UI_PORT = 5183;
+const FAKE_DISCORD_PORT = 8013;
 
 export default defineConfig({
   testDir: "./tests/ux",
@@ -22,9 +23,23 @@ export default defineConfig({
   },
   webServer: [
     {
+      // Faux Discord (échange du code OAuth), voir tests/ux/fake-discord.mjs
+      command: "node tests/ux/fake-discord.mjs",
+      url: `http://127.0.0.1:${FAKE_DISCORD_PORT}/health`,
+      env: { FAKE_DISCORD_PORT: String(FAKE_DISCORD_PORT) },
+      timeout: 30_000,
+      reuseExistingServer: false,
+    },
+    {
       command: "node tests/ux/start-test-api.mjs",
       url: `http://127.0.0.1:${API_PORT}/api/religions/list`,
-      env: { SHARD_TEST_API_PORT: String(API_PORT) },
+      env: {
+        SHARD_TEST_API_PORT: String(API_PORT),
+        DISCORD_OAUTH_CLIENT_ID: "client-de-test",
+        DISCORD_OAUTH_CLIENT_SECRET: "secret-de-test",
+        DISCORD_OAUTH_REDIRECT_URI: `http://127.0.0.1:${UI_PORT}/auth/discord/callback`,
+        DISCORD_API_BASE_URL: `http://127.0.0.1:${FAKE_DISCORD_PORT}`,
+      },
       timeout: 120_000,
       reuseExistingServer: false,
     },
