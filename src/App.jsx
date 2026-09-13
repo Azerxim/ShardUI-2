@@ -16,9 +16,12 @@ import CivilisationPage from './pages/Civilisations/Civilisation';
 import VilleDetailPage from './pages/Civilisations/VilleDetail';
 import ReligionsPage from './pages/Religions/Religions';
 import ReligionPage from './pages/Religions/Religion';
+import CommercesPage from './pages/Commerces/Commerces';
+import CommercePage from './pages/Commerces/Commerce';
 // import AlliancesPage from './pages/Alliances/Alliances';
 // import AlliancePage from './pages/Alliances/Alliance';
-import ReglesPage from './pages/Regles/Regles';
+import CodexPage from './pages/Codex/Codex';
+import AdminDimensionsPage from './pages/Admin/Dimensions';
 import NotFoundPage from './pages/NotFound/NotFound';
 
 import Footer from './components/Layouts/Footer'
@@ -52,11 +55,18 @@ export default function App() {
           <Route path="/religion" element={<Navigate to="/religions" replace />} />
           <Route path="/religion/:id" element={<ReligionPage />} />
 
+          <Route path="/commerces" element={<CommercesPage />} />
+          <Route path="/commerce" element={<Navigate to="/commerces" replace />} />
+          <Route path="/commerce/:id" element={<CommercePage />} />
+
           {/* <Route path="/alliances" element={<AlliancesPage />} /> */}
           {/* <Route path="/alliance" element={<Navigate to="/alliances" replace />} /> */}
           {/* <Route path="/alliance/:id" element={<AlliancePage />} /> */}
 
-          <Route path="/regles" element={<ReglesPage />} />
+          <Route path="/codex" element={<CodexPage />} />
+
+          <Route path="/admin" element={<Navigate to="/admin/dimensions" replace />} />
+          <Route path="/admin/dimensions" element={<AdminDimensionsPage />} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

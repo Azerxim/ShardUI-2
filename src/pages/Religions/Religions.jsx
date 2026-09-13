@@ -7,14 +7,51 @@ import Navbar from "../../components/Navigation/Navbar";
 import DynamicModal from '../../components/Modals/DynamicModal';
 import DynamicNavbar from "../../components/Navigation/DynamicNavbar";
 import SkeletonCivilisation from "../../components/Objects/SkeletonCivilisation";
+import ListCard from "../../components/Objects/ListCard";
+import { plural } from "../../components/Functions/plural";
 
 import { showModal } from '../../components/Functions/showModal';
+import { religionColor, religionIcon } from '../../components/Functions/religionColor';
 import { Config_Modal_Religion } from '../../components/Modals/Config_Modal_Religion';
 import { Config_RP_Navbar } from '../../components/Navigation/Config_RP_Navbar';
 import {
   getReligions
 } from "../../services/api"
 import GrimoireHero from "../../components/Layouts/GrimoireHero";
+
+const ReligionCard = ({ religion }) => {
+  const members = religion.members || [];
+  const villes = religion.villes || [];
+  const dateFounded = religion.date_founded ? new Date(religion.date_founded).toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }) : null;
+
+  return (
+    <ListCard
+      href={religion.link}
+      icon={religionIcon(religion)}
+      iconColor={religionColor(religion)}
+      title={religion.title}
+      badges={religion.is_public === false ? [{ text: "Privée", className: "badge-warning" }] : []}
+      subtitle={dateFounded ? `Fondée le ${dateFounded}` : null}
+      description={religion.description}
+      stats={[
+        { icon: "fa-solid fa-users", text: plural(members.length, "membre") },
+        { icon: "fa-solid fa-city", text: villes.length > 0 ? `Présente dans ${plural(villes.length, "ville")}` : "Présente dans aucune ville" },
+      ]}
+    />
+  );
+};
+
+const ReligionList = ({ religions }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+    {religions.map((religion) => (
+      <ReligionCard key={religion.id} religion={religion} />
+    ))}
+  </div>
+);
 
 export default function ReligionsPage() {
 
@@ -28,9 +65,10 @@ export default function ReligionsPage() {
       .then((data) => {
         // console.log('Religions fetched:', data);
         // Ajouter les liens pour redirection vers la page de détail
-        const ReligionsWithLinks = data.map(({ religion, members }) => ({
+        const ReligionsWithLinks = data.map(({ religion, members, villes }) => ({
           ...religion,
           members,
+          villes: villes || [],
           auth: checkMemberAuth(members ? members : []),
           link: `/religion/${religion.id}`
         }));
@@ -50,9 +88,10 @@ export default function ReligionsPage() {
 
   const updateReligion = (data) => {
     // console.log("Nouvelle religion ajoutée:", data);
-    setReligions((prevReligions) => [...prevReligions, { ...data.religion, members: [data.member], link: `/religion/${data.religion.id}` }]);
-    setStorageReligions((prevStorageReligions) => [...prevStorageReligions, { ...data.religion, members: [data.member], link: `/religion/${data.religion.id}` }]);
-    localStorage.setItem('religions', JSON.stringify([...storageReligions, { ...data.religion, members: [data.member], link: `/religion/${data.religion.id}` }]));
+    const nouvelle = { ...data.religion, members: [data.member], villes: [], link: `/religion/${data.religion.id}` };
+    setReligions((prevReligions) => [...prevReligions, nouvelle]);
+    setStorageReligions((prevStorageReligions) => [...prevStorageReligions, nouvelle]);
+    localStorage.setItem('religions', JSON.stringify([...storageReligions, nouvelle]));
     // console.log("Religions mises à jour:", religions);
   };
 
@@ -84,32 +123,12 @@ export default function ReligionsPage() {
                 <SkeletonCivilisation />
               </div>
             ) : (
-              <div className="flex flex-col gap-4 w-full">
-              {storageReligions.map((religion) => (
-                <a key={religion.id} href={religion.link} className="religion-card p-4 bg-base-200 rounded-3xl shadow-md w-full">
-                  <div className="flex items-center justify-start">
-                    <FontAwesomeIcon icon={religion.icon ? religion.icon : "fa-solid fa-place-of-worship"} className="religion-icon mr-2" />
-                    <h2 className="religion-title text-xl font-bold">{religion.title}</h2>
-                  </div>
-                  <p className="religion-description">{religion.description}</p>
-                </a>
-              ))}
-            </div>
+              <ReligionList religions={storageReligions} />
             )
           ) : religions.length === 0 ? (
-            <p>Aucune religion disponible.</p>
+            <p className="italic opacity-70">Aucune religion disponible.</p>
           ) : (
-            <div className="flex flex-col gap-4 w-full">
-              {religions.map((religion) => (
-                <a key={religion.id} href={religion.link} className="religion-card p-4 bg-base-200 rounded-3xl shadow-md w-full">
-                  <div className="flex items-center justify-start">
-                    <FontAwesomeIcon icon={religion.icon ? religion.icon : "fa-solid fa-place-of-worship"} className="religion-icon mr-2" />
-                    <h2 className="religion-title text-xl font-bold">{religion.title}</h2>
-                  </div>
-                  <p className="religion-description">{religion.description}</p>
-                </a>
-              ))}
-            </div>
+            <ReligionList religions={religions} />
           )}
 
           <DynamicModal config={Config_Modal_Religion} mode="add" onSubmit={(religion) => { updateReligion(religion) }} />

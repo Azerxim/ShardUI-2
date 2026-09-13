@@ -9,7 +9,8 @@ export function getApiURL() {
 //_____________________________________TOKEN_____________________________________
 
 export async function postToken(params, expiryHours = 24) {
-  const url = new URL(`${apiURL}/users/token`);
+  // Base = origine de la page : fonctionne avec une URL d'API absolue ou relative (/api via le proxy de dev)
+  const url = new URL(`${apiURL}/users/token`, window.location.origin);
   url.searchParams.append("expiry_hours", expiryHours);
 
   const response = await fetch(url.toString(), {
@@ -286,6 +287,22 @@ export async function getCivilisations() {
   return response_json;
 }
 
+// Civilisations dont la civilisation dirigeante est civilisationId
+export async function getCivilisationDirigees(civilisationId) {
+  const response = await fetch(`${apiURL}/civilisations/get/${civilisationId}/dirigees`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+  return response.json();
+}
+
 export async function deleteMemberCivilisation(civilisationId, memberId) {
   const headers = {
     "Content-Type": "application/json",
@@ -335,6 +352,84 @@ async function transferFounder(url, userId, formerRole) {
 
 export async function getDimensions() {
   const response = await fetch(`${apiURL}/cartographie/dimensions/read`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+// Création / modification / suppression : réservées aux administrateurs côté API.
+async function writeDimension(url, method, body = null) {
+  const response = await fetch(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const detail = data.detail;
+    throw new Error(detail?.text || (typeof detail === "string" ? detail : `Erreur ${response.status}: ${response.statusText}`));
+  }
+  return data;
+}
+
+export function createDimension(dimension) {
+  return writeDimension(`${apiURL}/cartographie/dimensions/create`, "POST", dimension);
+}
+
+export function updateDimension(dimension) {
+  return writeDimension(`${apiURL}/cartographie/dimensions/update`, "PUT", dimension);
+}
+
+export function deleteDimension(dimensionId) {
+  return writeDimension(`${apiURL}/cartographie/dimensions/delete?DimensionID=${dimensionId}`, "DELETE");
+}
+
+// __________________________________Commerces__________________________________
+
+export async function getCommerces() {
+  const response = await fetch(`${apiURL}/commerces/list?limit=1000`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+// { commerce, owner, magasins }
+export async function getCommerceById(commerceId) {
+  const response = await fetch(`${apiURL}/commerces/read/${commerceId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function getVilles() {
+  const response = await fetch(`${apiURL}/civilisations/villes/list?limit=1000`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

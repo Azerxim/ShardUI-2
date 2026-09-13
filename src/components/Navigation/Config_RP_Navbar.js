@@ -4,7 +4,7 @@ export const Config_RP_Navbar = {
       {
         id: "codex",
         text: "Codex",
-        href: "/regles",
+        href: "/codex",
         icon: "fas fa-scroll",
         tooltip: {
           text: "Règles",
@@ -39,6 +39,17 @@ export const Config_RP_Navbar = {
         text: "Religions",
         href: "/religions",
         icon: "fas fa-cross",
+        tooltip: {
+          text: "",
+          position: "bottom",
+        },
+        dropdown: [],
+      },
+      {
+        id: "commerces",
+        text: "Commerces",
+        href: "/commerces",
+        icon: "fas fa-shop",
         tooltip: {
           text: "",
           position: "bottom",

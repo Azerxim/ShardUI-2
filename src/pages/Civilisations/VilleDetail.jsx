@@ -130,15 +130,29 @@ export default function VilleDetailPage() {
 
     const btnReturn = { text: 'Retour à la civilisation', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: `/civilisation/${civ_id}` };
 
+    const infos = ville ? [
+        { label: "Civilisation", icon: "fas fa-flag", value: civilisation ? civilisation.title : 'Inconnue' },
+        {
+            label: "Fondation", icon: "fas fa-calendar", value: ville.founded_date ? new Date(ville.founded_date).toLocaleDateString('fr-FR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }) : 'Inconnue'
+        },
+        { label: "Type", icon: "fas fa-star", value: ville.is_capital ? 'Capitale' : 'Ville ou Village' },
+        { label: "Population", icon: "fas fa-users", value: ville.population }
+    ] : [];
+
     const BodyHTML = ville ? (
         <div className="flex flex-col gap-4 w-full">
             <TitleH1 text={ville.title} icon={`fas fa-${ville?.is_capital ? 'archway' : 'city'}`} btn={btnReturn} fonctions={FctModify} />
-            <div className="flex flex-row gap-2 w-full">
-                <div className="hidden lg:flex">
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-2 w-full">
+                {/* Carte : pleine largeur sous le titre sur mobile, colonne fixe à gauche sur grand écran */}
+                <div className="w-full h-72 sm:h-96 lg:w-[400px] lg:h-[600px] shrink-0 lg:sticky lg:top-4">
                     <MapEmbed
                         dimension={dimension}
-                        width={400}
-                        height={600}
+                        width="100%"
+                        height="100%"
                         embed="civilisations"
                         x={ville.x}
                         z={ville.z}
@@ -146,37 +160,15 @@ export default function VilleDetailPage() {
                         title={`Carte de ${ville.title}`}
                     />
                 </div>
-                <div className="flex flex-col gap-2 flex-1">
-                    <div className="flex flex-row gap-2 w-full justify-between items-center">
-                        <div className="flex-1">
-                            <TitleH2 text="Civilisation" icon="fas fa-flag" />
+                <div className="flex flex-col gap-2 flex-1 min-w-0">
+                    {infos.map((info) => (
+                        <div key={info.label} className="flex flex-col sm:flex-row gap-1 sm:gap-2 w-full sm:items-center">
+                            <div className="sm:flex-1">
+                                <TitleH2 text={info.label} icon={info.icon} />
+                            </div>
+                            <span className="sm:flex-1 px-4 sm:px-0 break-words">{info.value}</span>
                         </div>
-                        <span className="flex-1">{civilisation ? civilisation.title : 'Inconnue'}</span>
-                    </div>
-                    <div className="flex flex-row gap-2 w-full justify-between items-center">
-                        <div className="flex-1">
-                            <TitleH2 text="Fondation" icon="fas fa-calendar" />
-                        </div>
-                        <span className="flex-1">
-                            {ville.founded_date ? new Date(ville.founded_date).toLocaleDateString('fr-FR', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                            }) : 'Inconnue'}
-                        </span>
-                    </div>
-                    <div className="flex flex-row gap-2 w-full justify-between items-center">
-                        <div className="flex-1">
-                            <TitleH2 text="Type" icon="fas fa-star" />
-                        </div>
-                        <span className="flex-1">{ville.is_capital ? 'Capitale' : 'Ville ou Village'}</span>
-                    </div>
-                    <div className="flex flex-row gap-2 w-full justify-between items-center">
-                        <div className="flex-1">
-                            <TitleH2 text="Population" icon="fas fa-users" />
-                        </div>
-                        <span className="flex-1">{ville.population}</span>
-                    </div>
+                    ))}
                     <TitleH2 text="Religions" icon="fas fa-praying-hands" fonctions={FctReligions} />
                     <VilleReligions
                         religions={religions}

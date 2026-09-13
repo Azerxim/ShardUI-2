@@ -90,7 +90,7 @@ export default function VilleReligions({ religions = [], ville = null, auth = fa
     const dominant = sorted.length > 1 && influenceOf(sorted[0]) > influenceOf(sorted[1]) ? sorted[0].id : null;
 
     return (
-        <div className="flex flex-col gap-3 w-full bg-base-100 p-4 rounded-2xl">
+        <div className="flex flex-col gap-3 w-full bg-base-100 p-2 sm:p-4 rounded-2xl">
             <ReligionsBar religions={sorted} total={total} />
             {total < 100 ? (
                 <span className="text-sm opacity-70">Sans religion : {formatInfluence(100 - total)}</span>
@@ -102,10 +102,10 @@ export default function VilleReligions({ religions = [], ville = null, auth = fa
                 {sorted.map((religion) => {
                     const color = religionColor(religion);
                     return (
-                        <li key={religion.id} className="flex flex-row items-center gap-3 bg-base-200 rounded-2xl p-3">
+                        <li key={religion.id} className="flex flex-row items-center gap-2 sm:gap-3 bg-base-200 rounded-2xl p-2 sm:p-3">
                             <button
                                 type="button"
-                                className="flex flex-row items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"
+                                className="flex flex-row items-center gap-2 sm:gap-3 flex-1 min-w-0 text-left cursor-pointer"
                                 onClick={() => navigate(`/religion/${religion.id}`)}
                             >
                                 <span className="flex items-center justify-center w-9 h-9 rounded-full shrink-0 text-white" style={{ backgroundColor: color }}>
@@ -120,7 +120,7 @@ export default function VilleReligions({ religions = [], ville = null, auth = fa
                                         <span className="block h-full rounded-full" style={{ width: `${Math.min(100, influenceOf(religion))}%`, backgroundColor: color }}></span>
                                     </span>
                                 </span>
-                                <span className="font-semibold tabular-nums w-16 text-right">{formatInfluence(religion.influence)}</span>
+                                <span className="font-semibold tabular-nums w-12 sm:w-16 shrink-0 text-right">{formatInfluence(religion.influence)}</span>
                             </button>
 
                             {auth ? (

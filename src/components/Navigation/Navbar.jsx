@@ -155,31 +155,13 @@ export default function Navbar({ active = '' }) {
                         <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 m-1 mt-6 shadow-xl flex-col gap-1">
                             <li>
                                 <a href="/" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'home' ? 'bg-secondary text-secondary-content' : ''}`}>
-                                    <FontAwesomeIcon icon="house" />
+                                    <FontAwesomeIcon icon="fa-solid fa-house" />
                                     <span>Accueil</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="/regles" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'regles' ? 'bg-secondary text-secondary-content' : ''}`}>
-                                    <FontAwesomeIcon icon="fa-brands fa-readme" />
-                                    <span>Regles</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/bibliotheque" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'bibliotheque' ? 'bg-secondary text-secondary-content' : ''}`}>
-                                    <FontAwesomeIcon icon="book" />
-                                    <span>Bibliothèque</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/civilisations" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'civilisations' ? 'bg-secondary text-secondary-content' : ''}`}>
-                                    <FontAwesomeIcon icon="flag" />
-                                    <span>Civilisations</span>
-                                </a>
-                            </li>
-                            <li>
                                 <a href="https://map.beta.tetrago.fr/tetrago-civilisations" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl`}>
-                                    <FontAwesomeIcon icon="map" />
+                                    <FontAwesomeIcon icon="fa-solid fa-map" />
                                     <span>Cartographie</span>
                                 </a>
                             </li>
@@ -188,10 +170,43 @@ export default function Navbar({ active = '' }) {
                                     <a href="https://api.beta.tetrago.fr" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'api' ? 'bg-secondary text-secondary-content' : ''}`}>
                                         <FontAwesomeIcon icon="fa-solid fa-server" />
                                         <span>API</span>
-                                        <span className="badge bg-error text-error-content">Admin</span>
+                                        <span className="tooltip" data-tip="Admin uniquement" data-place="top">
+                                            <FontAwesomeIcon icon="fa-solid fa-key" className="text-error" />
+                                        </span>
                                     </a>
                                 </li>
                             )}
+                            <hr className="my-2 border-t border-base-300" />
+                            <li>
+                                <a href="/codex" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'codex' ? 'bg-secondary text-secondary-content' : ''}`}>
+                                    <FontAwesomeIcon icon="fa-solid fa-scroll" />
+                                    <span>Codex</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/bibliotheque" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'bibliotheque' ? 'bg-secondary text-secondary-content' : ''}`}>
+                                    <FontAwesomeIcon icon="fa-solid fa-book" />
+                                    <span>Bibliothèque</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/civilisations" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'civilisations' ? 'bg-secondary text-secondary-content' : ''}`}>
+                                    <FontAwesomeIcon icon="fa-solid fa-flag" />
+                                    <span>Civilisations</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/religions" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'religions' ? 'bg-secondary text-secondary-content' : ''}`}>
+                                    <FontAwesomeIcon icon="fa-solid fa-cross" />
+                                    <span>Religions</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/commerces" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'commerces' ? 'bg-secondary text-secondary-content' : ''}`}>
+                                    <FontAwesomeIcon icon="fa-solid fa-shop" />
+                                    <span>Commerces</span>
+                                </a>
+                            </li>
                         </ul>
                     </div>
 
@@ -219,22 +234,6 @@ export default function Navbar({ active = '' }) {
                                             <span>Profil</span>
                                         </a>
                                     </li>
-                                    {/* <li>
-                                        <a href="/parametres" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl ${active === 'parametres' ? 'bg-secondary text-secondary-content' : ''}`}>
-                                            <FontAwesomeIcon icon="fa-solid fa-gear" />
-                                            <span>Paramètres</span>
-                                            <span className="badge">New</span>
-                                        </a>
-                                    </li> */}
-                                    {User.is_admin && (
-                                        <li>
-                                            <a href="/users" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl ${active === 'users' ? 'bg-secondary text-secondary-content' : ''}`}>
-                                                <FontAwesomeIcon icon="fa-solid fa-users" />
-                                                <span>Utilisateurs</span>
-                                                <span className="badge bg-error text-error-content">Admin</span>
-                                            </a>
-                                        </li>
-                                    )}
                                     <li>
                                         <button className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl hover:bg-error hover:text-error-content`} onClick={() => {
                                             localStorage.removeItem('user')
@@ -244,6 +243,36 @@ export default function Navbar({ active = '' }) {
                                             <span>Déconnexion</span>
                                         </button>
                                     </li>
+                                    {/* <li>
+                                        <a href="/parametres" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl ${active === 'parametres' ? 'bg-secondary text-secondary-content' : ''}`}>
+                                            <FontAwesomeIcon icon="fa-solid fa-gear" />
+                                            <span>Paramètres</span>
+                                            <span className="badge">New</span>
+                                        </a>
+                                    </li> */}
+                                    {User.is_admin && <hr className="my-2 border-base-300" />}
+                                    {User.is_admin && (
+                                        <li>
+                                            <a href="/users" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl ${active === 'users' ? 'bg-secondary text-secondary-content' : ''}`}>
+                                                <FontAwesomeIcon icon="fa-solid fa-users" />
+                                                <span>Utilisateurs</span>
+                                                <span className="tooltip" data-tip="Admin uniquement" data-place="top">
+                                                    <FontAwesomeIcon icon="fa-solid fa-key" className="text-error" />
+                                                </span>
+                                            </a>
+                                        </li>
+                                    )}
+                                    {User.is_admin && (
+                                        <li>
+                                            <a href="/admin/dimensions" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl ${active === 'admin-dimensions' ? 'bg-secondary text-secondary-content' : ''}`}>
+                                                <FontAwesomeIcon icon="fa-solid fa-earth-europe" />
+                                                <span>Dimensions</span>
+                                                <span className="tooltip" data-tip="Admin uniquement" data-place="top">
+                                                    <FontAwesomeIcon icon="fa-solid fa-key" className="text-error" />
+                                                </span>
+                                            </a>
+                                        </li>
+                                    )}
                                 </>
                             ) : (
                                 <>

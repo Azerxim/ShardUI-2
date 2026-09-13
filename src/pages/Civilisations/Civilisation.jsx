@@ -23,6 +23,7 @@ import { Config_Modal_Livre } from '../../components/Modals/Config_Modal_Livre';
 import { Config_Modal_Ville } from '../../components/Modals/Config_Modal_Ville';
 import {
     getCivilisationById,
+    getCivilisationDirigees,
     getDimensions,
     getLivresBycivilisationId,
     deleteMemberCivilisation
@@ -42,6 +43,7 @@ export default function CivilisationPage() {
     const [gouvernement, setGouvernement] = useState(null);
     const [livres, setLivres] = useState([]);
     const [villes, setVilles] = useState([]);
+    const [villesDirigees, setVillesDirigees] = useState([]);
     const [auth, setAuth] = useState(false);
     const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
 
@@ -83,6 +85,32 @@ export default function CivilisationPage() {
                 console.error('Error fetching livres:', error);
                 setLivres([]);
             });
+    }, [id]);
+
+    // Villes des civilisations dirigées : l'endpoint ne renvoie que les civilisations,
+    // leurs villes sont chargées via la fiche de chaque civilisation
+    useEffect(() => {
+        let cancelled = false;
+
+        getCivilisationDirigees(id)
+            .then((dirigees) => Promise.all(
+                (Array.isArray(dirigees) ? dirigees : [])
+                    .filter((dirigee) => dirigee.id !== parseInt(id))
+                    .map((dirigee) => getCivilisationById(dirigee.id)
+                        .then((infos) => ({ civilisation: dirigee, villes: infos.villes || [] }))
+                        .catch((error) => {
+                            console.error(`Error fetching villes of civilisation ${dirigee.id}:`, error);
+                            return { civilisation: dirigee, villes: [] };
+                        }))
+            ))
+            .then((groupes) => {
+                if (!cancelled) setVillesDirigees(groupes.filter((groupe) => groupe.villes.length > 0));
+            })
+            .catch((error) => console.error('Error fetching civilisations dirigées:', error));
+
+        return () => {
+            cancelled = true;
+        };
     }, [id]);
 
     const updateCivilisation = (data) => {
@@ -285,6 +313,27 @@ export default function CivilisationPage() {
                     ))}
                 </div>
             )}
+
+            {villesDirigees.length > 0 ? (
+                <>
+                    <TitleH2 text="Villes des civilisations dirigées" icon="fas fa-flag-checkered" />
+                    {villesDirigees.map(({ civilisation: dirigee, villes: villesDirigee }) => (
+                        <div key={dirigee.id} className="flex flex-col gap-2 w-full">
+                            <a href={`/civilisation/${dirigee.id}`} className="flex flex-row items-center gap-2 px-4 font-bold hover:underline">
+                                <FontAwesomeIcon icon="fas fa-flag" />
+                                <span>{dirigee.title}</span>
+                            </a>
+                            <div className="flex flex-col gap-2 w-full bg-base-100 rounded-2xl">
+                                {villesDirigee.map((ville) => (
+                                    <a key={ville.id} href={`/civilisation/${dirigee.id}/ville/${ville.id}`}>
+                                        <Ville info={ville} dimensions={dimensions} />
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </>
+            ) : null}
 
             <TitleH2 text="Livres" fonctions={livres_fonctions} icon="fas fa-book" />
             {livres.length === 0 ? (

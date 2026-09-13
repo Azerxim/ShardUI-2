@@ -13,6 +13,8 @@ import {
 import CivilisationDirigeanteField from "./CivilisationDirigeanteField";
 import LocalisationField from "./LocalisationField";
 import UsersField from "./UsersField";
+import VillesField from "./VillesField";
+import CommerceDirigeantField from "./CommerceDirigeantField";
 
 // Type de champ (config.champs[].type) -> composant.
 // Chaque champ est un vrai composant : ses hooks (chargement de données, état local)
@@ -22,6 +24,8 @@ const FIELDS = {
   localisation: LocalisationField,
   civilisation_dirigeante: CivilisationDirigeanteField,
   users: UsersField,
+  villes: VillesField,
+  commerce_dirigeant: CommerceDirigeantField,
   toggle: ToggleField,
   checkbox: CheckboxField,
   radio: RadioField,

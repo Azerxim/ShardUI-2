@@ -1,11 +1,11 @@
 {
   "name": "shardui-2",
   "private": true,
-  "version": "2.0.11",
+  "version": "2.0.12",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "start": "vite --host 0.0.0.0 --port 5173",
+    "dev": "vite --mode development",
+    "start": "vite --host 0.0.0.0 --port 5173 --mode start",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

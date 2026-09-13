@@ -138,10 +138,10 @@ const sommaire = livres.flatMap((livre) =>
   livre.chapitres.map((chapitre) => ({ ...chapitre, livre: livre.numero }))
 );
 
-export default function ReglesPage() {
+export default function CodexPage() {
   return (
     <>
-      <Navbar active="regles" />
+      <Navbar active="codex" />
       <div className="bg-base-100">
         <main className="container mx-auto p-4">
 

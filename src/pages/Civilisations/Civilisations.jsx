@@ -7,6 +7,9 @@ import Navbar from "../../components/Navigation/Navbar";
 import DynamicModal from '../../components/Modals/DynamicModal';
 import DynamicNavbar from "../../components/Navigation/DynamicNavbar";
 import SkeletonCivilisation from "../../components/Objects/SkeletonCivilisation";
+import ListCard from "../../components/Objects/ListCard";
+import ListCardTree from "../../components/Objects/ListCardTree";
+import { plural } from "../../components/Functions/plural";
 
 import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Civilisation } from '../../components/Modals/Config_Modal_Civilisation';
@@ -17,8 +20,8 @@ import {
 } from "../../services/api"
 import GrimoireHero from "../../components/Layouts/GrimoireHero";
 
-// Regroupe les civilisations dirigees (dirigeante_civilisation_id != 0)
-// sous la civilisation dont l'id correspond.
+// Regroupe les civilisations dirigées (dirigeante_civilisation_id != 0) sous leur dirigeante.
+// Une dirigée dont la dirigeante n'est pas visible reste à la racine.
 const buildCivilisationTree = (list) => {
   const visibles = list.filter((civilisation) => civilisation.is_public || civilisation.auth);
   const parIdentifiant = new Map(visibles.map((civilisation) => [civilisation.id, civilisation]));
@@ -28,7 +31,6 @@ const buildCivilisationTree = (list) => {
 
   visibles.forEach((civilisation) => {
     const dirigeanteId = civilisation.dirigeante_civilisation_id;
-    // Rattachee a une dirigeante visible : on l'imbrique. Sinon elle reste a la racine.
     if (dirigeanteId && dirigeanteId !== civilisation.id && parIdentifiant.has(dirigeanteId)) {
       dirigees.set(dirigeanteId, [...(dirigees.get(dirigeanteId) || []), civilisation]);
     } else {
@@ -36,38 +38,57 @@ const buildCivilisationTree = (list) => {
     }
   });
 
-  const result = racines.map((civilisation) => ({
-    ...civilisation,
-    dirigees: dirigees.get(civilisation.id) || [],
-  }));
-  // console.log(result);
-  return result;
+  return racines.map((civilisation) => ({ civilisation, dirigees: dirigees.get(civilisation.id) || [] }));
 };
 
-const CivilisationCard = ({ civilisation, dirigee = false }) => (
-  <a href={civilisation.link} className="civilisation-card p-4 bg-base-200 rounded-3xl shadow-md w-full">
-    <div className="flex items-center justify-start">
-      <FontAwesomeIcon icon={dirigee ? "fas fa-flag-checkered" : "fas fa-flag"} className="civilisation-icon mr-2" />
-      {!civilisation.is_public && <FontAwesomeIcon icon="fas fa-eye-slash" className="private-icon mr-2" />}
-      <h2 className={`civilisation-title font-bold ${dirigee ? "text-lg" : "text-xl"}`}>{civilisation.title}</h2>
-    </div>
-    <p className="civilisation-description">{civilisation.description}</p>
-  </a>
+// dirigee : carte affichée dans le bloc de sa dirigeante
+const CivilisationCard = ({ civilisation, dirigees = [], dirigee = false }) => {
+  const members = civilisation.members || [];
+  const villes = civilisation.villes || [];
+  const founder = members.find((member) => member.role === "Fondateur");
+  const capitale = villes.find((ville) => ville.is_capital);
+
+  const badges = [
+    // ...(dirigees.length > 0 ? [{ text: "Dirigeante", className: "badge-primary" }] : []),
+    // ...(dirigee ? [{ text: "Dirigée", className: "badge-neutral" }] : []),
+    ...(civilisation.is_public ? [] : [{ text: "Privée", className: "badge-warning" }]),
+  ];
+
+  const stats = [
+    { icon: "fa-solid fa-users", text: plural(members.length, "membre") },
+    { icon: "fa-solid fa-city", text: plural(villes.length, "ville") },
+    ...(capitale ? [{ icon: "fa-solid fa-archway", text: `Capitale : ${capitale.title}` }] : []),
+    ...(dirigees.length > 0 ? [{ icon: "fa-solid fa-crown", text: `Dirige ${plural(dirigees.length, "civilisation")}` }] : []),
+  ];
+
+  return (
+    <ListCard
+      href={civilisation.link}
+      icon={dirigee ? "fa-solid fa-flag-checkered" : "fa-solid fa-flag"}
+      title={civilisation.title}
+      badges={badges}
+      subtitle={founder?.username ? `Fondée par ${founder.username}` : null}
+      description={civilisation.description}
+      stats={stats}
+    />
+  );
+};
+
+// Dirigeante en tête, puis ses dirigées en arborescence
+const CivilisationGroup = ({ civilisation, dirigees }) => (
+  <ListCardTree
+    parent={<CivilisationCard civilisation={civilisation} dirigees={dirigees} />}
+    label={{ icon: "fa-solid fa-crown", text: `Civilisations dirigées par ${civilisation.title}` }}
+    items={dirigees.map((dirigee) => ({ key: dirigee.id, node: <CivilisationCard civilisation={dirigee} dirigee /> }))}
+  />
 );
 
 const CivilisationList = ({ civilisations }) => (
-  <div className="flex flex-col gap-4 w-full">
-    {buildCivilisationTree(civilisations).map((civilisation) => (
-      <div key={civilisation.id} className="flex flex-col gap-2 w-full">
-        <CivilisationCard civilisation={civilisation} />
-        {civilisation.dirigees.length > 0 && (
-          <div className="flex flex-col gap-2 ml-4 pl-6 border-l-2 border-base-300">
-            {civilisation.dirigees.map((sousCivilisation) => (
-              <CivilisationCard key={sousCivilisation.id} civilisation={sousCivilisation} dirigee />
-            ))}
-          </div>
-        )}
-      </div>
+  <div className="grid grid-cols-1 gap-4 w-full">
+    {buildCivilisationTree(civilisations).map(({ civilisation, dirigees }) => (
+      dirigees.length > 0
+        ? <CivilisationGroup key={civilisation.id} civilisation={civilisation} dirigees={dirigees} />
+        : <CivilisationCard key={civilisation.id} civilisation={civilisation} />
     ))}
   </div>
 );
@@ -86,9 +107,10 @@ export default function CivilisationsPage() {
       .then((data) => {
         // console.log('Civilisations fetched:', data);
         // Ajouter les liens pour redirection vers la page de détail
-        const CivilisationsWithLinks = data.map(({ civilisation, members }) => ({
+        const CivilisationsWithLinks = data.map(({ civilisation, members, villes }) => ({
           ...civilisation,
           members,
+          villes: villes || [],
           auth: checkMemberAuth(members ? members : []),
           link: `/civilisation/${civilisation.id}`
         }));
@@ -116,9 +138,10 @@ export default function CivilisationsPage() {
 
   const updateCivilisation = (data) => {
     // console.log("Nouvelle civilisation ajoutée:", data);
-    setCivilisations((prevCivilisations) => [...prevCivilisations, { ...data.civilisation, members: [data.member], link: `/civilisation/${data.civilisation.id}` }]);
-    setStorageCivilisations((prevStorageCivilisations) => [...prevStorageCivilisations, { ...data.civilisation, members: [data.member], link: `/civilisation/${data.civilisation.id}` }]);
-    localStorage.setItem('civilisations', JSON.stringify([...storageCivilisations, { ...data.civilisation, members: [data.member], link: `/civilisation/${data.civilisation.id}` }]));
+    const nouvelle = { ...data.civilisation, members: [data.member], villes: [], link: `/civilisation/${data.civilisation.id}` };
+    setCivilisations((prevCivilisations) => [...prevCivilisations, nouvelle]);
+    setStorageCivilisations((prevStorageCivilisations) => [...prevStorageCivilisations, nouvelle]);
+    localStorage.setItem('civilisations', JSON.stringify([...storageCivilisations, nouvelle]));
     // console.log("Civilisations mises à jour:", civilisations);
   };
 
@@ -157,13 +180,13 @@ export default function CivilisationsPage() {
               <CivilisationList civilisations={storageCivilisations} />
             )
           ) : civilisations.length === 0 ? (
-            <p>Aucune civilisation disponible.</p>
+            <p className="italic opacity-70">Aucune civilisation disponible.</p>
           ) : (
             <CivilisationList civilisations={civilisations} />
           )}
 
           <DynamicModal config={Config_Modal_Civilisation} mode="add" onSubmit={(civilisation) => { updateCivilisation(civilisation) }} />
-          
+
           <DynamicModal config={Config_Modal_Religion} mode="add" />
 
         </div>

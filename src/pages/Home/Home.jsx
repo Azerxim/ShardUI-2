@@ -10,15 +10,18 @@ const serverURL = import.meta.env.VITE_SERVER_URL;
 const link_serv = 'https://mcapi.us/server/status?ip=mbu-tetrago.minesr.com';
 
 const books = [
-  { icon: "fa-brands fa-readme", title: "Codex", description: "Les règles du monde de Tetrago", link: "/regles", color: "var(--color-error)", tilt: "1deg", target: "" },
+  { icon: "fa-solid fa-scroll", title: "Codex", description: "Les règles du monde de Tetrago", link: "/codex", color: "var(--color-error)", tilt: "1deg", target: "" },
   { icon: "fa-solid fa-book", title: "Bibliothèque", description: "Les journaux et récits de la communauté.", link: "/bibliotheque", color: "var(--color-primary)", tilt: "-3deg", target: "" },
   { icon: "fa-solid fa-flag", title: "Civilisations", description: "Les factions qui façonnent le monde.", link: "/civilisations", color: "var(--color-secondary)", tilt: "2deg", target: "" },
+  { icon: "fa-solid fa-cross", title: "Religions", description: "Les croyances qui influencent le monde.", link: "/religions", color: "var(--color-warning)", tilt: "3deg", target: "" },
+  { icon: "fa-solid fa-shop", title: "Commerces", description: "Les lieux d'échange et de commerce.", link: "/commerces", color: "var(--color-info)", tilt: "2deg", target: "" },
+  // { icon: "fa-solid fa-handshake", title: "Alliances", description: "Les alliances entre factions.", link: "/alliances", color: "var(--color-success)", tilt: "1deg", target: "" },
   { icon: "fa-solid fa-map", title: "Cartographie", description: "Le monde de Tetrago à explorer.", link: "https://map.beta.tetrago.fr", color: "var(--color-accent)", tilt: "-1deg", target: "" },
   { icon: "fa-brands fa-discord", title: "Discord", description: "Rejoignez la communauté.", link: "https://discord.gg/", color: "var(--color-neutral)", tilt: "-2deg", target: "_blank" },
 ];
 
 const steps = [
-  { icon: "fa-solid fa-scroll", title: "Lisez les règles", description: "Le Codex du serveur, à parcourir avant toute chose.", link: "/regles", priority: true },
+  { icon: "fa-solid fa-scroll", title: "Lisez les règles", description: "Le Codex du serveur, à parcourir avant toute chose.", link: "/codex", priority: true },
   { icon: "fa-solid fa-user-plus", title: "Créez votre compte", description: "Inscrivez-vous en quelques secondes." },
   { icon: "fa-solid fa-network-wired", title: "Rejoignez le serveur", description: `Connectez-vous avec l'IP copiée: <b class="text-primary">${serverURL}</b>` },
   { icon: "fa-solid fa-feather-pointed", title: "Écrivez votre histoire", description: "Faites vivre votre personnage et sa civilisation." },
@@ -48,8 +51,8 @@ export default function HomePage() {
             className="rounded-3xl mb-14 py-24 px-4 w-full"
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <a className="btn btn-error flex items-center gap-2" href="/login">
-                <FontAwesomeIcon icon="fa-brands fa-readme" />
+              <a className="btn btn-error flex items-center gap-2" href="/codex">
+                <FontAwesomeIcon icon="fa-solid fa-scroll" />
                 Règlement
               </a>
               {isLoggedIn ? (
