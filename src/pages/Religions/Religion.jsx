@@ -7,6 +7,7 @@ import Navbar from "../../components/Navigation/Navbar";
 import Skeleton from "../../components/Objects/Skeleton";
 import TitleH1 from "../../components/Objects/TitleH1";
 import TitleH2 from "../../components/Objects/TitleH2";
+import Stat from "../../components/Objects/Stat";
 import MemberButton from "../../components/Buttons/MemberButton";
 import TransferFounderModal from "../../components/Modals/TransferFounderModal";
 import DynamicModal from "../../components/Modals/DynamicModal";
@@ -29,18 +30,6 @@ const ROLE_ORDER = { Fondateur: 0, Admin: 1 };
 const TRANSFER_MODAL_ID = "religion-transfer-founder-modal";
 
 const influenceOf = (lien) => Math.max(0, Number(lien?.influence) || 0);
-
-function Stat({ icon, label, value, color }) {
-    return (
-        <div className="flex flex-row items-center gap-3 bg-base-100 rounded-2xl p-3">
-            <FontAwesomeIcon icon={icon} className="text-xl" style={{ color }} />
-            <div className="flex flex-col min-w-0">
-                <span className="text-xl font-bold tabular-nums">{value}</span>
-                <span className="text-sm opacity-70 truncate">{label}</span>
-            </div>
-        </div>
-    );
-}
 
 function InfluenceBar({ influence, color }) {
     return (

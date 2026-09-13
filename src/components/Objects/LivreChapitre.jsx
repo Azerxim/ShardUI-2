@@ -1,70 +1,71 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import TitleH2 from '../Objects/TitleH2';
-import TitleH3 from '../Objects/TitleH3';
+import Swal from "sweetalert2";
+
 import DynamicModal from '../Modals/DynamicModal';
 import MarkdownTextEditor from '../Objects/MarkdownTextEditor';
-
 import { showModal } from '../Functions/showModal';
 import { Config_Modal_Livre_Content_Local } from '../Modals/Config_Modal_Livre_Content_Local';
 import { getApiURL } from "../../services/api";
-import { useParams } from "react-router-dom";
-import Swal from "sweetalert2";
 
-export default function LivreChapitre({ livre, content, index = 0, authorisation = false, updateLivreContent = () => { }, deleteLivreContent = () => { } }) {
-    // console.log("LivreChapitre content:", content);
-    const apiURL = getApiURL();
-    const params = useParams();
-
-    const content_fonctions = [
-        { id: 0, title: "Modifier", icon: "fas fa-edit", class: "bg-base-250 hover:bg-base-300", connected: true, authorisation: authorisation, tooltip: { text: "Modifier ce chapitre", position: "bottom" }, function: () => showModal(Config_Modal_Livre_Content_Local, "edit", { id: content.id }) }
-    ];
-
-    const saveContent = async (data) => {
-        // Logic to save the entry
+// Chapitre d'un livre : titre numéroté et contenu Markdown, modifiable directement par les ayants droit.
+// updateLivreContent reçoit { content: chapitre } (même format que la réponse de l'API), deleteLivreContent le chapitre.
+export default function LivreChapitre({ content, index = 0, authorisation = false, updateLivreContent = () => { }, deleteLivreContent = () => { } }) {
+    const saveContent = async (chapitre) => {
         const config = Config_Modal_Livre_Content_Local;
-        const token = localStorage.getItem("token");
-        const api = config.api.update;;
-        await fetch(api.url.replace("$id", params.id).replace("$local-id", data.id).replace("$apiURL", apiURL), {
-            method: api.method,
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(data),
-        })
-            .then(async (response) => {
-                if (!response.ok) {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: config.error["edit"],
-                    });
-                } else {
-                    const data = await response.json();
-                }
-            })
-            .catch((error) => {
-                Swal.fire({
-                    icon: "error",
-                    title: "Oops...",
-                    text: error.message,
-                });
+        const api = config.api.update;
+        try {
+            const response = await fetch(api.url.replace("$local-id", chapitre.id).replace("$apiURL", getApiURL()), {
+                method: api.method,
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify(chapitre),
             });
+            if (!response.ok) {
+                Swal.fire({ icon: "error", title: "Oops...", text: config.error.edit });
+            }
+        } catch (error) {
+            Swal.fire({ icon: "error", title: "Oops...", text: error.message });
+        }
     };
 
     const updateContent = (newContent) => {
-        content.content = newContent;
-        saveContent(content);
-        updateLivreContent(content);
+        const chapitre = { ...content, content: newContent };
+        updateLivreContent({ content: chapitre });
+        saveContent(chapitre);
     };
 
     return (
-        <>
-            <div id={`chapitre-${content.id ?? index}`} className="mb-4 bg-base-250 p-4 rounded-3xl shadow-md scroll-mt-24">
-                <TitleH2 text={`${index + 1}. ${content.chapitre}`} classes="" fonctions={content_fonctions} />
-                <DynamicModal config={Config_Modal_Livre_Content_Local} local={{ id: content.id }} mode="edit" onSubmit={(content) => { updateLivreContent(content) }} onDelete={() => { deleteLivreContent(content) }} />
-                <MarkdownTextEditor value={content.content} authorisation={authorisation} onChange={(newValue) => { updateContent(newValue) }} />
+        <section id={`chapitre-${content.id ?? index}`} className="flex flex-col gap-3 w-full bg-base-200 p-4 sm:p-6 rounded-3xl scroll-mt-24">
+            <div className="flex flex-row items-start gap-3">
+                <span className="flex items-center justify-center w-9 h-9 rounded-full bg-base-300 font-bold tabular-nums shrink-0">
+                    {index + 1}
+                </span>
+                <h2 className="flex-1 min-w-0 text-xl font-bold break-words pt-1">{content.chapitre}</h2>
+                {authorisation ? (
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-ghost btn-circle tooltip tooltip-left"
+                        data-tip="Modifier ce chapitre"
+                        onClick={() => showModal(Config_Modal_Livre_Content_Local, "edit", { id: content.id })}
+                    >
+                        <FontAwesomeIcon icon="fa-solid fa-pen" />
+                    </button>
+                ) : null}
             </div>
-        </>
+
+            <MarkdownTextEditor value={content.content} authorisation={authorisation} onChange={updateContent} />
+
+            {authorisation ? (
+                <DynamicModal
+                    config={Config_Modal_Livre_Content_Local}
+                    local={{ id: content.id }}
+                    mode="edit"
+                    onSubmit={updateLivreContent}
+                    onDelete={() => deleteLivreContent(content)}
+                />
+            ) : null}
+        </section>
     );
 }

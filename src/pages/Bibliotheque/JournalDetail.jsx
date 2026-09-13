@@ -1,357 +1,427 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Fragment, useEffect, useMemo, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Navbar from '../../components/Navigation/Navbar';
+import Skeleton from '../../components/Objects/Skeleton';
 import TitleH1 from '../../components/Objects/TitleH1';
 import TitleH2 from '../../components/Objects/TitleH2';
+import Stat from '../../components/Objects/Stat';
+import InfoLine from '../../components/Objects/InfoLine';
+import MarkdownTextEditor from '../../components/Objects/MarkdownTextEditor';
 import DynamicModal from '../../components/Modals/DynamicModal';
 import LinkifiedText from '../../components/Objects/LinkifiedText';
-import { checkUserID } from "../../services/authorisation";
 
+import { checkUserID } from "../../services/authorisation";
 import { showModal } from '../../components/Functions/showModal';
 import { Config_Modal_Journal } from '../../components/Modals/Config_Modal_Journal';
-import { 
+import {
   getJournalById,
   getJournalContentById
 } from "../../services/api"
+
+const PER_PAGE_OPTIONS = [5, 10, 20, 50, 100];
+const PER_PAGE_STORAGE_KEY = 'messagesPerPage';
+const GROUP_DELAY_MS = 60 * 1000;
+const IMAGE_EXTENSIONS = /\.(png|jpe?g|gif|webp|avif|bmp)$/i;
+
+const formatDate = (date) => date ? new Date(date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) : null;
+const formatDay = (timestamp) => new Date(timestamp).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+const formatTime = (timestamp) => new Date(timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+const dayKey = (timestamp) => new Date(timestamp).toDateString();
+const formatSize = (bytes) => bytes >= 1024 * 1024 ? `${(bytes / (1024 * 1024)).toFixed(1)} Mo` : `${Math.max(1, Math.round((bytes || 0) / 1024))} Ko`;
+
+// Couleur stable par auteur (pastille et nom)
+const authorColor = (authorId) => {
+  let hue = 0;
+  for (const char of String(authorId ?? "")) hue = (hue * 31 + char.charCodeAt(0)) % 360;
+  return `hsl(${hue} 55% 45%)`;
+};
+
+// Messages consécutifs d'un même auteur à moins d'une minute d'intervalle, du plus ancien au plus récent
+const groupMessages = (messages) => {
+  const sorted = [...(messages || [])].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+  const groups = [];
+  for (const message of sorted) {
+    const group = groups[groups.length - 1];
+    const last = group?.[group.length - 1];
+    if (last && last.author?.id === message.author?.id && new Date(message.timestamp) - new Date(last.timestamp) < GROUP_DELAY_MS) {
+      group.push(message);
+    } else {
+      groups.push([message]);
+    }
+  }
+  return groups;
+};
+
+// Cache local des messages : affichage immédiat à l'ouverture, puis actualisation en arrière-plan
+const CACHE_PREFIX = 'journal-content-';
+
+const readCache = (journalId) => {
+  try {
+    const cached = JSON.parse(localStorage.getItem(`${CACHE_PREFIX}${journalId}`));
+    return cached?.content?.messages ? cached : null;
+  } catch {
+    return null;
+  }
+};
+
+const writeCache = (journalId, content, savedAt) => {
+  const key = `${CACHE_PREFIX}${journalId}`;
+  const value = JSON.stringify({ savedAt, content });
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Stockage plein : on libère les caches des autres journaux, puis on réessaie une fois
+    try {
+      Object.keys(localStorage)
+        .filter((other) => other.startsWith(CACHE_PREFIX) && other !== key)
+        .forEach((other) => localStorage.removeItem(other));
+      localStorage.setItem(key, value);
+    } catch {
+      // Cache indisponible : la page fonctionne sans
+    }
+  }
+};
+
+const readPerPage = () => {
+  try {
+    const saved = Number(localStorage.getItem(PER_PAGE_STORAGE_KEY));
+    return PER_PAGE_OPTIONS.includes(saved) ? saved : 20;
+  } catch {
+    return 20;
+  }
+};
+
+function Attachment({ attachment }) {
+  if (IMAGE_EXTENSIONS.test(attachment.filename || "")) {
+    return (
+      <a href={attachment.url} target="_blank" rel="noopener noreferrer" className="block w-fit max-w-full">
+        <img src={attachment.url} alt={attachment.filename} loading="lazy" className="max-h-96 max-w-full rounded-xl" />
+      </a>
+    );
+  }
+  return (
+    <a href={attachment.url} target="_blank" rel="noopener noreferrer" className="flex flex-row items-center gap-2 w-fit max-w-full bg-base-100 hover:bg-base-300 transition-colors rounded-xl px-3 py-2">
+      <FontAwesomeIcon icon="fa-solid fa-paperclip" className="opacity-70" />
+      <span className="truncate">{attachment.filename}</span>
+      <span className="text-xs opacity-60 shrink-0">{formatSize(attachment.size)}</span>
+    </a>
+  );
+}
+
+function Message({ message }) {
+  const reactions = Object.entries(message.reactions || {});
+  return (
+    <div className="flex flex-col gap-2">
+      {message.content ? (
+        <p className="whitespace-pre-wrap break-words leading-relaxed">
+          <LinkifiedText text={message.content} />
+          {message.edited_at ? <span className="text-xs opacity-50 ml-1">(modifié)</span> : null}
+        </p>
+      ) : null}
+      {(message.attachments || []).map((attachment, index) => (
+        <Attachment key={`${message.id}-${index}`} attachment={attachment} />
+      ))}
+      {reactions.length > 0 ? (
+        <div className="flex flex-wrap gap-2">
+          {reactions.map(([emoji, count]) => (
+            <span key={emoji} className="inline-flex items-center gap-1 bg-base-100 rounded-full px-2.5 py-0.5 text-sm">
+              <span>{emoji}</span>
+              <span className="tabular-nums">{count}</span>
+            </span>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function MessageGroup({ group }) {
+  const author = group[0].author || {};
+  const color = authorColor(author.id);
+  return (
+    <div className="flex flex-row gap-3 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
+      <span className="flex items-center justify-center w-10 h-10 rounded-full text-white font-bold shrink-0" style={{ backgroundColor: color }}>
+        {(author.name || "?").charAt(0).toUpperCase()}
+      </span>
+      <div className="flex flex-col gap-2 flex-1 min-w-0">
+        <div className="flex flex-row flex-wrap items-baseline gap-x-2">
+          <span className="font-bold break-words" style={{ color }}>{author.name || "Auteur inconnu"}</span>
+          {author.is_bot ? <span className="badge badge-xs badge-info">BOT</span> : null}
+          <span className="text-xs opacity-60">{formatTime(group[0].timestamp)}</span>
+        </div>
+        {group.map((message) => <Message key={message.id} message={message} />)}
+      </div>
+    </div>
+  );
+}
+
+function Pagination({ page, totalPages, onChange }) {
+  return (
+    <div className="join">
+      <button type="button" onClick={() => onChange(1)} disabled={page === 1} className="join-item btn btn-sm" title="Première page">
+        <FontAwesomeIcon icon="fa-solid fa-angles-left" />
+      </button>
+      <button type="button" onClick={() => onChange(page - 1)} disabled={page === 1} className="join-item btn btn-sm" title="Page précédente">
+        <FontAwesomeIcon icon="fa-solid fa-angle-left" />
+      </button>
+      <span className="join-item btn btn-sm btn-active pointer-events-none tabular-nums">
+        {page} / {totalPages}
+      </span>
+      <button type="button" onClick={() => onChange(page + 1)} disabled={page === totalPages} className="join-item btn btn-sm" title="Page suivante">
+        <FontAwesomeIcon icon="fa-solid fa-angle-right" />
+      </button>
+      <button type="button" onClick={() => onChange(totalPages)} disabled={page === totalPages} className="join-item btn btn-sm" title="Dernière page">
+        <FontAwesomeIcon icon="fa-solid fa-angles-right" />
+      </button>
+    </div>
+  );
+}
 
 export default function JournalDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [journal, setJournal] = useState(null);
-  const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [loadingContent, setLoadingContent] = useState(false);
-  const [error, setError] = useState(null);
   const [auth, setAuth] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [messagesPerPage, setMessagesPerPageState] = useState(() => {
-    const saved = localStorage.getItem('messagesPerPage');
-    return saved ? Number(saved) : 20;
-  });
+  const [perPage, setPerPage] = useState(readPerPage);
 
-  const setMessagesPerPage = (value) => {
-    setMessagesPerPageState(value);
-    localStorage.setItem('messagesPerPage', value.toString());
+  // content : derniers messages valides (cache puis API) ; ils restent affichés pendant une actualisation
+  const [contentFor, setContentFor] = useState(id);
+  const [content, setContent] = useState(() => readCache(id)?.content ?? null);
+  const [updatedAt, setUpdatedAt] = useState(() => readCache(id)?.savedAt ?? null);
+  const [fetching, setFetching] = useState(true);
+  const [contentError, setContentError] = useState(null);
+
+  // Changement de journal sans démontage de la page : on repart de son cache
+  if (contentFor !== id) {
+    const cached = readCache(id);
+    setContentFor(id);
+    setContent(cached?.content ?? null);
+    setUpdatedAt(cached?.savedAt ?? null);
+    setFetching(true);
+    setContentError(null);
+    setCurrentPage(1);
+  }
+
+  const applyContent = (journalId, data) => {
+    const next = data?.content;
+    if (next && !next.error) {
+      const savedAt = new Date().toISOString();
+      setContent(next);
+      setUpdatedAt(savedAt);
+      setContentError(null);
+      writeCache(journalId, next, savedAt);
+    } else {
+      setContentError(next?.message || "Impossible de récupérer les messages de ce journal.");
+    }
   };
 
-  const groupMessages = (messages) => {
-    if (!messages || messages.length === 0) return [];
-
-    const sorted = [...messages].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-    const groups = [];
-    let currentGroup = [];
-
-    for (let i = 0; i < sorted.length; i++) {
-      const currentMessage = sorted[i];
-
-      if (currentGroup.length === 0) {
-        currentGroup.push(currentMessage);
-      } else {
-        const lastMessage = currentGroup[currentGroup.length - 1];
-        const timeDiff = Math.abs(
-          new Date(currentMessage.timestamp) - new Date(lastMessage.timestamp)
-        );
-        const oneMinuteMs = 60 * 1000;
-
-        if (
-          currentMessage.author.id === lastMessage.author.id &&
-          timeDiff < oneMinuteMs
-        ) {
-          currentGroup.push(currentMessage);
-        } else {
-          groups.push(currentGroup);
-          currentGroup = [currentMessage];
-        }
-      }
-    }
-
-    if (currentGroup.length > 0) {
-      groups.push(currentGroup);
-    }
-
-    return groups;
+  const failContent = (error) => {
+    console.error('Error fetching journal content:', error);
+    setContentError("Impossible de récupérer les messages de ce journal.");
   };
 
   useEffect(() => {
-    const fetchJournal = async () => {
-      setLoading(true);
-      getJournalById(id)
-        .then((data) => {
-          // console.log('Journal fetched:', data);
-          setJournal(data.journal);
-          checkUserID(data.journal?.user_id, setAuth);
-          setError(null);
-        })
-        .catch((err) => {
-          setError('Erreur lors du chargement du journal');
-          console.error(err);
-          setJournal(null);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    };
+    let cancelled = false;
 
-    const fetchContent = async () => {
-      setLoadingContent(true);
-      getJournalContentById(id)
-        .then((data) => {
-          // console.log('Journal content fetched:', data);
-          setContent(data.content);
-        })
-        .catch((err) => {
-          console.error(err);
-          setContent(null);
-        })
-        .finally(() => {
-          setLoadingContent(false);
-        });
-    };
-
-    if (id) {
-      fetchJournal();
-      fetchContent();
-      setCurrentPage(1);
-    }
-  }, [id]);
-
-  const getPaginatedMessages = () => {
-    if (!content || !content.messages) return [];
-    const grouped = groupMessages(content.messages);
-    const startIndex = (currentPage - 1) * messagesPerPage;
-    const endIndex = startIndex + messagesPerPage;
-    return grouped.slice(startIndex, endIndex);
-  };
-
-  const getTotalPages = () => {
-    if (!content || !content.messages) return 1;
-    const grouped = groupMessages(content.messages);
-    return Math.ceil(grouped.length / messagesPerPage);
-  };
-
-  const reloadContent = async () => {
-    setLoadingContent(true);
-    getJournalContentById(id)
+    getJournalById(id)
       .then((data) => {
-        // console.log('Journal content reloaded:', data);
-        setContent(data.content);
+        if (cancelled) return;
+        setJournal(data.journal ?? null);
+        checkUserID(data.journal?.user_id, setAuth);
       })
-      .catch((err) => {
-        console.error('Erreur lors du rechargement du contenu:', err);
+      .catch((error) => {
+        console.error('Error fetching journal:', error);
+        if (!cancelled) setJournal(null);
       })
       .finally(() => {
-        setLoadingContent(false);
+        if (!cancelled) setLoading(false);
       });
+
+    getJournalContentById(id)
+      .then((data) => {
+        if (!cancelled) applyContent(id, data);
+      })
+      .catch((error) => {
+        if (!cancelled) failContent(error);
+      })
+      .finally(() => {
+        if (!cancelled) setFetching(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  const reloadContent = () => {
+    if (fetching) return;
+    setFetching(true);
+    getJournalContentById(id)
+      .then((data) => applyContent(id, data))
+      .catch(failContent)
+      .finally(() => setFetching(false));
   };
+
+  const changePerPage = (value) => {
+    setPerPage(value);
+    setCurrentPage(1);
+    try {
+      localStorage.setItem(PER_PAGE_STORAGE_KEY, String(value));
+    } catch {
+      // Préférence non enregistrée : sans conséquence
+    }
+  };
+
+  const messages = useMemo(() => content?.messages || [], [content]);
+  const groups = useMemo(() => groupMessages(messages), [messages]);
+  const totalPages = Math.max(1, Math.ceil(groups.length / perPage));
+  const page = Math.min(currentPage, totalPages);
+  const pageGroups = groups.slice((page - 1) * perPage, page * perPage);
+
+  const changePage = (value) => {
+    setCurrentPage(Math.min(Math.max(value, 1), totalPages));
+    document.getElementById('journal-messages')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const authorsCount = new Set(messages.map((message) => message.author?.id)).size;
+  const lastGroup = groups[groups.length - 1];
+  const lastMessageDate = lastGroup ? formatDate(lastGroup[lastGroup.length - 1].timestamp) : null;
+  const published = formatDate(journal?.published_date);
 
   const btnReturn = { text: 'Retour à la bibliothèque', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/bibliotheque' };
 
-  const fonctions = [
-    { id: 0, title: 'Modifier', icon: "fas fa-pen", class: "btn-ghost bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(Config_Modal_Journal, "edit") }
+  const FctModify = [
+    { id: 0, title: 'Modifier', icon: "fas fa-pen", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(Config_Modal_Journal, "edit") }
   ];
 
-  const content_fonctions = [
-    { id: 1, title: "Rafraichir", icon: "fas fa-rotate-right", class: "bg-base-200 hover:bg-base-300", connected: false, authorisation: true, function: reloadContent }
+  const FctMessages = [
+    { id: 1, title: "Rafraîchir", icon: "fas fa-rotate-right", class: "bg-base-200 hover:bg-base-300", connected: false, authorisation: true, function: reloadContent }
   ];
 
-  const updateJournal = (data) => {
-    // console.log("Journal mis à jour:", data);
-    setJournal(data.journal ? data.journal : null);
-  };
+  // Premier chargement sans cache : rien à afficher en attendant l'API
+  const waitingFirstContent = fetching && !content;
+  const statValue = (value) => waitingFirstContent ? "…" : value;
 
-  const handleDelete = () => {
-    navigate('/bibliotheque');
-  };
+  const BodyHTML = journal ? (
+    <>
+      <TitleH1 text={journal.title} icon="fas fa-newspaper" btn={btnReturn} fonctions={FctModify} />
+
+      {/* En-tête : informations, chiffres clés et description */}
+      <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <span className="flex items-center justify-center w-16 h-16 rounded-full text-2xl shrink-0 bg-base-300 shadow-md">
+            <FontAwesomeIcon icon={journal.cover_icon || "fa-solid fa-newspaper"} />
+          </span>
+          <div className="flex flex-col gap-1 min-w-0">
+            <InfoLine icon="fa-solid fa-feather">
+              {journal.author ? <>Rédigé par <strong>{journal.author}</strong></> : "Auteur inconnu"}
+            </InfoLine>
+            <InfoLine icon="fa-solid fa-calendar">
+              {published ? `Publié le ${published}` : "Date de publication inconnue"}
+            </InfoLine>
+            {journal.uid ? <InfoLine icon="fa-brands fa-discord">Alimenté par un salon Discord</InfoLine> : null}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <Stat icon="fa-solid fa-comments" label={messages.length > 1 ? "Messages" : "Message"} value={statValue(messages.length)} />
+          <Stat icon="fa-solid fa-user-pen" label={authorsCount > 1 ? "Auteurs" : "Auteur"} value={statValue(authorsCount)} />
+          <Stat icon="fa-solid fa-clock-rotate-left" label="Dernier message" value={statValue(lastMessageDate || "—")} />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <span className="flex flex-row items-center gap-2 font-bold">
+            <FontAwesomeIcon icon="fas fa-pen-nib" />
+            <span>Description</span>
+          </span>
+          <MarkdownTextEditor value={journal.description || 'Aucune description'} />
+        </div>
+      </div>
+
+      <div id="journal-messages" className="w-full scroll-mt-24">
+        <TitleH2 text="Messages" icon="fas fa-comments" fonctions={FctMessages} />
+      </div>
+
+      {content ? (
+        <div className="flex flex-row items-center gap-2 w-full px-2 text-sm opacity-70">
+          {fetching ? (
+            <>
+              <span className="loading loading-spinner loading-xs"></span>
+              <span>Actualisation des messages…</span>
+            </>
+          ) : updatedAt ? (
+            <span>Mis à jour le {formatDate(updatedAt)} à {formatTime(updatedAt)}</span>
+          ) : null}
+        </div>
+      ) : null}
+
+      {contentError ? (
+        <div role="alert" className="alert alert-warning alert-soft w-full">
+          <FontAwesomeIcon icon="fa-solid fa-triangle-exclamation" />
+          <span>{content ? `Actualisation impossible : ${contentError.replace(/\.?$/, '.')} Affichage des derniers messages enregistrés.` : contentError}</span>
+        </div>
+      ) : null}
+
+      {waitingFirstContent ? (
+        <div className="flex justify-center items-center py-12 w-full">
+          <div className="loading loading-spinner loading-lg"></div>
+        </div>
+      ) : !content ? null : groups.length === 0 ? (
+        <i className="w-full">Ce journal ne contient encore aucun message.</i>
+      ) : (
+        <>
+          {totalPages > 1 ? (
+            <div className="flex justify-center w-full">
+              <Pagination page={page} totalPages={totalPages} onChange={changePage} />
+            </div>
+          ) : null}
+
+          <div className="flex flex-col gap-2 w-full">
+            {pageGroups.map((group, index) => (
+              <Fragment key={group[0].id}>
+                {index === 0 || dayKey(group[0].timestamp) !== dayKey(pageGroups[index - 1][0].timestamp) ? (
+                  <div className="divider my-1 text-sm opacity-70 first-letter:uppercase">{formatDay(group[0].timestamp)}</div>
+                ) : null}
+                <MessageGroup group={group} />
+              </Fragment>
+            ))}
+          </div>
+
+          <div className="flex flex-row flex-wrap justify-center items-center gap-4 w-full mt-2">
+            <label className="flex flex-row items-center gap-2 whitespace-nowrap">
+              <span className="text-sm">Groupes par page</span>
+              <select value={perPage} onChange={(e) => changePerPage(Number(e.target.value))} className="select select-bordered select-sm bg-base-100 w-20">
+                {PER_PAGE_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
+              </select>
+            </label>
+            {totalPages > 1 ? <Pagination page={page} totalPages={totalPages} onChange={changePage} /> : null}
+          </div>
+        </>
+      )}
+    </>
+  ) : null;
 
   return (
     <>
       <Navbar active="bibliotheque" />
-      <div className="container mx-auto p-4">
-        <div className="flex items-center justify-center flex-col gap-2">
-          <DynamicModal config={Config_Modal_Journal} mode="edit" onSubmit={(journal) => { updateJournal(journal) }} onDelete={handleDelete} />
-
-          {loading && (
-            <div className="flex justify-center items-center py-12">
-              <div className="loading loading-spinner loading-lg"></div>
-            </div>
-          )}
-
-          {error && (
-            <div className="alert alert-error mb-6">
-              <span>{error}</span>
-              <div className="mt-4">
-                <Link to="/bibliotheque" className="btn btn-sm btn-outline">
-                  Retour aux journaux
-                </Link>
-              </div>
-            </div>
-          )}
-          {!loading && journal && (
+      <main className="container mx-auto p-4">
+        <div className="flex flex-col items-center justify-center gap-2">
+          {loading ? (
+            <Skeleton />
+          ) : !journal ? (
             <>
-              <TitleH1 text={`Journal: ${journal.title}`} btn={btnReturn} fonctions={fonctions} />
-              <article className="w-full mt-1">
-                <div className="mb-4">
-                  <div className="flex gap-4">
-                    {journal.author && (
-                      <>
-                        <span>Auteur: <strong>{journal.author}</strong></span>
-                        <span>•</span>
-                      </>
-                    )}
-                    {journal.published_date && (
-                      <span>{new Date(journal.published_date).toLocaleDateString('fr-FR', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}</span>
-                    )}
-                  </div>
-                </div>
-
-                {journal.description && (
-                  <>
-                    <div className="divider"></div>
-
-                    <div className="prose prose-lg max-w-none mb-8">
-                      <p>{journal.description}</p>
-                    </div>
-                  </>
-                )}
-
-                <TitleH2 text="Contenu" fonctions={content_fonctions} style_box={{ marginBottom: '1rem' }} />
-
-                {loadingContent && (
-                  <div className="flex justify-center items-center py-12">
-                    <div className="loading loading-spinner loading-lg"></div>
-                  </div>
-                )}
-
-                {!loadingContent && content && (
-                  <>
-                    <div className="prose prose-lg max-w-none mb-4">
-                      {content.messages && content.messages.length > 0 ? (
-                        <div className="space-y-4">
-                          {getPaginatedMessages().map((group, groupIndex) => (
-                            <div key={groupIndex} className="bg-base-200 p-4 rounded-lg border-l-4 border-blue-500">
-                              <div className="flex justify-between items-start mb-3">
-                                <div>
-                                  <strong className="text-blue-600">{group[0].author.name}</strong>
-                                  <span className="text-sm ml-2">
-                                    {new Date(group[0].timestamp).toLocaleString('fr-FR')}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                {group.map((message) => (
-                                  <div key={message.id}>
-                                    <p className=""><LinkifiedText text={message.content} /></p>
-                                    {message.attachments && message.attachments.length > 0 && (
-                                      <div className="mb-2">
-                                        {message.attachments.map((att, index) => (
-                                          <div key={index} className="p-2 rounded">
-                                            <img src={att.url} alt={`${att.filename}`} className="max-w-full rounded" />
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
-                                    {message.reactions && Object.keys(message.reactions).length > 0 && (
-                                      <div className="mt-2 flex flex-wrap gap-2">
-                                        {Object.entries(message.reactions).map(([emoji, count]) => (
-                                          <span key={emoji} className="inline-flex items-center gap-1 bg-base-300 border border-base-300 rounded-full px-3 py-1 text-sm">
-                                            <span>{emoji}</span>
-                                            <span className="">{count}</span>
-                                          </span>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p>Aucun message disponible.</p>
-                      )}
-                    </div>
-
-                    {content.messages && content.messages.length > 0 && (
-                      <div className="flex justify-center items-center gap-6 mt-8 flex-wrap">
-                        <div className="flex items-center gap-1 whitespace-nowrap">
-                          <label className="font-semibold">Messages par page:</label>
-                          <select
-                            value={messagesPerPage}
-                            onChange={(e) => {
-                              setMessagesPerPage(Number(e.target.value));
-                              setCurrentPage(1);
-                            }}
-                            className="select select-bordered select-sm bg-base-100"
-                          >
-                            <option value={5}>5</option>
-                            <option value={10}>10</option>
-                            <option value={20}>20</option>
-                            <option value={50}>50</option>
-                            <option value={100}>100</option>
-                          </select>
-                        </div>
-
-                        <div className="join">
-                          <button
-                            onClick={() => setCurrentPage(1)}
-                            disabled={currentPage === 1}
-                            className="join-item btn btn-sm"
-                            title="Première page"
-                          >
-                            <FontAwesomeIcon icon="fa-solid fa-angles-left" />
-                          </button>
-                          <button
-                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                            className="join-item btn btn-sm"
-                            title="Page précédente"
-                          >
-                            <FontAwesomeIcon icon="fa-solid fa-angle-left" />
-                          </button>
-                          <button
-                            className="join-item btn btn-sm btn-active"
-                            disabled
-                          >
-                            Page {currentPage} / {getTotalPages()}
-                          </button>
-                          <button
-                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, getTotalPages()))}
-                            disabled={currentPage === getTotalPages()}
-                            className="join-item btn btn-sm"
-                            title="Page suivante"
-                          >
-                            <FontAwesomeIcon icon="fa-solid fa-angle-right" />
-                          </button>
-                          <button
-                            onClick={() => setCurrentPage(getTotalPages())}
-                            disabled={currentPage === getTotalPages()}
-                            className="join-item btn btn-sm"
-                            title="Dernière page"
-                          >
-                            <FontAwesomeIcon icon="fa-solid fa-angles-right" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-              </article>
+              <TitleH1 text="Journal introuvable" icon="fas fa-newspaper" btn={btnReturn} />
+              <p>Ce journal n'existe pas ou n'est plus disponible.</p>
             </>
-          )}
+          ) : BodyHTML}
 
-          {!loading && !journal && !error && (
-            <div className="alert alert-warning">
-              <span>Aucun journal trouvé avec cet ID.</span>
-            </div>
-          )}
+          <DynamicModal config={Config_Modal_Journal} mode="edit" onSubmit={(data) => { if (data.journal) setJournal(data.journal); }} onDelete={() => navigate('/bibliotheque')} />
         </div>
-      </div>
+      </main>
     </>
   );
 }
