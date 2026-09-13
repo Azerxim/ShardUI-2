@@ -28,6 +28,12 @@
 .journal-container:hover .journal-card {
   transform: rotate(0deg) translateY(-0.35rem) scale(1.05);
 }
+/* Sur téléphone, la feuille occupe toute la largeur : l'agrandir la ferait sortir de l'écran */
+@media (max-width: 639px) {
+  .journal-container:hover .journal-card {
+    transform: rotate(0deg) translateY(-0.35rem);
+  }
+}
 
 /* --- Orientation verticale : rouleau de journal ficelé --- */
 .journal-scroll {

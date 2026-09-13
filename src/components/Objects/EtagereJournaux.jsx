@@ -3,21 +3,22 @@ import './EtagereJournaux.css';
 
 const INK_COLOR = '#2b2620';
 
-export default function EtagereJournaux({ books, text = 'journal(s)', height = 12, width = 6, orientation = 'horizontal' }) {
+export default function EtagereJournaux({ books, height = 12, width = 6, orientation = 'horizontal' }) {
     return (
         <>
             {/* Etagere avec des journaux cliquables */}
-            <div className='flex w-full m-2 gap-3 flex-wrap items-end'>
+            <div className='flex w-full my-2 gap-3 flex-wrap items-end'>
                 {books.map((book) => {
                     return (
                         <div
                             key={book.id}
-                            className="journal-container relative group"
+                            className="journal-container relative group max-w-full"
                         >
                             <a
                                 href={book.link}
                                 className={`journal-card cursor-pointer shadow-md transition-shadow duration-300 group-hover:shadow-xl group-hover:z-10 flex border-0 ${orientation === 'vertical' ? 'journal-scroll flex-col items-center justify-center' : 'journal-sheet flex-col'}`}
-                                style={{ width: `${width}rem`, height: `${height}rem`, color: INK_COLOR }}
+                                // maxWidth : sur téléphone, la feuille se réduit à la largeur disponible
+                                style={{ width: `${width}rem`, maxWidth: '100%', height: `${height}rem`, color: INK_COLOR }}
                             >
                                 {orientation === 'vertical' ? (
                                     <>
@@ -55,7 +56,8 @@ export default function EtagereJournaux({ books, text = 'journal(s)', height = 1
                                     </>
                                 )}
                             </a>
-                            <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap bg-gray-800 text-white px-2 py-1 rounded-3xl text-xs">
+                            {/* Infobulle au survol : absente sur écran tactile, largeur limitée pour ne pas sortir de l'écran */}
+                            <div className="hidden sm:block absolute bottom-full mb-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none w-max max-w-[min(20rem,90vw)] text-center bg-gray-800 text-white px-3 py-1 rounded-2xl text-xs">
                                 {book.description || 'Pas de description disponible.'}
                             </div>
                         </div>

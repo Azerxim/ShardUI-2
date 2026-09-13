@@ -327,7 +327,7 @@ export default function JournalDetailPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
           <Stat icon="fa-solid fa-comments" label={messages.length > 1 ? "Messages" : "Message"} value={statValue(messages.length)} />
           <Stat icon="fa-solid fa-user-pen" label={authorsCount > 1 ? "Auteurs" : "Auteur"} value={statValue(authorsCount)} />
           <Stat icon="fa-solid fa-clock-rotate-left" label="Dernier message" value={statValue(lastMessageDate || "—")} />

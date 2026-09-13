@@ -2,11 +2,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './EtagereLivres.css';
 import { getContrastTextColor } from '../Functions/contrastColor';
 
-export default function EtagereLivres({ books, text = 'livre(s)', height = 12, width = 4, orientation = 'vertical' }) {
+export default function EtagereLivres({ books, height = 12, width = 4, orientation = 'vertical' }) {
     return (
         <>
             {/* Etagere avec des livres cliquable */}
-            <div className='flex w-full m-2 gap-3 flex-wrap items-end'>
+            <div className='flex w-full my-2 gap-3 flex-wrap items-end'>
                 {books.map((book) => {
                     const textColor = getContrastTextColor(book.cover_color);
                     return (
@@ -41,7 +41,8 @@ export default function EtagereLivres({ books, text = 'livre(s)', height = 12, w
                                     </>
                                 )}
                             </a>
-                            <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap bg-gray-800 text-white px-2 py-1 rounded-3xl text-xs">
+                            {/* Infobulle au survol : absente sur écran tactile, largeur limitée pour ne pas sortir de l'écran */}
+                            <div className="hidden sm:block absolute bottom-full mb-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none w-max max-w-[min(20rem,90vw)] text-center bg-gray-800 text-white px-3 py-1 rounded-2xl text-xs">
                                 {book.description || 'Pas de description disponible.'}
                             </div>
                         </div>

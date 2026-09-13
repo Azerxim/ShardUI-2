@@ -13,10 +13,24 @@ test.describe("Mobile", () => {
     test(`${path} ne défile pas horizontalement`, async ({ page }) => {
       await page.goto(path);
       await page.waitForLoadState("networkidle");
+      // Les listes gardent un squelette au moins une seconde avant d'afficher leurs cartes
+      await page.waitForTimeout(1500);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       expect(overflow).toBeLessThanOrEqual(1);
     });
   }
+
+  test("la carte d'un journal tient dans l'écran", async ({ page }) => {
+    await page.goto("/bibliotheque");
+    const card = page.locator(".journal-card").first();
+    await card.waitFor({ timeout: 8000 }).catch(() => { });
+    test.skip((await card.count()) === 0, "aucun journal dans la base de test");
+
+    const box = await card.boundingBox();
+    const viewport = page.viewportSize();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
+  });
 
   test("sur la fiche de son commerce, chaque bouton est identifiable", async ({ page, context }) => {
     const session = await createSession("mobile");
