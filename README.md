@@ -36,6 +36,7 @@ VITE_API_BASE_URL=
 ```
 
 - `VITE_API_BASE_URL` : URL de base de l'API Shard-API consommée par le front (les appels sont faits sur `${VITE_API_BASE_URL}/api`).
+- `VITE_MAPS_BASE_URL` (optionnel) : URL de ShardUI-2-Maps ouverte par les boutons « Marqueurs » / « Frontières » (par défaut `https://map.beta.tetrago.fr`). En développement, `.env.development` la fixe à `http://localhost:3005`. Le jeton de connexion est transmis à l'éditeur par `postMessage` : l'API utilisée par la carte doit être la même que `VITE_API_BASE_URL`.
 - `VITE_SERVER_URL` : URL du serveur minecraft.
 - `VITE_API_USER` / `VITE_API_PASSWORD` : identifiants administrateur utilisés pour l'authentification côté API.
 

@@ -273,7 +273,6 @@ export default function DynamicModal({
           </>
         );
 
-
       case "civilisation_dirigeante":
         const [civilisationList, setCivilisationList] = useState([]);
 
@@ -336,7 +335,7 @@ export default function DynamicModal({
           </>
         );
       
-        case "users":
+      case "users":
         const [users, setUsers] = useState([]);
 
         useEffect(() => {

@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import MapEmbed from './MapEmbed';
 import TitleButtons from '../Objects/TitleButtons';
-import ReligionButton from '../Buttons/ReligionButton';
+import VilleReligions from './VilleReligions';
 import { showModal } from '../Functions/showModal';
 import { Config_Modal_Ville } from '../Modals/Config_Modal_Ville';
 import DynamicModal from '../Modals/DynamicModal';
@@ -38,11 +38,11 @@ export default function Ville({ info, dimensions, auth = false, updateVille = ()
                                     <span>{info.population}</span>
                                 </div>
                             ) : null}
-                            <div className="flex flex-row gap-2 items-center">
-                                {info.religions && info.religions.map(religion => (
-                                    <ReligionButton key={religion.id} religion={religion} auth={false} bgColor="bg-base-100" />
-                                ))}
-                            </div>
+                            {info.religions && info.religions.length > 0 ? (
+                                <div className="flex flex-row gap-2 items-center">
+                                    <VilleReligions religions={info.religions} compact />
+                                </div>
+                            ) : null}
                             {info.description ? (
                                 <div className="flex flex-row gap-2 items-center">
                                     <span>{info.description}</span>

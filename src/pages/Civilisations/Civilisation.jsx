@@ -26,7 +26,10 @@ import {
     getLivresBycivilisationId,
     deleteMemberCivilisation
 } from "../../services/api"
+import { openMapEditor } from "../../services/mapEditor";
 import Swal from "sweetalert2";
+
+const MEMBER_ROLE_ORDER = { Fondateur: 0, Admin: 1 };
 
 export default function CivilisationPage() {
     const { id } = useParams();
@@ -164,8 +167,20 @@ export default function CivilisationPage() {
         setVilles((prevVilles) => [...prevVilles, ville]);
     };
 
+    const openMarqueursEditor = () => {
+        // Carte centrée sur la capitale (ou la première ville) de la civilisation
+        const ville = villes.find((v) => v.is_capital) || villes[0];
+        const dimension = dimensions?.find((dim) => dim.id === ville?.dimension_id) || dimensions?.[0];
+        if (!dimension) {
+            Swal.fire({ icon: "error", title: "Oops...", text: "Aucune dimension disponible pour la carte." });
+            return;
+        }
+        openMapEditor({ dimension, type: "civilisation", id: civilisation.id, x: ville?.x, z: ville?.z });
+    };
+
     const FctModify = [
-        { id: 1, title: "Modifier", icon: "fas fa-pen", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(Config_Modal_Civilisation, "edit") }
+        { id: 1, title: "Marqueurs", icon: "fas fa-map-location-dot", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: openMarqueursEditor },
+        { id: 2, title: "Modifier", icon: "fas fa-pen", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(Config_Modal_Civilisation, "edit") }
     ];
 
     const FctGouvernement = [
@@ -196,9 +211,9 @@ export default function CivilisationPage() {
         <>
             <TitleH1 text={civilisation ? civilisation.title : "Civilisation inconnue"} btn={btnReturn} fonctions={FctModify} />
             <TitleH2 text="Membres" icon="fas fa-users" fonctions={FctMembers} />
-            <div className="flex flex-row gap-4 w-full">
+            <div className="flex flex-row flex-wrap gap-2 w-full">
                 {data && data.members && data.members.length > 0 ? (
-                    data.members.map((member) => {
+                    [...data.members].sort((a, b) => (MEMBER_ROLE_ORDER[a.role] ?? 2) - (MEMBER_ROLE_ORDER[b.role] ?? 2)).map((member) => {
                         return member.role == "Fondateur" ? (
                             <MemberButton key={member.user_id} member={member} auth={(member.user_id == user?.id) ? true : false} onDelete={handleMemberDelete} onModifyMember={handleMemberModify} />
                         ) : (

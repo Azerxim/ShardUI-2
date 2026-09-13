@@ -11,7 +11,7 @@ import TitleH2 from "../../components/Objects/TitleH2";
 import TitleH3 from "../../components/Objects/TitleH3";
 import UserButton from "../../components/Buttons/UserButton";
 import MemberButton from "../../components/Buttons/MemberButton";
-import ReligionButton from "../../components/Buttons/ReligionButton";
+import VilleReligions from "../../components/Objects/VilleReligions";
 import DynamicModal from '../../components/Modals/DynamicModal';
 import VilleReligionAddModal from '../../components/Modals/VilleReligionAddModal';
 import EtagereLivres from "../../components/Objects/EtagereLivres";
@@ -30,6 +30,7 @@ import {
     getCivilisationById,
     getDimensions
 } from "../../services/api"
+import { openMapEditor } from "../../services/mapEditor";
 import Swal from "sweetalert2";
 
 export default function VilleDetailPage() {
@@ -110,8 +111,21 @@ export default function VilleDetailPage() {
         navigate(`/civilisation/${civ_id}`);
     };
 
+    const openFrontieresEditor = () => {
+        if (!dimension) {
+            Swal.fire({ icon: "error", title: "Oops...", text: "La dimension de cette ville est inconnue." });
+            return;
+        }
+        openMapEditor({ dimension, type: "ville", id: ville.id, x: ville.x, z: ville.z });
+    };
+
     const FctModify = [
-        { id: 1, title: "Modifier", icon: "fas fa-pen", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(Config_Modal_Ville, "edit") }
+        { id: 1, title: "Frontières", icon: "fas fa-draw-polygon", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: openFrontieresEditor },
+        { id: 2, title: "Modifier", icon: "fas fa-pen", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(Config_Modal_Ville, "edit") }
+    ];
+
+    const FctReligions = [
+        { id: 1, title: "Ajouter", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModalID("ville-religion-add-modal") }
     ];
 
     const btnReturn = { text: 'Retour à la civilisation', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: `/civilisation/${civ_id}` };
@@ -163,19 +177,14 @@ export default function VilleDetailPage() {
                         </div>
                         <span className="flex-1">{ville.population}</span>
                     </div>
-                    <div className="flex flex-row gap-2 w-full justify-between items-center">
-                        <div className="flex-1">
-                            <TitleH2 text="Religions" icon="fas fa-praying-hands" />
-                        </div>
-                        <span className="flex flex-row items-center flex-1 gap-2">
-                            {auth && (
-                                <button className="btn btn-sm btn-primary rounded-3xl tooltip tooltip-left" data-tip="Ajouter une religion" onClick={() => { showModalID("ville-religion-add-modal") }}>
-                                    <FontAwesomeIcon icon="fas fa-plus" />
-                                </button>
-                            )}
-                            {religions.length > 0 ? religions.map(religion => <ReligionButton key={religion.id} religion={religion} ville={ville} auth={auth} onModify={(data) => { updateReligion(data) }} onDelete={(data) => { deleteReligion(data) }} />) : 'Aucune religion'}
-                        </span>
-                    </div>
+                    <TitleH2 text="Religions" icon="fas fa-praying-hands" fonctions={FctReligions} />
+                    <VilleReligions
+                        religions={religions}
+                        ville={ville}
+                        auth={auth}
+                        onModify={(data) => { updateReligion(data) }}
+                        onDelete={(data) => { deleteReligion(data) }}
+                    />
                     <TitleH3 text="Description" icon="fas fa-info-circle" />
                     <MarkdownTextEditor value={ville.description ? ville.description : 'Aucune description'} />
                 </div>
@@ -195,7 +204,7 @@ export default function VilleDetailPage() {
                     {!ville ? null : BodyHTML}
 
                     <DynamicModal config={Config_Modal_Ville} mode="edit" onSubmit={(ville) => { updateVille(ville) }} onDelete={handleDelete} />
-                    <VilleReligionAddModal id="ville-religion-add-modal" ville_id={id} onSubmit={(data) => { addReligion(data) }} />
+                    <VilleReligionAddModal id="ville-religion-add-modal" ville_id={id} ville_religion_list={religions} onSubmit={(data) => { addReligion(data) }} />
                     
                 </div>
             </main>

@@ -7,14 +7,15 @@ import { Config_Modal_Civilisation_Member_Edit } from '../Modals/Config_Modal_Ci
 import DynamicModal from '../Modals/DynamicModal';
 import { showModal } from '../Functions/showModal';
 
-export default function MemberButton({ member, auth = false, tooltip = { position: "bottom" }, bgColor = "", textColor = "", icon = null, onDelete = () => { }, onModifyMember = () => { } }) {
+// Même présentation que les membres des religions : utilisateur + rôle en badge.
+// Les actions (modifier / supprimer / transférer) restent dans le menu, ouvert par
+// le bouton visible ou par clic droit.
+export default function MemberButton({ member, auth = false, bgColor = "", textColor = "", roleColor = "", onDelete = () => { }, onModifyMember = () => { } }) {
     const [username, setUsername] = useState("Utilisateur inconnu");
     const [imageUrl, setImageUrl] = useState("");
     const [linkUrl, setLinkUrl] = useState("");
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
-
-    // console.log("Authorisation dans MemberButton:", auth);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -51,23 +52,18 @@ export default function MemberButton({ member, auth = false, tooltip = { positio
     }, [menuOpen]);
 
     const handleContextMenu = (e) => {
+        if (!auth) return;
         e.preventDefault();
         setMenuOpen(true);
     };
 
-    icon = member.role == "Fondateur" ? "fa-solid fa-crown" : null;
+    const isFondateur = member.role === "Fondateur";
 
     return (
-        <div className="relative w-min" ref={menuRef}>
-            <a
-                href={linkUrl}
-                className={`w-min tooltip tooltip-${tooltip.position}`}
-                data-tip={member.role}
-                onContextMenu={handleContextMenu}
-            >
+        <div className="relative flex flex-row items-center gap-2 bg-base-200 rounded-3xl pr-3" ref={menuRef} onContextMenu={handleContextMenu}>
+            <a href={linkUrl} className='w-min'>
                 <div className={`btn ${bgColor} ${textColor} rounded-3xl shadow-md p-2 h-10 w-min`}>
                     <div className="flex items-center space-x-2 flex-nowrap">
-                        {icon && <FontAwesomeIcon icon={icon} />}
                         <div className="avatar">
                             <div className="mask mask-circle w-6 px-1">
                                 {imageUrl != "" && imageUrl != null ? (<img src={imageUrl} />) : (<FontAwesomeIcon icon="fa-solid fa-user" />)}
@@ -78,7 +74,29 @@ export default function MemberButton({ member, auth = false, tooltip = { positio
                 </div>
             </a>
 
-            {auth && menuOpen && member.role != "Fondateur" && (
+            {member.role ? (
+                isFondateur ? (
+                    <span className={`badge badge-sm gap-1 border-0 ${roleColor ? "text-white" : "badge-primary"}`} style={{ backgroundColor: roleColor || undefined }}>
+                        <FontAwesomeIcon icon="fa-solid fa-crown" />
+                        {member.role}
+                    </span>
+                ) : (
+                    <span className="badge badge-sm badge-ghost">{member.role}</span>
+                )
+            ) : null}
+
+            {auth ? (
+                <button
+                    type="button"
+                    className="btn btn-xs btn-ghost btn-circle -mr-1"
+                    aria-label={`Actions pour ${username}`}
+                    onClick={() => setMenuOpen((open) => !open)}
+                >
+                    <FontAwesomeIcon icon="fa-solid fa-ellipsis-vertical" />
+                </button>
+            ) : null}
+
+            {auth && menuOpen && !isFondateur && (
                 <ul className="menu absolute left-0 top-full z-50 mt-1 w-40 rounded-box bg-base-100 shadow-md">
                     <li>
                         <button
@@ -108,7 +126,7 @@ export default function MemberButton({ member, auth = false, tooltip = { positio
                 </ul>
             )}
 
-            {auth && menuOpen && member.role == "Fondateur" && (
+            {auth && menuOpen && isFondateur && (
                 <ul className="menu absolute left-0 top-full z-50 mt-1 w-40 rounded-box bg-base-100 shadow-md">
                     <li>
                         <button
