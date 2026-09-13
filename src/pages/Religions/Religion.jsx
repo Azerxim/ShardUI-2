@@ -16,11 +16,14 @@ import VilleReligions from "../../components/Objects/VilleReligions";
 import { showModal, showModalID } from '../../components/Functions/showModal';
 import { religionColor, religionIcon, formatInfluence } from '../../components/Functions/religionColor';
 import { Config_Modal_Religion } from '../../components/Modals/Config_Modal_Religion';
+import { Config_Modal_Religion_Member, Config_Modal_Religion_Member_Edit } from '../../components/Modals/Config_Modal_Member';
 import {
     getReligionById,
     getReligions,
-    getCivilisations
+    getCivilisations,
+    deleteMemberReligion
 } from "../../services/api"
+import Swal from "sweetalert2";
 
 const ROLE_ORDER = { Fondateur: 0, Admin: 1 };
 const TRANSFER_MODAL_ID = "religion-transfer-founder-modal";
@@ -138,6 +141,45 @@ export default function ReligionPage() {
         checkMemberAuth(newMembers, setAuth);
     };
 
+    const addMember = (data) => {
+        if (data.member) setMembers((prevMembers) => [...prevMembers, data.member]);
+    };
+
+    const handleMemberModify = (data) => {
+        const updatedMember = data.member;
+        if (!updatedMember) return;
+        const newMembers = members.map((member) => member.user_id === updatedMember.user_id ? updatedMember : member);
+        setMembers(newMembers);
+        checkMemberAuth(newMembers, setAuth);
+    };
+
+    const handleMemberDelete = async (member) => {
+        const result = await Swal.fire({
+            icon: "warning",
+            title: "Êtes-vous sûr ?",
+            text: "Ce membre sera retiré de la religion.",
+            showCancelButton: true,
+            confirmButtonText: "Supprimer",
+            cancelButtonText: "Annuler",
+        });
+        if (!result.isConfirmed) return;
+
+        try {
+            await deleteMemberReligion(id, member.user_id);
+            const newMembers = members.filter((m) => m.user_id !== member.user_id);
+            setMembers(newMembers);
+            checkMemberAuth(newMembers, setAuth);
+            Swal.fire({ icon: "success", title: "Succès", text: "Membre retiré de la religion avec succès." });
+        } catch (error) {
+            console.error("Erreur lors de la suppression du membre:", error);
+            Swal.fire({ icon: "error", title: "Oops...", text: error.message });
+        }
+    };
+
+    const FctMembers = [
+        { id: 1, title: "Ajouter", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(Config_Modal_Religion_Member, "add") }
+    ];
+
     const sortedMembers = [...members].sort((a, b) => (ROLE_ORDER[a.role] ?? 2) - (ROLE_ORDER[b.role] ?? 2));
 
     const BodyHTML = (
@@ -178,6 +220,27 @@ export default function ReligionPage() {
                         <MarkdownTextEditor value={religion?.description ? religion.description : 'Aucune description'} />
                     </div>
                 </div>
+            </div>
+
+            <TitleH2 text="Membres" icon="fas fa-users" fonctions={FctMembers} />
+            <div className="flex flex-row flex-wrap gap-2 w-full">
+                {sortedMembers.length > 0 ? (
+                    sortedMembers.map((member) => (
+                        <MemberButton
+                            key={member.user_id}
+                            member={member}
+                            roleColor={color}
+                            editConfig={Config_Modal_Religion_Member_Edit}
+                            // Fondateur : transfert par lui-même ou un administrateur du site ; autres membres : Fondateur / Admin
+                            auth={member.role === "Fondateur" ? (member.user_id === user?.id || Boolean(user?.is_admin)) : auth}
+                            onDelete={handleMemberDelete}
+                            onModifyMember={handleMemberModify}
+                            onTransfer={() => showModalID(TRANSFER_MODAL_ID)}
+                        />
+                    ))
+                ) : (
+                    <i>Aucun membre pour cette religion.</i>
+                )}
             </div>
 
             <TitleH2 text="Présence dans les villes" icon="fas fa-city" />
@@ -236,25 +299,6 @@ export default function ReligionPage() {
                     </div>
                 </>
             ) : null}
-
-            <TitleH2 text="Membres" icon="fas fa-users" />
-            <div className="flex flex-row flex-wrap gap-2 w-full">
-                {sortedMembers.length > 0 ? (
-                    sortedMembers.map((member) => (
-                        // Pas de routes d'édition des membres de religion : seul le transfert (fondateur ou administrateur du site)
-                        <MemberButton
-                            key={member.user_id}
-                            member={member}
-                            roleColor={color}
-                            editConfig={null}
-                            auth={member.role === "Fondateur" && (member.user_id === user?.id || Boolean(user?.is_admin))}
-                            onTransfer={() => showModalID(TRANSFER_MODAL_ID)}
-                        />
-                    ))
-                ) : (
-                    <i>Aucun membre pour cette religion.</i>
-                )}
-            </div>
         </>
     );
 
@@ -273,6 +317,7 @@ export default function ReligionPage() {
                     ) : BodyHTML}
 
                     <DynamicModal config={Config_Modal_Religion} mode="edit" onSubmit={(religion) => { updateReligion(religion) }} onDelete={handleDelete} />
+                    <DynamicModal config={Config_Modal_Religion_Member} mode="add" onSubmit={addMember} />
                     <TransferFounderModal id={TRANSFER_MODAL_ID} entity="religion" entityId={id} members={members} onTransfer={handleFounderTransfer} />
                 </div>
             </main>

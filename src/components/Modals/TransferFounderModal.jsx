@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Swal from "sweetalert2";
-import { getUsers, transferFounderCivilisation, transferFounderReligion } from "../../services/api";
+import { getUsers, transferFounderCivilisation, transferFounderReligion, transferFounderCommerce } from "../../services/api";
 
+// label : "Transférer …", of : "fondateur …", to : "ajouté …", pronoun : "de … transférer"
 const ENTITIES = {
-  civilisation: { label: "la civilisation", transfer: transferFounderCivilisation },
-  religion: { label: "la religion", transfer: transferFounderReligion },
+  civilisation: { label: "la civilisation", of: "de la civilisation", to: "à la civilisation", pronoun: "la", transfer: transferFounderCivilisation },
+  religion: { label: "la religion", of: "de la religion", to: "à la religion", pronoun: "la", transfer: transferFounderReligion },
+  commerce: { label: "le commerce", of: "du commerce", to: "au commerce", pronoun: "le", transfer: transferFounderCommerce },
 };
 
-// Transfert du rôle de fondateur d'une civilisation ou d'une religion à un autre utilisateur.
+// Transfert du rôle de fondateur d'une civilisation, d'une religion ou d'un commerce à un autre utilisateur.
 // Réservé au fondateur actuel ou à un administrateur du site (vérifié par l'API).
 export default function TransferFounderModal({ id, entity = "civilisation", entityId, members = [], onTransfer = () => { } }) {
-  const { label, transfer } = ENTITIES[entity];
+  const { label, of, to, pronoun, transfer } = ENTITIES[entity];
   const [users, setUsers] = useState([]);
   const [userId, setUserId] = useState("");
   const [formerRole, setFormerRole] = useState("Admin");
@@ -49,7 +51,7 @@ export default function TransferFounderModal({ id, entity = "civilisation", enti
     const confirm = await Swal.fire({
       icon: "warning",
       title: `Transférer ${label} ?`,
-      text: `${nameOf(target)} deviendra fondateur de ${label}.${founder ? ` L'actuel fondateur deviendra ${formerRole}.` : ""}`,
+      text: `${nameOf(target)} deviendra fondateur ${of}.${founder ? ` L'actuel fondateur deviendra ${formerRole}.` : ""}`,
       showCancelButton: true,
       confirmButtonText: "Transférer",
       cancelButtonText: "Annuler",
@@ -61,7 +63,7 @@ export default function TransferFounderModal({ id, entity = "civilisation", enti
 
     try {
       const data = await transfer(entityId, target.id, formerRole);
-      Swal.fire({ icon: "success", title: "Succès", text: `${nameOf(target)} est maintenant fondateur de ${label}.` });
+      Swal.fire({ icon: "success", title: "Succès", text: `${nameOf(target)} est maintenant fondateur ${of}.` });
       onTransfer(data.members || []);
       resetForm();
     } catch (error) {
@@ -88,7 +90,7 @@ export default function TransferFounderModal({ id, entity = "civilisation", enti
             <div role="alert" className="alert alert-warning alert-soft">
               <FontAwesomeIcon icon="fa-solid fa-triangle-exclamation" />
               <span>
-                Le nouveau fondateur obtiendra tous les droits sur {label}, dont celui de la transférer à nouveau.
+                Le nouveau fondateur obtiendra tous les droits sur {label}, dont celui de {pronoun} transférer à nouveau.
               </span>
             </div>
 
@@ -109,7 +111,7 @@ export default function TransferFounderModal({ id, entity = "civilisation", enti
                   </option>
                 ))}
               </select>
-              <p className="label">Un utilisateur qui n'est pas membre sera ajouté à {label}.</p>
+              <p className="label">Un utilisateur qui n'est pas membre sera ajouté {to}.</p>
             </fieldset>
 
             {founder ? (

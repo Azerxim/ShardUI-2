@@ -303,22 +303,33 @@ export async function getCivilisationDirigees(civilisationId) {
   return response.json();
 }
 
-export async function deleteMemberCivilisation(civilisationId, memberId) {
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  };
+export function deleteMemberCivilisation(civilisationId, memberId) {
+  return deleteMember("civilisations", civilisationId, memberId);
+}
 
-  const response = await fetch(`${apiURL}/civilisations/members/${civilisationId}/remove?member_id=${memberId}`, {
+export function deleteMemberReligion(religionId, memberId) {
+  return deleteMember("religions", religionId, memberId);
+}
+
+export function deleteMemberCommerce(commerceId, memberId) {
+  return deleteMember("commerces", commerceId, memberId);
+}
+
+// entity : "civilisations", "religions" ou "commerces"
+async function deleteMember(entity, entityId, memberId) {
+  const response = await fetch(`${apiURL}/${entity}/members/${entityId}/remove?member_id=${memberId}`, {
     method: "DELETE",
-    headers,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
   });
 
+  const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+    throw new Error(typeof data.detail === "string" ? data.detail : `Erreur ${response.status}: ${response.statusText}`);
   }
-
-  return response.json();
+  return data;
 }
 
 // Transfère le rôle de fondateur à un autre utilisateur (fondateur actuel ou administrateur).
@@ -329,6 +340,10 @@ export function transferFounderCivilisation(civilisationId, userId, formerRole =
 
 export function transferFounderReligion(religionId, userId, formerRole = "Admin") {
   return transferFounder(`${apiURL}/religions/members/${religionId}/transfer`, userId, formerRole);
+}
+
+export function transferFounderCommerce(commerceId, userId, formerRole = "Admin") {
+  return transferFounder(`${apiURL}/commerces/members/${commerceId}/transfer`, userId, formerRole);
 }
 
 async function transferFounder(url, userId, formerRole) {
@@ -412,7 +427,7 @@ export async function getCommerces() {
   return response.json();
 }
 
-// { commerce, owner, magasins }
+// { commerce, fondateur, members, magasins, dirigeant, diriges }
 export async function getCommerceById(commerceId) {
   const response = await fetch(`${apiURL}/commerces/read/${commerceId}`, {
     method: "GET",

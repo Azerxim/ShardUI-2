@@ -35,7 +35,7 @@ const buildCommerceTree = (list) => {
 };
 
 // dirige : carte affichée dans le bloc de son commerce dirigeant
-function CommerceCard({ commerce, owner, magasins, diriges = [], dirige = false }) {
+function CommerceCard({ commerce, fondateur, magasins, diriges = [], dirige = false }) {
     const siege = magasins.find((magasin) => magasin.is_siege);
 
     return (
@@ -48,7 +48,7 @@ function CommerceCard({ commerce, owner, magasins, diriges = [], dirige = false 
                 // ...(dirige ? [{ text: "Dirigé", className: "badge-neutral" }] : []),
                 ...(commerce.is_public ? [] : [{ text: "Privé", className: "badge-warning" }]),
             ]}
-            subtitle={owner ? `Par ${owner.full_name || owner.username}` : "Propriétaire inconnu"}
+            subtitle={fondateur ? `Par ${fondateur.full_name || fondateur.username}` : "Fondateur inconnu"}
             description={commerce.description}
             stats={[
                 { icon: "fa-solid fa-store", text: plural(magasins.length, "magasin") },
@@ -75,14 +75,14 @@ export default function CommercesPage() {
             .finally(() => setLoading(false));
     }, []);
 
-    // Un commerce privé n'est visible que par son propriétaire et les administrateurs
+    // Un commerce privé n'est visible que par ses membres et les administrateurs
     const visibles = commerces
-        .filter(({ commerce }) => commerce.is_public || user?.is_admin || commerce.owner_id === user?.id)
+        .filter(({ commerce, members }) => commerce.is_public || user?.is_admin || (members || []).some((member) => member.user_id === user?.id))
         .sort((a, b) => a.commerce.title.localeCompare(b.commerce.title));
 
     const addCommerce = (data) => {
         if (!data?.commerce) return;
-        setCommerces((prev) => [...prev, { commerce: data.commerce, owner: data.owner ?? null, magasins: data.magasins ?? [] }]);
+        setCommerces((prev) => [...prev, { commerce: data.commerce, fondateur: data.fondateur ?? null, members: data.members ?? [], magasins: data.magasins ?? [] }]);
     };
 
     return (
@@ -116,19 +116,19 @@ export default function CommercesPage() {
                         <p className="italic opacity-70">Aucun commerce disponible.</p>
                     ) : (
                         <div className="grid grid-cols-1 gap-4 w-full">
-                            {buildCommerceTree(visibles).map(({ item: { commerce, owner, magasins }, diriges }) => (
+                            {buildCommerceTree(visibles).map(({ item: { commerce, fondateur, magasins }, diriges }) => (
                                 diriges.length > 0 ? (
                                     <ListCardTree
                                         key={commerce.id}
-                                        parent={<CommerceCard commerce={commerce} owner={owner} magasins={magasins || []} diriges={diriges} />}
+                                        parent={<CommerceCard commerce={commerce} fondateur={fondateur} magasins={magasins || []} diriges={diriges} />}
                                         label={{ icon: "fa-solid fa-crown", text: `Commerces dirigés par ${commerce.title}` }}
                                         items={diriges.map((dirige) => ({
                                             key: dirige.commerce.id,
-                                            node: <CommerceCard commerce={dirige.commerce} owner={dirige.owner} magasins={dirige.magasins || []} dirige />,
+                                            node: <CommerceCard commerce={dirige.commerce} fondateur={dirige.fondateur} magasins={dirige.magasins || []} dirige />,
                                         }))}
                                     />
                                 ) : (
-                                    <CommerceCard key={commerce.id} commerce={commerce} owner={owner} magasins={magasins || []} />
+                                    <CommerceCard key={commerce.id} commerce={commerce} fondateur={fondateur} magasins={magasins || []} />
                                 )
                             ))}
                         </div>

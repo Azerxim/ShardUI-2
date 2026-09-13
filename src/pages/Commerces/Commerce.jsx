@@ -10,12 +10,25 @@ import DynamicModal from "../../components/Modals/DynamicModal";
 import MarkdownTextEditor from "../../components/Objects/MarkdownTextEditor";
 import MapEmbed from "../../components/Objects/MapEmbed";
 
-import { showModal } from "../../components/Functions/showModal";
+import { showModal, showModalID } from "../../components/Functions/showModal";
+import { checkMemberAuth } from "../../services/authorisation";
+import TransferFounderModal from "../../components/Modals/TransferFounderModal";
 import { Config_Modal_Commerce } from "../../components/Modals/Config_Modal_Commerce";
 import { Config_Modal_Magasin } from "../../components/Modals/Config_Modal_Magasin";
-import { getCommerceById, getDimensions, getVilles } from "../../services/api";
+import { Config_Modal_Commerce_Member, Config_Modal_Commerce_Member_Edit } from "../../components/Modals/Config_Modal_Member";
+import MemberButton from "../../components/Buttons/MemberButton";
+import { getCommerceById, getDimensions, getVilles, deleteMemberCommerce } from "../../services/api";
+import Swal from "sweetalert2";
 
-const formatDate = (date) => date ? new Date(date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) : null;
+const ROLE_ORDER = { Fondateur: 0, Admin: 1 };
+const TRANSFER_MODAL_ID = "commerce-transfer-founder-modal";
+
+// Un commerce privé n'est visible que par ses membres et les administrateurs du site
+const canSeeCommerce = (commerce, members, user) => Boolean(
+    commerce.is_public || user?.is_admin || (members || []).some((member) => member.user_id === user?.id)
+);
+
+const formatDate =(date) => date ? new Date(date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) : null;
 
 function MagasinCard({ magasin, dimension, ville, auth }) {
     const opened = formatDate(magasin.founded_date);
@@ -84,7 +97,7 @@ export default function CommercePage() {
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem("user"));
     const [commerce, setCommerce] = useState(null);
-    const [owner, setOwner] = useState(null);
+    const [members, setMembers] = useState([]);
     const [magasins, setMagasins] = useState([]);
     const [dirigeant, setDirigeant] = useState(null);
     const [diriges, setDiriges] = useState([]);
@@ -97,7 +110,7 @@ export default function CommercePage() {
         getCommerceById(id)
             .then((data) => {
                 setCommerce(data.commerce ?? null);
-                setOwner(data.owner ?? null);
+                setMembers(data.members ?? []);
                 setMagasins(data.magasins ?? []);
                 setDirigeant(data.dirigeant ?? null);
                 setDiriges(data.diriges ?? []);
@@ -122,8 +135,49 @@ export default function CommercePage() {
     // Recharger après un ajout / une modification / une suppression de magasin (le siège peut changer)
     const reload = () => setReloadKey((key) => key + 1);
 
-    const auth = Boolean(user && commerce && (user.is_admin || user.id === commerce.owner_id));
-    const hidden = commerce && !commerce.is_public && !auth;
+    // Fondateur, Admin du commerce ou administrateur du site (même règle que l'API)
+    const auth = checkMemberAuth(members);
+    const hidden = commerce && !canSeeCommerce(commerce, members, user);
+
+    const addMember = (data) => {
+        if (data.member) setMembers((prevMembers) => [...prevMembers, data.member]);
+    };
+
+    const handleMemberModify = (data) => {
+        const updatedMember = data.member;
+        if (!updatedMember) return;
+        setMembers((prevMembers) => prevMembers.map((member) => member.user_id === updatedMember.user_id ? updatedMember : member));
+    };
+
+    const handleMemberDelete = async (member) => {
+        const result = await Swal.fire({
+            icon: "warning",
+            title: "Êtes-vous sûr ?",
+            text: "Ce membre sera retiré du commerce.",
+            showCancelButton: true,
+            confirmButtonText: "Supprimer",
+            cancelButtonText: "Annuler",
+        });
+        if (!result.isConfirmed) return;
+
+        try {
+            await deleteMemberCommerce(id, member.user_id);
+            setMembers((prevMembers) => prevMembers.filter((m) => m.user_id !== member.user_id));
+            Swal.fire({ icon: "success", title: "Succès", text: "Membre retiré du commerce avec succès." });
+        } catch (error) {
+            console.error("Erreur lors de la suppression du membre:", error);
+            Swal.fire({ icon: "error", title: "Oops...", text: error.message });
+        }
+    };
+
+    const FctMembers = [
+        { id: 1, title: "Ajouter", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(Config_Modal_Commerce_Member, "add") }
+    ];
+
+    // Les rôles de plusieurs membres changent : on recharge la fiche
+    const handleFounderTransfer = () => reload();
+
+    const sortedMembers = [...members].sort((a, b) => (ROLE_ORDER[a.role] ?? 2) - (ROLE_ORDER[b.role] ?? 2));
 
     const FctModify = [
         { id: 1, title: "Modifier", icon: "fas fa-pen", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(Config_Modal_Commerce, "edit") }
@@ -135,12 +189,11 @@ export default function CommercePage() {
 
     const btnReturn = { text: 'Retour aux commerces', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/commerces' };
 
-    // Les magasins privés ne sont visibles que par le propriétaire et les administrateurs
+    // Les magasins privés ne sont visibles que par le Fondateur, les Admins et les administrateurs du site
     const visibleMagasins = magasins.filter((magasin) => magasin.is_public || auth);
     const siege = visibleMagasins.find((magasin) => magasin.is_siege);
     const villeSiege = siege ? villes.find((ville) => ville.id === siege.ville_id) : null;
-    // Commerces dirigés privés : visibles par leur propriétaire et les administrateurs
-    const visibleDiriges = diriges.filter(({ commerce: dirige }) => dirige.is_public || user?.is_admin || user?.id === dirige.owner_id);
+    const visibleDiriges = diriges.filter(({ commerce: dirige, members: dirigeMembers }) => canSeeCommerce(dirige, dirigeMembers, user));
 
     const BodyHTML = commerce ? (
         <>
@@ -152,28 +205,22 @@ export default function CommercePage() {
                         <FontAwesomeIcon icon="fa-solid fa-shop" />
                     </span>
                     <div className="flex flex-col gap-1 min-w-0">
-                        <span className="flex flex-row items-center gap-2">
-                            <FontAwesomeIcon icon="fa-solid fa-user" className="opacity-70 w-4" />
-                            {owner ? (
-                                <a href={`/profil/${owner.id}`} className="link link-hover truncate">{owner.full_name || owner.username}</a>
-                            ) : <span>Propriétaire inconnu</span>}
-                        </span>
                         {dirigeant ? (
                             <span className="flex flex-row items-center gap-2">
                                 <FontAwesomeIcon icon="fa-solid fa-crown" className="opacity-70 w-4" />
                                 <span>Dirigé par <a href={`/commerce/${dirigeant.id}`} className="link link-hover">{dirigeant.title}</a></span>
                             </span>
                         ) : null}
+                        {commerce.date_founded ? (
+                            <span className="flex flex-row items-center gap-2">
+                                <FontAwesomeIcon icon="fa-solid fa-calendar" className="opacity-70 w-4" />
+                                <span>Fondé le {formatDate(commerce.date_founded)}</span>
+                            </span>
+                        ) : null}
                         <span className="flex flex-row items-center gap-2">
                             <FontAwesomeIcon icon={commerce.is_public ? "fa-solid fa-eye" : "fa-solid fa-eye-slash"} className="opacity-70 w-4" />
                             <span>{commerce.is_public ? "Commerce public" : "Commerce privé"}</span>
                         </span>
-                        {commerce.created_at ? (
-                            <span className="flex flex-row items-center gap-2">
-                                <FontAwesomeIcon icon="fa-solid fa-calendar" className="opacity-70 w-4" />
-                                <span>Créé le {formatDate(commerce.created_at)}</span>
-                            </span>
-                        ) : null}
                     </div>
                 </div>
 
@@ -203,6 +250,26 @@ export default function CommercePage() {
                 </div>
             </div>
 
+            <TitleH2 text="Membres" icon="fas fa-users" fonctions={FctMembers} />
+            <div className="flex flex-row flex-wrap gap-2 w-full">
+                {sortedMembers.length > 0 ? (
+                    sortedMembers.map((member) => (
+                        <MemberButton
+                            key={member.user_id}
+                            member={member}
+                            editConfig={Config_Modal_Commerce_Member_Edit}
+                            // Fondateur : transfert par lui-même ou un administrateur du site ; autres membres : Fondateur / Admin
+                            auth={member.role === "Fondateur" ? (member.user_id === user?.id || Boolean(user?.is_admin)) : auth}
+                            onDelete={handleMemberDelete}
+                            onModifyMember={handleMemberModify}
+                            onTransfer={() => showModalID(TRANSFER_MODAL_ID)}
+                        />
+                    ))
+                ) : (
+                    <i>Aucun membre pour ce commerce.</i>
+                )}
+            </div>
+
             <TitleH2 text="Magasins" icon="fas fa-store" fonctions={FctMagasins} />
             {visibleMagasins.length === 0 ? (
                 <div className="w-full">
@@ -226,15 +293,15 @@ export default function CommercePage() {
                 <>
                     <TitleH2 text="Commerces dirigés" icon="fas fa-crown" />
                     <div className="flex flex-col gap-4 w-full">
-                        {visibleDiriges.map(({ commerce: dirige, owner: dirigeOwner, magasins: dirigeMagasins }) => {
-                            const dirigeAuth = Boolean(user && (user.is_admin || user.id === dirige.owner_id));
+                        {visibleDiriges.map(({ commerce: dirige, fondateur: dirigeFondateur, members: dirigeMembers, magasins: dirigeMagasins }) => {
+                            const dirigeAuth = checkMemberAuth(dirigeMembers || []);
                             const dirigeVisibleMagasins = (dirigeMagasins || []).filter((magasin) => magasin.is_public || dirigeAuth);
                             return (
                                 <div key={dirige.id} className="flex flex-col gap-2 w-full">
                                     <a href={`/commerce/${dirige.id}`} className="flex flex-row flex-wrap items-center gap-2 px-2 font-bold hover:underline">
                                         <FontAwesomeIcon icon="fa-solid fa-shop" />
                                         <span>{dirige.title}</span>
-                                        {dirigeOwner ? <span className="font-normal text-sm opacity-70">· {dirigeOwner.full_name || dirigeOwner.username}</span> : null}
+                                        {dirigeFondateur ? <span className="font-normal text-sm opacity-70">· {dirigeFondateur.full_name || dirigeFondateur.username}</span> : null}
                                     </a>
                                     {dirigeVisibleMagasins.length === 0 ? (
                                         <i className="px-2 text-sm opacity-70">Aucun magasin.</i>
@@ -273,6 +340,8 @@ export default function CommercePage() {
                     {auth ? (
                         <>
                             <DynamicModal config={Config_Modal_Commerce} mode="edit" onSubmit={(data) => setCommerce(data.commerce ?? commerce)} onDelete={() => navigate('/commerces')} />
+                            <DynamicModal config={Config_Modal_Commerce_Member} mode="add" onSubmit={addMember} />
+                            <TransferFounderModal id={TRANSFER_MODAL_ID} entity="commerce" entityId={id} members={members} onTransfer={handleFounderTransfer} />
                             <DynamicModal config={Config_Modal_Magasin} mode="add" onSubmit={reload} />
                             {magasins.map((magasin) => (
                                 <DynamicModal key={magasin.id} config={Config_Modal_Magasin} mode="edit" local={{ id: magasin.id }} onSubmit={reload} onDelete={reload} />
