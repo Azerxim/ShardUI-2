@@ -1,119 +1,162 @@
 import { useState, useEffect } from "react";
-import { checkMemberAuth } from "../../services/authorisation";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Swal from "sweetalert2";
 
-import { getData } from "../../components/Functions/getData";
 import Navbar from "../../components/Navigation/Navbar";
 import Skeleton from "../../components/Objects/Skeleton";
 import TitleH1 from "../../components/Objects/TitleH1";
 import TitleH2 from "../../components/Objects/TitleH2";
-import TitleH3 from "../../components/Objects/TitleH3";
-import UserButton from "../../components/Buttons/UserButton";
-import MemberButton from "../../components/Buttons/MemberButton";
+import Stat from "../../components/Objects/Stat";
+import InfoLine from "../../components/Objects/InfoLine";
 import VilleReligions from "../../components/Objects/VilleReligions";
-import DynamicModal from '../../components/Modals/DynamicModal';
-import VilleReligionAddModal from '../../components/Modals/VilleReligionAddModal';
-import EtagereLivres from "../../components/Objects/EtagereLivres";
-import Ville from "../../components/Objects/Ville";
 import MapEmbed from "../../components/Objects/MapEmbed";
 import MarkdownTextEditor from "../../components/Objects/MarkdownTextEditor";
+import DynamicModal from '../../components/Modals/DynamicModal';
+import VilleReligionAddModal from '../../components/Modals/VilleReligionAddModal';
 
+import { checkMemberAuth } from "../../services/authorisation";
+import { getSessionUser } from "../../services/session";
 import { showModal, showModalID } from '../../components/Functions/showModal';
-import { Config_Modal_Civilisation } from '../../components/Modals/Config_Modal_Civilisation';
-import { Config_Modal_Gouvernement } from '../../components/Modals/Config_Modal_Gouvernement';
-import { Config_Modal_Civilisation_Member } from '../../components/Modals/Config_Modal_Civilisation_Member';
-import { Config_Modal_Civilisation_Member_Edit } from '../../components/Modals/Config_Modal_Civilisation_Member_Edit';
-import { Config_Modal_Livre } from '../../components/Modals/Config_Modal_Livre';
 import { Config_Modal_Ville } from '../../components/Modals/Config_Modal_Ville';
 import {
     getCivilisationById,
-    getDimensions
+    getCommerces,
+    getDimensions,
+    getQuartiersByVille
 } from "../../services/api"
 import { openMapEditor } from "../../services/mapEditor";
-import Swal from "sweetalert2";
+
+const RELIGION_ADD_MODAL_ID = "ville-religion-add-modal";
+
+const formatDate = (date) => date ? new Date(date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) : null;
+const formatPopulation = (value) => Number(value) > 0 ? Number(value).toLocaleString('fr-FR') : "—";
+const villeIcon = (ville) => `fa-solid fa-${ville?.is_capital ? 'archway' : 'city'}`;
+
+// Capitale d'abord, puis ordre alphabétique
+const sortVilles = (list) => [...list].sort((a, b) => Number(Boolean(b.is_capital)) - Number(Boolean(a.is_capital)) || a.title.localeCompare(b.title));
+
+function QuartierCard({ quartier }) {
+    const founded = formatDate(quartier.founded_date);
+    return (
+        <div className="flex flex-col gap-2 w-full bg-base-200 rounded-2xl p-4">
+            <span className="flex flex-row flex-wrap items-center gap-2 font-bold">
+                <FontAwesomeIcon icon="fa-solid fa-map-location-dot" className="opacity-80" />
+                <span className="break-words">{quartier.title}</span>
+                {quartier.is_public === false ? <span className="badge badge-sm badge-warning">Privé</span> : null}
+            </span>
+            <div className="flex flex-row flex-wrap gap-x-4 gap-y-1 text-sm opacity-80">
+                <span className="flex flex-row items-center gap-1">
+                    <FontAwesomeIcon icon="fa-solid fa-people-group" className="w-4" />
+                    {formatPopulation(quartier.population)}
+                </span>
+                {founded ? (
+                    <span className="flex flex-row items-center gap-1">
+                        <FontAwesomeIcon icon="fa-solid fa-calendar" className="w-4" />
+                        Fondé le {founded}
+                    </span>
+                ) : null}
+            </div>
+            {quartier.description ? <p className="break-words">{quartier.description}</p> : null}
+        </div>
+    );
+}
+
+function MagasinLink({ magasin, commerce }) {
+    return (
+        <a href={`/commerce/${commerce.id}`} className="flex flex-row items-center gap-3 w-full bg-base-200 hover:bg-base-300 transition-colors rounded-2xl p-3">
+            <span className="flex items-center justify-center w-10 h-10 rounded-full bg-base-100 shrink-0">
+                <FontAwesomeIcon icon={magasin.is_siege ? "fa-solid fa-building" : "fa-solid fa-store"} />
+            </span>
+            <span className="flex flex-col flex-1 min-w-0">
+                <span className="flex flex-row flex-wrap items-center gap-2 font-bold">
+                    <span className="break-words">{magasin.title}</span>
+                    {magasin.is_siege ? <span className="badge badge-sm badge-primary">Siège</span> : null}
+                </span>
+                <span className="text-sm opacity-70 truncate">{commerce.title}</span>
+            </span>
+            <FontAwesomeIcon icon="fa-solid fa-chevron-right" className="opacity-50" />
+        </a>
+    );
+}
 
 export default function VilleDetailPage() {
     const { civ_id, id } = useParams();
-    const navigate = useNavigate()
-    const [dimensions, setDimensions] = useState(null);
-    const [data, setData] = useState(null);
+    const villeId = parseInt(id);
+    const navigate = useNavigate();
+    const user = getSessionUser();
+    const [civilisation, setCivilisation] = useState(null);
+    const [members, setMembers] = useState([]);
+    const [villes, setVilles] = useState([]);
     const [ville, setVille] = useState(null);
     const [religions, setReligions] = useState([]);
-    const [civilisation, setCivilisation] = useState(null);
-    const [auth, setAuth] = useState(false);
+    const [quartiers, setQuartiers] = useState([]);
+    const [magasins, setMagasins] = useState([]);
+    const [dimensions, setDimensions] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const dimension = dimensions ? dimensions.find(dim => dim.id === ville?.dimension_id) : null;
-
+    // La ville et ses religions viennent de la fiche de sa civilisation
     useEffect(() => {
         getCivilisationById(civ_id)
             .then((data) => {
-                // console.log('Civilisations fetched:', data);
-                // Ajouter les liens pour redirection vers la page de détail
-                setData(data);
-                setCivilisation(data.civilisation ? data.civilisation : null);
-                setVille(data.villes ? data.villes.find(v => v.id === parseInt(id)) : null);
-                setReligions(data.villes && data.villes.find(v => v.id === parseInt(id)) ? data.villes.find(v => v.id === parseInt(id)).religions : []);
-                checkMemberAuth(data ? data.members : [], setAuth);
-                getDimensions()
-                    .then((dimensions) => {
-                        // console.log('Dimensions fetched:', dimensions);
-                        setDimensions(dimensions);
-                    })
-                    .catch((error) => {
-                        console.error('Error fetching dimensions:', error);
-                        setDimensions(null);
-                    });
+                const found = (data.villes ?? []).find((item) => item.id === villeId) ?? null;
+                setCivilisation(data.civilisation ?? null);
+                setMembers(data.members ?? []);
+                setVilles(data.villes ?? []);
+                setVille(found);
+                setReligions(found?.religions ?? []);
             })
             .catch((error) => {
-                console.error('Error fetching civilisations:', error);
-                setData(null);
-                setCivilisation(null);
+                console.error('Error fetching ville:', error);
                 setVille(null);
-                setReligions([]);
-                setDimensions(null);
-            });
-    }, []);
+            })
+            .finally(() => setLoading(false));
+    }, [civ_id, villeId]);
+
+    // Données complémentaires : leur échec n'empêche pas l'affichage de la page
+    useEffect(() => {
+        getDimensions()
+            .then((list) => setDimensions(Array.isArray(list) ? list : []))
+            .catch((error) => console.error('Error fetching dimensions:', error));
+        getQuartiersByVille(villeId)
+            .then((list) => setQuartiers(Array.isArray(list) ? list : []))
+            .catch((error) => console.error('Error fetching quartiers:', error));
+        getCommerces()
+            .then((list) => setMagasins((Array.isArray(list) ? list : []).flatMap(({ commerce, magasins: items }) => (items || [])
+                .filter((magasin) => magasin.ville_id === villeId)
+                .map((magasin) => ({ magasin, commerce })))))
+            .catch((error) => console.error('Error fetching commerces:', error));
+    }, [villeId]);
+
+    const auth = checkMemberAuth(members);
+    const isMember = Boolean(user && members.some((member) => member.user_id === user.id));
+    const canSeePrivate = auth || isMember;
+    const hidden = ville && ville.is_public === false && !canSeePrivate;
+    const dimension = dimensions.find((item) => item.id === ville?.dimension_id);
 
     const updateVille = (data) => {
-        // console.log("Ville mise à jour:", data);
-        setVille(data.ville ? data.ville : null);
+        // PUT /villes/update renvoie la ville elle-même (GET /villes/id l'enveloppe dans { ville })
+        const updated = data?.ville ?? (data?.id ? data : null);
+        if (!updated) return;
+        setVille((prev) => ({ ...prev, ...updated }));
+        setVilles((prev) => prev.map((item) => item.id === updated.id ? { ...item, ...updated } : item));
     };
 
     const addReligion = (data) => {
-        console.log("Religion ajoutée:", data);
-        setReligions([...religions, data.religion]);
-        setVille({
-            ...ville,
-            religions: [...religions, data.religion]
-        });
+        if (data?.religion) setReligions((prev) => [...prev, data.religion]);
     };
 
     const updateReligion = (data) => {
-        console.log("Religion mise à jour:", data);
-        setReligions(religions.map(religion => religion.id === data.religion.id ? data.religion : religion));
-        setVille({
-            ...ville,
-            religions: religions.map(religion => religion.id === data.religion.id ? data.religion : religion)
-        });
+        if (data?.religion) setReligions((prev) => prev.map((religion) => religion.id === data.religion.id ? data.religion : religion));
     };
 
-    const deleteReligion = (data) => {
-        console.log("Religion supprimée:", data);
-        setReligions(religions.filter(religion => religion.id !== data.id));
-        setVille({
-            ...ville,
-            religions: religions.filter(religion => religion.id !== data.id)
-        });
-    };
-
-    const handleDelete = () => {
-        navigate(`/civilisation/${civ_id}`);
+    const deleteReligion = (religion) => {
+        setReligions((prev) => prev.filter((item) => item.id !== religion.id));
     };
 
     const openFrontieresEditor = () => {
         if (!dimension) {
-            Swal.fire({ icon: "error", title: "Oops...", text: "La dimension de cette ville est inconnue." });
+            Swal.fire({ icon: "error", title: "Carte indisponible", text: "La dimension de cette ville est inconnue." });
             return;
         }
         openMapEditor({ dimension, type: "ville", id: ville.id, x: ville.x, z: ville.z });
@@ -125,79 +168,149 @@ export default function VilleDetailPage() {
     ];
 
     const FctReligions = [
-        { id: 1, title: "Ajouter", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModalID("ville-religion-add-modal") }
+        { id: 1, title: "Ajouter", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModalID(RELIGION_ADD_MODAL_ID) }
     ];
 
     const btnReturn = { text: 'Retour à la civilisation', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: `/civilisation/${civ_id}` };
 
-    const infos = ville ? [
-        { label: "Civilisation", icon: "fas fa-flag", value: civilisation ? civilisation.title : 'Inconnue' },
-        {
-            label: "Fondation", icon: "fas fa-calendar", value: ville.founded_date ? new Date(ville.founded_date).toLocaleDateString('fr-FR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            }) : 'Inconnue'
-        },
-        { label: "Type", icon: "fas fa-star", value: ville.is_capital ? 'Capitale' : 'Ville ou Village' },
-        { label: "Population", icon: "fas fa-users", value: ville.population }
-    ] : [];
+    const founded = formatDate(ville?.founded_date);
+    const visibleQuartiers = quartiers.filter((quartier) => quartier.is_public !== false || canSeePrivate);
+    const visibleMagasins = magasins
+        .filter(({ magasin, commerce }) => magasin.is_public !== false && commerce.is_public !== false)
+        .sort((a, b) => Number(Boolean(b.magasin.is_siege)) - Number(Boolean(a.magasin.is_siege)) || a.magasin.title.localeCompare(b.magasin.title));
+    const autresVilles = sortVilles(villes.filter((item) => item.id !== villeId && (item.is_public !== false || canSeePrivate)));
 
     const BodyHTML = ville ? (
-        <div className="flex flex-col gap-4 w-full">
-            <TitleH1 text={ville.title} icon={`fas fa-${ville?.is_capital ? 'archway' : 'city'}`} btn={btnReturn} fonctions={FctModify} />
-            <div className="flex flex-col lg:flex-row gap-4 lg:gap-2 w-full">
-                {/* Carte : pleine largeur sous le titre sur mobile, colonne fixe à gauche sur grand écran */}
-                <div className="w-full h-72 sm:h-96 lg:w-[400px] lg:h-[600px] shrink-0 lg:sticky lg:top-4">
-                    <MapEmbed
-                        dimension={dimension}
-                        width="100%"
-                        height="100%"
-                        embed="civilisations"
-                        x={ville.x}
-                        z={ville.z}
-                        zoom={0}
-                        title={`Carte de ${ville.title}`}
-                    />
-                </div>
-                <div className="flex flex-col gap-2 flex-1 min-w-0">
-                    {infos.map((info) => (
-                        <div key={info.label} className="flex flex-col sm:flex-row gap-1 sm:gap-2 w-full sm:items-center">
-                            <div className="sm:flex-1">
-                                <TitleH2 text={info.label} icon={info.icon} />
-                            </div>
-                            <span className="sm:flex-1 px-4 sm:px-0 break-words">{info.value}</span>
-                        </div>
-                    ))}
-                    <TitleH2 text="Religions" icon="fas fa-praying-hands" fonctions={FctReligions} />
-                    <VilleReligions
-                        religions={religions}
-                        ville={ville}
-                        auth={auth}
-                        onModify={(data) => { updateReligion(data) }}
-                        onDelete={(data) => { deleteReligion(data) }}
-                    />
-                    <TitleH3 text="Description" icon="fas fa-info-circle" />
-                    <MarkdownTextEditor value={ville.description ? ville.description : 'Aucune description'} />
-                </div>
-            </div>
-        </div>
-    ) : (
-        <p>Ville non trouvée.</p>
-    );
+        <>
+            <TitleH1 text={ville.title} icon={villeIcon(ville)} btn={btnReturn} fonctions={FctModify} />
 
-    // console.log(ville)
+            {/* En-tête : identité, chiffres clés, description et carte */}
+            <div className="flex flex-col lg:flex-row gap-4 w-full bg-base-200 rounded-3xl p-4">
+                <div className="flex flex-col gap-4 flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <span className="flex items-center justify-center w-16 h-16 rounded-full text-2xl shrink-0 bg-base-300 shadow-md">
+                            <FontAwesomeIcon icon={villeIcon(ville)} />
+                        </span>
+                        <div className="flex flex-col gap-1 min-w-0">
+                            <InfoLine icon="fa-solid fa-flag">
+                                Civilisation : {civilisation ? <a href={`/civilisation/${civilisation.id}`} className="link link-hover">{civilisation.title}</a> : "inconnue"}
+                                {ville.is_capital ? <span className="badge badge-sm badge-primary ml-2 align-middle">Capitale</span> : null}
+                            </InfoLine>
+                            <InfoLine icon="fa-solid fa-calendar">
+                                {founded ? `Fondée le ${founded}` : "Date de fondation inconnue"}
+                            </InfoLine>
+                            <InfoLine icon="fa-solid fa-location-dot">
+                                <span className="tabular-nums">{dimension ? `${dimension.title} · ` : ""}X {ville.x ?? 0} · Z {ville.z ?? 0}</span>
+                            </InfoLine>
+                            <InfoLine icon={ville.is_public === false ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"}>
+                                {ville.is_public === false ? "Ville privée" : "Ville publique"}
+                            </InfoLine>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
+                        <Stat icon="fa-solid fa-people-group" label="Population" value={formatPopulation(ville.population)} />
+                        <Stat icon="fa-solid fa-hands-praying" label={religions.length > 1 ? "Religions" : "Religion"} value={religions.length} />
+                        <Stat icon="fa-solid fa-map-location-dot" label={visibleQuartiers.length > 1 ? "Quartiers" : "Quartier"} value={visibleQuartiers.length} />
+                        <Stat icon="fa-solid fa-store" label={visibleMagasins.length > 1 ? "Magasins" : "Magasin"} value={visibleMagasins.length} />
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <span className="flex flex-row items-center gap-2 font-bold">
+                            <FontAwesomeIcon icon="fas fa-pen-nib" />
+                            <span>Description</span>
+                        </span>
+                        <MarkdownTextEditor value={ville.description || 'Aucune description'} />
+                    </div>
+                </div>
+
+                {dimension ? (
+                    // Pleine largeur sous les informations sur mobile, colonne à droite sur grand écran
+                    <div className="w-full h-64 sm:h-80 lg:w-[400px] lg:h-auto lg:min-h-80 shrink-0 rounded-2xl overflow-hidden">
+                        <MapEmbed
+                            dimension={dimension}
+                            width="100%"
+                            height="100%"
+                            embed="civilisations"
+                            x={ville.x}
+                            z={ville.z}
+                            zoom={0}
+                            title={`Carte de ${ville.title}`}
+                        />
+                    </div>
+                ) : null}
+            </div>
+
+            <TitleH2 text="Religions" icon="fas fa-hands-praying" fonctions={FctReligions} />
+            <VilleReligions
+                religions={religions}
+                ville={ville}
+                auth={auth}
+                onModify={updateReligion}
+                onDelete={deleteReligion}
+            />
+
+            {visibleQuartiers.length > 0 ? (
+                <>
+                    <TitleH2 text="Quartiers" icon="fas fa-map-location-dot" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
+                        {visibleQuartiers.map((quartier) => <QuartierCard key={quartier.id} quartier={quartier} />)}
+                    </div>
+                </>
+            ) : null}
+
+            <TitleH2 text="Commerces" icon="fas fa-shop" />
+            {visibleMagasins.length === 0 ? (
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
+                    <i className="flex-1">Aucun commerce n'est encore implanté dans cette ville.</i>
+                    <a href="/commerces" className="btn btn-sm btn-ghost bg-base-200 self-start sm:self-auto">
+                        <FontAwesomeIcon icon="fa-solid fa-shop" />
+                        Découvrir les commerces
+                    </a>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
+                    {visibleMagasins.map(({ magasin, commerce }) => <MagasinLink key={magasin.id} magasin={magasin} commerce={commerce} />)}
+                </div>
+            )}
+
+            {autresVilles.length > 0 ? (
+                <>
+                    <TitleH2 text="Autres villes de la civilisation" icon="fas fa-city" />
+                    <div className="flex flex-row flex-wrap gap-2 w-full">
+                        {autresVilles.map((item) => (
+                            <a key={item.id} href={`/civilisation/${civ_id}/ville/${item.id}`} className="flex flex-row items-center gap-2 bg-base-200 hover:bg-base-300 transition-colors rounded-full px-3 py-1.5">
+                                <FontAwesomeIcon icon={villeIcon(item)} className="opacity-70" />
+                                <span>{item.title}</span>
+                                {item.is_capital ? <span className="badge badge-sm badge-ghost">Capitale</span> : null}
+                            </a>
+                        ))}
+                    </div>
+                </>
+            ) : null}
+        </>
+    ) : null;
 
     return (
         <>
             <Navbar active="civilisations" />
             <main className="container mx-auto p-4">
-                <div className="flex items-center justify-center gap-2">
-                    {!ville ? null : BodyHTML}
+                <div className="flex flex-col items-center justify-center gap-2">
+                    {loading ? (
+                        <Skeleton />
+                    ) : !ville || hidden ? (
+                        <>
+                            <TitleH1 text="Ville introuvable" icon="fas fa-city" btn={btnReturn} />
+                            <p>Cette ville n'existe pas ou n'est plus disponible.</p>
+                        </>
+                    ) : BodyHTML}
 
-                    <DynamicModal config={Config_Modal_Ville} mode="edit" onSubmit={(ville) => { updateVille(ville) }} onDelete={handleDelete} />
-                    <VilleReligionAddModal id="ville-religion-add-modal" ville_id={id} ville_religion_list={religions} onSubmit={(data) => { addReligion(data) }} />
-                    
+                    {auth && ville ? (
+                        <>
+                            <DynamicModal config={Config_Modal_Ville} mode="edit" onSubmit={updateVille} onDelete={() => navigate(`/civilisation/${civ_id}`)} />
+                            <VilleReligionAddModal id={RELIGION_ADD_MODAL_ID} ville_id={id} ville_religion_list={religions} onSubmit={addReligion} />
+                        </>
+                    ) : null}
                 </div>
             </main>
         </>

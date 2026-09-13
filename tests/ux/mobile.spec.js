@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { apiPost, blockExternalRequests, createSession, signIn, uniqueSuffix } from "./helpers.js";
+import { apiGet, apiPost, blockExternalRequests, createSession, signIn, uniqueSuffix } from "./helpers.js";
 
 // Sur téléphone, les libellés des boutons sont masqués : chaque action doit rester identifiable.
 test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
@@ -19,6 +19,18 @@ test.describe("Mobile", () => {
       expect(overflow).toBeLessThanOrEqual(1);
     });
   }
+
+  test("une fiche ville ne défile pas horizontalement", async ({ page }) => {
+    const civilisations = await apiGet("/civilisations/list");
+    const parent = civilisations.find(({ civilisation, villes }) => civilisation.is_public && (villes || []).length > 0);
+    test.skip(!parent, "aucune ville dans la base de test");
+
+    await page.goto(`/civilisation/${parent.civilisation.id}/ville/${parent.villes[0].id}`);
+    await expect(page.locator("main.container h1")).toContainText(parent.villes[0].title);
+    await page.waitForLoadState("networkidle");
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(1);
+  });
 
   test("la carte d'un journal tient dans l'écran", async ({ page }) => {
     await page.goto("/bibliotheque");

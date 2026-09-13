@@ -77,6 +77,21 @@ test.describe("Visiteur", () => {
     await expect(page.locator("main.container").getByRole("note")).toContainText(/connectez-vous pour rejoindre/i);
   });
 
+  test("une fiche ville présente sa civilisation, ses religions et ses commerces", async ({ page }) => {
+    const civilisations = await apiGet("/civilisations/list");
+    const parent = civilisations.find(({ civilisation, villes }) => civilisation.is_public && (villes || []).some((ville) => ville.is_public !== false));
+    test.skip(!parent, "aucune ville publique dans la base de test");
+    const ville = parent.villes.find((item) => item.is_public !== false);
+
+    await page.goto(`/civilisation/${parent.civilisation.id}/ville/${ville.id}`);
+    const main = page.locator("main.container");
+    await expect(main.locator("h1")).toContainText(ville.title);
+    await expect(main.getByRole("link", { name: parent.civilisation.title, exact: true })).toBeVisible();
+    await expect(main.getByRole("heading", { name: "Religions", exact: true })).toBeVisible();
+    await expect(main.getByRole("heading", { name: "Commerces", exact: true })).toBeVisible();
+    await expect(main.getByRole("button", { name: /modifier|frontières|ajouter/i })).toHaveCount(0);
+  });
+
   test("la page 404 ramène à l'accueil", async ({ page }) => {
     await page.goto("/page-qui-n-existe-pas");
     await expect(page.getByText("Retour à l'accueil").first()).toBeVisible();

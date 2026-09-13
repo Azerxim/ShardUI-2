@@ -443,6 +443,20 @@ export async function getCommerceById(commerceId) {
   return response.json();
 }
 
+export async function getQuartiersByVille(villeId) {
+  const response = await fetch(`${apiURL}/civilisations/quartiers/ville/${villeId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  }
+  return response.json();
+}
+
 export async function getVilles() {
   const response = await fetch(`${apiURL}/civilisations/villes/list?limit=1000`, {
     method: "GET",

@@ -174,7 +174,8 @@ export const Config_Modal_Ville = {
     get: { method: "GET", url: "$apiURL/civilisations/villes/id/$id" },
     create: { method: "POST", url: "$apiURL/civilisations/villes/create" },
     update: { method: "PUT", url: "$apiURL/civilisations/villes/update/$id" },
-    delete: { method: "DELETE", url: "$apiURL/civilisations/villes/delete/$id" },
+    // L'API attend l'identifiant en paramètre de requête (DELETE /villes/delete?VilleID=…)
+    delete: { method: "DELETE", url: "$apiURL/civilisations/villes/delete?VilleID=$id" },
   },
   dataKey: "ville",
   is_activate: {
