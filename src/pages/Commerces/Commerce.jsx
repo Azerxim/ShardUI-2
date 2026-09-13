@@ -80,7 +80,7 @@ function MagasinCard({ magasin, dimension, ville, auth }) {
                         dimension={dimension}
                         width="100%"
                         height="100%"
-                        embed="civilisations"
+                        embed="commerces"
                         x={magasin.x}
                         z={magasin.z}
                         zoom={0}
