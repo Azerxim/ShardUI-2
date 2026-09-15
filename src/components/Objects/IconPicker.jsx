@@ -1,23 +1,22 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { findIconDefinition } from "@fortawesome/fontawesome-svg-core";
-import { fas } from "@fortawesome/free-solid-svg-icons";
-import { far } from "@fortawesome/free-regular-svg-icons";
-import { fab } from "@fortawesome/free-brands-svg-icons";
 
-// Déjà enregistrées dans la bibliothèque (main.jsx) : pas de coût supplémentaire au bundle
+import DynamicIcon from "./DynamicIcon";
+import { isIconRegistered, loadAllIcons } from "../Functions/fontawesomeFull";
+
+// Toutes les icônes FontAwesome : les packs complets sont chargés à la demande (fontawesomeFull.js)
 const STYLES = [
-    { key: "fa-solid", label: "Solid", prefix: "fas", pack: fas },
-    { key: "fa-regular", label: "Regular", prefix: "far", pack: far },
-    { key: "fa-brands", label: "Brands", prefix: "fab", pack: fab },
+    { key: "fa-solid", label: "Solid", prefix: "fas" },
+    { key: "fa-regular", label: "Regular", prefix: "far" },
+    { key: "fa-brands", label: "Brands", prefix: "fab" },
 ];
 
 const MAX_RESULTS = 240;
 
 // Liste unique des icônes (les packs contiennent aussi les alias sous d'autres clés)
-const ICONS = STYLES.flatMap(({ key, prefix, pack }) => {
+const buildIcons = (packs) => STYLES.flatMap(({ key, prefix }) => {
     const seen = new Set();
-    return Object.values(pack)
+    return Object.values(packs[prefix])
         .filter((definition) => definition.prefix === prefix && !seen.has(definition.iconName) && seen.add(definition.iconName))
         .map((definition) => {
             const aliases = (definition.icon?.[2] || []).filter((alias) => typeof alias === "string");
@@ -31,27 +30,30 @@ const ICONS = STYLES.flatMap(({ key, prefix, pack }) => {
         .sort((a, b) => a.name.localeCompare(b.name));
 });
 
-const PREFIXES = Object.fromEntries(STYLES.flatMap(({ key, prefix }) => [[key, prefix], [prefix, prefix]]));
-
-// Vérifie qu'une valeur ("fa-solid fa-cross", "fas fa-cross"...) correspond à une icône chargée
-function isKnownIcon(value) {
-    const tokens = String(value || "").trim().split(/\s+/);
-    const prefix = PREFIXES[tokens.find((token) => PREFIXES[token])] ?? "fas";
-    const name = tokens.find((token) => token.startsWith("fa-") && !PREFIXES[token]);
-    return Boolean(name && findIconDefinition({ prefix, iconName: name.slice(3) }));
-}
-
 export default function IconPicker({ value = "", onChange = () => { }, placeholder = "Choisir une icône" }) {
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
     const [style, setStyle] = useState("all");
+    const [icons, setIcons] = useState(null);
 
-    const known = value ? isKnownIcon(value) : false;
+    // Packs chargés à l'ouverture de la liste, ou pour vérifier l'icône déjà choisie
+    useEffect(() => {
+        if (!open && !value) return;
+        let cancelled = false;
+        loadAllIcons().then((packs) => {
+            if (!cancelled) setIcons(buildIcons(packs));
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, [open, value]);
+
+    const unknown = Boolean(value && icons && !isIconRegistered(value));
 
     const results = useMemo(() => {
         const terms = search.toLowerCase().split(/\s+/).filter(Boolean);
-        return ICONS.filter((icon) => (style === "all" || icon.style === style) && terms.every((term) => icon.search.includes(term)));
-    }, [search, style]);
+        return (icons || []).filter((icon) => (style === "all" || icon.style === style) && terms.every((term) => icon.search.includes(term)));
+    }, [icons, search, style]);
 
     const select = (icon) => {
         onChange(icon);
@@ -68,7 +70,7 @@ export default function IconPicker({ value = "", onChange = () => { }, placehold
                     aria-expanded={open}
                 >
                     <span className="flex items-center justify-center w-6 shrink-0">
-                        {known ? <FontAwesomeIcon icon={value} /> : <FontAwesomeIcon icon="fa-regular fa-image" className="opacity-40" />}
+                        {value && !unknown ? <DynamicIcon icon={value} fallback="fa-regular fa-image" /> : <FontAwesomeIcon icon="fa-regular fa-image" className="opacity-40" />}
                     </span>
                     <span className={`truncate flex-1 ${value ? "" : "opacity-50"}`}>{value || placeholder}</span>
                     <FontAwesomeIcon icon={open ? "fa-solid fa-chevron-up" : "fa-solid fa-chevron-down"} className="opacity-60" />
@@ -80,7 +82,7 @@ export default function IconPicker({ value = "", onChange = () => { }, placehold
                 ) : null}
             </div>
 
-            {value && !known ? (
+            {unknown ? (
                 <p className="label text-warning">Icône introuvable : l'icône par défaut sera affichée.</p>
             ) : null}
 
@@ -109,30 +111,36 @@ export default function IconPicker({ value = "", onChange = () => { }, placehold
                             </button>
                         ))}
                         <span className="text-xs opacity-60 self-center ml-auto">
-                            {results.length} icône{results.length > 1 ? "s" : ""}
+                            {icons ? `${results.length} icône${results.length > 1 ? "s" : ""}` : "Chargement…"}
                         </span>
                     </div>
 
-                    <div className="grid grid-cols-6 sm:grid-cols-8 gap-1 max-h-64 overflow-y-auto pr-1">
-                        {results.slice(0, MAX_RESULTS).map((icon) => (
-                            <button
-                                key={icon.value}
-                                type="button"
-                                title={icon.value}
-                                aria-label={icon.value}
-                                className={`btn btn-ghost btn-square h-11 w-full text-lg ${icon.value === value ? "btn-active text-primary" : ""}`}
-                                onClick={() => select(icon.value)}
-                            >
-                                <FontAwesomeIcon icon={icon.value} />
-                            </button>
-                        ))}
-                    </div>
+                    {icons ? (
+                        <div className="grid grid-cols-6 sm:grid-cols-8 gap-1 max-h-64 overflow-y-auto pr-1">
+                            {results.slice(0, MAX_RESULTS).map((icon) => (
+                                <button
+                                    key={icon.value}
+                                    type="button"
+                                    title={icon.value}
+                                    aria-label={icon.value}
+                                    className={`btn btn-ghost btn-square h-11 w-full text-lg ${icon.value === value ? "btn-active text-primary" : ""}`}
+                                    onClick={() => select(icon.value)}
+                                >
+                                    <FontAwesomeIcon icon={icon.value} />
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex justify-center py-6">
+                            <span className="loading loading-spinner"></span>
+                        </div>
+                    )}
 
-                    {results.length > MAX_RESULTS ? (
+                    {icons && results.length > MAX_RESULTS ? (
                         <p className="text-xs opacity-60 text-center">
                             {MAX_RESULTS} premiers résultats affichés : affinez la recherche.
                         </p>
-                    ) : results.length === 0 ? (
+                    ) : icons && results.length === 0 ? (
                         <p className="text-sm opacity-60 text-center">Aucune icône trouvée.</p>
                     ) : null}
                 </div>

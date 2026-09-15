@@ -2,11 +2,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import MapEmbed from './MapEmbed';
 import TitleButtons from '../Objects/TitleButtons';
 import VilleReligions from './VilleReligions';
-import { showModal } from '../Functions/showModal';
 import { Config_Modal_Ville } from '../Modals/Config_Modal_Ville';
 import DynamicModal from '../Modals/DynamicModal';
 
-export default function Ville({ info, dimensions, auth = false, updateVille = () => { }, deleteVille = () => { } }) {
+export default function Ville({ info, dimensions }) {
     console.log(info, dimensions)
     const dimension = dimensions ? dimensions.find(dim => dim.id === info.dimension_id) : null;
 

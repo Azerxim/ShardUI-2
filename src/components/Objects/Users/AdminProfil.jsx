@@ -131,7 +131,9 @@ export default function AdminProfil({ user_id }) {
             })
 
             if (!response.ok) {
-                throw new Error(`Erreur ${response.status}: ${response.statusText}`)
+                // Ex. refus tant que le compte est fondateur : on affiche le motif donné par l'API
+                const data = await response.json().catch(() => ({}))
+                throw new Error(typeof data.detail === "string" ? data.detail : `Erreur ${response.status}: ${response.statusText}`)
             }
 
             await Swal.fire({
@@ -156,7 +158,7 @@ export default function AdminProfil({ user_id }) {
             Swal.fire({
                 icon: "error",
                 title: "Erreur",
-                text: "Impossible de supprimer le profil",
+                text: error.message || "Impossible de supprimer le profil",
             })
         }
     }

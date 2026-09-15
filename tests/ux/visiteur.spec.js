@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { apiGet, blockExternalRequests, readAlert } from "./helpers.js";
+import { apiGet, apiPost, blockExternalRequests, createSession, readAlert, uniqueSuffix } from "./helpers.js";
 
 // Un visiteur sans compte doit comprendre ce qu'il peut faire et comment aller plus loin.
 test.beforeEach(async ({ page }) => {
@@ -111,5 +111,27 @@ test.describe("Visiteur", () => {
       await page.waitForLoadState("networkidle");
     }
     expect(errors).toEqual([]);
+  });
+
+  test("les icônes du site s'affichent, et celle choisie pour une religion se charge à la demande", async ({ page }) => {
+    // Icônes du code : enregistrées au démarrage (npm run icons) ; une icône oubliée est signalée par FontAwesome
+    const missing = [];
+    page.on("console", (message) => {
+      if (/Could not find icon/i.test(message.text())) missing.push(`${page.url()} : ${message.text()}`);
+    });
+    for (const path of ["/", "/codex", "/bibliotheque", "/civilisations", "/religions", "/commerces", "/alliances", "/guerres", "/personnages", "/login", "/register", "/profil"]) {
+      await page.goto(path);
+      await page.waitForLoadState("networkidle");
+    }
+    expect(missing).toEqual([]);
+
+    // Icône absente du code : les packs complets sont chargés pour l'afficher
+    const session = await createSession("icone");
+    const title = `Culte d'Ankh ${uniqueSuffix()}`;
+    await apiPost("/religions/create", session.token, { title, icon: "fa-solid fa-ankh", is_public: true });
+    const religion = (await apiGet("/religions/list")).find((item) => item.religion.title === title).religion;
+    await page.goto(`/religion/${religion.id}`);
+    await expect(page.locator('main.container svg[data-icon="ankh"]').first()).toBeVisible();
+    expect(missing).toEqual([]);
   });
 });

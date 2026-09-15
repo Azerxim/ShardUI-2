@@ -43,7 +43,8 @@ export default defineConfig(({ mode }) => {
           if (id.includes("node_modules/daisyui")) {
             return "ui-vendor";
           }
-          if (id.includes("node_modules/@fortawesome")) {
+          // Moteur FontAwesome seulement : les packs d'icônes complets restent dans leurs propres chunks, chargés à la demande
+          if (["@fortawesome/fontawesome-svg-core", "@fortawesome/react-fontawesome"].some((pkg) => id.includes(`node_modules/${pkg}/`))) {
             return "vendor-fontawesome";
           }
           if (

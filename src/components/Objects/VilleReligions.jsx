@@ -4,7 +4,8 @@ import Swal from "sweetalert2";
 
 import VilleReligionEditModal from "../Modals/VilleReligionEditModal";
 import { showModalID } from "../Functions/showModal";
-import { religionColor, religionIcon, formatInfluence } from "../Functions/religionColor";
+import { DEFAULT_RELIGION_ICON, religionColor, religionIcon, formatInfluence } from "../Functions/religionColor";
+import DynamicIcon from "./DynamicIcon";
 import { getApiURL } from "../../services/api";
 
 const influenceOf = (religion) => Math.max(0, Number(religion.influence) || 0);
@@ -117,7 +118,7 @@ export default function VilleReligions({ religions = [], ville = null, scope = "
                                 onClick={() => navigate(`/religion/${religion.id}`)}
                             >
                                 <span className="flex items-center justify-center w-9 h-9 rounded-full shrink-0 text-white" style={{ backgroundColor: color }}>
-                                    <FontAwesomeIcon icon={religionIcon(religion)} />
+                                    <DynamicIcon icon={religionIcon(religion)} fallback={DEFAULT_RELIGION_ICON} />
                                 </span>
                                 <span className="flex flex-col flex-1 min-w-0 gap-1">
                                     <span className="flex flex-row items-center gap-2 font-bold">

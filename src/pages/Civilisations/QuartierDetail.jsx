@@ -10,6 +10,7 @@ import TitleH2 from "../../components/Objects/TitleH2";
 import Stat from "../../components/Objects/Stat";
 import InfoLine from "../../components/Objects/InfoLine";
 import VilleReligions from "../../components/Objects/VilleReligions";
+import ResidentsSection from "../../components/Objects/ResidentsSection";
 import MapEmbed from "../../components/Objects/MapEmbed";
 import MarkdownTextEditor from "../../components/Objects/MarkdownTextEditor";
 import DynamicModal from '../../components/Modals/DynamicModal';
@@ -205,6 +206,8 @@ export default function QuartierDetailPage() {
                 onModify={updateReligion}
                 onDelete={deleteReligion}
             />
+
+            <ResidentsSection type="quartier" id={quartier.id} />
 
             {autresQuartiers.length > 0 ? (
                 <>

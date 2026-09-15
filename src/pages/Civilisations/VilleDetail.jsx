@@ -10,6 +10,7 @@ import TitleH2 from "../../components/Objects/TitleH2";
 import Stat from "../../components/Objects/Stat";
 import InfoLine from "../../components/Objects/InfoLine";
 import VilleReligions from "../../components/Objects/VilleReligions";
+import ResidentsSection from "../../components/Objects/ResidentsSection";
 import MapEmbed from "../../components/Objects/MapEmbed";
 import MarkdownTextEditor from "../../components/Objects/MarkdownTextEditor";
 import DynamicModal from '../../components/Modals/DynamicModal';
@@ -298,6 +299,8 @@ export default function VilleDetailPage() {
                     {visibleQuartiers.map((quartier) => <QuartierCard key={quartier.id} quartier={quartier} ville={ville} dimension={dimension} />)}
                 </div>
             )}
+
+            <ResidentsSection type="ville" id={ville.id} />
 
             <TitleH2 text="Commerces" icon="fas fa-shop" />
             {visibleMagasins.length === 0 ? (

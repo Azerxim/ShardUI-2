@@ -613,6 +613,9 @@ export const getGuerresOfEntity = (entityType, entityId) => publicGet(`/guerres/
 // { a_valider, mes_guerres, appels }
 export const getMesGuerres = () => apiRequest("GET", "/guerres/mine");
 
+// Zones de conflit d'une guerre : cartographies de type "guerre" [{ id, title, dimension_id, shape_type, coordinates, color }]
+export const getZonesOfGuerre = (guerreId) => publicGet(`/cartographie/entity/guerre/${guerreId}`);
+
 // _______________________________Comptes externes_______________________________
 
 // [{ provider, label, enabled }]
@@ -631,6 +634,27 @@ export const completeOAuth = (provider, code, state) => apiRequest("GET", `/user
 export const getLinkedPlatforms = () => apiRequest("GET", "/users/platforms");
 
 export const unlinkPlatform = (provider) => apiRequest("DELETE", `/users/platforms/${provider}`);
+
+// _________________________________Personnages_________________________________
+
+// [{ personnage, joueur, civilisation, ville, quartier, messages_count }]
+export const getPersonnages = () => publicGet("/personnages/list");
+
+// Fiche + messages : [{ id, message_id, excerpt, message_timestamp, journal }]
+export const getPersonnageById = (personnageId) => publicGet(`/personnages/read/${personnageId}`);
+
+export const getPersonnagesOfUser = (userId) => publicGet(`/personnages/user/${userId}`);
+
+// residence : "civilisation", "ville" ou "quartier"
+export const getPersonnagesOfResidence = (residence, id) => publicGet(`/personnages/residence/${residence}/${id}`);
+
+// Messages d'un journal attribués à des personnages : [{ id, message_id, author_uid, user_id, personnage }]
+export const getPersonnagesOfJournal = (journalId) => publicGet(`/personnages/journal/${journalId}`);
+
+export const getQuartiers = () => publicGet("/civilisations/quartiers/list?limit=10000");
+
+// { especes: [{ id, title, description }], classes: [...] } ; gestion : apiRequest sur /personnages/referentiel/{especes|classes}
+export const getPersonnageReferentiel = () => publicGet("/personnages/referentiel");
 
 
 // ___________________________________Autres____________________________________

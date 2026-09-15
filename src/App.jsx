@@ -24,8 +24,11 @@ import AlliancesPage from './pages/Alliances/Alliances';
 import AlliancePage from './pages/Alliances/Alliance';
 import GuerresPage from './pages/Guerres/Guerres';
 import GuerrePage from './pages/Guerres/Guerre';
+import PersonnagesPage from './pages/Personnages/Personnages';
+import PersonnagePage from './pages/Personnages/Personnage';
 import CodexPage from './pages/Codex/Codex';
 import AdminDimensionsPage from './pages/Admin/Dimensions';
+import AdminPersonnagesPage from './pages/Admin/Personnages';
 import NotFoundPage from './pages/NotFound/NotFound';
 
 import Footer from './components/Layouts/Footer'
@@ -73,10 +76,15 @@ export default function App() {
           <Route path="/guerre" element={<Navigate to="/guerres" replace />} />
           <Route path="/guerre/:id" element={<GuerrePage />} />
 
+          <Route path="/personnages" element={<PersonnagesPage />} />
+          <Route path="/personnage" element={<Navigate to="/personnages" replace />} />
+          <Route path="/personnage/:id" element={<PersonnagePage />} />
+
           <Route path="/codex" element={<CodexPage />} />
 
           <Route path="/admin" element={<Navigate to="/admin/dimensions" replace />} />
           <Route path="/admin/dimensions" element={<AdminDimensionsPage />} />
+          <Route path="/admin/personnages" element={<AdminPersonnagesPage />} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

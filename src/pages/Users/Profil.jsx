@@ -3,6 +3,7 @@ import './Profil.css'
 import Profil from "../../components/Objects/Users/Profil";
 import UserMemberships from "../../components/Objects/Users/UserMemberships";
 import LinkedAccounts from "../../components/Objects/Users/LinkedAccounts";
+import UserPersonnages from "../../components/Objects/Users/UserPersonnages";
 
 export default function ProfilPage() {
   // Sans compte, le composant Profil affiche « Vous n'êtes pas connecté » avec un lien de connexion
@@ -15,6 +16,7 @@ export default function ProfilPage() {
         {User ? (
           <>
             <LinkedAccounts />
+            <UserPersonnages userId={User.id} own />
             <UserMemberships userId={User.id} />
           </>
         ) : null}

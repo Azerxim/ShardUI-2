@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Navbar from "../../components/Navigation/Navbar";
@@ -7,7 +7,6 @@ import GrimoireHero from '../../components/Layouts/GrimoireHero';
 import ImageHero from '../../components/Layouts/ImageHero';
 
 const serverURL = import.meta.env.VITE_SERVER_URL;
-const link_serv = 'https://mcapi.us/server/status?ip=mbu-tetrago.minesr.com';
 
 const books = [
   { icon: "fa-solid fa-scroll", title: "Codex", description: "Les règles du monde de Tetrago", link: "/codex", color: "var(--color-error)", tilt: "1deg", target: "" },
@@ -17,6 +16,7 @@ const books = [
   { icon: "fa-solid fa-shop", title: "Commerces", description: "Les lieux d'échange et de commerce.", link: "/commerces", color: "var(--color-info)", tilt: "2deg", target: "" },
   { icon: "fa-solid fa-handshake", title: "Alliances", description: "Les pactes entre civilisations.", link: "/alliances", color: "var(--color-success)", tilt: "1deg", target: "" },
   { icon: "fa-solid fa-shield-halved", title: "Guerres", description: "Les conflits qui ont marqué le monde.", link: "/guerres", color: "#991b1b", tilt: "-2deg", target: "" },
+  { icon: "fa-solid fa-masks-theater", title: "Personnages", description: "Les héros et figures du monde.", link: "/personnages", color: "#6d28d9", tilt: "2deg", target: "" },
   { icon: "fa-solid fa-map", title: "Cartographie", description: "Le monde de Tetrago à explorer.", link: "https://map.beta.tetrago.fr", color: "var(--color-accent)", tilt: "-1deg", target: "" },
   { icon: "fa-brands fa-discord", title: "Discord", description: "Rejoignez la communauté.", link: "https://discord.gg/nUFwE9S",color: "var(--color-neutral)", tilt: "-2deg", target: "_blank" },
 ];
@@ -30,12 +30,8 @@ const steps = [
 
 
 export default function HomePage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    setIsLoggedIn(user ? true : false);
-  }, []);
+  // Lu une fois au montage : la page est rechargée après connexion ou déconnexion
+  const [isLoggedIn] = useState(() => Boolean(localStorage.getItem("user")));
 
   return (
     <>

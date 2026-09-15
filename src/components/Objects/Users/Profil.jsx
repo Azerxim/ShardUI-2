@@ -43,7 +43,7 @@ export default function Profil({ User }) {
         }
 
         fetchUserData()
-    }, [User?.id])
+    }, [User?.id, apiURL])
 
     const handleLogout = () => {
         Swal.fire({
@@ -158,12 +158,14 @@ export default function Profil({ User }) {
                                         <FontAwesomeIcon icon="fa-solid fa-envelope" className="mr-2" />
                                         {userData?.email || email}
                                     </p>
-                                    <div className="mt-4">
-                                        <span className="badge badge-lg badge-ghost">
-                                            <FontAwesomeIcon icon="fa-solid fa-calendar" className="mr-2" />
-                                            Membre depuis le {new Date(userData?.created_at || Date.now()).toLocaleDateString('fr-FR')}
-                                        </span>
-                                    </div>
+                                    {userData?.created_at ? (
+                                        <div className="mt-4">
+                                            <span className="badge badge-lg badge-ghost">
+                                                <FontAwesomeIcon icon="fa-solid fa-calendar" className="mr-2" />
+                                                Membre depuis le {new Date(userData.created_at).toLocaleDateString('fr-FR')}
+                                            </span>
+                                        </div>
+                                    ) : null}
                                 </div>
 
                                 {/* Bouton de déconnexion */}

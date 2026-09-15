@@ -62,7 +62,8 @@ export default function FormModal({ id, title, intro = null, fields = [], initia
                 }
                 return (
                     <select name={field.name} value={options.some((opt) => String(opt.value) === String(value)) ? String(value) : ""} required={field.required} onChange={(e) => setValue(field, e.target.value)} className="select select-ghost bg-base-100 brightness-98 w-full">
-                        <option value="" disabled>{field.placeholder || "Choisir…"}</option>
+                        {/* Choix facultatif : le libellé vide (« Aucune ») reste sélectionnable */}
+                        <option value="" disabled={field.required}>{field.placeholder || "Choisir…"}</option>
                         {options.map((opt) => <option key={opt.value} value={String(opt.value)}>{opt.label}</option>)}
                     </select>
                 );

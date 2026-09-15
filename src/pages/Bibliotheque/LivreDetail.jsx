@@ -10,6 +10,7 @@ import Stat from '../../components/Objects/Stat';
 import InfoLine from '../../components/Objects/InfoLine';
 import LivreChapitre from '../../components/Objects/LivreChapitre';
 import MarkdownTextEditor from '../../components/Objects/MarkdownTextEditor';
+import DynamicIcon from '../../components/Objects/DynamicIcon';
 import DynamicModal from '../../components/Modals/DynamicModal';
 
 import { checkUserID, checkMemberAuth } from "../../services/authorisation";
@@ -41,7 +42,7 @@ function BookCover({ livre }) {
                 backgroundImage: "linear-gradient(to right, rgba(0,0,0,0.35) 0%, rgba(255,255,255,0.15) 6%, rgba(255,255,255,0) 14%)",
             }}
         >
-            <FontAwesomeIcon icon={livre.cover_icon || "fa-solid fa-book"} className="text-xl self-end opacity-90" />
+            <DynamicIcon icon={livre.cover_icon || "fa-solid fa-book"} fallback="fa-solid fa-book" className="text-xl self-end opacity-90" />
             <span className="font-serif font-bold text-sm leading-tight line-clamp-4 break-words">{livre.title}</span>
             <span className="text-xs opacity-80 truncate">{livre.author}</span>
         </div>

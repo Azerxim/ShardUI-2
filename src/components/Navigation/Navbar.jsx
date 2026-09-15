@@ -28,34 +28,25 @@ export default function Navbar({ active = '' }) {
     const [ServerData, setServerData] = useState(null);
 
     useEffect(() => {
+        // Jeton invalide ou expiré : la session locale est effacée
         const checkSession = async () => {
             const token = localStorage.getItem("token");
-            const user = localStorage.getItem("user");
-            // console.log("Token:", token);
-            // console.log("User:", user);
-
-            if (token) {
-                try {
-                    const response = await verifyToken(token);
-                    if (!response.ok) {
-                        // Token invalide ou expiré
-                        localStorage.removeItem("token");
-                        localStorage.removeItem("user");
-                        console.warn("Token invalide ou expiré");
-                    } else {
-                        const data = await response.json();
-                        // console.log("Session valide:", data);
-                    }
-                } catch (error) {
-                    console.error('Erreur lors de la vérification du token:', error);
+            if (!token) return;
+            try {
+                const response = await verifyToken(token);
+                if (!response.ok) {
                     localStorage.removeItem("token");
                     localStorage.removeItem("user");
+                    console.warn("Token invalide ou expiré");
                 }
+            } catch (error) {
+                console.error('Erreur lors de la vérification du token:', error);
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
             }
         };
 
         checkSession();
-        setPlayerlist(false);
     }, []);
 
     useEffect(() => {
@@ -220,6 +211,12 @@ export default function Navbar({ active = '' }) {
                                     <span>Guerres</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="/personnages" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'personnages' ? 'bg-secondary text-secondary-content' : ''}`}>
+                                    <FontAwesomeIcon icon="fa-solid fa-masks-theater" />
+                                    <span>Personnages</span>
+                                </a>
+                            </li>
                         </ul>
                     </div>
 
@@ -284,6 +281,18 @@ export default function Navbar({ active = '' }) {
                                                 <span>Dimensions</span>
                                                 <span className="tooltip" data-tip="Admin uniquement" data-place="top">
                                                     <FontAwesomeIcon icon="fa-solid fa-key" className="text-error" />
+                                                </span>
+                                            </a>
+                                        </li>
+                                    )}
+                                    {User.is_moderateur && !User.is_admin && <hr className="my-2 border-base-300" />}
+                                    {(User.is_admin || User.is_moderateur) && (
+                                        <li>
+                                            <a href="/admin/personnages" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl ${active === 'admin-personnages' ? 'bg-secondary text-secondary-content' : ''}`}>
+                                                <FontAwesomeIcon icon="fa-solid fa-dna" />
+                                                <span>Espèces et classes</span>
+                                                <span className="tooltip" data-tip="Admins et modérateurs RP" data-place="top">
+                                                    <FontAwesomeIcon icon="fa-solid fa-key" className="text-warning" />
                                                 </span>
                                             </a>
                                         </li>

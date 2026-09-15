@@ -1,4 +1,3 @@
-import { useParams } from "react-router-dom"
 import { Link } from "react-router-dom"
 import Navbar from "../../components/Navigation/Navbar";
 import UsersList from "../../components/Objects/Users/UsersList";

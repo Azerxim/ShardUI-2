@@ -1,4 +1,4 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import DynamicIcon from './DynamicIcon';
 import './EtagereLivres.css';
 import { getContrastTextColor } from '../Functions/contrastColor';
 
@@ -26,13 +26,13 @@ export default function EtagereLivres({ books, height = 12, width = 4, orientati
                                             <span className="line-clamp-1 truncate">{book.title}</span>
                                         </div>
                                         <div className="pb-2 pt-1 flex justify-center">
-                                            <FontAwesomeIcon icon={book.cover_icon} className="text-lg" style={{ color: textColor }} />
+                                            <DynamicIcon icon={book.cover_icon} fallback="fa-solid fa-book" className="text-lg" style={{ color: textColor }} />
                                         </div>
                                     </>
                                 ) : (
                                     <>
                                         <div className="pl-2 flex items-center">
-                                            <FontAwesomeIcon icon={book.cover_icon} className="text-lg" style={{ color: textColor }} />
+                                            <DynamicIcon icon={book.cover_icon} fallback="fa-solid fa-book" className="text-lg" style={{ color: textColor }} />
                                         </div>
                                         <div className="flex-1 flex items-center p-2 font-bold text-sm text-center overflow-hidden" style={{ color: textColor }}>
                                             <span className="line-clamp-1 truncate">{book.title}</span>

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { getUserById } from "../../../services/api"
+import UserPersonnages from "./UserPersonnages"
 
 export default function PublicProfil({ user_id }) {
     const [userData, setUserData] = useState(null)
@@ -87,16 +88,20 @@ export default function PublicProfil({ user_id }) {
                                 <FontAwesomeIcon icon="fa-solid fa-user" className="mr-2" />
                                 #{userData.username}
                             </p>
-                            <div className="mt-4">
-                                <span className="badge badge-lg badge-ghost">
-                                    <FontAwesomeIcon icon="fa-solid fa-calendar" className="mr-2" />
-                                    Membre depuis {new Date(userData.created_at || Date.now()).toLocaleDateString('fr-FR')}
-                                </span>
-                            </div>
+                            {userData.created_at ? (
+                                <div className="mt-4">
+                                    <span className="badge badge-lg badge-ghost">
+                                        <FontAwesomeIcon icon="fa-solid fa-calendar" className="mr-2" />
+                                        Membre depuis {new Date(userData.created_at).toLocaleDateString('fr-FR')}
+                                    </span>
+                                </div>
+                            ) : null}
                         </div>
                     </div>
                 </div>
             </div>
+
+            <UserPersonnages userId={userData.id} className="" />
         </div>
     )
 }

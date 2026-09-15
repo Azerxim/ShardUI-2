@@ -17,7 +17,8 @@ import MarkdownTextEditor from "../../components/Objects/MarkdownTextEditor";
 import VilleReligions from "../../components/Objects/VilleReligions";
 
 import { showModal, showModalID } from '../../components/Functions/showModal';
-import { religionColor, religionIcon, formatInfluence } from '../../components/Functions/religionColor';
+import { DEFAULT_RELIGION_ICON, religionColor, religionIcon, formatInfluence } from '../../components/Functions/religionColor';
+import DynamicIcon from "../../components/Objects/DynamicIcon";
 import { Config_Modal_Religion } from '../../components/Modals/Config_Modal_Religion';
 import { Config_Modal_Religion_Member, Config_Modal_Religion_Member_Edit } from '../../components/Modals/Config_Modal_Member';
 import {
@@ -175,14 +176,14 @@ export default function ReligionPage() {
 
     const BodyHTML = (
         <>
-            <TitleH1 text={religion ? religion.title : "Religion inconnue"} icon={icon} btn={btnReturn} fonctions={FctModify} />
+            <TitleH1 text={religion ? religion.title : "Religion inconnue"} icon={icon} iconFallback={DEFAULT_RELIGION_ICON} btn={btnReturn} fonctions={FctModify} />
 
             {/* En-tête : identité, chiffres clés, description et carte */}
             <div className="flex flex-col lg:flex-row gap-4 w-full bg-base-200 rounded-3xl p-4 border-l-8" style={{ borderLeftColor: color }}>
                 <div className="flex flex-col gap-4 flex-1 min-w-0">
                     <div className="flex flex-row items-center gap-4">
                         <span className="flex items-center justify-center w-16 h-16 rounded-full text-white text-2xl shrink-0 shadow-md" style={{ backgroundColor: color }}>
-                            <FontAwesomeIcon icon={icon} />
+                            <DynamicIcon icon={icon} fallback={DEFAULT_RELIGION_ICON} />
                         </span>
                         <div className="flex flex-col gap-1">
                             <span className="flex flex-row items-center gap-2">

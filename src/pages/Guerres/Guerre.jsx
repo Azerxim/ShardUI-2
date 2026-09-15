@@ -11,25 +11,58 @@ import Stat from "../../components/Objects/Stat";
 import InfoLine from "../../components/Objects/InfoLine";
 import MarkdownTextEditor from "../../components/Objects/MarkdownTextEditor";
 import FormModal from "../../components/Modals/FormModal";
+import MapEmbed from "../../components/Objects/MapEmbed";
 
 import { showModalID } from "../../components/Functions/showModal";
-import { religionColor, religionIcon } from "../../components/Functions/religionColor";
+import { plural } from "../../components/Functions/plural";
+import { openMapEditor } from "../../services/mapEditor";
+import { DEFAULT_RELIGION_ICON, religionColor, religionIcon } from "../../components/Functions/religionColor";
+import DynamicIcon from "../../components/Objects/DynamicIcon";
 import {
     GUERRE_ISSUES, GUERRE_STATUTS, GUERRE_TYPES,
     entityHref, formatDate, isModerateur, managedEntities, runAction,
 } from "../../components/Functions/conflits";
 import { getSessionUser } from "../../services/session";
-import { apiRequest, getAlliances, getCivilisations, getGuerreById, getReligions } from "../../services/api";
+import { apiRequest, getAlliances, getCivilisations, getDimensions, getGuerreById, getReligions, getZonesOfGuerre } from "../../services/api";
 
 const CAMP_LABELS = { attaquant: { title: "Attaquants", icon: "fa-solid fa-khanda" }, defenseur: { title: "Défenseurs", icon: "fa-solid fa-shield-halved" } };
-const MODAL_IDS = { edit: "guerre-edit-modal", valider: "guerre-valider-modal", refuser: "guerre-refuser-modal", terminer: "guerre-terminer-modal" };
+const MODAL_IDS = {
+    edit: "guerre-edit-modal", valider: "guerre-valider-modal", refuser: "guerre-refuser-modal", terminer: "guerre-terminer-modal",
+    evenement: "guerre-evenement-modal", zones: "guerre-zones-modal",
+};
 const callModalId = (camp) => `guerre-appel-${camp}-modal`;
+
+// Chronologie : les six premiers types sont inscrits automatiquement par l'API, les autres sont racontés
+const EVENEMENT_TYPES = {
+    declaration: { label: "Déclaration", icon: "fa-solid fa-scroll" },
+    validation: { label: "Début", icon: "fa-solid fa-gavel" },
+    refus: { label: "Refus", icon: "fa-solid fa-ban" },
+    ralliement: { label: "Ralliement", icon: "fa-solid fa-handshake-angle" },
+    retrait: { label: "Retrait", icon: "fa-solid fa-person-walking-arrow-right" },
+    fin: { label: "Fin", icon: "fa-solid fa-flag-checkered" },
+    bataille: { label: "Bataille", icon: "fa-solid fa-khanda" },
+    siege: { label: "Siège", icon: "fa-solid fa-chess-rook" },
+    traite: { label: "Traité", icon: "fa-solid fa-file-signature" },
+    autre: { label: "Événement", icon: "fa-solid fa-feather" },
+};
+const EVENEMENTS_RACONTES = ["bataille", "siege", "traite", "autre"];
+
+// Premier point d'une zone (coordonnées Leaflet [-z, x]) : centre de la carte intégrée et de l'éditeur
+const zoneCenter = (zone) => {
+    try {
+        const coords = JSON.parse(zone.coordinates);
+        const [lat, lng] = Array.isArray(coords[0]) ? coords[0] : coords;
+        return { x: Math.round(lng), z: Math.round(-lat) };
+    } catch {
+        return { x: 0, z: 0 };
+    }
+};
 
 function EntityAvatar({ entite }) {
     if (entite.type === "religion") {
         return (
             <span className="flex items-center justify-center w-9 h-9 rounded-full shrink-0 text-white" style={{ backgroundColor: religionColor(entite) }}>
-                <FontAwesomeIcon icon={religionIcon(entite)} />
+                <DynamicIcon icon={religionIcon(entite)} fallback={DEFAULT_RELIGION_ICON} />
             </span>
         );
     }
@@ -40,6 +73,14 @@ function EntityAvatar({ entite }) {
     );
 }
 
+// Lien vers la civilisation ou la religion, texte simple si elle a été supprimée
+function EntityLink({ entite, children }) {
+    const className = "flex flex-row items-center gap-3 flex-1 min-w-0";
+    return entite.deleted
+        ? <span className={`${className} opacity-70`}>{children}</span>
+        : <a href={entityHref(entite)} className={className}>{children}</a>;
+}
+
 export default function GuerrePage() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -48,6 +89,8 @@ export default function GuerrePage() {
     const [civilisations, setCivilisations] = useState([]);
     const [religions, setReligions] = useState([]);
     const [alliances, setAlliances] = useState([]);
+    const [dimensions, setDimensions] = useState([]);
+    const [zones, setZones] = useState([]);
     const [loading, setLoading] = useState(true);
     const [reloadKey, setReloadKey] = useState(0);
 
@@ -65,7 +108,12 @@ export default function GuerrePage() {
         getCivilisations().then((list) => setCivilisations(Array.isArray(list) ? list : [])).catch((error) => console.error(error));
         getReligions().then((list) => setReligions(Array.isArray(list) ? list : [])).catch((error) => console.error(error));
         getAlliances().then((list) => setAlliances(Array.isArray(list) ? list : [])).catch((error) => console.error(error));
+        getDimensions().then((list) => setDimensions(Array.isArray(list) ? list : [])).catch((error) => console.error(error));
     }, []);
+
+    useEffect(() => {
+        getZonesOfGuerre(id).then((list) => setZones(Array.isArray(list) ? list : [])).catch((error) => console.error(error));
+    }, [id, reloadKey]);
 
     const reload = () => setReloadKey((key) => key + 1);
 
@@ -84,6 +132,15 @@ export default function GuerrePage() {
 
     const engagedCivIds = new Set([...camps.attaquant, ...camps.defenseur].filter((b) => b.entite.type === "civilisation").map((b) => b.entite.id));
 
+    // Chronologie et zones : chefs de camp pendant la guerre, modérateurs RP (récit aussi après la fin)
+    const evenements = data?.evenements ?? [];
+    const publique = ["en_cours", "terminee"].includes(guerre?.status);
+    const managesAnyCamp = managesCamp("attaquant") || managesCamp("defenseur");
+    const canRaconter = Boolean(user) && ((moderateur && publique) || (guerre?.status === "en_cours" && managesAnyCamp));
+    const canEditZones = Boolean(user) && guerre?.status === "en_cours" && (moderateur || managesAnyCamp);
+    const canRemoveEvenement = (evenement) => !evenement.is_auto && Boolean(user) && (moderateur || (evenement.created_by === user.id && guerre?.status === "en_cours"));
+    const zoneDimension = dimensions.find((dimension) => dimension.id === zones[0]?.dimension_id);
+
     const act = async (request, options) => {
         const result = await runAction(request, options);
         if (result) reload();
@@ -95,6 +152,30 @@ export default function GuerrePage() {
         Swal.fire({ icon: "success", title: "Succès", text: result?.text ?? "C'est fait." });
         reload();
     };
+
+    const openZonesEditor = (dimension) => {
+        const zone = zones.find((item) => item.dimension_id === dimension.id);
+        const { x, z } = zone ? zoneCenter(zone) : { x: 0, z: 0 };
+        if (!openMapEditor({ dimension, type: "guerre", id, x, z })) {
+            Swal.fire({ icon: "warning", title: "Fenêtre bloquée", text: "Autorisez les fenêtres surgissantes pour ouvrir l'éditeur de carte." });
+        }
+    };
+
+    const FctChronologie = [
+        { id: 1, title: "Raconter", icon: "fas fa-feather", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: canRaconter, tooltip: { text: "Ajouter une bataille, un siège, un traité…", position: "bottom" }, function: () => showModalID(MODAL_IDS.evenement) },
+    ];
+
+    const FctZones = [
+        {
+            id: 1, title: "Tracer", icon: "fas fa-draw-polygon", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: canEditZones,
+            tooltip: { text: "Tracer les zones de conflit sur la carte", position: "bottom" },
+            function: () => {
+                if (dimensions.length === 1) openZonesEditor(dimensions[0]);
+                else if (dimensions.length > 1) showModalID(MODAL_IDS.zones);
+                else Swal.fire({ icon: "info", title: "Carte indisponible", text: "Aucune dimension n'est encore configurée." });
+            },
+        },
+    ];
 
     const FctModify = [
         { id: 1, title: "Modifier", icon: "fas fa-pen", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: moderateur || (guerre?.status === "en_attente" && managesCamp("attaquant")), function: () => showModalID(MODAL_IDS.edit) },
@@ -141,18 +222,20 @@ export default function GuerrePage() {
         const canRemove = !b.is_leader && guerre.status !== "terminee" && (managed || managesCamp(b.camp));
         return (
             <li key={b.id} className="flex flex-col sm:flex-row sm:items-center gap-2 bg-base-100 rounded-2xl p-3">
-                <a href={entityHref(b.entite)} className="flex flex-row items-center gap-3 flex-1 min-w-0">
+                {/* Entité supprimée : son nom reste dans les archives, sans lien */}
+                <EntityLink entite={b.entite}>
                     <EntityAvatar entite={b.entite} />
                     <span className="flex flex-col min-w-0">
                         <span className="font-bold break-words link-hover">{b.entite.title}</span>
                         <span className="flex flex-row flex-wrap gap-1">
+                            {b.entite.deleted ? <span className="badge badge-sm badge-neutral">Disparue</span> : null}
                             {b.is_leader ? <span className="badge badge-sm badge-primary">Chef de camp</span> : null}
                             {b.status === "appele" ? <span className="badge badge-sm badge-warning">Appel en attente</span> : null}
                             {b.alliance ? <span className="badge badge-sm badge-ghost">via {b.alliance.title}</span> : null}
                             {b.entite.type === "religion" ? <span className="badge badge-sm badge-ghost">Religion</span> : null}
                         </span>
                     </span>
-                </a>
+                </EntityLink>
                 {canAnswer || canRemove ? (
                     <div className="flex flex-row flex-wrap gap-1">
                         {canAnswer ? (
@@ -285,6 +368,64 @@ export default function GuerrePage() {
                     </section>
                 ))}
             </div>
+
+            <TitleH2 text="Chronologie" icon="fas fa-timeline" fonctions={FctChronologie} />
+            {evenements.length === 0 ? (
+                <i className="w-full">Aucun événement n'a encore été inscrit.</i>
+            ) : (
+                <ol aria-label="Chronologie" className="flex flex-col gap-3 w-full border-l-2 border-base-300 ml-4 pl-5">
+                    {evenements.map((evenement) => {
+                        const kind = EVENEMENT_TYPES[evenement.type] ?? EVENEMENT_TYPES.autre;
+                        return (
+                            <li key={evenement.id} className="relative flex flex-col gap-1 bg-base-200 rounded-2xl p-3">
+                                <span className="absolute -left-9 top-3 flex items-center justify-center w-7 h-7 rounded-full bg-base-100 border-2 border-base-300 text-xs" aria-hidden="true">
+                                    <FontAwesomeIcon icon={kind.icon} />
+                                </span>
+                                <div className="flex flex-row flex-wrap items-center gap-2">
+                                    <span className="font-bold break-words flex-1 min-w-0">{evenement.title}</span>
+                                    <span className="badge badge-sm badge-ghost">{kind.label}</span>
+                                    {evenement.camp ? <span className={`badge badge-sm ${evenement.camp === "attaquant" ? "badge-error" : "badge-info"}`}>{CAMP_LABELS[evenement.camp]?.title}</span> : null}
+                                    {canRemoveEvenement(evenement) ? (
+                                        <button
+                                            type="button"
+                                            className="btn btn-xs btn-ghost text-error"
+                                            aria-label={`Retirer « ${evenement.title} »`}
+                                            onClick={() => act(() => apiRequest("DELETE", `/guerres/${id}/evenements/${evenement.id}`), {
+                                                confirm: { title: "Retirer cet événement ?", text: `« ${evenement.title} » disparaîtra de la chronologie.`, button: "Retirer" },
+                                            })}
+                                        >
+                                            <FontAwesomeIcon icon="fa-solid fa-trash" />
+                                        </button>
+                                    ) : null}
+                                </div>
+                                <span className="text-xs opacity-70">
+                                    {evenement.date_rp ? `${formatDate(evenement.date_rp)} (RP)` : formatDate(evenement.created_at)}
+                                    {evenement.auteur ? ` · ${evenement.auteur.full_name || evenement.auteur.username}` : ""}
+                                </span>
+                                {evenement.description ? <p className="whitespace-pre-wrap break-words">{evenement.description}</p> : null}
+                            </li>
+                        );
+                    })}
+                </ol>
+            )}
+
+            {publique ? (
+                <>
+                    <TitleH2 text="Zones de conflit" icon="fas fa-map-location-dot" fonctions={FctZones} />
+                    {zones.length === 0 ? (
+                        <i className="w-full">
+                            {canEditZones ? "Aucune zone n'est tracée : utilisez « Tracer » pour marquer les fronts et les territoires disputés." : "Aucune zone de conflit n'a été tracée."}
+                        </i>
+                    ) : (
+                        <div className="flex flex-col gap-2 w-full">
+                            <div className="w-full h-72 sm:h-96 rounded-2xl overflow-hidden">
+                                <MapEmbed dimension={zoneDimension} embed="guerres" {...zoneCenter(zones[0])} zoom={0} width="100%" height="100%" title={`Zones de conflit de ${guerre.title}`} />
+                            </div>
+                            <span className="text-sm opacity-70">{plural(zones.length, "zone de conflit tracée", "zones de conflit tracées")}</span>
+                        </div>
+                    )}
+                </>
+            ) : null}
         </>
     ) : null;
 
@@ -358,6 +499,39 @@ export default function GuerrePage() {
                                         }))}
                                     />
                                 </>
+                            ) : null}
+                            {canRaconter ? (
+                                <FormModal
+                                    key={`evenement-${reloadKey}`}
+                                    id={MODAL_IDS.evenement}
+                                    title="Raconter un événement"
+                                    intro="Il s'ajoute à la chronologie publique de la guerre ; les batailles, sièges et traités sont aussi annoncés sur Discord."
+                                    fields={[
+                                        { name: "type", label: "Type", type: "radio", required: true, options: EVENEMENTS_RACONTES.map((value) => ({ value, label: EVENEMENT_TYPES[value].label })) },
+                                        { name: "title", label: "Titre", type: "text", required: true, placeholder: "Bataille du Gué, siège de Val…" },
+                                        { name: "date_rp", label: "Date dans le RP", type: "date" },
+                                        { name: "camp", label: "Camp concerné", type: "select", placeholder: "Les deux camps", options: [{ value: "attaquant", label: "Attaquants" }, { value: "defenseur", label: "Défenseurs" }] },
+                                        { name: "description", label: "Récit", type: "textarea", placeholder: "Déroulé, pertes, conséquences…" },
+                                    ]}
+                                    initialValues={{ type: "bataille" }}
+                                    submitLabel="Ajouter à la chronologie"
+                                    submitIcon="fas fa-feather"
+                                    onSubmit={(values) => submitAndReload(() => apiRequest("POST", `/guerres/${id}/evenements`, values))}
+                                />
+                            ) : null}
+                            {canEditZones && dimensions.length > 1 ? (
+                                <FormModal
+                                    id={MODAL_IDS.zones}
+                                    title="Tracer les zones de conflit"
+                                    intro="L'éditeur de carte s'ouvre dans un nouvel onglet : enregistrez vos tracés avant de revenir."
+                                    fields={[{ name: "dimension_id", label: "Monde", type: "select", required: true, options: dimensions.map((dimension) => ({ value: dimension.id, label: dimension.title })) }]}
+                                    submitLabel="Ouvrir l'éditeur"
+                                    submitIcon="fas fa-draw-polygon"
+                                    onSubmit={async (values) => {
+                                        const dimension = dimensions.find((item) => String(item.id) === String(values.dimension_id));
+                                        if (dimension) openZonesEditor(dimension);
+                                    }}
+                                />
                             ) : null}
                             {["attaquant", "defenseur"].filter((camp) => managesCamp(camp) && ouverte).map((camp) => (
                                 <FormModal

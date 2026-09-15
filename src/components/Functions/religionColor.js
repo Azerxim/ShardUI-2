@@ -1,4 +1,4 @@
-import { findIconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { parseIcon } from "./fontawesomeFull";
 
 // Couleur d'une religion : son champ `color` s'il s'agit d'une couleur CSS valide,
 // sinon une couleur de la palette dérivée de son identifiant.
@@ -23,17 +23,13 @@ export function religionColor(religion) {
   return RELIGION_COLORS[Math.abs(parseInt(religion?.id) || 0) % RELIGION_COLORS.length];
 }
 
-// Icône FontAwesome d'une religion (champ `icon`, ex. "fa-solid fa-cross"),
-// ou l'icône par défaut si elle est absente ou introuvable dans la bibliothèque.
-const DEFAULT_RELIGION_ICON = "fa-solid fa-place-of-worship";
-const ICON_PREFIXES = { "fa-solid": "fas", fas: "fas", "fa-regular": "far", far: "far", "fa-brands": "fab", fab: "fab" };
+// Icône FontAwesome d'une religion (champ `icon`, ex. "fa-solid fa-cross"), ou l'icône par défaut si le champ est vide.
+// Choisie parmi toutes les icônes : à afficher avec DynamicIcon et DEFAULT_RELIGION_ICON en repli (icône introuvable).
+export const DEFAULT_RELIGION_ICON = "fa-solid fa-place-of-worship";
 
 export function religionIcon(religion) {
-  const tokens = typeof religion?.icon === "string" ? religion.icon.trim().split(/\s+/) : [];
-  const prefix = ICON_PREFIXES[tokens.find((token) => ICON_PREFIXES[token])] ?? "fas";
-  const name = tokens.find((token) => token.startsWith("fa-") && !ICON_PREFIXES[token]);
-  if (name && findIconDefinition({ prefix, iconName: name.slice(3) })) return `${prefix} ${name}`;
-  return DEFAULT_RELIGION_ICON;
+  const icon = parseIcon(religion?.icon);
+  return icon ? `${icon.prefix} fa-${icon.iconName}` : DEFAULT_RELIGION_ICON;
 }
 
 export function formatInfluence(influence) {

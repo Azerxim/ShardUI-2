@@ -1,11 +1,15 @@
 {
   "name": "shardui-2",
   "private": true,
-  "version": "2.0.13",
+  "version": "2.0.14",
   "type": "module",
   "scripts": {
+    "icons": "node scripts/generate-fontawesome-icons.mjs",
+    "predev": "npm run icons",
     "dev": "vite --mode development",
+    "prestart": "npm run icons",
     "start": "vite --host 0.0.0.0 --port 5173 --mode start",
+    "prebuild": "npm run icons",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",

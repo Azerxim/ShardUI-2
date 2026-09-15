@@ -1,8 +1,9 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import TitleButtons from './TitleButtons';
+import DynamicIcon from './DynamicIcon';
 
-export default function TitleH1({ text, icon = '', btn = { text: '', link: '', icon: '', class: '', style: {} }, classes = 'bg-base-200', style = { width: '100%', fontWeight: 'bold', fontSize: '1.6rem', padding: '0.5rem 1rem', minHeight: '5rem' }, style_box = {}, fonctions = [] }) {
-    const User = JSON.parse(localStorage.getItem('user'));
+// iconFallback : icône affichée si `icon` (qui peut venir des données, ex. religion) est introuvable
+export default function TitleH1({ text, icon = '', iconFallback, btn = { text: '', link: '', icon: '', class: '', style: {} }, classes = 'bg-base-200', style = { width: '100%', fontWeight: 'bold', fontSize: '1.6rem', padding: '0.5rem 1rem', minHeight: '5rem' }, style_box = {}, fonctions = [] }) {
     return (
         <div className='flex flex-row gap-2 w-full' style={{ ...style_box }}>
             {btn.text && btn.link && (
@@ -15,7 +16,7 @@ export default function TitleH1({ text, icon = '', btn = { text: '', link: '', i
             )}
             <div className={`flex flex-wrap gap-2 items-center h-full justify-start rounded-2xl ${classes}`} style={{ ...style }}>
                 <div className='flex flex-wrap gap-2 items-center'>
-                    {icon && <FontAwesomeIcon icon={icon} />}
+                    {icon && <DynamicIcon icon={icon} fallback={iconFallback} />}
                     <h1>{text}</h1>
                 </div>
             </div>

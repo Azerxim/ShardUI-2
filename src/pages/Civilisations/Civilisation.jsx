@@ -11,6 +11,7 @@ import Stat from "../../components/Objects/Stat";
 import InfoLine from "../../components/Objects/InfoLine";
 import JoinHint from "../../components/Objects/JoinHint";
 import ConflictsSection from "../../components/Objects/ConflictsSection";
+import ResidentsSection from "../../components/Objects/ResidentsSection";
 import MemberButton from "../../components/Buttons/MemberButton";
 import TransferFounderModal from '../../components/Modals/TransferFounderModal';
 import DynamicModal from '../../components/Modals/DynamicModal';
@@ -318,6 +319,8 @@ export default function CivilisationPage() {
             <JoinHint members={members} entity="cette civilisation" />
 
             <ConflictsSection entityType="civilisation" entityId={civilisation.id} />
+
+            <ResidentsSection type="civilisation" id={civilisation.id} />
 
             <TitleH2 text="Villes" icon="fas fa-city" fonctions={FctVilles} />
             {villes.length === 0 ? (

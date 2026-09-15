@@ -12,7 +12,7 @@ import { plural } from "../../components/Functions/plural";
 
 import { showModal } from '../../components/Functions/showModal';
 import { requireLogin } from '../../components/Functions/requireLogin';
-import { religionColor, religionIcon } from '../../components/Functions/religionColor';
+import { DEFAULT_RELIGION_ICON, religionColor, religionIcon } from '../../components/Functions/religionColor';
 import { Config_Modal_Religion } from '../../components/Modals/Config_Modal_Religion';
 import { Config_RP_Navbar } from '../../components/Navigation/Config_RP_Navbar';
 import {
@@ -33,6 +33,7 @@ const ReligionCard = ({ religion }) => {
     <ListCard
       href={religion.link}
       icon={religionIcon(religion)}
+      iconFallback={DEFAULT_RELIGION_ICON}
       iconColor={religionColor(religion)}
       title={religion.title}
       badges={religion.is_public === false ? [{ text: "Privée", className: "badge-warning" }] : []}

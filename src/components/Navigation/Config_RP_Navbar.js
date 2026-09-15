@@ -78,6 +78,17 @@ export const Config_RP_Navbar = {
         },
         dropdown: [],
       },
+      {
+        id: "personnages",
+        text: "Personnages",
+        href: "/personnages",
+        icon: "fas fa-masks-theater",
+        tooltip: {
+          text: "",
+          position: "bottom",
+        },
+        dropdown: [],
+      },
       //   {
       //     id: "dropdown",
       //     text: "Dropdown",

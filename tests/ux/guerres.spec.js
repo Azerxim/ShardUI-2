@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { apiGet, apiPost, blockExternalRequests, createSession, makeModerateur, readAlert, signIn, uniqueSuffix } from "./helpers.js";
+import { apiGet, apiPost, blockExternalRequests, createSession, makeModerateur, readAlert, readAnnouncements, signIn, uniqueSuffix } from "./helpers.js";
 
 // Déclaration, confidentialité, appel aux armes, modération RP et guerre de religion.
 test.describe.configure({ mode: "serial" });
@@ -118,6 +118,64 @@ test("un modérateur valide la guerre, qui devient publique", async ({ browser }
   await visiteur.context.close();
 });
 
+test("la chronologie retrace la guerre et un chef de camp y raconte une bataille", async ({ browser }) => {
+  const bataille = `Bataille du Gué ${suffix}`;
+  const attaque = await openAs(browser, sessions.attaquant);
+  await attaque.page.goto(`/guerre/${guerreId}`);
+  const chronologie = main(attaque.page).getByRole("list", { name: "Chronologie" });
+  await expect(chronologie).toContainText(`Déclaration de guerre de ${titles.attaquant} contre ${titles.defenseur}`);
+  await expect(chronologie).toContainText(`${titles.allie} rejoint le camp attaquant`);
+  await expect(chronologie).toContainText("La guerre commence");
+
+  await main(attaque.page).getByRole("button", { name: "Raconter" }).click();
+  const dialog = attaque.page.locator("dialog[open]");
+  await dialog.locator('input[name="title"]').fill(bataille);
+  await dialog.locator('select[name="camp"]').selectOption({ label: "Attaquants" });
+  await dialog.locator('textarea[name="description"]').fill("La Horde force le passage.");
+  await dialog.locator('button[type="submit"]').click();
+  expect(await readAlert(attaque.page)).toMatch(/chronologie/);
+  await expect(chronologie.locator("li", { hasText: bataille })).toContainText("La Horde force le passage.");
+  await attaque.context.close();
+
+  // Annonces Discord (simulées) : début de la guerre et bataille
+  const annonces = readAnnouncements().filter((annonce) => annonce.channel === "guerres").map((annonce) => annonce.content);
+  expect(annonces.some((text) => text.includes(titles.guerre) && text.includes("La guerre commence"))).toBe(true);
+  expect(annonces.some((text) => text.includes(`Bataille : ${bataille}`))).toBe(true);
+
+  // Visiteur : chronologie visible, sans action ; un allié qui ne mène pas de camp ne peut pas raconter
+  const visiteur = await openAs(browser, null);
+  await visiteur.page.goto(`/guerre/${guerreId}`);
+  await expect(main(visiteur.page).getByRole("list", { name: "Chronologie" })).toContainText(bataille);
+  await expect(main(visiteur.page).getByRole("button", { name: "Raconter" })).toHaveCount(0);
+  await visiteur.context.close();
+  await expect(apiPost(`/guerres/${guerreId}/evenements`, sessions.allie.token, { title: "Exploit" })).rejects.toThrow(/403/);
+});
+
+test("un chef de camp trace une zone de conflit, affichée sur la fiche de la guerre", async ({ browser }) => {
+  const dimension = (await apiGet("/cartographie/dimensions/read")).find((item) => item.link);
+  expect(dimension, "une dimension avec un lien de carte est nécessaire").toBeTruthy();
+  const zone = { title: "Front du Gué", type: "guerre", type_id: guerreId, dimension_id: dimension.id, shape_type: "Polygon", coordinates: "[[-100,50],[-100,80],[-130,80]]", color: "#dc2626" };
+  await expect(apiPost("/cartographie/create", sessions.allie.token, zone)).rejects.toThrow(/403/);
+  await apiPost("/cartographie/create", sessions.attaquant.token, zone);
+
+  const { context, page } = await openAs(browser, sessions.attaquant);
+  await page.goto(`/guerre/${guerreId}`);
+  await expect(main(page).getByRole("button", { name: "Tracer" })).toBeVisible();
+  await expect(main(page).getByText("1 zone de conflit tracée")).toBeVisible();
+  await expect(main(page).locator(`iframe[title="Zones de conflit de ${titles.guerre}"]`)).toHaveAttribute("src", /-embedfull-guerres#x=50&z=100/);
+  await context.close();
+
+  // La chronologie et la carte tiennent sur un écran de téléphone
+  const mobile = await browser.newContext({ locale: "fr-FR", viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  await blockExternalRequests(mobile);
+  const mobilePage = await mobile.newPage();
+  await mobilePage.goto(`/guerre/${guerreId}`);
+  await expect(main(mobilePage).getByRole("list", { name: "Chronologie" })).toBeVisible();
+  await mobilePage.waitForTimeout(800);
+  expect(await mobilePage.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+  await mobile.close();
+});
+
 test("un modérateur termine la guerre, qui est archivée", async ({ browser }) => {
   const { context, page } = await openAs(browser, sessions.moderateur);
   await page.goto(`/guerre/${guerreId}`);
@@ -127,7 +185,9 @@ test("un modérateur termine la guerre, qui est archivée", async ({ browser }) 
   expect(await readAlert(page)).toMatch(/terminée/i);
   await expect(main(page).locator(".badge", { hasText: "Terminée" })).toBeVisible();
   await expect(main(page).getByText("Issue : Paix blanche")).toBeVisible();
+  await expect(main(page).getByRole("list", { name: "Chronologie" })).toContainText("Fin de la guerre : Paix blanche");
   await context.close();
+  expect(readAnnouncements().some((annonce) => annonce.content.includes(`${titles.guerre}** est terminée : Paix blanche`))).toBe(true);
 });
 
 test("déclarer une guerre de religion", async ({ browser }) => {
