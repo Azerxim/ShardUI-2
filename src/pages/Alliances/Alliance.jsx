@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../components/Functions/pageTitle";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Swal from "sweetalert2";
@@ -32,6 +33,8 @@ export default function AlliancePage() {
     const [civilisations, setCivilisations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [reloadKey, setReloadKey] = useState(0);
+
+    usePageTitle(data?.alliance?.title);
 
     useEffect(() => {
         getAllianceById(id)

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../components/Functions/pageTitle";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Swal from "sweetalert2";
@@ -128,6 +129,8 @@ export default function VilleDetailPage() {
     const [loading, setLoading] = useState(true);
 
     // La ville et ses religions viennent de la fiche de sa civilisation
+    usePageTitle(ville?.title);
+
     useEffect(() => {
         getCivilisationById(civ_id)
             .then((data) => {

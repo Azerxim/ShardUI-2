@@ -23,7 +23,7 @@ export default function DynamicModal({
 
   // Mode "add" : valeurs par défaut de la config (et paramètres user / url / local).
   // Mode "edit" : vide, puis rempli par le chargement ci-dessous.
-  const [formValues, setFormValues] = useState(() => {
+  const defaultValues = () => {
     if (mode !== "add") return {};
     const initialValues = {};
     config.champs.forEach((champ) => {
@@ -38,7 +38,8 @@ export default function DynamicModal({
       }
     });
     return initialValues;
-  });
+  };
+  const [formValues, setFormValues] = useState(defaultValues);
 
   // Mode "edit" : chargement des données existantes
   useEffect(() => {
@@ -92,6 +93,10 @@ export default function DynamicModal({
               text: config.success[mode],
             });
             onSubmit(data);
+            // Ajout : formulaire vierge pour la prochaine ouverture.
+            // Modification : valeurs enregistrées renvoyées par l'API.
+            if (mode === "add") setFormValues(defaultValues());
+            else if (data && data[config.dataKey]) setFormValues(data[config.dataKey]);
           }
         })
         .catch((error) => {

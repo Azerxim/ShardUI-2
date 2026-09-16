@@ -33,11 +33,13 @@ import AdminMondePage from './pages/Admin/Monde';
 import NotFoundPage from './pages/NotFound/NotFound';
 
 import Footer from './components/Layouts/Footer'
+import { RouteTitle } from './components/Functions/pageTitle';
 
 export default function App() {
   return (
     <div className='mx-auto pt-20 min-h-screen flex flex-col'>
       <main className='flex-1'>
+        <RouteTitle />
         <Routes>
           <Route path="/" element={<HomePage />} />
 

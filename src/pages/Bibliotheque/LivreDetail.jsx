@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { usePageTitle } from "../../components/Functions/pageTitle";
 import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -86,6 +87,8 @@ export default function LivreDetailPage() {
     const [loading, setLoading] = useState(true);
     const [loadingChapitres, setLoadingChapitres] = useState(true);
     const [auth, setAuth] = useState(false);
+
+    usePageTitle(livre?.title);
 
     useEffect(() => {
         getLivreById(id)

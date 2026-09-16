@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../components/Functions/pageTitle";
 import { checkMemberAuth } from "../../services/authorisation";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -54,6 +55,8 @@ export default function ReligionPage() {
     const [loading, setLoading] = useState(true);
     const [auth, setAuth] = useState(false);
     const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
+
+    usePageTitle(religion?.title);
 
     useEffect(() => {
         getReligionById(id)

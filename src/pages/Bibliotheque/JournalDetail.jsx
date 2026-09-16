@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
+import { usePageTitle } from "../../components/Functions/pageTitle";
 import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Swal from 'sweetalert2';
@@ -275,6 +276,8 @@ export default function JournalDetailPage() {
     console.error('Error fetching journal content:', error);
     setContentError("Impossible de récupérer les messages de ce journal.");
   };
+
+  usePageTitle(journal?.title);
 
   useEffect(() => {
     let cancelled = false;

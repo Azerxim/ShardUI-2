@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../components/Functions/pageTitle";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Swal from "sweetalert2";
@@ -30,6 +31,8 @@ export default function PersonnagePage() {
     const [reloadKey, setReloadKey] = useState(0);
     const [lieux, setLieux] = useState(EMPTY_LIEUX);
     const [referentiel, setReferentiel] = useState(EMPTY_REFERENTIEL);
+
+    usePageTitle(data?.personnage?.name);
 
     useEffect(() => {
         getPersonnageById(id)

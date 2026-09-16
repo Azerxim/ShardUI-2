@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../components/Functions/pageTitle";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Swal from "sweetalert2";
@@ -82,6 +83,8 @@ export default function CivilisationPage() {
     const [dirigees, setDirigees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [auth, setAuth] = useState(false);
+
+    usePageTitle(civilisation?.title);
 
     useEffect(() => {
         getCivilisationById(id)

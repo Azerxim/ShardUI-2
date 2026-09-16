@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../components/Functions/pageTitle";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -106,6 +107,8 @@ export default function CommercePage() {
     const [villes, setVilles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [reloadKey, setReloadKey] = useState(0);
+
+    usePageTitle(commerce?.title);
 
     useEffect(() => {
         getCommerceById(id)

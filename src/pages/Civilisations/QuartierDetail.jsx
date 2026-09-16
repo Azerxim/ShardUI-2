@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../components/Functions/pageTitle";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Swal from "sweetalert2";
@@ -47,6 +48,8 @@ export default function QuartierDetailPage() {
     const [loading, setLoading] = useState(true);
 
     // Quartier, ville et religions ; puis la civilisation (droits) et les autres quartiers de la ville
+    usePageTitle(quartier?.title);
+
     useEffect(() => {
         let cancelled = false;
 

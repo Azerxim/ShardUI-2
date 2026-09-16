@@ -88,6 +88,7 @@ export default function AdminDimensionsPage() {
                 setDimensions([...dimensions, saved]);
             }
             closeForm();
+            setForm(EMPTY_FORM);
             Swal.fire({ icon: "success", title: "Succès", text: form.id ? "Dimension modifiée." : "Dimension créée." });
         } catch (err) {
             closeForm();
