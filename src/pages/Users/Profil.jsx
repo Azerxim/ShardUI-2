@@ -4,6 +4,7 @@ import Profil from "../../components/Objects/Users/Profil";
 import UserMemberships from "../../components/Objects/Users/UserMemberships";
 import LinkedAccounts from "../../components/Objects/Users/LinkedAccounts";
 import UserPersonnages from "../../components/Objects/Users/UserPersonnages";
+import ProfilInfos from "../../components/Objects/Users/ProfilInfos";
 
 export default function ProfilPage() {
   // Sans compte, le composant Profil affiche « Vous n'êtes pas connecté » avec un lien de connexion
@@ -16,8 +17,11 @@ export default function ProfilPage() {
         {User ? (
           <>
             <LinkedAccounts />
+            <div className="max-w-4xl mx-auto mt-6">
+              <ProfilInfos userId={User.id} own />
+            </div>
             <UserPersonnages userId={User.id} own />
-            <UserMemberships userId={User.id} />
+            <UserMemberships />
           </>
         ) : null}
       </main>

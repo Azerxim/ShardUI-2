@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { API_URL, apiGet, apiPost, blockExternalRequests, createDiscordJournal, createSession, linkDiscordAccount, linkPlatform, makeModerateur, uniqueSuffix } from "./helpers.js";
+import { API_URL, apiGet, apiPost, blockExternalRequests, createDiscordJournal, createSession, linkDiscordAccount, linkPlatform, makeModerateur, signIn, uniqueSuffix } from "./helpers.js";
 
 // Profil public : rôles, compte Minecraft, appartenances et écrits publics, personnages ; rien de privé.
 test.describe.configure({ mode: "serial" });
@@ -35,6 +35,26 @@ test("le profil public présente rôles, compte Minecraft, appartenances et écr
   await expect(main.getByText(`Secte ${suffix}`)).toHaveCount(0);
   await expect(main.getByText(joueur.account.email)).toHaveCount(0);
   await expect(main.getByText(discordUid)).toHaveCount(0);
+});
+
+test("son propre profil montre les mêmes blocs, avec ses entités privées", async ({ browser }) => {
+  const context = await browser.newContext({ locale: "fr-FR" });
+  await blockExternalRequests(context);
+  await signIn(context, joueur);
+  const page = await context.newPage();
+  await page.goto("/profil");
+  const main = page.locator("main.container");
+
+  await expect(main.locator(".badge", { hasText: "Modérateur RP" })).toBeVisible();
+  await expect(main.locator(".badge", { hasText: "Profil public" })).toBeVisible();
+  await expect(main.getByText("Mes appartenances")).toBeVisible();
+  await expect(main.getByRole("link", { name: new RegExp(`Empire ${suffix}`) })).toBeVisible();
+  // Ses entités privées, invisibles pour les autres, sont signalées
+  await expect(main.getByRole("link", { name: new RegExp(`Secte ${suffix}`) })).toContainText("Privé");
+  await expect(main.getByText("Mes écrits")).toBeVisible();
+  await expect(main.getByRole("link", { name: new RegExp(`Gazette ${suffix}`) })).toBeVisible();
+  await expect(main.getByRole("link", { name: new RegExp(`Héros ${suffix}`) })).toBeVisible();
+  await context.close();
 });
 
 test("seul le compte Minecraft est public, et plus rien si le profil devient privé", async ({ page }) => {

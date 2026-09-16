@@ -158,14 +158,20 @@ export default function Profil({ User }) {
                                         <FontAwesomeIcon icon="fa-solid fa-envelope" className="mr-2" />
                                         {userData?.email || email}
                                     </p>
-                                    {userData?.created_at ? (
-                                        <div className="mt-4">
+                                    <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
+                                        {userData?.created_at ? (
                                             <span className="badge badge-lg badge-ghost">
                                                 <FontAwesomeIcon icon="fa-solid fa-calendar" className="mr-2" />
                                                 Membre depuis le {new Date(userData.created_at).toLocaleDateString('fr-FR')}
                                             </span>
-                                        </div>
-                                    ) : null}
+                                        ) : null}
+                                        {userData?.is_admin ? <span className="badge badge-lg badge-primary">Admin</span> : null}
+                                        {userData?.is_moderateur ? <span className="badge badge-lg badge-secondary">Modérateur RP</span> : null}
+                                        <span className={`badge badge-lg ${userData?.is_visible ? "badge-success" : "badge-warning"}`}>
+                                            <FontAwesomeIcon icon={userData?.is_visible ? "fa-solid fa-eye" : "fa-solid fa-eye-slash"} className="mr-2" />
+                                            {userData?.is_visible ? "Profil public" : "Profil privé"}
+                                        </span>
+                                    </div>
                                 </div>
 
                                 {/* Bouton de déconnexion */}

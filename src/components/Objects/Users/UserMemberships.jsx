@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PendingActions from "./PendingActions";
-import { MEMBERSHIP_GROUPS as GROUPS, loadMemberships } from "../../Functions/memberships";
 
 const NEXT_STEPS = [
     { icon: "fa-solid fa-scroll", title: "Lire le Codex", text: "Les règles du serveur et du rôle-play.", href: "/codex" },
@@ -10,56 +8,11 @@ const NEXT_STEPS = [
     { icon: "fa-solid fa-shop", title: "Ouvrir un commerce", text: "Créez votre enseigne, puis ajoutez vos magasins.", href: "/commerces" },
 ];
 
-// Profil : civilisations, religions et commerces de l'utilisateur, et pistes pour bien commencer
-export default function UserMemberships({ userId }) {
-    const [groups, setGroups] = useState(null);
-
-    useEffect(() => {
-        let cancelled = false;
-
-        loadMemberships(userId).then((results) => {
-            if (!cancelled) setGroups(results);
-        });
-
-        return () => {
-            cancelled = true;
-        };
-    }, [userId]);
-
-    const total = groups ? groups.reduce((sum, list) => sum + list.length, 0) : 0;
-
+// Profil : actions en attente et pistes pour bien commencer (les appartenances sont dans ProfilInfos)
+export default function UserMemberships() {
     return (
         <div className="max-w-4xl mx-auto mt-6 flex flex-col gap-6">
             <PendingActions />
-            <section className="card bg-base-200 shadow-xl">
-                <div className="card-body gap-4">
-                    <h2 className="card-title text-2xl">
-                        <FontAwesomeIcon icon="fa-solid fa-users" />
-                        Mes appartenances
-                    </h2>
-                    {groups === null ? (
-                        <span className="loading loading-spinner"></span>
-                    ) : total === 0 ? (
-                        <p className="opacity-80">Vous ne faites encore partie d'aucune civilisation, religion ou commerce.</p>
-                    ) : GROUPS.map((group, index) => groups[index].length > 0 ? (
-                        <div key={group.key} className="flex flex-col gap-2">
-                            <span className="flex flex-row items-center gap-2 font-semibold">
-                                <FontAwesomeIcon icon={group.icon} className="opacity-70" />
-                                {group.title}
-                            </span>
-                            <div className="flex flex-row flex-wrap gap-2">
-                                {groups[index].map(({ entity, role }) => (
-                                    <a key={entity.id} href={group.href(entity)} className="flex flex-row items-center gap-2 bg-base-100 hover:bg-base-300 transition-colors rounded-full px-3 py-1.5">
-                                        <span>{entity.title}</span>
-                                        <span className={`badge badge-sm ${role === "Fondateur" ? "badge-primary" : "badge-ghost"}`}>{role}</span>
-                                    </a>
-                                ))}
-                            </div>
-                        </div>
-                    ) : null)}
-                </div>
-            </section>
-
             <section className="card bg-base-200 shadow-xl">
                 <div className="card-body gap-4">
                     <h2 className="card-title text-2xl">
