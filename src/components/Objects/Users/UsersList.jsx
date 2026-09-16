@@ -79,6 +79,10 @@ export default function UsersList() {
                         <span className="badge badge-primary">Admin</span>
                     )}
 
+                    {user.is_moderateur && (
+                        <span className="badge badge-secondary">Modérateur RP</span>
+                    )}
+
                     {user.is_disabled && (
                         <span className="badge badge-warning">Désactivé</span>
                     )}

@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getCivilisations, getReligions, getCommerces } from "../../../services/api";
 import PendingActions from "./PendingActions";
-
-const GROUPS = [
-    { key: "civilisations", title: "Mes civilisations", icon: "fa-solid fa-flag", load: getCivilisations, pick: (item) => item.civilisation, href: (entity) => `/civilisation/${entity.id}` },
-    { key: "religions", title: "Mes religions", icon: "fa-solid fa-cross", load: getReligions, pick: (item) => item.religion, href: (entity) => `/religion/${entity.id}` },
-    { key: "commerces", title: "Mes commerces", icon: "fa-solid fa-shop", load: getCommerces, pick: (item) => item.commerce, href: (entity) => `/commerce/${entity.id}` },
-];
+import { MEMBERSHIP_GROUPS as GROUPS, loadMemberships } from "../../Functions/memberships";
 
 const NEXT_STEPS = [
     { icon: "fa-solid fa-scroll", title: "Lire le Codex", text: "Les règles du serveur et du rôle-play.", href: "/codex" },
@@ -23,18 +17,9 @@ export default function UserMemberships({ userId }) {
     useEffect(() => {
         let cancelled = false;
 
-        Promise.all(GROUPS.map((group) => group.load()
-            .then((list) => (Array.isArray(list) ? list : []).flatMap((item) => {
-                const member = (item.members || []).find((m) => m.user_id === userId);
-                return member ? [{ entity: group.pick(item), role: member.role }] : [];
-            }))
-            .catch((error) => {
-                console.error(`Error fetching ${group.key}:`, error);
-                return [];
-            })))
-            .then((results) => {
-                if (!cancelled) setGroups(results);
-            });
+        loadMemberships(userId).then((results) => {
+            if (!cancelled) setGroups(results);
+        });
 
         return () => {
             cancelled = true;

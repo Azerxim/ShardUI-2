@@ -635,6 +635,13 @@ export const getLinkedPlatforms = () => apiRequest("GET", "/users/platforms");
 
 export const unlinkPlatform = (provider) => apiRequest("DELETE", `/users/platforms/${provider}`);
 
+// Journaux et livres écrits par un utilisateur (listes simples)
+export const getJournauxOfUser = (userId) => publicGet(`/bibliotheque/journaux/user/${userId}/list`);
+export const getLivresOfUser = (userId) => publicGet(`/bibliotheque/livres/user/${userId}/list`);
+
+// Comptes visibles sur le profil public d'un joueur (Minecraft) : [{ platform, uid, username, avatar_url }]
+export const getPublicPlatforms = (userId) => publicGet(`/users/id/${userId}/platforms`);
+
 // _________________________________Personnages_________________________________
 
 // [{ personnage, joueur, civilisation, ville, quartier, messages_count }]
