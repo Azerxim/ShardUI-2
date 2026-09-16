@@ -34,6 +34,8 @@ export default function Ville({ info, dimensions }) {
                             ) : null}
                             {info.population ? (
                                 <div className="flex flex-row gap-2 items-center">
+                                    <FontAwesomeIcon icon="fa-solid fa-users" />
+                                    <span>Population:</span>
                                     <span>{info.population}</span>
                                 </div>
                             ) : null}

@@ -49,6 +49,10 @@ export default defineConfig({
         SHARD_FAKE_JOURNAL_MESSAGES: "fake-journal-messages.json",
         // Annonces Discord (guerres…) écrites dans ce fichier au lieu d'être envoyées
         SHARD_FAKE_DISCORD_ANNOUNCEMENTS: "fake-discord-announcements.jsonl",
+        // Clé du générateur de cartes pour l'envoi des relevés du monde (platforms.monde.key en production)
+        SHARD_MONDE_KEY: "cle-du-generateur-de-test",
+        // Pseudos Minecraft : playerdb.co simulé par le même faux serveur
+        SHARD_PLAYERDB_URL: `http://127.0.0.1:${FAKE_DISCORD_PORT}/api/player/minecraft`,
       },
       timeout: 120_000,
       reuseExistingServer: false,

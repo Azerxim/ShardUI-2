@@ -664,4 +664,26 @@ export const getQuartiers = () => publicGet("/civilisations/quartiers/list?limit
 export const getPersonnageReferentiel = () => publicGet("/personnages/referentiel");
 
 
+//_______________________________MONDE (ADMIN)__________________________________
+
+// Statistiques relevées dans la sauvegarde par le générateur de cartes (réservées aux administrateurs)
+// { releve, precedent, evolution, dimensions, lieux, zones, joueurs, releves }
+export const getMondeResume = (releveId) => apiRequest("GET", `/monde/resume${releveId ? `?releve_id=${releveId}` : ""}`);
+
+export const getMondeJoueurs = (releveId, actifs = false) =>
+  apiRequest("GET", `/monde/joueurs?actifs=${actifs}${releveId ? `&releve_id=${releveId}` : ""}`);
+
+export const getMondeZones = (releveId, limit = 50) =>
+  apiRequest("GET", `/monde/zones?limit=${limit}${releveId ? `&releve_id=${releveId}` : ""}`);
+
+// Évolution d'un lieu d'un relevé à l'autre : type "civilisation", "ville" ou "quartier"
+export const getMondeHistoriqueLieu = (type, id) => apiRequest("GET", `/monde/lieux/${type}/${id}`);
+
+// Cherche sur playerdb.co le pseudo des joueurs que le relevé n'a pas nommés
+export const resoudreMondePseudos = (releveId) =>
+  apiRequest("POST", `/monde/pseudos${releveId ? `?releve_id=${releveId}` : ""}`);
+
+export const deleteMondeReleve = (releveId) => apiRequest("DELETE", `/monde/releves/${releveId}`);
+
+
 // ___________________________________Autres____________________________________

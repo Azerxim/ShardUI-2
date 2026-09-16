@@ -29,6 +29,7 @@ import PersonnagePage from './pages/Personnages/Personnage';
 import CodexPage from './pages/Codex/Codex';
 import AdminDimensionsPage from './pages/Admin/Dimensions';
 import AdminPersonnagesPage from './pages/Admin/Personnages';
+import AdminMondePage from './pages/Admin/Monde';
 import NotFoundPage from './pages/NotFound/NotFound';
 
 import Footer from './components/Layouts/Footer'
@@ -85,6 +86,7 @@ export default function App() {
           <Route path="/admin" element={<Navigate to="/admin/dimensions" replace />} />
           <Route path="/admin/dimensions" element={<AdminDimensionsPage />} />
           <Route path="/admin/personnages" element={<AdminPersonnagesPage />} />
+          <Route path="/admin/monde" element={<AdminMondePage />} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

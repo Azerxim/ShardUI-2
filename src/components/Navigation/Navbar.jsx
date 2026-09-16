@@ -285,6 +285,17 @@ export default function Navbar({ active = '' }) {
                                             </a>
                                         </li>
                                     )}
+                                    {User.is_admin && (
+                                        <li>
+                                            <a href="/admin/monde" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl ${active === 'admin-monde' ? 'bg-secondary text-secondary-content' : ''}`}>
+                                                <FontAwesomeIcon icon="fa-solid fa-chart-simple" />
+                                                <span>Statistiques du monde</span>
+                                                <span className="tooltip" data-tip="Admin uniquement" data-place="top">
+                                                    <FontAwesomeIcon icon="fa-solid fa-key" className="text-error" />
+                                                </span>
+                                            </a>
+                                        </li>
+                                    )}
                                     {User.is_moderateur && !User.is_admin && <hr className="my-2 border-base-300" />}
                                     {(User.is_admin || User.is_moderateur) && (
                                         <li>
@@ -441,7 +452,7 @@ export default function Navbar({ active = '' }) {
                                         className='h-16'
                                         onError={(e) => {
                                             e.currentTarget.onerror = null;
-                                            e.currentTarget.src = `https://render.crafty.gg/2d/head/${player.name}`;
+                                            e.currentTarget.src = `https://crafthead.net/avatar/${player.name}`;
                                         }}
                                     />
                                     <span>{player.name}</span>

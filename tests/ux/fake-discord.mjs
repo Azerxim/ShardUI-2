@@ -1,7 +1,8 @@
-// Faux fournisseurs OAuth pour les tests, sans appel aux vrais services.
+// Faux services externes pour les tests, sans appel aux vrais.
 // Discord : échange du code et profil /users/@me. Le code porte l'identité : "u1001" -> utilisateur Discord 1001.
 // Microsoft : jeton, Xbox Live, XSTS, Minecraft. Codes "m1001" (compte valide, joueur Steve1001),
 // "x1001" (compte sans profil Xbox), "g1001" (compte sans Minecraft Java).
+// playerdb.co : pseudo d'un UUID Minecraft ; un UUID commençant par "0" est inconnu.
 import http from "node:http";
 import process from "node:process";
 
@@ -79,6 +80,17 @@ http.createServer(async (request, response) => {
     if (!match) return send(response, 401, { errorMessage: "Unauthorized" });
     if (match[1] === "g") return send(response, 404, { error: "NOT_FOUND", errorMessage: "The server has not found anything matching the request URI" });
     return send(response, 200, { id: match[2].padStart(32, "0"), name: `Steve${match[2].slice(-6)}`, skins: [], capes: [] });
+  }
+
+  // playerdb.co : pseudo et tête d'un joueur, d'après son UUID
+  if (request.method === "GET" && url.pathname.startsWith("/api/player/minecraft/")) {
+    const uuid = url.pathname.split("/").pop();
+    if (!uuid || uuid.startsWith("0")) return send(response, 400, { code: "minecraft.invalid_username", data: {} });
+    const raw = uuid.replaceAll("-", "");
+    return send(response, 200, {
+      code: "player.found",
+      data: { player: { username: `Joueur_${raw.slice(0, 6)}`, id: uuid, raw_id: raw, avatar: `http://127.0.0.1:${port}/avatar/${raw}.png` } },
+    });
   }
 
   send(response, 404, { message: "Not found" });

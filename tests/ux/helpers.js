@@ -13,6 +13,11 @@ export function makeModerateur(username) {
   execFileSync(path.join(apiDir, ".venv", "bin", "python"), ["-c", script, path.join(here, ".env-api", "ShardDB.db"), username]);
 }
 
+// Donne les droits d'administrateur à un compte de test
+export function makeAdmin(username) {
+  runPython("import sqlite3, sys; db = sqlite3.connect(sys.argv[1]); db.execute('update users set is_admin = 1 where username = ?', (sys.argv[2],)); db.commit()", [username]);
+}
+
 function runPython(script, args) {
   const apiDir = path.resolve(process.env.SHARD_API_DIR ?? path.join(here, "../../../Shard-API"));
   return execFileSync(path.join(apiDir, ".venv", "bin", "python"), ["-c", script, path.join(here, ".env-api", "ShardDB.db"), ...args.map(String)]).toString().trim();

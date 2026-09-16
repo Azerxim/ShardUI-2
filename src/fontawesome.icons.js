@@ -8,6 +8,7 @@ import { definition as farCircleCheck } from "@fortawesome/free-regular-svg-icon
 import { definition as farCircleXmark } from "@fortawesome/free-regular-svg-icons/faCircleXmark";
 import { definition as farCopyright } from "@fortawesome/free-regular-svg-icons/faCopyright";
 import { definition as farImage } from "@fortawesome/free-regular-svg-icons/faImage";
+import { definition as fasAddressCard } from "@fortawesome/free-solid-svg-icons/faAddressCard";
 import { definition as fasAnchor } from "@fortawesome/free-solid-svg-icons/faAnchor";
 import { definition as fasAngleLeft } from "@fortawesome/free-solid-svg-icons/faAngleLeft";
 import { definition as fasAngleRight } from "@fortawesome/free-solid-svg-icons/faAngleRight";
@@ -20,6 +21,7 @@ import { definition as fasArrowRightFromBracket } from "@fortawesome/free-solid-
 import { definition as fasArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons/faArrowUpRightFromSquare";
 import { definition as fasBan } from "@fortawesome/free-solid-svg-icons/faBan";
 import { definition as fasBarsStaggered } from "@fortawesome/free-solid-svg-icons/faBarsStaggered";
+import { definition as fasBed } from "@fortawesome/free-solid-svg-icons/faBed";
 import { definition as fasBell } from "@fortawesome/free-solid-svg-icons/faBell";
 import { definition as fasBold } from "@fortawesome/free-solid-svg-icons/faBold";
 import { definition as fasBook } from "@fortawesome/free-solid-svg-icons/faBook";
@@ -32,6 +34,7 @@ import { definition as fasBullhorn } from "@fortawesome/free-solid-svg-icons/faB
 import { definition as fasCakeCandles } from "@fortawesome/free-solid-svg-icons/faCakeCandles";
 import { definition as fasCalendar } from "@fortawesome/free-solid-svg-icons/faCalendar";
 import { definition as fasCaretDown } from "@fortawesome/free-solid-svg-icons/faCaretDown";
+import { definition as fasChartSimple } from "@fortawesome/free-solid-svg-icons/faChartSimple";
 import { definition as fasCheck } from "@fortawesome/free-solid-svg-icons/faCheck";
 import { definition as fasChessRook } from "@fortawesome/free-solid-svg-icons/faChessRook";
 import { definition as fasChevronDown } from "@fortawesome/free-solid-svg-icons/faChevronDown";
@@ -47,6 +50,7 @@ import { definition as fasCoins } from "@fortawesome/free-solid-svg-icons/faCoin
 import { definition as fasComments } from "@fortawesome/free-solid-svg-icons/faComments";
 import { definition as fasCross } from "@fortawesome/free-solid-svg-icons/faCross";
 import { definition as fasCrown } from "@fortawesome/free-solid-svg-icons/faCrown";
+import { definition as fasCubes } from "@fortawesome/free-solid-svg-icons/faCubes";
 import { definition as fasDna } from "@fortawesome/free-solid-svg-icons/faDna";
 import { definition as fasDove } from "@fortawesome/free-solid-svg-icons/faDove";
 import { definition as fasDragon } from "@fortawesome/free-solid-svg-icons/faDragon";
@@ -68,6 +72,7 @@ import { definition as fasFire } from "@fortawesome/free-solid-svg-icons/faFire"
 import { definition as fasFlag } from "@fortawesome/free-solid-svg-icons/faFlag";
 import { definition as fasFlagCheckered } from "@fortawesome/free-solid-svg-icons/faFlagCheckered";
 import { definition as fasFont } from "@fortawesome/free-solid-svg-icons/faFont";
+import { definition as fasGamepad } from "@fortawesome/free-solid-svg-icons/faGamepad";
 import { definition as fasGavel } from "@fortawesome/free-solid-svg-icons/faGavel";
 import { definition as fasGear } from "@fortawesome/free-solid-svg-icons/faGear";
 import { definition as fasHand } from "@fortawesome/free-solid-svg-icons/faHand";
@@ -78,6 +83,7 @@ import { definition as fasHatWizard } from "@fortawesome/free-solid-svg-icons/fa
 import { definition as fasHeading } from "@fortawesome/free-solid-svg-icons/faHeading";
 import { definition as fasHourglassHalf } from "@fortawesome/free-solid-svg-icons/faHourglassHalf";
 import { definition as fasHouse } from "@fortawesome/free-solid-svg-icons/faHouse";
+import { definition as fasHouseChimney } from "@fortawesome/free-solid-svg-icons/faHouseChimney";
 import { definition as fasItalic } from "@fortawesome/free-solid-svg-icons/faItalic";
 import { definition as fasKey } from "@fortawesome/free-solid-svg-icons/faKey";
 import { definition as fasKhanda } from "@fortawesome/free-solid-svg-icons/faKhanda";
@@ -127,6 +133,7 @@ import { definition as fasTrash } from "@fortawesome/free-solid-svg-icons/faTras
 import { definition as fasTriangleExclamation } from "@fortawesome/free-solid-svg-icons/faTriangleExclamation";
 import { definition as fasUser } from "@fortawesome/free-solid-svg-icons/faUser";
 import { definition as fasUserCheck } from "@fortawesome/free-solid-svg-icons/faUserCheck";
+import { definition as fasUserGroup } from "@fortawesome/free-solid-svg-icons/faUserGroup";
 import { definition as fasUserPen } from "@fortawesome/free-solid-svg-icons/faUserPen";
 import { definition as fasUserPlus } from "@fortawesome/free-solid-svg-icons/faUserPlus";
 import { definition as fasUserSecret } from "@fortawesome/free-solid-svg-icons/faUserSecret";
@@ -144,6 +151,7 @@ export default [
     farCircleXmark,
     farCopyright,
     farImage,
+    fasAddressCard,
     fasAnchor,
     fasAngleLeft,
     fasAngleRight,
@@ -156,6 +164,7 @@ export default [
     fasArrowUpRightFromSquare,
     fasBan,
     fasBarsStaggered,
+    fasBed,
     fasBell,
     fasBold,
     fasBook,
@@ -168,6 +177,7 @@ export default [
     fasCakeCandles,
     fasCalendar,
     fasCaretDown,
+    fasChartSimple,
     fasCheck,
     fasChessRook,
     fasChevronDown,
@@ -183,6 +193,7 @@ export default [
     fasComments,
     fasCross,
     fasCrown,
+    fasCubes,
     fasDna,
     fasDove,
     fasDragon,
@@ -204,6 +215,7 @@ export default [
     fasFlag,
     fasFlagCheckered,
     fasFont,
+    fasGamepad,
     fasGavel,
     fasGear,
     fasHand,
@@ -214,6 +226,7 @@ export default [
     fasHeading,
     fasHourglassHalf,
     fasHouse,
+    fasHouseChimney,
     fasItalic,
     fasKey,
     fasKhanda,
@@ -263,6 +276,7 @@ export default [
     fasTriangleExclamation,
     fasUser,
     fasUserCheck,
+    fasUserGroup,
     fasUserPen,
     fasUserPlus,
     fasUserSecret,
