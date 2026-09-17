@@ -1,4 +1,4 @@
-// Fournisseurs de comptes externes affichés sur le site (voir Shard-API/api/oauth.py)
+// Fournisseurs de comptes externes affichés sur le site (voir Shard-API/api/integrations/oauth.py)
 // soon: true affiche « Bientôt disponible » à la place du bouton de liaison
 export const OAUTH_PROVIDERS = {
     discord: {
