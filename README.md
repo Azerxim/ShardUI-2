@@ -107,6 +107,7 @@ Déclarées dans [src/App.jsx](src/App.jsx). Les accès indiqués sont ceux de l
 |---|---|---|
 | `/` | Accueil, adresse du serveur | Public |
 | `/codex` | Règles du serveur | Public |
+| `/roadmap` | Feuille de route : fonctionnalités disponibles, en chantier et à venir | Public |
 | `/login`, `/register` | Connexion, inscription, connexion par compte externe | Public |
 | `/auth/:provider/callback` | Retour de Discord ou Microsoft | Public |
 | `/profil` | Mon profil : informations, comptes liés, adhésions, personnages | Connecté |

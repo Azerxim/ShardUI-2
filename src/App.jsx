@@ -27,6 +27,7 @@ import GuerrePage from '@/pages/guerres/GuerrePage';
 import PersonnagesPage from '@/pages/personnages/PersonnagesPage';
 import PersonnagePage from '@/pages/personnages/PersonnagePage';
 import CodexPage from '@/pages/codex/CodexPage';
+import RoadmapPage from '@/pages/roadmap/RoadmapPage';
 import AdminDimensionsPage from '@/pages/admin/AdminDimensionsPage';
 import AdminPersonnagesPage from '@/pages/admin/AdminPersonnagesPage';
 import AdminMondePage from '@/pages/admin/AdminMondePage';
@@ -84,6 +85,8 @@ export default function App() {
           <Route path="/personnage/:id" element={<PersonnagePage />} />
 
           <Route path="/codex" element={<CodexPage />} />
+
+          <Route path="/roadmap" element={<RoadmapPage />} />
 
           <Route path="/admin" element={<Navigate to="/admin/dimensions" replace />} />
           <Route path="/admin/dimensions" element={<AdminDimensionsPage />} />

@@ -18,6 +18,9 @@ const LIEUX = {
     quartier: { label: "Quartier", icon: "fa-solid fa-house-chimney" },
 };
 
+// Minecraft compte le temps en ticks : 20 par seconde, soit 72 000 par heure (voir world_stats.py)
+const TICKS_PAR_HEURE = 20 * 3600;
+
 const nombre = (valeur, decimales = 0) =>
     valeur === null || valeur === undefined ? "—" : Number(valeur).toLocaleString("fr-FR", { maximumFractionDigits: decimales });
 
@@ -210,13 +213,36 @@ export default function AdminMondePage() {
                 {/* Villes et quartiers */}
                 <section className="flex flex-col gap-2">
                     <TitleH2 text="Villes et quartiers" icon="fa-solid fa-city" />
-                    <p className="text-sm opacity-70 px-1">
-                        Population mesurée : les lits posés dans les chunks où les joueurs ont passé au moins
-                        {` ${nombre(releve.seuil_heures_lit)} h`}, à l'intérieur des frontières du lieu. Sans frontières tracées,
-                        la mesure se fait dans un rayon autour du point et reste approximative. Chaque relevé remplace la
-                        population des villes et des quartiers du site par cette mesure ; la colonne « Avant » rappelle la
-                        valeur qu'ils affichaient auparavant.
-                    </p>
+                    <div className="bg-base-200 rounded-2xl p-3 sm:p-4 flex flex-col gap-3">
+                        <div className="flex flex-col items-center gap-1 text-center overflow-x-auto">
+                            <span className="font-mono text-sm sm:text-base whitespace-nowrap">
+                                population = ⌊ ( Σ moitiés de lit des chunks retenus ) ÷ 2 ⌋
+                            </span>
+                            <span className="font-mono text-xs sm:text-sm opacity-70 whitespace-nowrap">
+                                chunk retenu = centre à l'intérieur du lieu et présence ≥ {`${nombre(releve.seuil_heures_lit, 1)} h`}
+                            </span>
+                        </div>
+                        <ul className="text-sm opacity-70 flex flex-col gap-1 list-disc list-inside">
+                            <li>
+                                <span className="font-semibold">Présence d'un chunk</span> : son <span className="font-mono">InhabitedTime</span> ÷
+                                {` ${nombre(TICKS_PAR_HEURE)}`} ticks, soit le temps que les joueurs y ont passé, en heures.
+                                Le seuil de {`${nombre(releve.seuil_heures_lit, 1)} h`} écarte les villages générés par le jeu et jamais habités.
+                            </li>
+                            <li>
+                                <span className="font-semibold">Moitiés de lit</span> : un lit occupe deux blocs, d'où la division par 2.
+                                Elle porte sur le total du lieu, et le reste éventuel est abandonné.
+                            </li>
+                            <li>
+                                <span className="font-semibold">Chunks retenus</span> : ceux dont le centre tombe dans les frontières tracées
+                                du lieu. Sans frontières (badge « rayon »), ce sont ceux d'un rayon autour du point du lieu, et la
+                                mesure reste approximative. Une civilisation sans frontières (badge « villes ») reprend la somme de ses villes.
+                            </li>
+                            <li>
+                                Chaque relevé remplace la population des villes et des quartiers du site par cette mesure ;
+                                la colonne « Avant » rappelle la valeur qu'ils affichaient auparavant.
+                            </li>
+                        </ul>
+                    </div>
                     <div className="overflow-x-auto">
                         <table className="table table-zebra table-sm">
                             <thead>
