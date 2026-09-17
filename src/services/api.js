@@ -41,12 +41,19 @@ export async function verifyToken(token) {
 
 //_____________________________________USERS_____________________________________
 
+// Jeton joint quand il existe : l'API ne renvoie l'e-mail d'un profil qu'à son propriétaire
+// ou à un administrateur, et les routes réservées aux administrateurs l'exigent.
+function userHeaders() {
+  const token = localStorage.getItem("token");
+  return token
+    ? { "Content-Type": "application/json", Authorization: `Bearer ${token}` }
+    : { "Content-Type": "application/json" };
+}
+
 export async function getUserById(userId) {
   const response = await fetch(`${apiURL}/users/id/${userId}`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: userHeaders(),
   });
 
   if (!response.ok) {
@@ -58,9 +65,7 @@ export async function getUserById(userId) {
 export async function getUserByUsername(username) {
   const response = await fetch(`${apiURL}/users/name/${username}`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: userHeaders(),
   });
 
   if (!response.ok) {
@@ -69,12 +74,11 @@ export async function getUserByUsername(username) {
   return response.json();
 }
 
+// Réservée aux administrateurs (401 sans jeton, 403 sans le rôle)
 export async function getUsers() {
   const response = await fetch(`${apiURL}/users/list`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: userHeaders(),
   });
 
   if (!response.ok) {

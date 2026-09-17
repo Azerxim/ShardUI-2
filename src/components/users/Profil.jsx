@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import Swal from "sweetalert2"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { getApiURL } from "@/services/api"
+import { getApiURL, getUserById } from "@/services/api"
 
 export default function Profil({ User }) {
     const navigate = useNavigate()
@@ -20,22 +20,14 @@ export default function Profil({ User }) {
         const fetchUserData = async () => {
             if (User?.id) {
                 try {
-                    const response = await fetch(`${apiURL}/users/id/${User.id}`, {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    })
-
-                    if (response.ok) {
-                        const data = await response.json()
-                        setUserData(data)
-                        setFullName(data.full_name)
-                        setImageUrl(data.image_url)
-                        setEmail(data.email)
-                        setUsername(data.username)
-                        setIsVisible(data.is_visible)
-                    }
+                    // getUserById joint le jeton : l'API ne renvoie l'e-mail qu'au propriétaire du profil
+                    const data = await getUserById(User.id)
+                    setUserData(data)
+                    setFullName(data.full_name)
+                    setImageUrl(data.image_url)
+                    setEmail(data.email)
+                    setUsername(data.username)
+                    setIsVisible(data.is_visible)
                 } catch (error) {
                     console.error("Erreur lors de la récupération des données:", error)
                 }
@@ -43,7 +35,7 @@ export default function Profil({ User }) {
         }
 
         fetchUserData()
-    }, [User?.id, apiURL])
+    }, [User?.id])
 
     const handleLogout = () => {
         Swal.fire({
