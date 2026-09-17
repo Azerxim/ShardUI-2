@@ -1,13 +1,13 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter as Router } from 'react-router-dom';
-import './main.css'
-import App from './App.jsx'
-import { installMapEditorAuth } from './services/mapEditor'
+import '@/main.css'
+import App from '@/App'
+import { installMapEditorAuth } from '@/services/mapEditor'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 // Icônes citées dans le code (npm run icons) ; les packs complets se chargent à la demande (DynamicIcon, IconPicker)
-import icons from './fontawesome.icons'
+import icons from '@/config/fontawesome.icons'
 
 library.add(...icons)
 

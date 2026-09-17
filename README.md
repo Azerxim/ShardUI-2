@@ -1,5 +1,7 @@
 # ShardUI-2
 
+> Documentation complète : [DOCUMENTATION.md](DOCUMENTATION.md).
+
 Interface web du serveur **Tetrago** : portail communautaire du serveur (comptes utilisateurs, bibliothèque de récits/journaux, fiches de civilisations, etc.). Application React consommant l'API [Shard-API](../Shard-API).
 
 ## Stack technique
@@ -55,23 +57,46 @@ npm run lint      # Lint du code avec ESLint
 ```
 src/
 ├── components/
-│   ├── Buttons/       # Boutons réutilisables (copie, membre, utilisateur…)
-│   ├── Functions/     # Fonctions utilitaires (auth token, fetch de données, modales…)
-│   ├── Layouts/       # Header/Footer/Navbar
-│   ├── Modals/        # Modales de configuration (civilisations, gouvernement, journal, livres…)
-│   └── Objects/       # Composants UI (éditeurs de texte, étagère de livres, profils…)
-├── pages/
-│   ├── Home/           # Pages d'accueil (variantes classique / innovante / creative)
-│   ├── Users/           # Login, inscription, profils, gestion des utilisateurs
-│   ├── Bibliotheque/    # Journaux et livres
-│   ├── Civilisations/   # Fiches de civilisations
-│   └── NotFound/        # Page 404
+│   ├── ui/             # Générique et réutilisable : titres, Stat, ListCard, Skeleton, éditeurs de texte…
+│   ├── layout/         # Navbar, Footer, Hero / ImageHero / GrimoireHero
+│   ├── modals/         # Moteur de modales (DynamicModal, FormModal) + fields/ (champs dynamiques)
+│   ├── users/          # Comptes et profils : Login, Register, Profil, UsersList…
+│   ├── membres/        # Appartenance à une entité RP : MemberButton, JoinHint, TransferFounderModal
+│   ├── bibliotheque/   # Étagères de journaux/livres, chapitres
+│   ├── civilisations/  # Ville, religions d'une ville, résidents
+│   ├── personnages/    # Avatar et chip de personnage
+│   ├── conflits/       # Alliances et guerres (ConflictsSection)
+│   └── carte/          # Intégration de ShardUI-2-Maps (MapEmbed)
+├── config/             # Données de configuration, sans JSX
+│   ├── modals/         # Un fichier par formulaire (civilisation.js, ville.js…), lu par DynamicModal
+│   ├── navbar.js       # Entrées de la barre de navigation
+│   └── fontawesome.icons.js  # Généré par `npm run icons` — ne pas modifier à la main
+├── pages/              # Une page par route ; dossier en minuscules, fichier = nom de l'export (*Page.jsx)
+│   ├── home/ users/ bibliotheque/ civilisations/ religions/ commerces/
+│   ├── alliances/ guerres/ personnages/ codex/ admin/ template/ not-found/
 ├── services/
 │   ├── api.js            # Appels HTTP vers Shard-API (auth, users, bibliothèque, civilisations…)
-│   └── authorisation.js  # Gestion des droits/rôles
-├── App.jsx    # Déclaration des routes
-└── main.jsx   # Point d'entrée
+│   ├── authorisation.js  # Gestion des droits/rôles
+│   ├── session.js        # Utilisateur courant et jeton stockés côté navigateur
+│   └── mapEditor.js      # Pont d'authentification avec l'éditeur de carte
+├── utils/              # Fonctions utilitaires (jeton, fetch, modales, couleurs, dates…)
+├── App.jsx / App.css   # Déclaration des routes
+└── main.jsx / main.css # Point d'entrée
 ```
+
+### Conventions
+
+- **Imports internes en alias `@/`** — `@` pointe sur `src/` (déclaré dans [vite.config.js](vite.config.js)
+  et [jsconfig.json](jsconfig.json)). On écrit `import Navbar from "@/components/layout/Navbar"`, jamais
+  `../../components/...`. La règle est sans exception — y compris pour un CSS voisin
+  (`import "@/components/layout/Navbar.css"`) — pour que déplacer un fichier ne casse jamais ses imports.
+- **Dossiers en minuscules**, fichiers de composants en `PascalCase`, fichiers de données/utilitaires en `camelCase`
+  ou `kebab-case`.
+- **Une page = un fichier `*Page.jsx`** dont le nom correspond exactement à l'export par défaut.
+- **`components/` ne contient que des composants.** Toute donnée de configuration va dans `config/`, toute
+  fonction sans rendu dans `utils/`.
+- **Un composant partagé par plusieurs domaines** va dans `components/ui/` ; sinon il reste dans le dossier
+  de son domaine.
 
 ## Routes principales
 

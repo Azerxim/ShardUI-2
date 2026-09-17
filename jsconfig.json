@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "checkJs": false,
+    "jsx": "react-jsx",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "esnext"
+  },
+  "include": ["src", "scripts", "tests", "vite.config.js", "eslint.config.js", "playwright.config.js"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,6 +1,6 @@
-// Liste les icônes FontAwesome citées dans src/ et écrit src/fontawesome.icons.js (imports icône par icône,
+// Liste les icônes FontAwesome citées dans src/ et écrit src/config/fontawesome.icons.js (imports icône par icône,
 // enregistrés au démarrage par main.jsx). Les icônes choisies par les joueurs (religions, couvertures) viennent des
-// packs complets, chargés à la demande (src/components/Functions/fontawesomeFull.js, DynamicIcon).
+// packs complets, chargés à la demande (src/utils/fontawesomeFull.js, DynamicIcon).
 // Lancé avant dev et build (npm run icons) ; une icône citée mais absente des packs est signalée.
 import fs from "node:fs";
 import path from "node:path";
@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const srcDir = path.join(root, "src");
-const output = path.join(srcDir, "fontawesome.icons.js");
+const output = path.join(srcDir, "config", "fontawesome.icons.js");
 
 const PREFIXES = { "fa-solid": "fas", fas: "fas", "fa-regular": "far", far: "far", "fa-brands": "fab", fab: "fab" };
 const PACKS = { fas: "free-solid-svg-icons", far: "free-regular-svg-icons", fab: "free-brands-svg-icons" };

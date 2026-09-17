@@ -1,39 +1,39 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import './App.css'
+import '@/App.css'
 
-import HomePage from './pages/Home/Home';
-import LoginPage from './pages/Users/Login';
-import RegisterPage from './pages/Users/Register';
-import ProfilPage from './pages/Users/Profil';
-import UserProfilPage from './pages/Users/UserProfil';
-import AdminProfilPage from './pages/Users/AdminProfil';
-import UsersPage from './pages/Users/Users';
-import OAuthCallbackPage from './pages/Users/OAuthCallback';
-import BibliothequePage from './pages/Bibliotheque/Bibliotheque';
-import JournalDetailPage from './pages/Bibliotheque/JournalDetail';
-import LivreDetailPage from './pages/Bibliotheque/LivreDetail';
-import CivilisationsPage from './pages/Civilisations/Civilisations';
-import CivilisationPage from './pages/Civilisations/Civilisation';
-import VilleDetailPage from './pages/Civilisations/VilleDetail';
-import QuartierDetailPage from './pages/Civilisations/QuartierDetail';
-import ReligionsPage from './pages/Religions/Religions';
-import ReligionPage from './pages/Religions/Religion';
-import CommercesPage from './pages/Commerces/Commerces';
-import CommercePage from './pages/Commerces/Commerce';
-import AlliancesPage from './pages/Alliances/Alliances';
-import AlliancePage from './pages/Alliances/Alliance';
-import GuerresPage from './pages/Guerres/Guerres';
-import GuerrePage from './pages/Guerres/Guerre';
-import PersonnagesPage from './pages/Personnages/Personnages';
-import PersonnagePage from './pages/Personnages/Personnage';
-import CodexPage from './pages/Codex/Codex';
-import AdminDimensionsPage from './pages/Admin/Dimensions';
-import AdminPersonnagesPage from './pages/Admin/Personnages';
-import AdminMondePage from './pages/Admin/Monde';
-import NotFoundPage from './pages/NotFound/NotFound';
+import HomePage from '@/pages/home/HomePage';
+import LoginPage from '@/pages/users/LoginPage';
+import RegisterPage from '@/pages/users/RegisterPage';
+import ProfilPage from '@/pages/users/ProfilPage';
+import UserProfilPage from '@/pages/users/UserProfilPage';
+import AdminProfilPage from '@/pages/users/AdminProfilPage';
+import UsersPage from '@/pages/users/UsersPage';
+import OAuthCallbackPage from '@/pages/users/OAuthCallbackPage';
+import BibliothequePage from '@/pages/bibliotheque/BibliothequePage';
+import JournalDetailPage from '@/pages/bibliotheque/JournalDetailPage';
+import LivreDetailPage from '@/pages/bibliotheque/LivreDetailPage';
+import CivilisationsPage from '@/pages/civilisations/CivilisationsPage';
+import CivilisationPage from '@/pages/civilisations/CivilisationPage';
+import VilleDetailPage from '@/pages/civilisations/VilleDetailPage';
+import QuartierDetailPage from '@/pages/civilisations/QuartierDetailPage';
+import ReligionsPage from '@/pages/religions/ReligionsPage';
+import ReligionPage from '@/pages/religions/ReligionPage';
+import CommercesPage from '@/pages/commerces/CommercesPage';
+import CommercePage from '@/pages/commerces/CommercePage';
+import AlliancesPage from '@/pages/alliances/AlliancesPage';
+import AlliancePage from '@/pages/alliances/AlliancePage';
+import GuerresPage from '@/pages/guerres/GuerresPage';
+import GuerrePage from '@/pages/guerres/GuerrePage';
+import PersonnagesPage from '@/pages/personnages/PersonnagesPage';
+import PersonnagePage from '@/pages/personnages/PersonnagePage';
+import CodexPage from '@/pages/codex/CodexPage';
+import AdminDimensionsPage from '@/pages/admin/AdminDimensionsPage';
+import AdminPersonnagesPage from '@/pages/admin/AdminPersonnagesPage';
+import AdminMondePage from '@/pages/admin/AdminMondePage';
+import NotFoundPage from '@/pages/not-found/NotFoundPage';
 
-import Footer from './components/Layouts/Footer'
-import { RouteTitle } from './components/Functions/pageTitle';
+import Footer from '@/components/layout/Footer'
+import { RouteTitle } from '@/utils/pageTitle';
 
 export default function App() {
   return (

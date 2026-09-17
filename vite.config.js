@@ -1,4 +1,5 @@
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 import { defineConfig, loadEnv } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
@@ -9,6 +10,12 @@ export default defineConfig(({ mode }) => {
   return {
   plugins: [tailwindcss(), react()],
   base: "/",
+  // « @ » pointe sur src/ : tous les imports internes s'écrivent "@/components/...", "@/utils/..."
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
   server: {
     allowedHosts: [
       "localhost",
