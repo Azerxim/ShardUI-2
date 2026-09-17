@@ -22,7 +22,6 @@ export default defineConfig(({ mode }) => {
       "192.168.5.100",
       "tetrago.fr",
       "beta.tetrago.fr",
-      "dev.tetrago.fr",
     ],
     // Serveur de dev : /api est relayé vers Shard-API. Avec VITE_API_BASE_URL vide, le navigateur
     // n'appelle que l'origine de Vite (utile en VS Code Remote SSH : seul le port de Vite est redirigé).
