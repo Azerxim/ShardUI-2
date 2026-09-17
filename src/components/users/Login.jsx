@@ -34,7 +34,7 @@ export default function Login() {
             .then((res) => res.json())
             .then((data) => {
                 // console.log(data);
-                if (data.code == 200) {
+                if (data.code === 200) {
                     localStorage.setItem("user", JSON.stringify(data.user))
                     getUserToken(data.user.username, password, parseInt(expiryHours)).then(token => {
                         localStorage.setItem("token", token);

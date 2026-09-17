@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Navbar from "@/components/layout/Navbar";
+import { MAPS_BASE_URL } from "@/config/maps";
 import CopyBtn from '@/components/ui/CopyButton'
 import GrimoireHero from '@/components/layout/GrimoireHero';
 import ImageHero from '@/components/layout/ImageHero';
@@ -17,7 +18,7 @@ const books = [
   { icon: "fa-solid fa-handshake", title: "Alliances", description: "Les pactes entre civilisations.", link: "/alliances", color: "var(--color-success)", tilt: "1deg", target: "" },
   { icon: "fa-solid fa-shield-halved", title: "Guerres", description: "Les conflits qui ont marqué le monde.", link: "/guerres", color: "#991b1b", tilt: "-2deg", target: "" },
   { icon: "fa-solid fa-masks-theater", title: "Personnages", description: "Les héros et figures du monde.", link: "/personnages", color: "#6d28d9", tilt: "2deg", target: "" },
-  { icon: "fa-solid fa-map", title: "Cartographie", description: "Le monde de Tetrago à explorer.", link: "https://map.beta.tetrago.fr", color: "var(--color-accent)", tilt: "-1deg", target: "" },
+  { icon: "fa-solid fa-map", title: "Cartographie", description: "Le monde de Tetrago à explorer.", link: MAPS_BASE_URL, color: "var(--color-accent)", tilt: "-1deg", target: "" },
   { icon: "fa-brands fa-discord", title: "Discord", description: "Rejoignez la communauté.", link: "https://discord.gg/nUFwE9S",color: "var(--color-neutral)", tilt: "-2deg", target: "_blank" },
 ];
 

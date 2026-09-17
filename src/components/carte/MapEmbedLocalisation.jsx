@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { MAPS_BASE_URL } from "@/config/maps";
 
 export default function MapEmbedLocalisation({ dimension, x, z, zoom = 0, embed = 'civilisations', title = 'Carte', width = 300, height = 200, className = '', style = {}, onMove }) {
     const iframeRef = useRef(null);
@@ -31,7 +32,7 @@ export default function MapEmbedLocalisation({ dimension, x, z, zoom = 0, embed 
         <div className="relative inline-block" style={{ width, height }}>
             <iframe
                 ref={iframeRef}
-                src={`https://map.beta.tetrago.fr/${dimension.link}-locate-${embed}#x=${x}&z=${z}&zoom=${zoom}`}
+                src={`${MAPS_BASE_URL}/${dimension.link}-locate-${embed}#x=${x}&z=${z}&zoom=${zoom}`}
                 title={title}
                 style={{ width, height, ...style }}
                 className={`rounded-2xl ${className}`}

@@ -59,10 +59,9 @@ publiques**.
 | Variable | Lue par | Rôle |
 | --- | --- | --- |
 | `VITE_API_BASE_URL` | `services/api.js` | URL de Shard-API sans `/api`. Vide : appels relatifs (`/api/...`) sur l'origine du site |
-| `VITE_MAPS_BASE_URL` | `services/mapEditor.js` | URL de ShardUI-2-Maps pour l'éditeur (défaut `https://map.beta.tetrago.fr`) |
+| `VITE_MAPS_BASE_URL` | `config/maps.js` | URL de ShardUI-2-Maps : cartes intégrées, liens du site et éditeur (défaut `https://map.beta.tetrago.fr`) |
 | `VITE_SERVER_URL` | `pages/home/HomePage.jsx` | Adresse du serveur Minecraft affichée sur l'accueil |
 | `API_PROXY_TARGET` | `vite.config.js` | Cible du proxy `/api` du serveur de développement (défaut `http://127.0.0.1:8002`) ; non exposée |
-| `VITE_API_USER`, `VITE_API_PASSWORD` | `getAuthToken()` | Non utilisées (voir [points d'attention](#points-dattention)) |
 
 Configuration de développement actuelle (`.env.development`) :
 
@@ -106,6 +105,7 @@ src/
 ├── config/                   # Données de configuration, sans JSX
 │   ├── modals/               # Un fichier par formulaire (civilisation.js, ville.js…), lu par DynamicModal
 │   ├── navbar.js             # Entrées de la barre de navigation
+│   ├── maps.js               # MAPS_BASE_URL : adresse de ShardUI-2-Maps (VITE_MAPS_BASE_URL)
 │   └── fontawesome.icons.js  # Généré par npm run icons (ne pas éditer)
 ├── utils/                    # Utilitaires (erreurs d'API, titres, pluriels, couleurs, conflits, personnages…)
 ├── pages/                    # Une page par route (voir ci-dessous)
@@ -212,6 +212,14 @@ la page enregistre `access_token` et `user` ; en mode `link`, elle confirme la l
 
 - `getSessionUser()` renvoie l'utilisateur seulement si **l'utilisateur et le jeton** sont présents.
 - `clearSession()` efface les deux (déconnexion, ou session expirée).
+- `syncSessionUser()` appelle `GET /api/users/verify`, qui renvoie `{ valid, user }` : le profil stocké est réécrit
+  avec celui de l'API, et la session est effacée si le jeton n'est plus valide. La barre de navigation l'appelle à
+  son montage, donc à chaque chargement de page — sans appel supplémentaire, puisque la vérification du jeton
+  existait déjà.
+
+Conséquences : un rôle qu'un administrateur vient d'accorder ou de retirer est repris sans se reconnecter, un
+`localStorage.user` retouché à la main est réécrit au chargement suivant, et un jeton expiré ne laisse plus le site
+afficher une session ouverte.
 
 ### Affichage selon les droits
 
@@ -220,7 +228,8 @@ la page enregistre `access_token` et `user` ; en mode `link`, elle confirme la l
 - `checkMemberAuth(members, setAuth)` : vrai pour un Fondateur ou Admin de l'entité, ou un administrateur du site.
 - `checkUserID(userID, setAuth)` : vrai pour l'utilisateur lui-même ou un administrateur.
 
-Ces contrôles ne protègent rien : l'API vérifie chaque action et renvoie 401 ou 403 sinon.
+Ces contrôles ne protègent rien : l'API vérifie chaque action et renvoie 401 ou 403 sinon. Ils lisent le profil de
+`localStorage`, que `syncSessionUser()` réaligne sur l'API à chaque chargement de page.
 
 ## Appels à l'API
 
@@ -293,7 +302,10 @@ les magasins d'un commerce ou les zones d'une guerre. `MapEmbedLocalisation` (ch
 affiche la vue `<dimension>-locate-<calque>`, qui renvoie la position au site par `postMessage`
 (`{ source: "minedmap", type: "move", x, z, zoom }`) pour remplir les coordonnées.
 
-Ces deux composants utilisent l'adresse fixe `https://map.beta.tetrago.fr` (voir [points d'attention](#points-dattention)).
+Ces deux composants lisent l'adresse de la carte dans `config/maps.js` (`MAPS_BASE_URL`), comme les liens du site
+(accueil, barre de navigation, pages d'administration) et l'éditeur : une seule constante, alimentée par
+`VITE_MAPS_BASE_URL` avec la carte en ligne pour repli. En développement, `.env.development` la fixe à
+`http://localhost:3005`, donc les cartes intégrées montrent la carte locale.
 
 ### Éditeur
 
@@ -399,15 +411,22 @@ Chaque `redirect_uri` OAuth de Shard-API pointe vers `https://<site>/auth/<fourn
 
 ## Points d'attention
 
-- **`VITE_API_USER` / `VITE_API_PASSWORD`** : lues par `getAuthToken()`, qui n'est appelée nulle part. Comme toute
-  variable `VITE_`, elles seraient incluses dans le code public : ne pas y mettre les identifiants administrateur,
-  et supprimer la fonction si elle reste inutilisée.
-- **Profil en `localStorage`** : `is_admin` et `is_moderateur` y sont modifiables par l'utilisateur. Cela ne change
-  que l'affichage ; l'API refuse les actions.
-- **Formats de réponse** : selon les routes, le statut est dans `code`, `error` ou seulement dans le code HTTP.
-  `apiRequest` gère les erreurs HTTP ; les anciennes fonctions testent parfois `error === 200`.
-- **Adresse de la carte codée en dur** (`https://map.beta.tetrago.fr`) dans `MapEmbed`, `MapEmbedLocalisation`,
-  `Navbar`, `Home`, `Admin/Monde` et `Admin/Dimensions` : seul l'éditeur suit `VITE_MAPS_BASE_URL`. En développement,
-  les cartes intégrées affichent donc la carte en ligne.
-- **Dépendance `react-scripts` `^0.0.0`** dans `package.json` : inutilisée avec Vite, peut être retirée.
-- **README.md** : la liste des routes et la structure y sont partielles ; ce document décrit l'état actuel.
+Les cinq constats relevés lors de la rédaction de ce document ont été traités :
+
+| Constat | Traitement |
+| --- | --- |
+| Profil en `localStorage` modifiable par l'utilisateur (`is_admin`, `is_moderateur`) | `syncSessionUser()` réécrit le profil stocké avec celui de `GET /api/users/verify` à chaque chargement de page, et efface une session dont le jeton n'est plus valide — voir [Connexion](#connexion). Ce n'est pas ce qui protège le site : l'API vérifie chaque action |
+| Formats de réponse hétérogènes, anciennes fonctions testant `error === 200` | Plus aucune occurrence dans le code : `apiRequest` couvre les appels et il ne reste qu'un test de statut, `data.code === 200` dans `Login` (la route `/users/login` renvoie bien `{ code, user }`). L'hétérogénéité subsiste **côté API** |
+| Adresse de la carte codée en dur dans six fichiers | Une seule constante `MAPS_BASE_URL` (`config/maps.js`), alimentée par `VITE_MAPS_BASE_URL` — voir [Liens avec la carte](#liens-avec-la-carte) |
+| Dépendance `react-scripts` `^0.0.0` inutilisée | Retirée de `package.json` et du verrou |
+| `README.md` partiel | Liste des routes complétée et structure du projet à jour ; ce document reste la référence |
+
+Restent ouverts, sans urgence :
+
+- **Formats de réponse de l'API** : selon les routes, le statut est dans `code`, dans `error` ou seulement dans le
+  code HTTP. Le site s'y adapte ; c'est l'API qu'il faudrait normaliser (constat ouvert dans
+  `Shard-API/DOCUMENTATION.md`).
+- **Le profil n'est réaligné qu'au chargement de la page** : pendant une navigation interne (React Router, sans
+  rechargement), l'affichage reste celui du profil déjà en mémoire.
+- **`checkMemberAuth` et `checkUserID`** dupliquent des règles de l'API. Toute règle qui change doit l'être des deux
+  côtés, et c'est l'API qui fait foi.

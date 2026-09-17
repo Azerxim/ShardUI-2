@@ -28,19 +28,19 @@ npm install
 
 ## Configuration
 
-Créer un fichier `.env` à la racine du projet (non versionné) avec les variables suivantes :
+Copier [.env.example](.env.example) en `.env` à la racine du projet (non versionné) et renseigner les valeurs :
 
-```env
-VITE_API_USER=
-VITE_API_PASSWORD=
-VITE_SERVER_URL=
-VITE_API_BASE_URL=
+```bash
+cp .env.example .env
 ```
 
-- `VITE_API_BASE_URL` : URL de base de l'API Shard-API consommée par le front (les appels sont faits sur `${VITE_API_BASE_URL}/api`).
-- `VITE_MAPS_BASE_URL` (optionnel) : URL de ShardUI-2-Maps ouverte par les boutons « Marqueurs » / « Frontières » (par défaut `https://map.beta.tetrago.fr`). En développement, `.env.development` la fixe à `http://localhost:3005`. Le jeton de connexion est transmis à l'éditeur par `postMessage` : l'API utilisée par la carte doit être la même que `VITE_API_BASE_URL`.
-- `VITE_SERVER_URL` : URL du serveur minecraft.
-- `VITE_API_USER` / `VITE_API_PASSWORD` : identifiants administrateur utilisés pour l'authentification côté API.
+- `VITE_API_BASE_URL` : URL de base de Shard-API (les appels sont faits sur `${VITE_API_BASE_URL}/api`). Vide, les
+  appels sont relatifs (`/api/...`) sur l'origine du site — utile derrière le proxy du serveur de développement.
+- `VITE_SERVER_URL` : adresse du serveur Minecraft, affichée sur l'accueil.
+- `VITE_MAPS_BASE_URL` (optionnel) : URL de ShardUI-2-Maps, utilisée par les cartes intégrées, les liens du site et
+  l'éditeur (par défaut `https://map.beta.tetrago.fr`, voir [src/config/maps.js](src/config/maps.js)). En
+  développement, `.env.development` la fixe à `http://localhost:3005`. Le jeton de connexion est transmis à
+  l'éditeur par `postMessage` : l'API utilisée par la carte doit être la même que `VITE_API_BASE_URL`.
 
 ## Scripts disponibles
 
@@ -70,6 +70,7 @@ src/
 ├── config/             # Données de configuration, sans JSX
 │   ├── modals/         # Un fichier par formulaire (civilisation.js, ville.js…), lu par DynamicModal
 │   ├── navbar.js       # Entrées de la barre de navigation
+│   ├── maps.js         # MAPS_BASE_URL : adresse de ShardUI-2-Maps
 │   └── fontawesome.icons.js  # Généré par `npm run icons` — ne pas modifier à la main
 ├── pages/              # Une page par route ; dossier en minuscules, fichier = nom de l'export (*Page.jsx)
 │   ├── home/ users/ bibliotheque/ civilisations/ religions/ commerces/
@@ -100,15 +101,33 @@ src/
 
 ## Routes principales
 
-| Route | Description |
-|---|---|
-| `/` | Accueil |
-| `/login`, `/register` | Authentification |
-| `/profil`, `/profil/:user_id` | Profil courant / profil public |
-| `/users`, `/users/:user_id` | Liste et administration des utilisateurs |
-| `/bibliotheque` | Bibliothèque (journaux & livres) |
-| `/bibliotheque/journal/:id`, `/bibliotheque/livre/:id` | Détail d'un journal / livre |
-| `/civilisations`, `/civilisation/:id` | Liste et fiche de civilisation |
+Déclarées dans [src/App.jsx](src/App.jsx). Les accès indiqués sont ceux de l'affichage : c'est l'API qui fait foi.
+
+| Route | Description | Accès |
+|---|---|---|
+| `/` | Accueil, adresse du serveur | Public |
+| `/codex` | Règles du serveur | Public |
+| `/login`, `/register` | Connexion, inscription, connexion par compte externe | Public |
+| `/auth/:provider/callback` | Retour de Discord ou Microsoft | Public |
+| `/profil` | Mon profil : informations, comptes liés, adhésions, personnages | Connecté |
+| `/profil/:user_id` | Profil public | Public |
+| `/users`, `/users/:user_id` | Liste et édition des utilisateurs | Administrateur |
+| `/bibliotheque` | Étagères des journaux et des livres | Public |
+| `/bibliotheque/journal/:id`, `/bibliotheque/livre/:id` | Détail d'un journal / livre | Public |
+| `/civilisations`, `/civilisation/:id` | Liste et fiche de civilisation | Public |
+| `/civilisation/:civ_id/ville/:id`, `/quartier/:id` | Ville, quartier | Public |
+| `/religions`, `/religion/:id` | Liste et fiche de religion | Public |
+| `/commerces`, `/commerce/:id` | Liste et fiche de commerce | Public |
+| `/alliances`, `/alliance/:id` | Liste et fiche d'alliance | Public |
+| `/guerres`, `/guerre/:id` | Liste, fiche, chronologie, camps, zones | Public |
+| `/personnages`, `/personnage/:id` | Liste et fiche de personnage | Public |
+| `/admin/dimensions`, `/admin/monde` | Dimensions de la carte, statistiques du monde | Administrateur |
+| `/admin/personnages` | Espèces et classes | Administrateur ou modérateur RP |
+| `*` | Page 404 | — |
+
+Les routes au singulier sans identifiant (`/civilisation`, `/religion`, `/commerce`, `/alliance`, `/guerre`,
+`/personnage`, `/bibliotheque/journal`, `/bibliotheque/livre`) redirigent vers la liste correspondante.
+Le détail de chaque page figure dans [DOCUMENTATION.md](DOCUMENTATION.md#pages-et-routes).
 
 ## Déploiement
 

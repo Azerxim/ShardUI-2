@@ -1,5 +1,4 @@
-const mapsURL = import.meta.env.VITE_MAPS_BASE_URL || "https://map.beta.tetrago.fr";
-const mapsOrigin = new URL(mapsURL).origin;
+import { MAPS_BASE_URL as mapsURL, MAPS_ORIGIN as mapsOrigin } from "@/config/maps";
 
 // Ouvre l'éditeur de ShardUI-2-Maps sur une civilisation (marqueurs), une ville ou un quartier (frontières), ou une
 // guerre (zones de conflit). La connexion de l'éditeur est assurée par installMapEditorAuth (main.jsx).

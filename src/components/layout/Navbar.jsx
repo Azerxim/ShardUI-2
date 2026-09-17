@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import '@/components/layout/Navbar.css';
-import { verifyToken } from '@/services/api';
+import { syncSessionUser } from '@/services/session';
+import { MAPS_BASE_URL } from '@/config/maps';
 
 // ===== Constantes =====
 const link_network = 'https://mcapi.us/server/status?ip=spinelle-network.minesr.com';
@@ -28,25 +29,8 @@ export default function Navbar({ active = '' }) {
     const [ServerData, setServerData] = useState(null);
 
     useEffect(() => {
-        // Jeton invalide ou expiré : la session locale est effacée
-        const checkSession = async () => {
-            const token = localStorage.getItem("token");
-            if (!token) return;
-            try {
-                const response = await verifyToken(token);
-                if (!response.ok) {
-                    localStorage.removeItem("token");
-                    localStorage.removeItem("user");
-                    console.warn("Token invalide ou expiré");
-                }
-            } catch (error) {
-                console.error('Erreur lors de la vérification du token:', error);
-                localStorage.removeItem("token");
-                localStorage.removeItem("user");
-            }
-        };
-
-        checkSession();
+        // Réaligne le profil stocké sur celui de l'API, et efface la session si le jeton n'est plus valide
+        syncSessionUser();
     }, []);
 
     useEffect(() => {
@@ -152,7 +136,7 @@ export default function Navbar({ active = '' }) {
                                 </a>
                             </li>
                             <li>
-                                <a href="https://map.beta.tetrago.fr/tetrago-civilisations" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl`}>
+                                <a href={`${MAPS_BASE_URL}/tetrago-civilisations`} className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl`}>
                                     <FontAwesomeIcon icon="fa-solid fa-map" />
                                     <span>Cartographie</span>
                                 </a>

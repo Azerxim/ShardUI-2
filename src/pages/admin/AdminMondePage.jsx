@@ -8,8 +8,8 @@ import TitleH1 from "@/components/ui/TitleH1";
 import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
 import { getMondeResume, getDimensions, deleteMondeReleve, resoudreMondePseudos } from "@/services/api";
+import { MAPS_BASE_URL } from "@/config/maps";
 
-const MAP_URL = "https://map.beta.tetrago.fr";
 
 // Lieux mesurés : libellé et icône par type
 const LIEUX = {
@@ -85,7 +85,7 @@ export default function AdminMondePage() {
 
     const lienCarte = (dimensionId, x, z) => {
         const dimension = dimensions.find((dim) => dim.id === dimensionId);
-        return dimension?.link ? `${MAP_URL}/${dimension.link}-civilisations#x=${x}&z=${z}&zoom=0` : null;
+        return dimension?.link ? `${MAPS_BASE_URL}/${dimension.link}-civilisations#x=${x}&z=${z}&zoom=0` : null;
     };
 
     const supprimer = async (releve) => {

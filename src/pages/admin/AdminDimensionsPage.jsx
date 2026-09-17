@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import Navbar from "@/components/layout/Navbar";
 import TitleH1 from "@/components/ui/TitleH1";
 import { showModalID } from "@/utils/showModal";
+import { MAPS_BASE_URL } from "@/config/maps";
 import {
     getDimensions,
     createDimension,
@@ -14,7 +15,6 @@ import {
 } from "@/services/api";
 
 const MODAL_ID = "admin-dimension-modal";
-const MAP_URL = "https://map.beta.tetrago.fr";
 const EMPTY_FORM = { id: null, title: "", link: "", description: "" };
 
 function AccessMessage({ text, link, label }) {
@@ -152,7 +152,7 @@ export default function AdminDimensionsPage() {
                                     <span className="badge badge-sm badge-neutral">#{dimension.id}</span>
                                 </div>
                                 {dimension.link ? (
-                                    <a href={`${MAP_URL}/${dimension.link}`} target="_blank" rel="noopener noreferrer" className="link link-primary text-sm font-mono break-all">
+                                    <a href={`${MAPS_BASE_URL}/${dimension.link}`} target="_blank" rel="noopener noreferrer" className="link link-primary text-sm font-mono break-all">
                                         {dimension.link}
                                         <FontAwesomeIcon icon="fa-solid fa-arrow-up-right-from-square" className="ml-1 text-xs" />
                                     </a>
@@ -186,7 +186,7 @@ export default function AdminDimensionsPage() {
                 <div className="flex flex-col gap-4 w-full">
                     <TitleH1 text="Dimensions" icon="fas fa-earth-europe" fonctions={FctDimensions} />
                     <p className="text-sm opacity-70 px-1">
-                        Une dimension correspond à un monde de la carte. Son lien est le préfixe utilisé par la carte ({MAP_URL}/<b>lien</b>-embedfull-…) pour les cartes intégrées des villes et civilisations.
+                        Une dimension correspond à un monde de la carte. Son lien est le préfixe utilisé par la carte ({MAPS_BASE_URL}/<b>lien</b>-embedfull-…) pour les cartes intégrées des villes et civilisations.
                     </p>
                     {content}
                     {!loading && !error ? <i className="text-sm opacity-70">{dimensions.length} dimension(s) définie(s).</i> : null}
@@ -210,7 +210,7 @@ export default function AdminDimensionsPage() {
                                 <span className="font-semibold">Lien de la carte</span>
                                 <input type="text" name="link" className="input input-bordered w-full font-mono" placeholder="tetrago" value={form.link} onChange={handleChange} pattern="[A-Za-z0-9_\-]+" title="Lettres, chiffres, tirets et underscores uniquement" />
                                 <span className="text-xs opacity-70 break-all">
-                                    {form.link.trim() ? `${MAP_URL}/${form.link.trim()}-embedfull-civilisations` : "Identifiant du monde sur la carte."}
+                                    {form.link.trim() ? `${MAPS_BASE_URL}/${form.link.trim()}-embedfull-civilisations` : "Identifiant du monde sur la carte."}
                                 </span>
                             </label>
                             <label className="flex flex-col gap-1">
