@@ -37,6 +37,9 @@ cp .env.example .env
 - `VITE_API_BASE_URL` : URL de base de Shard-API (les appels sont faits sur `${VITE_API_BASE_URL}/api`). Vide, les
   appels sont relatifs (`/api/...`) sur l'origine du site — utile derrière le proxy du serveur de développement.
 - `VITE_SERVER_URL` : adresse du serveur Minecraft, affichée sur l'accueil.
+- `VITE_SAISON_LANCEMENT` (optionnel) : remplace l'accueil par l'annonce du lancement de la saison 3. Une date ISO
+  (`2026-10-17T20:00:00+02:00`) affiche un compte à rebours et rend l'accueil habituel une fois passée ; tout autre
+  texte (`prochainement`) affiche l'annonce sans date. Aperçu sur `/lancement`.
 - `VITE_MAPS_BASE_URL` (optionnel) : URL de ShardUI-2-Maps, utilisée par les cartes intégrées, les liens du site et
   l'éditeur (par défaut `https://map.beta.tetrago.fr`, voir [src/config/maps.js](src/config/maps.js)). En
   développement, `.env.development` la fixe à `http://localhost:3005`. Le jeton de connexion est transmis à

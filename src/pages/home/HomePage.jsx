@@ -6,6 +6,8 @@ import { MAPS_BASE_URL } from "@/config/maps";
 import CopyBtn from '@/components/ui/CopyButton'
 import GrimoireHero from '@/components/layout/GrimoireHero';
 import ImageHero from '@/components/layout/ImageHero';
+import LaunchHomePage from '@/pages/home/LaunchHomePage';
+import { lancementAVenir } from '@/config/saison';
 
 const serverURL = import.meta.env.VITE_SERVER_URL;
 
@@ -19,7 +21,7 @@ const books = [
   { icon: "fa-solid fa-shield-halved", title: "Guerres", description: "Les conflits qui ont marqué le monde.", link: "/guerres", color: "#991b1b", tilt: "-2deg", target: "" },
   { icon: "fa-solid fa-masks-theater", title: "Personnages", description: "Les héros et figures du monde.", link: "/personnages", color: "#6d28d9", tilt: "2deg", target: "" },
   { icon: "fa-solid fa-map", title: "Cartographie", description: "Le monde de Tetrago à explorer.", link: MAPS_BASE_URL, color: "var(--color-accent)", tilt: "-1deg", target: "" },
-  { icon: "fa-brands fa-discord", title: "Discord", description: "Rejoignez la communauté.", link: "https://discord.gg/nUFwE9S",color: "var(--color-neutral)", tilt: "-2deg", target: "_blank" },
+  { icon: "fa-brands fa-discord", title: "Discord", description: "Rejoignez la communauté.", link: "https://discord.gg/pcVFzYA534",color: "var(--color-neutral)", tilt: "-2deg", target: "_blank" },
 ];
 
 const steps = [
@@ -31,6 +33,12 @@ const steps = [
 
 
 export default function HomePage() {
+  // Annonce de la saison à venir tant que VITE_SAISON_LANCEMENT la déclare (config/saison.js)
+  if (lancementAVenir()) return <LaunchHomePage />;
+  return <AccueilSaison />;
+}
+
+function AccueilSaison() {
   // Lu une fois au montage : la page est rechargée après connexion ou déconnexion
   const [isLoggedIn] = useState(() => Boolean(localStorage.getItem("user")));
 

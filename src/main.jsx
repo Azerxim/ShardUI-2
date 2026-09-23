@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter as Router } from 'react-router-dom';
 import '@/main.css'
 import App from '@/App'
+import AppLaunch from '@/AppLaunch'
 import { installMapEditorAuth } from '@/services/mapEditor'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -17,6 +18,7 @@ installMapEditorAuth()
 createRoot(document.getElementById('root')).render(
   // <StrictMode>
   <Router>
+    {/* <AppLaunch /> */}
     <App />
   </Router>,
   // </StrictMode>,

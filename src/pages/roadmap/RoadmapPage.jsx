@@ -236,7 +236,7 @@ export default function RoadmapPage() {
                             Rien n'est gravé : un chantier peut monter dans la liste parce que vous en avez besoin,
                             ou en descendre parce qu'il ne sert personne. Dites-le.
                         </p>
-                        <a href="https://discord.gg/nUFwE9S" target="_blank" rel="noopener noreferrer" className="btn btn-ghost bg-base-100">
+                        <a href="https://discord.gg/pcVFzYA534" target="_blank" rel="noopener noreferrer" className="btn btn-ghost bg-base-100">
                             <FontAwesomeIcon icon="fa-brands fa-discord" />
                             Proposer une idée sur le Discord
                         </a>

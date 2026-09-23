@@ -1,11 +1,9 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import Navbar from "@/components/layout/Navbar";
+import NavbarLaunch from "@/components/layout/NavbarLaunch";
 import GrimoireHero from "@/components/layout/GrimoireHero";
 import TitleH1 from "@/components/ui/TitleH1";
 import TitleH2 from "@/components/ui/TitleH2";
-import { navbarConfig } from "@/config/navbar";
-import DynamicNavbar from "@/components/layout/DynamicNavbar";
 
 // ===== Contenu du codex =====
 // Chaque article peut porter `warn: true` pour les fautes à tolérance zéro.
@@ -138,10 +136,10 @@ const sommaire = livres.flatMap((livre) =>
   livre.chapitres.map((chapitre) => ({ ...chapitre, livre: livre.numero }))
 );
 
-export default function CodexPage() {
+export default function CodexPageLaunch() {
   return (
     <>
-      <Navbar active="codex" />
+      <NavbarLaunch active="codex" />
       <div className="bg-base-100">
         <main className="container mx-auto p-4">
 
@@ -151,7 +149,6 @@ export default function CodexPage() {
             title="Le Codex de Tetrago"
             description="Deux livres tiennent ce monde debout : la loi qui protège le serveur, et le codex qui protège l'histoire que nous écrivons ensemble. Le lire n'est pas une option — c'en est la condition."
           />
-          <DynamicNavbar active_id="codex" navigation={navbarConfig.navigation} shadow="md" />
 
           {/* Sommaire */}
           <section className="mb-14 scroll-mt-24 mt-2">

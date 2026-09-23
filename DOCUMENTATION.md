@@ -61,6 +61,7 @@ publiques**.
 | `VITE_API_BASE_URL` | `services/api.js` | URL de Shard-API sans `/api`. Vide : appels relatifs (`/api/...`) sur l'origine du site |
 | `VITE_MAPS_BASE_URL` | `config/maps.js` | URL de ShardUI-2-Maps : cartes intégrées, liens du site et éditeur (défaut `https://map.beta.tetrago.fr`) |
 | `VITE_SERVER_URL` | `pages/home/HomePage.jsx` | Adresse du serveur Minecraft affichée sur l'accueil |
+| `VITE_SAISON_LANCEMENT` | `config/saison.js` | Accueil « saison 3 prochainement » : vide (désactivé), date ISO (compte à rebours, puis accueil habituel une fois la date passée) ou tout autre texte (annonce sans date). Aperçu permanent sur `/lancement` |
 | `API_PROXY_TARGET` | `vite.config.js` | Cible du proxy `/api` du serveur de développement (défaut `http://127.0.0.1:8002`) ; non exposée |
 
 Configuration de développement actuelle (`.env.development`) :

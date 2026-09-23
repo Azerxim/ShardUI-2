@@ -7,6 +7,7 @@ const SITE_NAME = "Tetrago";
 // Les pages de détail le remplacent par le nom de l'élément une fois chargé (usePageTitle).
 const ROUTE_TITLES = [
     ["/", null],
+    ["/lancement", "Lancement de la saison 3"],
     ["/login", "Connexion"],
     ["/register", "Inscription"],
     ["/auth/:provider/callback", "Connexion"],
