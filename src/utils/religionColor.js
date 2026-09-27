@@ -2,19 +2,20 @@ import { parseIcon } from "@/utils/fontawesomeFull";
 
 // Couleur d'une religion : son champ `color` s'il s'agit d'une couleur CSS valide,
 // sinon une couleur de la palette dérivée de son identifiant.
-// Même règle que la carte (ShardUI-2-Maps/assets/scripts/markers.js, ReligionColor) :
+// Même règle que la carte (Shard-Maps/assets/scripts/core/markers.js, ReligionColor) :
 // une religion garde sa couleur sur le site et sur la carte.
+// Palette : teintures de bannière du jeu (charte Tetrago).
 const RELIGION_COLORS = [
-  "#2563eb",
-  "#dc2626",
-  "#16a34a",
-  "#d97706",
-  "#9333ea",
-  "#0891b2",
-  "#db2777",
-  "#65a30d",
-  "#ea580c",
-  "#4f46e5",
+  "#3c44aa", // bleu
+  "#b02e26", // rouge
+  "#5e7c16", // vert
+  "#f9801d", // orange
+  "#8932b8", // violet
+  "#169c9c", // cyan
+  "#c74ebd", // magenta
+  "#80c71f", // vert clair
+  "#835432", // marron
+  "#3ab3da", // bleu clair
 ];
 
 export function religionColor(religion) {

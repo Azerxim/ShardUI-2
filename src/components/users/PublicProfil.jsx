@@ -62,7 +62,7 @@ export default function PublicProfil({ user_id }) {
     if (error || !userData) {
         return (
             <div className="text-center py-12">
-                <FontAwesomeIcon icon="fa-solid fa-user-slash" className="text-6xl text-gray-400 mb-4" />
+                <FontAwesomeIcon icon="fa-solid fa-user-slash" className="text-6xl text-base-content/60 mb-4" />
                 <p className="text-xl">Cet utilisateur n'existe pas.</p>
                 <Link to="/" className="btn btn-primary mt-4">
                     Retour à l'accueil
@@ -74,7 +74,7 @@ export default function PublicProfil({ user_id }) {
     if (!userData.is_visible) {
         return (
             <div className="text-center py-12">
-                <FontAwesomeIcon icon="fa-solid fa-lock" className="text-6xl text-gray-400 mb-4" />
+                <FontAwesomeIcon icon="fa-solid fa-lock" className="text-6xl text-base-content/60 mb-4" />
                 <p className="text-xl">Ce profil est privé.</p>
                 <Link to="/" className="btn btn-primary mt-4">
                     Retour à l'accueil
@@ -86,7 +86,7 @@ export default function PublicProfil({ user_id }) {
     return (
         <div className="max-w-4xl mx-auto space-y-6">
             {/* En-tête du profil */}
-            <div className="card bg-gradient-to-br from-sky-800 to-sky-900 text-white shadow-xl">
+            <div className="card bg-gradient-to-br from-azur to-encre text-white shadow-xl">
                 <div className="card-body">
                     <div className="flex flex-col md:flex-row items-center gap-6">
                         {/* Avatar */}
@@ -95,7 +95,7 @@ export default function PublicProfil({ user_id }) {
                                 {userData.image_url ? (
                                     <img src={userData.image_url} alt="Avatar" />
                                 ) : (
-                                    <div className="w-full h-full bg-sky-700 flex items-center justify-center">
+                                    <div className="w-full h-full bg-azur flex items-center justify-center">
                                         <FontAwesomeIcon icon="fa-solid fa-user" className="text-6xl" />
                                     </div>
                                 )}
@@ -105,12 +105,12 @@ export default function PublicProfil({ user_id }) {
                         {/* Informations utilisateur */}
                         <div className="flex-1 min-w-0 text-center md:text-left">
                             <h1 className="text-3xl font-bold break-words">{userData.full_name || userData.username}</h1>
-                            <p className="text-sky-200 mt-2">
+                            <p className="text-white/75 mt-2">
                                 <FontAwesomeIcon icon="fa-solid fa-user" className="mr-2" />
                                 #{userData.username}
                             </p>
                             {minecraft ? (
-                                <p className="text-sky-100 mt-1 flex flex-row items-center justify-center md:justify-start gap-2">
+                                <p className="text-white/85 mt-1 flex flex-row items-center justify-center md:justify-start gap-2">
                                     <img src={minecraftHead(minecraft.uid, 32)} alt="" className="w-5 h-5 rounded-sm" style={{ imageRendering: "pixelated" }} />
                                     <span>Minecraft : <strong>{minecraft.username}</strong></span>
                                 </p>

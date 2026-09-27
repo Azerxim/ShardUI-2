@@ -19,7 +19,7 @@ import { getSessionUser } from "@/services/session";
 import { apiRequest, getAlliances, getCivilisations } from "@/services/api";
 
 const CREATE_MODAL_ID = "alliance-create-modal";
-const CREATE_INITIAL = { type: "Militaire", color: "#b91c1c", icon: "fa-solid fa-shield-halved", is_public: "true" };
+const CREATE_INITIAL = { type: "Militaire", color: "#b3263a", icon: "fa-solid fa-shield-halved", is_public: "true" };
 
 export default function AlliancesPage() {
     const navigate = useNavigate();

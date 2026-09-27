@@ -115,7 +115,7 @@ export default function AdminProfil({ user_id }) {
             showCancelButton: true,
             confirmButtonText: "Supprimer",
             cancelButtonText: "Annuler",
-            confirmButtonColor: "#d33",
+            confirmButtonColor: "#b3263a",
         })
 
         if (!result.isConfirmed) return
@@ -174,7 +174,7 @@ export default function AdminProfil({ user_id }) {
     if (error || !userData) {
         return (
             <div className="text-center py-12">
-                <FontAwesomeIcon icon="fa-solid fa-user-slash" className="text-6xl text-gray-400 mb-4" />
+                <FontAwesomeIcon icon="fa-solid fa-user-slash" className="text-6xl text-base-content/60 mb-4" />
                 <p className="text-xl">Cet utilisateur n'existe pas.</p>
                 <Link to="/users" className="btn btn-primary mt-4">
                     Retour à la liste
@@ -186,7 +186,7 @@ export default function AdminProfil({ user_id }) {
     return (
         <div className="w-full space-y-6">
             {/* En-tête du profil */}
-            <div className="card bg-gradient-to-br from-sky-800 to-sky-900 text-white shadow-xl">
+            <div className="card bg-gradient-to-br from-azur to-encre text-white shadow-xl">
                 <div className="card-body">
                     <div className="flex flex-col md:flex-row items-center gap-6">
                         {/* Avatar */}
@@ -195,7 +195,7 @@ export default function AdminProfil({ user_id }) {
                                 {userData.image_url ? (
                                     <img src={userData.image_url} alt="Avatar" />
                                 ) : (
-                                    <div className="w-full h-full bg-sky-700 flex items-center justify-center">
+                                    <div className="w-full h-full bg-azur flex items-center justify-center">
                                         <FontAwesomeIcon icon="fa-solid fa-user" className="text-6xl" />
                                     </div>
                                 )}
@@ -205,11 +205,11 @@ export default function AdminProfil({ user_id }) {
                         {/* Informations utilisateur */}
                         <div className="flex-1 text-center md:text-left">
                             <h1 className="text-3xl font-bold">{userData.full_name || userData.username}</h1>
-                            <p className="text-sky-200 mt-2">
+                            <p className="text-white/75 mt-2">
                                 <FontAwesomeIcon icon="fa-solid fa-user" className="mr-2" />
                                 #{userData.username}
                             </p>
-                            <p className="text-sky-200 mt-2">
+                            <p className="text-white/75 mt-2">
                                 <FontAwesomeIcon icon="fa-solid fa-envelope" className="mr-2" />
                                 {userData.email}
                             </p>

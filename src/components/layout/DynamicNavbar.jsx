@@ -33,7 +33,7 @@ export default function DynamicNavbar({
         ],
         center: [
             {
-                id: "logo", text: 'Logo', href: '/', img: '/images/logo/tetrago_black_contour.png', icon: '',
+                id: "logo", text: 'Logo', href: '/', img: '/images/logo/tetrago.svg', icon: '',
                 tooltip: {
                     text: '',
                     position: ''

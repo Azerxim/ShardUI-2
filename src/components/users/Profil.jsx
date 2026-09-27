@@ -43,8 +43,8 @@ export default function Profil({ User }) {
             text: "Êtes-vous sûr de vouloir vous déconnecter ?",
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+            confirmButtonColor: '#2e4fb0',
+            cancelButtonColor: '#b3263a',
             confirmButtonText: 'Oui, déconnecter',
             cancelButtonText: 'Annuler'
         }).then((result) => {
@@ -123,7 +123,7 @@ export default function Profil({ User }) {
             {User ? (
                 <div className="max-w-4xl mx-auto space-y-6">
                     {/* En-tête du profil */}
-                    <div className="card bg-gradient-to-br from-sky-800 to-sky-900 text-white shadow-xl">
+                    <div className="card bg-gradient-to-br from-azur to-encre text-white shadow-xl">
                         <div className="card-body">
                             <div className="flex flex-col md:flex-row items-center gap-6">
                                 {/* Avatar */}
@@ -132,7 +132,7 @@ export default function Profil({ User }) {
                                         {userData?.image_url ? (
                                             <img src={userData.image_url} alt="Avatar" />
                                         ) : (
-                                            <div className="w-full h-full bg-sky-700 flex items-center justify-center">
+                                            <div className="w-full h-full bg-azur flex items-center justify-center">
                                                 <FontAwesomeIcon icon="fa-solid fa-user" className="text-6xl" />
                                             </div>
                                         )}
@@ -142,11 +142,11 @@ export default function Profil({ User }) {
                                 {/* Informations utilisateur */}
                                 <div className="flex-1 text-center md:text-left">
                                     <h1 className="text-3xl font-bold">{userData?.full_name || "Utilisateur"}</h1>
-                                    <p className="text-sky-200 mt-2">
+                                    <p className="text-white/75 mt-2">
                                         <FontAwesomeIcon icon="fa-solid fa-user" className="mr-2" />
                                         #{userData?.username || username}
                                     </p>
-                                    <p className="text-sky-200 mt-2">
+                                    <p className="text-white/75 mt-2">
                                         <FontAwesomeIcon icon="fa-solid fa-envelope" className="mr-2" />
                                         {userData?.email || email}
                                     </p>
@@ -308,7 +308,7 @@ export default function Profil({ User }) {
                 </div>
             ) : (
                 <div className="text-center py-12">
-                    <FontAwesomeIcon icon="fa-solid fa-user-slash" className="text-6xl text-gray-400 mb-4" />
+                    <FontAwesomeIcon icon="fa-solid fa-user-slash" className="text-6xl text-base-content/60 mb-4" />
                     <p className="text-xl">Vous n'êtes pas connecté.</p>
                     <a href="/login" className="btn btn-primary mt-4">
                         Se connecter

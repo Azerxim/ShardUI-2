@@ -52,7 +52,7 @@ export default function Footer() {
                             </li>
                         </ul>
                     </div>
-                    <p className="text-sm text-gray-400"><i>ShardUI</i> v{version}</p>
+                    <p className="text-sm text-base-content/60"><i>ShardUI</i> v{version}</p>
                     <a href="https://discord.gg/pcVFzYA534" target="_blank" rel="noopener noreferrer" className="tooltip tooltip-left" data-tip="Rejoindre le Discord">
                         <FontAwesomeIcon icon="fa-brands fa-discord" size='xl' />
                     </a>

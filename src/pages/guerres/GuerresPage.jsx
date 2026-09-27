@@ -39,7 +39,7 @@ function GuerreCard({ guerre, camps }) {
         <ListCard
             href={`/guerre/${guerre.id}`}
             icon={type.icon}
-            iconColor={guerre.status === "en_cours" ? "#b91c1c" : null}
+            iconColor={guerre.status === "en_cours" ? "#b3263a" : null}
             title={guerre.title}
             badges={[{ text: type.label, className: "badge-ghost" }, { text: statut.label, className: statut.badge }]}
             subtitle={attaquant && defenseur ? `${attaquant.title} contre ${defenseur.title}` : null}

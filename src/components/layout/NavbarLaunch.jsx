@@ -74,12 +74,12 @@ export default function NavbarLaunch({ active = '' }) {
             <div className="navbar-center">
                 <a href='/' className="btn btn-ghost text-xl rounded-3xl">
                     <img
-                        src={theme === 'dark' ? "/images/logo/tetrago_white_contour.png" : "/images/logo/tetrago_black_contour.png"}
+                        src="/images/logo/tetrago.svg"
                         alt="logo"
                         width={36}
                         height={36}
                     />
-                    <span className="hidden sm:flex">Tetrago</span>
+                    <span className="hidden sm:flex font-display text-2xl">Tetrago</span>
                 </a>
             </div>
 

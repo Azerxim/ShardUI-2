@@ -42,7 +42,7 @@ export default function EtagereLivres({ books, height = 12, width = 4, orientati
                                 )}
                             </a>
                             {/* Infobulle au survol : absente sur écran tactile, largeur limitée pour ne pas sortir de l'écran */}
-                            <div className="hidden sm:block absolute bottom-full mb-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none w-max max-w-[min(20rem,90vw)] text-center bg-gray-800 text-white px-3 py-1 rounded-2xl text-xs">
+                            <div className="hidden sm:block absolute bottom-full mb-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none w-max max-w-[min(20rem,90vw)] text-center bg-encre text-os px-3 py-1 rounded-2xl text-xs">
                                 {book.description || 'Pas de description disponible.'}
                             </div>
                         </div>

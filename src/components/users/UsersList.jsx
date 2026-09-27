@@ -60,7 +60,7 @@ export default function UsersList() {
                             {user.image_url ? (
                                 <img src={user.image_url} alt="Avatar" />
                             ) : (
-                                <div className="w-full h-full bg-sky-700 flex items-center justify-center text-white">
+                                <div className="w-full h-full bg-azur flex items-center justify-center text-white">
                                     <FontAwesomeIcon icon="fa-solid fa-user" />
                                 </div>
                             )}

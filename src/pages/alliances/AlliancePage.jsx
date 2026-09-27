@@ -271,7 +271,7 @@ export default function AlliancePage() {
                                 title="Modifier l'alliance"
                                 fields={allianceFormFields()}
                                 initialValues={{
-                                    title: alliance.title, type: alliance.type, description: alliance.description ?? "", color: alliance.color || "#b91c1c",
+                                    title: alliance.title, type: alliance.type, description: alliance.description ?? "", color: alliance.color || "#b3263a",
                                     icon: alliance.icon || type.icon, date_founded: alliance.date_founded ?? "", is_public: String(alliance.is_public !== false),
                                 }}
                                 submitLabel="Enregistrer"
