@@ -131,6 +131,8 @@ function ContenuMenu({ active, User, fermer }) {
             <li className="menu-title pt-3 pb-1">Découvrir</li>
             {DECOUVRIR.map((lien) => <MenuLien key={lien.id} lien={lien} active={active} />)}
             <MenuLien lien={{ ...CARTE, text: 'Cartographie' }} active={active} />
+            <MenuLien lien={{ id: 'calendrier', href: '/calendrier', icon: 'fa-solid fa-calendar-days', text: 'Calendrier' }} active={active} />
+            <MenuLien lien={{ id: 'chroniques', href: '/chroniques', icon: 'fa-solid fa-timeline', text: 'Chroniques' }} active={active} />
             <MenuLien lien={{ id: 'roadmap', href: '/roadmap', icon: 'fa-solid fa-route', text: 'Feuille de route' }} active={active} />
             <li className="menu-title pt-3 pb-1">Le monde</li>
             {MONDE.map((lien) => <MenuLien key={lien.id} lien={lien} active={active} />)}

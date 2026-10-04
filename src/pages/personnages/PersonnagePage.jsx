@@ -20,6 +20,7 @@ import { EMPTY_LIEUX, EMPTY_REFERENTIEL, PERSONNAGE_STATUTS, enregistrerPersonna
 import { getSessionUser } from "@/services/session";
 import { apiRequest, getPersonnageById } from "@/services/api";
 import LivresLiesSection from "@/components/bibliotheque/LivresLiesSection";
+import FamilleSection from "@/components/personnages/FamilleSection";
 
 const EDIT_MODAL_ID = "personnage-edit-modal";
 
@@ -162,6 +163,8 @@ export default function PersonnagePage() {
                     </div>
                 ) : null}
             </div>
+
+            <FamilleSection key={personnage.id} personnage={personnage} canManage={canManage} />
 
             <TitleH2 text="Messages de journaux" icon="fas fa-feather" />
             {messages.length === 0 ? (

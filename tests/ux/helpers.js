@@ -50,6 +50,13 @@ export function readAnnouncements() {
   return fs.readFileSync(file, "utf-8").split("\n").filter(Boolean).map((line) => JSON.parse(line));
 }
 
+// Événements programmés Discord du calendrier : [{ action: create | edit | delete, evenement_id, name, … }] (SHARD_FAKE_DISCORD_EVENTS)
+export function readDiscordEvents() {
+  const file = path.join(here, ".env-api", "fake-discord-events.jsonl");
+  if (!fs.existsSync(file)) return [];
+  return fs.readFileSync(file, "utf-8").split("\n").filter(Boolean).map((line) => JSON.parse(line));
+}
+
 export const API_URL = process.env.SHARD_TEST_API_URL ?? "http://127.0.0.1:8011/api";
 
 export const uniqueSuffix = () => `${Date.now().toString(36)}${Math.floor(Math.random() * 1000)}`;

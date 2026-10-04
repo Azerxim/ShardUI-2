@@ -182,7 +182,7 @@ test.describe("Visiteur", () => {
   test("aucune erreur JavaScript sur les pages principales", async ({ page }) => {
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
-    for (const path of ["/", "/codex", "/bibliotheque", "/civilisations", "/religions", "/commerces", "/register", "/login"]) {
+    for (const path of ["/", "/codex", "/bibliotheque", "/civilisations", "/religions", "/commerces", "/calendrier", "/chroniques", "/maisons", "/register", "/login"]) {
       await page.goto(path);
       await page.waitForLoadState("networkidle");
     }
@@ -195,7 +195,7 @@ test.describe("Visiteur", () => {
     page.on("console", (message) => {
       if (/Could not find icon/i.test(message.text())) missing.push(`${page.url()} : ${message.text()}`);
     });
-    for (const path of ["/", "/codex", "/bibliotheque", "/civilisations", "/religions", "/commerces", "/alliances", "/guerres", "/personnages", "/login", "/register", "/profil"]) {
+    for (const path of ["/", "/codex", "/bibliotheque", "/civilisations", "/religions", "/commerces", "/alliances", "/guerres", "/personnages", "/calendrier", "/chroniques", "/maisons", "/login", "/register", "/profil"]) {
       await page.goto(path);
       await page.waitForLoadState("networkidle");
     }

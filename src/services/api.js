@@ -855,4 +855,69 @@ export const envoyerPhotoFerme = (fermeId, fichier) => envoyerFichier(`/fermes/p
 export const photoFermeUrl = (nom) => `${apiURL}/fermes/photo/${nom}`;
 
 
+//_______________________________CALENDRIER___________________________________
+
+// Événements (annulés compris) et foires des villes publiques qui touchent la période : { evenements, foires }
+// evenement : { id, title, description, type, date_debut, date_fin, lieu, ville, organisateur: { type, id, title },
+//   guerre, places, inscrits: [{ user, personnage }], complet, status, motif_annulation, termine, created_by }
+export const getCalendrier = (debut, fin) => publicGet(`/calendrier/list?debut=${debut}&fin=${fin}`);
+
+// { title, type, date_debut, date_fin?, lieu?, ville_id?, organisateur_type?, organisateur_id?, guerre_id?, places?, description? }
+export const createEvenement = (evenement) => apiRequest("POST", "/calendrier/create", evenement);
+
+export const updateEvenement = (evenementId, evenement) => apiRequest("PUT", `/calendrier/update/${evenementId}`, evenement);
+
+export const annulerEvenement = (evenementId, motif = null) => apiRequest("POST", `/calendrier/${evenementId}/annuler`, { motif });
+
+// S'inscrire, ou changer le personnage de son inscription
+export const inscrireEvenement = (evenementId, personnageId = null) => apiRequest("POST", `/calendrier/${evenementId}/inscription`, { personnage_id: personnageId });
+
+export const desinscrireEvenement = (evenementId) => apiRequest("DELETE", `/calendrier/${evenementId}/inscription`);
+
+
+//_______________________________LIGNÉES ET MAISONS___________________________
+
+// { maison, parents, enfants, conjoints, fratrie, heritiers, heritier_de } ; entrée : { personnage, date_rp, rang, lien_id }
+export const getFamille = (personnageId) => publicGet(`/lignees/personnage/${personnageId}`);
+
+// Demandes en attente qui concernent ses personnages : { recues, envoyees }
+export const getDemandesParente = () => apiRequest("GET", "/lignees/demandes");
+
+// { type: parent | conjoint | heritier, source_id, cible_id, rang?, date_rp? } (parent : source est parent de cible)
+export const createLienParente = (lien) => apiRequest("POST", "/lignees/liens", lien);
+
+export const repondreLienParente = (lienId, accepter) => apiRequest("POST", `/lignees/liens/${lienId}/${accepter ? "accepter" : "refuser"}`);
+
+export const deleteLienParente = (lienId) => apiRequest("DELETE", `/lignees/liens/${lienId}`);
+
+export const getMaisons = () => publicGet("/lignees/maisons");
+
+// { maison, membres, allies, liens: [{ id, type, source_id, cible_id, date_rp }] }
+export const getMaison = (maisonId) => publicGet(`/lignees/maisons/${maisonId}`);
+
+// { title, chef_id, devise?, description?, couleur?, icon?, civilisation_id?, date_fondation? }
+export const createMaison = (maison) => apiRequest("POST", "/lignees/maisons", maison);
+
+export const updateMaison = (maisonId, maison) => apiRequest("PUT", `/lignees/maisons/${maisonId}`, maison);
+
+export const deleteMaison = (maisonId) => apiRequest("DELETE", `/lignees/maisons/${maisonId}`);
+
+export const rejoindreMaison = (maisonId, personnageId) => apiRequest("POST", `/lignees/maisons/${maisonId}/membres`, { personnage_id: personnageId });
+
+export const retirerMembreMaison = (maisonId, personnageId) => apiRequest("DELETE", `/lignees/maisons/${maisonId}/membres/${personnageId}`);
+
+
+//_______________________________CHRONIQUES___________________________________
+
+// Frise, plus récent d'abord : [{ id, categorie, date, date_rp, title, description, lien, fait_id? }]
+export const getChroniques = () => publicGet("/chroniques/list");
+
+// Modérateurs RP : { title, date, date_rp?, description? }
+export const createFaitChronique = (fait) => apiRequest("POST", "/chroniques/faits", fait);
+
+export const updateFaitChronique = (faitId, fait) => apiRequest("PUT", `/chroniques/faits/${faitId}`, fait);
+
+export const deleteFaitChronique = (faitId) => apiRequest("DELETE", `/chroniques/faits/${faitId}`);
+
+
 // ___________________________________Autres____________________________________

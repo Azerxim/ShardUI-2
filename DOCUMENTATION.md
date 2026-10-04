@@ -170,6 +170,8 @@ Les routes sont déclarées dans `src/App.jsx`. Le titre de l'onglet vient de `p
 | `/civilisation/:civ_id/ville/:id#population` | Population officielle de la ville : mesure, ajustements, demande et validation (`PopulationSection`) | Public (demande : dirigeants ; validation : modérateurs RP) |
 | `/actions-secretes` | Actions secrètes : dépôt, registre public, lecture tracée (modérateurs RP), révélation | Public (dépôt : connecté) |
 | `/fermes` | Déclaration des fermes (photo comprise) et suivi ; file de validation des modérateurs RP (`#a-examiner`) ; `#ferme-:id` descend jusqu'à une ferme | Connecté (déclarant et modérateurs RP seulement) |
+| `/calendrier` | Calendrier des événements RP : grille du mois (`?mois=AAAA-MM`), programme avec inscriptions (`#evenement-:id`), annonce et gestion ; foires des villes en lecture seule | Public (annoncer, s'inscrire : connecté) |
+| `/chroniques` | Frise de l'histoire du monde, filtrable par catégorie ; faits marquants des modérateurs RP | Public (faits : modérateur RP) |
 | `/roadmap` | Feuille de route (contenu dans `pages/roadmap/RoadmapPage.jsx`), atteinte par le pied de page | Public |
 | `/login`, `/register` | Connexion, inscription, connexion par compte externe | Public |
 | `/auth/:provider/callback` | Retour de Discord ou Microsoft (connexion ou liaison) | Public |
@@ -187,7 +189,8 @@ Les routes sont déclarées dans `src/App.jsx`. Le titre de l'onglet vient de `p
 | `/commerces`, `/commerce/:id` | Liste et fiche (membres, magasins, filiales) ; prochaines foires (`/commerces#foires`) et jours de marché des zones ; catalogue de chaque magasin (`CatalogueMagasin`, tenu par le Fondateur et les Admins) et recherche « Où acheter ? » (`/commerces#ou-acheter`, `OuAcheter`) ; `/commerce/:id#magasin-:id` descend jusqu'au magasin | Public |
 | `/alliances`, `/alliance/:id` | Liste et fiche (membres, invitations, guerres) | Public |
 | `/guerres`, `/guerre/:id` | Liste, fiche, chronologie, camps, zones de conflit, cibles (`CiblesSection` : destructibles des villes des deux camps, `#cibles`) | Public (déclarations non validées : parties et modérateurs) |
-| `/personnages`, `/personnage/:id` | Liste et fiche d'un personnage ; portrait et skin envoyés depuis le formulaire (`enregistrerPersonnage`, `utils/personnages.js`) | Public (édition : son joueur ou un administrateur) |
+| `/personnages`, `/personnage/:id` | Liste et fiche d'un personnage ; portrait et skin envoyés depuis le formulaire (`enregistrerPersonnage`, `utils/personnages.js`) ; section « Famille » de la fiche (`FamilleSection` : maison, parents, conjoints, enfants, fratrie, héritiers, `#famille`) et demandes de parenté en attente (fiche et liste) | Public (édition : son joueur ou un administrateur) |
+| `/maisons`, `/maison/:id` | Maisons nobles : liste, fondation, fiche avec blason (`BlasonMaison`), membres et arbre de la lignée (`ArbreMaison`) | Public (fonder, entrer : connecté ; gérer : chef, fondateur, modérateurs RP) |
 | `/admin` | Redirige vers `/admin/dimensions` | — |
 | `/admin/dimensions` | Dimensions de la carte | Administrateur |
 | `/admin/personnages` | Espèces et classes | Administrateur ou modérateur RP |

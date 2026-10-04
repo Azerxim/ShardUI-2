@@ -116,6 +116,24 @@ const SECTIONS = [
                 texte: "Déclarer une ferme sur le site (position, justification RP, photo) plutôt que par ticket, et suivre son statut : en attente, validée ou à mettre en conformité.",
             },
             {
+                titre: "Chroniques de Tetrago",
+                icon: "fa-solid fa-timeline",
+                lien: "/chroniques",
+                texte: "Une frise de l'histoire du monde, année après année du calendrier RP, remplie toute seule : fondations, alliances, guerres et batailles, naissances, morts et mariages des maisons nobles, plus les faits marquants qu'y inscrivent les modérateurs RP.",
+            },
+            {
+                titre: "Lignées et généalogie",
+                icon: "fa-solid fa-sitemap",
+                lien: "/maisons",
+                texte: "Des liens de parenté entre personnages (parents, conjoints, héritiers), acceptés par le joueur de chacun, et les maisons nobles : blason, devise, chef et l'arbre de leur lignée.",
+            },
+            {
+                titre: "Calendrier des événements RP",
+                icon: "fa-solid fa-calendar-days",
+                lien: "/calendrier",
+                texte: "Batailles prévues, fêtes, couronnements, tournois : chacun annonce ses événements et s'inscrit à ceux des autres, sous les traits de son personnage. Chaque annonce est publiée sur Discord et reproduite parmi les événements du serveur.",
+            },
+            {
                 titre: "Alliances",
                 icon: "fa-solid fa-handshake",
                 lien: "/alliances",
@@ -198,21 +216,6 @@ const SECTIONS = [
                     "Distance et temps de trajet entre deux villes.",
                     "Conversion entre tetras, diamants et blocs ; fiche de personnage à coller sur Discord.",
                 ],
-            },
-            {
-                titre: "Chroniques de Tetrago",
-                icon: "fa-solid fa-timeline",
-                texte: "Une frise de l'histoire du monde, remplie toute seule : fondations, alliances, guerres, révélations d'actions secrètes, élections.",
-            },
-            {
-                titre: "Calendrier des événements RP",
-                icon: "fa-solid fa-calendar-days",
-                texte: "Batailles prévues, fêtes et couronnements, avec l'inscription des participants et les événements Discord synchronisés.",
-            },
-            {
-                titre: "Lignées et généalogie",
-                icon: "fa-solid fa-sitemap",
-                texte: "Des liens de parenté entre personnages (parents, époux, héritiers) et l'arbre de chaque maison noble.",
             },
             {
                 titre: "Notifications sur le site",

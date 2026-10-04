@@ -17,6 +17,8 @@ import { EMPTY_LIEUX, EMPTY_REFERENTIEL, PERSONNAGE_STATUTS, enregistrerPersonna
 import { getSessionUser } from "@/services/session";
 import { getPersonnages } from "@/services/api";
 import EtatVide from '@/components/ui/EtatVide';
+import { DemandesParente } from "@/components/personnages/FamilleSection";
+import { getDemandesParente } from "@/services/api";
 
 const CREATE_MODAL_ID = "personnage-create-modal";
 
@@ -72,6 +74,14 @@ export default function PersonnagesPage() {
     const [search, setSearch] = useState("");
     const [statut, setStatut] = useState("");
     const [onlyMine, setOnlyMine] = useState(false);
+    // Demandes de parenté qui attendent une réponse du joueur (ou l'accord d'un autre)
+    const [demandes, setDemandes] = useState({ recues: [], envoyees: [] });
+    const [demandesKey, setDemandesKey] = useState(0);
+
+    useEffect(() => {
+        if (user) getDemandesParente().then(setDemandes).catch(() => { });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [demandesKey]);
 
     useEffect(() => {
         getPersonnages()
@@ -121,6 +131,7 @@ export default function PersonnagesPage() {
                         }
                     />
                     {/* <DynamicNavbar active_id="personnages" /> */}
+                    <DemandesParente demandes={demandes} reload={() => setDemandesKey((key) => key + 1)} />
 
                     <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 w-full">
                         <label className="input input-ghost bg-base-200 rounded-3xl flex-1 min-w-0 sm:min-w-64">

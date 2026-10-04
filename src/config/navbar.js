@@ -16,6 +16,7 @@ export const MONDE = [
   { id: "alliances", href: "/alliances", icon: "fa-solid fa-handshake", text: "Alliances" },
   { id: "guerres", href: "/guerres", icon: "fa-solid fa-shield-halved", text: "Guerres" },
   { id: "personnages", href: "/personnages", icon: "fa-solid fa-masks-theater", text: "Personnages" },
+  { id: "maisons", href: "/maisons", icon: "fa-solid fa-chess-king", text: "Maisons" },
   { id: "actions", href: "/actions-secretes", icon: "fa-solid fa-user-secret", text: "Actions secrètes" },
   { id: "fermes", href: "/fermes", icon: "fa-solid fa-wheat-awn", text: "Fermes" },
 ];

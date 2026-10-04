@@ -30,6 +30,10 @@ import CodexPage from '@/pages/codex/CodexPage';
 import RoadmapPage from '@/pages/roadmap/RoadmapPage';
 import ActionsSecretesPage from '@/pages/actions/ActionsSecretesPage';
 import FermesPage from '@/pages/fermes/FermesPage';
+import CalendrierPage from '@/pages/calendrier/CalendrierPage';
+import ChroniquesPage from '@/pages/chroniques/ChroniquesPage';
+import MaisonsPage from '@/pages/maisons/MaisonsPage';
+import MaisonPage from '@/pages/maisons/MaisonPage';
 import AdminDimensionsPage from '@/pages/admin/AdminDimensionsPage';
 import AdminPersonnagesPage from '@/pages/admin/AdminPersonnagesPage';
 import AdminMondePage from '@/pages/admin/AdminMondePage';
@@ -92,6 +96,11 @@ export default function App() {
 
           <Route path="/actions-secretes" element={<ActionsSecretesPage />} />
           <Route path="/fermes" element={<FermesPage />} />
+          <Route path="/calendrier" element={<CalendrierPage />} />
+          <Route path="/chroniques" element={<ChroniquesPage />} />
+          <Route path="/maisons" element={<MaisonsPage />} />
+          <Route path="/maison" element={<Navigate to="/maisons" replace />} />
+          <Route path="/maison/:id" element={<MaisonPage />} />
 
           <Route path="/admin" element={<Navigate to="/admin/dimensions" replace />} />
           <Route path="/admin/dimensions" element={<AdminDimensionsPage />} />
