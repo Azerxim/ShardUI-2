@@ -5,6 +5,7 @@ import GrimoireHero from "@/components/layout/GrimoireHero";
 import TitleH1 from "@/components/ui/TitleH1";
 import TitleH2 from "@/components/ui/TitleH2";
 import Glossaire from "@/components/aide/Glossaire";
+import MonnaieOfficielle from "@/components/monnaie/MonnaieOfficielle";
 
 // ===== Contenu du codex =====
 // Chaque article peut porter `warn: true` pour les fautes à tolérance zéro.
@@ -53,7 +54,7 @@ const livres = [
         titre: "Économie & échanges",
         icon: "fa-solid fa-coins",
         articles: [
-          { titre: "Monnaie du royaume uniquement.", texte: "Aucune transaction contre argent réel, biens externes ou service tiers n'est autorisée.", warn: true },
+          { titre: "Le tetra, seule monnaie du royaume.", texte: "Un tetra vaut un diamant. Aucune transaction contre argent réel, biens externes ou service tiers n'est autorisée.", warn: true },
           { titre: "Échanges équitables.", texte: "Une arnaque entre joueurs — bien promis non livré, double prix — est traitée comme un vol." },
           { titre: "Marché libre, prix libres.", texte: "L'équipe ne fixe pas les prix, mais intervient en cas de monopole abusif ou de sabotage économique organisé." },
         ],
@@ -165,6 +166,10 @@ export default function CodexPageLaunch() {
                   <span>{chapitre.titre}</span>
                 </a>
               ))}
+              <a href="#monnaie" className="btn btn-sm bg-base-200 hover:bg-base-300 rounded-full">
+                <FontAwesomeIcon icon="fa-solid fa-gem" />
+                <span>Monnaie</span>
+              </a>
               <a href="#glossaire" className="btn btn-sm bg-base-200 hover:bg-base-300 rounded-full">
                 <FontAwesomeIcon icon="fa-solid fa-book-open" />
                 <span>Glossaire</span>
@@ -207,6 +212,11 @@ export default function CodexPageLaunch() {
               </div>
             </section>
           ))}
+
+          {/* Monnaie officielle : cible du lien de la page des commerces (/codex#monnaie) */}
+          <section className="mb-16">
+            <MonnaieOfficielle id="monnaie" />
+          </section>
 
           {/* Glossaire : cible des « ? » de l'aide contextuelle (/codex#glossaire-<terme>) */}
           <section className="mb-16">

@@ -1,7 +1,7 @@
 import { MAPS_BASE_URL as mapsURL, MAPS_ORIGIN as mapsOrigin } from "@/config/maps";
 
-// Ouvre l'éditeur de ShardUI-2-Maps sur une civilisation (marqueurs), une ville ou un quartier (frontières), ou une
-// guerre (zones de conflit). La connexion de l'éditeur est assurée par installMapEditorAuth (main.jsx).
+// Ouvre l'éditeur de ShardUI-2-Maps sur une civilisation (marqueurs), une ville ou un quartier (frontières), une
+// guerre (zones de conflit), ou les bâtiments et zones destructibles d'une ville (type "destructible", id de la ville). La connexion de l'éditeur est assurée par installMapEditorAuth (main.jsx).
 export function openMapEditor({ dimension, type, id, x = 0, z = 0, zoom = 0 }) {
   const url = `${mapsURL}/${dimension.link}-editor-civilisations?${type}=${id}#x=${x}&z=${z}&zoom=${zoom}`;
   return Boolean(window.open(url, "_blank"));

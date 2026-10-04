@@ -620,6 +620,10 @@ export const getMesGuerres = () => apiRequest("GET", "/guerres/mine");
 // Zones de conflit d'une guerre : cartographies de type "guerre" [{ id, title, dimension_id, shape_type, coordinates, color }]
 export const getZonesOfGuerre = (guerreId) => publicGet(`/cartographie/entity/guerre/${guerreId}`);
 
+// Bâtiments (Marker) et zones (Polygon) qu'une guerre RP autorise à détruire dans une ville
+// [{ id, title, description, dimension_id, shape_type, coordinates, color }]
+export const getDestructiblesOfVille = (villeId) => publicGet(`/cartographie/entity/destructible/${villeId}`);
+
 // _______________________________Comptes externes_______________________________
 
 // [{ provider, label, enabled }]

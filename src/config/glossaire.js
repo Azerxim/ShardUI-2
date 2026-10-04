@@ -29,6 +29,10 @@ export const GLOSSAIRE = {
         terme: "Guerre",
         definition: "Conflit déclaré par le dirigeant d'une civilisation ou d'une religion. La déclaration reste privée jusqu'à sa validation par un modérateur RP.",
     },
+    destructible: {
+        terme: "Zone destructible",
+        definition: "Bâtiment ou zone d'une ville qu'une guerre RP autorise à détruire. Les dirigeants de la civilisation et les modérateurs RP les désignent sur la carte.",
+    },
     appel: {
         terme: "Appel aux armes",
         definition: "Demande faite à une civilisation alliée de rejoindre un camp dans une guerre. Elle peut l'accepter ou la décliner.",
@@ -40,6 +44,10 @@ export const GLOSSAIRE = {
     personnage: {
         terme: "Personnage",
         definition: "Rôle que vous incarnez, sans validation. Il signe vos messages de journaux et peut résider dans une ville ou un quartier.",
+    },
+    tetra: {
+        terme: "Tetra",
+        definition: "Monnaie officielle du serveur : un tetra vaut un diamant. C'est la seule monnaie admise dans les échanges entre joueurs.",
     },
     journal: {
         terme: "Journal",

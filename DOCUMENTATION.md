@@ -323,6 +323,7 @@ Ces deux composants lisent l'adresse de la carte dans `config/maps.js` (`MAPS_BA
 | `ville` | Frontières de la ville |
 | `quartier` | Frontières du quartier |
 | `guerre` | Zones de conflit (guerre en cours) |
+| `destructible` | Bâtiments et zones destructibles de la ville (`id` de la ville), listés sur sa fiche (`DestructiblesSection`) |
 
 Le site et la carte n'ont pas la même origine, donc pas le même `localStorage`. L'éditeur demande le jeton par
 `postMessage` ; `installMapEditorAuth()` (appelée dans `main.jsx`) répond :
