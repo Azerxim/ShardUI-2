@@ -15,6 +15,9 @@ const link_network = 'https://mcapi.us/server/status?ip=spinelle-network.minesr.
 const link_serv = 'https://mcapi.us/server/status?ip=mbu-tetrago.minesr.com';
 
 // Sections du site (config/navbar.js) : menu burger groupé, et liens visibles de la barre sur grand écran (xl)
+// Listes déroulantes de la barre : sur un écran trop bas, elles défilent au lieu de sortir de l'écran.
+// 7rem : barre fixe (top-3 + hauteur) et marge mt-6 ; flex-nowrap, sinon .menu de DaisyUI repasserait en colonnes.
+const DEROULANT_DEFILANT = 'max-h-[calc(100dvh-7rem)] overflow-y-auto overscroll-contain flex-nowrap';
 const menuItemClass = (actif) => `justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${actif ? 'bg-secondary text-secondary-content' : ''}`;
 const barItemClass = (actif) => `btn btn-ghost btn-sm rounded-3xl gap-2 ${actif ? 'bg-secondary text-secondary-content' : ''}`;
 
@@ -151,7 +154,7 @@ function NavbarSaison({ active }) {
                             <FontAwesomeIcon icon="fa-solid fa-bars-staggered" />
                             <span className="hidden lg:inline xl:hidden">Menu</span>
                         </div>
-                        <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 m-1 mt-6 shadow-xl flex-col gap-1 w-56">
+                        <ul tabIndex="-1" className={`dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 m-1 mt-6 shadow-xl flex-col gap-1 w-56 ${DEROULANT_DEFILANT}`}>
                             <MenuLien lien={{ id: 'home', href: '/', icon: 'fa-solid fa-house', text: 'Accueil' }} active={active} />
                             {/* Sur téléphone, la loupe de la barre laisse sa place : la recherche s'ouvre d'ici */}
                             <li className="sm:hidden">
@@ -193,7 +196,7 @@ function NavbarSaison({ active }) {
                             )}
                             <span className="hidden lg:inline">{User ? "Compte" : "Connexion"}</span>
                         </div>
-                        <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 m-1 mt-6 shadow-xl flex-col gap-1">
+                        <ul tabIndex="-1" className={`dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 m-1 mt-6 shadow-xl flex-col gap-1 ${DEROULANT_DEFILANT}`}>
                             {User ? (
                                 <>
                                     <li>
@@ -297,7 +300,7 @@ function NavbarSaison({ active }) {
                             <FontAwesomeIcon icon="fa-solid fa-palette" />
                             <span className="hidden lg:inline">Thème</span>
                         </div>
-                        <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 m-1 mt-6 shadow-xl flex-col gap-1">
+                        <ul tabIndex="-1" className={`dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 m-1 mt-6 shadow-xl flex-col gap-1 ${DEROULANT_DEFILANT}`}>
                             <li>
                                 <a className="justify-start flex-row gap-2 pr-5 pl-4 rounded-3xl" onClick={() => { updateTheme('light') }}>
                                     <FontAwesomeIcon icon="sun" />
@@ -380,7 +383,7 @@ function NavbarSaison({ active }) {
                                 Monde
                                 <FontAwesomeIcon icon="fa-solid fa-chevron-down" className="text-xs opacity-70" />
                             </div>
-                            <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 mt-5 shadow-xl flex-col gap-1 w-52">
+                            <ul tabIndex="-1" className={`dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 mt-5 shadow-xl flex-col gap-1 w-52 ${DEROULANT_DEFILANT}`}>
                                 {MONDE.map((lien) => <MenuLien key={lien.id} lien={lien} active={active} />)}
                             </ul>
                         </div>

@@ -166,8 +166,10 @@ Les routes sont déclarées dans `src/App.jsx`. Le titre de l'onglet vient de `p
 | --- | --- | --- |
 | `/` | Accueil, adresse du serveur | Public |
 | `/codex` | Règles du serveur (contenu dans `pages/codex/CodexPage.jsx`) | Public |
+| `/civilisation/:civ_id/ville/:id#marches` | Zones commerciales, jours de marché et foires de la ville (`ZonesCommercialesSection`) | Public (gestion : dirigeants de la civilisation) |
 | `/civilisation/:civ_id/ville/:id#population` | Population officielle de la ville : mesure, ajustements, demande et validation (`PopulationSection`) | Public (demande : dirigeants ; validation : modérateurs RP) |
 | `/actions-secretes` | Actions secrètes : dépôt, registre public, lecture tracée (modérateurs RP), révélation | Public (dépôt : connecté) |
+| `/fermes` | Déclaration des fermes (photo comprise) et suivi ; file de validation des modérateurs RP (`#a-examiner`) ; `#ferme-:id` descend jusqu'à une ferme | Connecté (déclarant et modérateurs RP seulement) |
 | `/roadmap` | Feuille de route (contenu dans `pages/roadmap/RoadmapPage.jsx`), atteinte par le pied de page | Public |
 | `/login`, `/register` | Connexion, inscription, connexion par compte externe | Public |
 | `/auth/:provider/callback` | Retour de Discord ou Microsoft (connexion ou liaison) | Public |
@@ -177,14 +179,14 @@ Les routes sont déclarées dans `src/App.jsx`. Le titre de l'onglet vient de `p
 | `/users/:user_id` | Édition d'un profil (rôles administrateur et modérateur RP) | Administrateur |
 | `/bibliotheque` | Étagères des journaux et des livres | Public |
 | `/bibliotheque/journal/:id` | Messages du salon Discord, attribution aux personnages | Public (actions : connecté) |
-| `/bibliotheque/livre/:id` | Livre, chapitres et contenus | Public (édition : règle du livre) |
+| `/bibliotheque/livre/:id` | Livre, chapitres et contenus ; liens vers civilisations, religions, commerces, alliances et personnages (`LivreLiensSection`), affichés sur leur fiche (`LivresLiesSection`, `#livres`) | Public (édition : auteur ou dirigeants d'une civilisation liée ; lier : aussi droits sur l'entité) |
 | `/civilisations`, `/civilisation/:id` | Liste et fiche (gouvernement, membres, villes, alliances, guerres, habitants, carte) | Public |
 | `/civilisation/:civ_id/ville/:id` | Ville : quartiers, religions, magasins, habitants, carte | Public |
 | `/quartier/:id` | Quartier : religions, habitants, carte | Public |
 | `/religions`, `/religion/:id` | Liste et fiche (membres, présence, guerres de religion) | Public |
-| `/commerces`, `/commerce/:id` | Liste et fiche (membres, magasins, filiales) | Public |
+| `/commerces`, `/commerce/:id` | Liste et fiche (membres, magasins, filiales) ; prochaines foires (`/commerces#foires`) et jours de marché des zones ; catalogue de chaque magasin (`CatalogueMagasin`, tenu par le Fondateur et les Admins) et recherche « Où acheter ? » (`/commerces#ou-acheter`, `OuAcheter`) ; `/commerce/:id#magasin-:id` descend jusqu'au magasin | Public |
 | `/alliances`, `/alliance/:id` | Liste et fiche (membres, invitations, guerres) | Public |
-| `/guerres`, `/guerre/:id` | Liste, fiche, chronologie, camps, zones de conflit | Public (déclarations non validées : parties et modérateurs) |
+| `/guerres`, `/guerre/:id` | Liste, fiche, chronologie, camps, zones de conflit, cibles (`CiblesSection` : destructibles des villes des deux camps, `#cibles`) | Public (déclarations non validées : parties et modérateurs) |
 | `/personnages`, `/personnage/:id` | Liste et fiche d'un personnage | Public |
 | `/admin` | Redirige vers `/admin/dimensions` | — |
 | `/admin/dimensions` | Dimensions de la carte | Administrateur |
@@ -261,6 +263,9 @@ immédiat au retour sur la page ; l'API reste la source.
 
 Les formulaires de création et d'édition sont décrits par des objets de configuration
 (`config/modals/*.js`) et rendus par `DynamicModal` / `FormModal`.
+`FormModal` (formulaires décrits par la page : alliances, guerres, fermes, foires…) accepte aussi les types
+`checkboxes`, `file` et `localisation` ; ce dernier reprend `fields/LocalisationField` des villes (monde, X/Z et carte
+de localisation qui suit le déplacement, sur grand écran) et écrit `dimension_id`, `x` et `z`.
 
 ```js
 export const villeModal = {

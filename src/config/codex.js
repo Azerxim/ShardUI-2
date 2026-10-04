@@ -143,9 +143,9 @@ export const LIVRES = [
         titre: "Fermes & ressources",
         icon: "fa-solid fa-wheat-awn",
         articles: [
-          { titre: "Toute ferme se déclare.", texte: "Chaque ferme, manuelle ou automatique, est déclarée à un modérateur RP (ticket Discord) avec sa justification RP : qui l'exploite, ce qu'elle produit, et pourquoi." },
+          { titre: "Toute ferme se déclare.", texte: "Chaque ferme, manuelle ou automatique, se déclare sur la page Fermes du site (/fermes) avec sa position, une photo et sa justification RP : qui l'exploite, ce qu'elle produit, et pourquoi. Un modérateur RP la valide." },
           { titre: "Toute ferme s'habille.", texte: "Elle est intégrée à un bâtiment cohérent avec ce qu'elle produit — moulin, étable, mine, atelier — sans machinerie ni mob apparents depuis l'extérieur.", warn: true },
-          { titre: "Mise en conformité.", texte: "Un modérateur RP peut demander de déclarer, d'habiller ou de réduire une ferme. Une ferme laissée hors règle peut être désactivée, comme les machines à lag." },
+          { titre: "Mise en conformité.", texte: "Un modérateur RP peut demander de déclarer, d'habiller ou de réduire une ferme : la demande s'affiche sur sa déclaration, qui repasse en examen une fois corrigée. Une ferme laissée hors règle peut être désactivée, comme les machines à lag." },
         ],
       },
       {

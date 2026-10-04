@@ -92,6 +92,30 @@ const SECTIONS = [
                 texte: "Un tetra vaut un diamant. Il s'obtient par le commerce, le minage ou le trésor d'une civilisation, et c'est la seule monnaie admise entre joueurs.",
             },
             {
+                titre: "Catalogue des boutiques",
+                icon: "fa-solid fa-tags",
+                lien: "/commerces#ou-acheter",
+                texte: "Chaque magasin publie ses articles et leurs prix en tetras, et la recherche « Où acheter ? » de la page des commerces trouve les boutiques qui les vendent, de la moins chère à la plus chère.",
+            },
+            {
+                titre: "Jours de marché et foires",
+                icon: "fa-solid fa-calendar-day",
+                lien: "/commerces#foires",
+                texte: "Chaque zone commerciale affiche ses jours d'ouverture, et une ville peut annoncer une foire datée : sur sa fiche, sur la page des commerces, sur la carte et sur Discord.",
+            },
+            {
+                titre: "Cibles d'une guerre",
+                icon: "fa-solid fa-house-crack",
+                lien: "/guerres",
+                texte: "Sur la fiche d'une guerre, les bâtiments et zones destructibles des villes des deux camps, avec leur carte : ce que la guerre autorise à détruire.",
+            },
+            {
+                titre: "Déclaration des fermes sur le site",
+                icon: "fa-solid fa-wheat-awn",
+                lien: "/fermes",
+                texte: "Déclarer une ferme sur le site (position, justification RP, photo) plutôt que par ticket, et suivre son statut : en attente, validée ou à mettre en conformité.",
+            },
+            {
                 titre: "Alliances",
                 icon: "fa-solid fa-handshake",
                 lien: "/alliances",
@@ -174,26 +198,6 @@ const SECTIONS = [
                     "Distance et temps de trajet entre deux villes.",
                     "Conversion entre tetras, diamants et blocs ; fiche de personnage à coller sur Discord.",
                 ],
-            },
-            {
-                titre: "Catalogue des boutiques",
-                icon: "fa-solid fa-tags",
-                texte: "Chaque magasin publie ses articles et leurs prix en tetras, et une recherche répond à « où acheter des flèches ? ».",
-            },
-            {
-                titre: "Jours de marché et foires",
-                icon: "fa-solid fa-calendar-day",
-                texte: "Les zones commerciales affichent leurs jours d'ouverture RP, et une ville peut annoncer une foire, datée, visible sur la carte et annoncée sur Discord.",
-            },
-            {
-                titre: "Cibles d'une guerre",
-                icon: "fa-solid fa-house-crack",
-                texte: "Sur la fiche d'une guerre, les bâtiments et zones destructibles des villes des deux camps, avec leur carte.",
-            },
-            {
-                titre: "Déclaration des fermes sur le site",
-                icon: "fa-solid fa-wheat-awn",
-                texte: "Déclarer une ferme sur le site (position, justification RP, photo) plutôt que par ticket, avec son statut : en attente, validée ou à mettre en conformité.",
             },
             {
                 titre: "Chroniques de Tetrago",

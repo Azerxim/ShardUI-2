@@ -19,7 +19,7 @@ export const GLOSSAIRE = {
     },
     commerce: {
         terme: "Commerce",
-        definition: "Entreprise de joueurs. Ses magasins sont implantés dans les villes et quartiers du monde.",
+        definition: "Entreprise de joueurs. Ses magasins sont implantés dans les villes et quartiers du monde, chacun avec son catalogue d'articles et leurs prix en tetras. Un commerce peut en diriger d'autres, que ses dirigeants gèrent alors aussi.",
     },
     alliance: {
         terme: "Alliance",
@@ -40,6 +40,18 @@ export const GLOSSAIRE = {
     commerciale: {
         terme: "Zone commerciale",
         definition: "Marché ou quartier marchand d'une ville, tracé sur la carte par les dirigeants de la civilisation. Ses boutiques sont les magasins situés à l'intérieur.",
+    },
+    foire: {
+        terme: "Foire",
+        definition: "Marché exceptionnel annoncé par une ville, à des dates réelles : affiché sur la fiche de la ville, la page des commerces et la carte, et annoncé sur Discord.",
+    },
+    ferme: {
+        terme: "Ferme",
+        definition: "Toute installation qui produit des ressources (cultures, élevage, mobs, automatismes). Elle se déclare sur le site avec sa justification RP et une photo, puis un modérateur RP la valide ou demande une mise en conformité.",
+    },
+    cible: {
+        terme: "Cibles d'une guerre",
+        definition: "Bâtiments et zones destructibles des villes des belligérants engagés : ce qu'une guerre RP autorise à détruire, et rien d'autre.",
     },
     appel: {
         terme: "Appel aux armes",

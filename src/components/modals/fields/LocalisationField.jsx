@@ -44,7 +44,7 @@ export default function LocalisationField({ champ, formValues, onChange }) {
           <input
             type="number"
             name="x"
-            placeholder="Coordonnée X de la ville"
+            placeholder={champ.placeholderX ?? "Coordonnée X"}
             value={formValues?.x ?? 0}
             onChange={(e) => onChange("x", e.target.value)}
             className="input input-ghost bg-base-100 brightness-98 w-full"
@@ -57,7 +57,7 @@ export default function LocalisationField({ champ, formValues, onChange }) {
           <input
             type="number"
             name="z"
-            placeholder="Coordonnée Z de la ville"
+            placeholder={champ.placeholderZ ?? "Coordonnée Z"}
             value={formValues?.z ?? 0}
             onChange={(e) => onChange("z", e.target.value)}
             className="input input-ghost bg-base-100 brightness-98 w-full"

@@ -2,11 +2,15 @@ import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Swal from "sweetalert2";
 
+import LocalisationField from "@/components/modals/fields/LocalisationField";
+
 const resolve = (option, values) => (typeof option === "function" ? option(values) : option);
 
 // Modale de formulaire décrite par la page (alliances, guerres…).
 // fields : [{ name, label, type, options, required, placeholder, help, empty, resets }]
-//   type : "text" | "textarea" | "select" | "radio" | "date" | "color" | "icons"
+//   type : "text" | "textarea" | "select" | "radio" | "checkboxes" | "file" | "date" | "number" | "color" | "icons"
+//   checkboxes : valeur = tableau des options cochées ; file : valeur = File (accept : types acceptés)
+//   localisation : monde + X/Z avec carte de localisation, comme pour les villes (écrit dimension_id, x et z)
 //   options (select, radio, icons) et empty (texte si aucun choix) : valeur ou fonction (valeurs) => valeur
 //   resets : champs vidés quand celui-ci change (ex. le type de guerre remet à zéro les camps)
 // onSubmit(valeurs) appelle l'API ; une Error levée affiche son message puis rouvre la modale.
@@ -78,6 +82,28 @@ export default function FormModal({ id, title, intro = null, fields = [], initia
                         ))}
                     </div>
                 );
+            case "checkboxes": {
+                const cochees = Array.isArray(value) ? value : [];
+                return (
+                    <div className="flex flex-row flex-wrap gap-x-4 gap-y-2">
+                        {options.map((opt) => (
+                            <label key={opt.value} className="flex flex-row items-center gap-2 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    name={`${field.name}-${opt.value}`}
+                                    checked={cochees.includes(opt.value)}
+                                    onChange={(e) => setValue(field, e.target.checked ? [...cochees, opt.value] : cochees.filter((v) => v !== opt.value))}
+                                    className="checkbox checkbox-primary checkbox-sm"
+                                />
+                                <span className="label-text text-base-content">{opt.label}</span>
+                            </label>
+                        ))}
+                    </div>
+                );
+            }
+            case "file":
+                // Un champ fichier ne se remplit pas par programme : sa valeur est le File choisi
+                return <input type="file" name={field.name} accept={field.accept} required={field.required} onChange={(e) => setValue(field, e.target.files?.[0] ?? null)} className="file-input file-input-ghost bg-base-100 brightness-98 w-full" />;
             case "icons":
                 return (
                     <div className="flex flex-row flex-wrap gap-2">
@@ -109,7 +135,15 @@ export default function FormModal({ id, title, intro = null, fields = [], initia
                                 <span>{intro}</span>
                             </div>
                         ) : null}
-                        {fields.map((field) => (
+                        {fields.map((field) => field.type === "localisation" ? (
+                            // Champ des modales dynamiques (villes, magasins) : il porte sa propre légende
+                            <LocalisationField
+                                key={field.name}
+                                champ={field}
+                                formValues={values}
+                                onChange={(name, value) => setValues((prev) => ({ ...prev, [name]: value }))}
+                            />
+                        ) : (
                             <fieldset key={field.name} className="fieldset">
                                 <legend className="fieldset-legend">{field.label}{field.required ? " *" : ""}</legend>
                                 {renderField(field)}

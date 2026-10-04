@@ -14,6 +14,7 @@ import MarkdownTextEditor from "@/components/ui/MarkdownTextEditor";
 import FormModal from "@/components/modals/FormModal";
 import ActionCard from "@/components/actions/ActionCard";
 import MapEmbed from "@/components/carte/MapEmbed";
+import CiblesSection from "@/components/conflits/CiblesSection";
 
 import { showModalID } from "@/utils/showModal";
 import { plural } from "@/utils/plural";
@@ -439,6 +440,8 @@ export default function GuerrePage() {
                     )}
                 </>
             ) : null}
+
+            {publique ? <CiblesSection guerre={guerre} dimensions={dimensions} /> : null}
 
             {actions.length > 0 ? (
                 <>

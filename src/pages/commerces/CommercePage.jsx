@@ -10,6 +10,7 @@ import TitleH2 from "@/components/ui/TitleH2";
 import DynamicModal from "@/components/modals/DynamicModal";
 import MarkdownTextEditor from "@/components/ui/MarkdownTextEditor";
 import MapEmbed from "@/components/carte/MapEmbed";
+import CatalogueMagasin from "@/components/commerces/CatalogueMagasin";
 
 import { showModal, showModalID } from "@/utils/showModal";
 import { checkMemberAuth } from "@/services/authorisation";
@@ -22,6 +23,7 @@ import JoinHint from "@/components/membres/JoinHint";
 import { getCommerceById, getDimensions, getVilles, deleteMemberCommerce } from "@/services/api";
 import Swal from "sweetalert2";
 import { alerteErreur } from "@/utils/alerteErreur";
+import LivresLiesSection from "@/components/bibliotheque/LivresLiesSection";
 
 const ROLE_ORDER = { Fondateur: 0, Admin: 1 };
 const TRANSFER_MODAL_ID = "commerce-transfer-founder-modal";
@@ -37,7 +39,8 @@ function MagasinCard({ magasin, dimension, ville, auth }) {
     const opened = formatDate(magasin.founded_date);
 
     return (
-        <div className="flex flex-col lg:flex-row gap-4 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
+        // id : cible des liens de la recherche « Où acheter ? » (/commerce/:id#magasin-:magasinId)
+        <div id={`magasin-${magasin.id}`} className="flex flex-col lg:flex-row gap-4 w-full bg-base-200 rounded-2xl p-3 sm:p-4 scroll-mt-24 target:ring-2 target:ring-primary">
             <div className="flex flex-col gap-2 flex-1 min-w-0">
                 <div className="flex flex-row items-start gap-3">
                     <FontAwesomeIcon icon={magasin.is_siege ? "fa-solid fa-building" : "fa-solid fa-store"} className="text-xl mt-1" />
@@ -75,6 +78,8 @@ function MagasinCard({ magasin, dimension, ville, auth }) {
                 </div>
 
                 {magasin.description ? <p className="break-words">{magasin.description}</p> : null}
+
+                <CatalogueMagasin magasin={magasin} auth={auth} />
             </div>
 
             {dimension ? (
@@ -137,11 +142,18 @@ export default function CommercePage() {
             .catch((error) => console.error("Error fetching villes:", error));
     }, []);
 
+    // Lien vers un magasin (#magasin-12) : la fiche se charge après la navigation, on y descend une fois affichée
+    useEffect(() => {
+        const cible = decodeURIComponent(window.location.hash.slice(1));
+        if (!loading && cible) requestAnimationFrame(() => document.getElementById(cible)?.scrollIntoView({ block: "start" }));
+    }, [loading]);
+
     // Recharger après un ajout / une modification / une suppression de magasin (le siège peut changer)
     const reload = () => setReloadKey((key) => key + 1);
 
-    // Fondateur, Admin du commerce ou administrateur du site (même règle que l'API)
-    const auth = checkMemberAuth(members);
+    // Fondateur, Admin du commerce ou administrateur du site ; pour un commerce dirigé, aussi le Fondateur et les
+    // Admins du commerce dirigeant (même règle que l'API, _check_commerce_rights)
+    const auth = checkMemberAuth(members) || Boolean(dirigeant && checkMemberAuth(dirigeant.members || []));
     const hidden = commerce && !canSeeCommerce(commerce, members, user);
 
     const addMember = (data) => {
@@ -300,7 +312,8 @@ export default function CommercePage() {
                     <TitleH2 text="Commerces dirigés" icon="fas fa-crown" />
                     <div className="flex flex-col gap-4 w-full">
                         {visibleDiriges.map(({ commerce: dirige, fondateur: dirigeFondateur, members: dirigeMembers, magasins: dirigeMagasins }) => {
-                            const dirigeAuth = checkMemberAuth(dirigeMembers || []);
+                            // Les droits sur ce commerce valent pour ses commerces dirigés
+                            const dirigeAuth = auth || checkMemberAuth(dirigeMembers || []);
                             const dirigeVisibleMagasins = (dirigeMagasins || []).filter((magasin) => magasin.is_public || dirigeAuth);
                             return (
                                 <div key={dirige.id} className="flex flex-col gap-2 w-full">
@@ -317,7 +330,7 @@ export default function CommercePage() {
                                             magasin={magasin}
                                             dimension={dimensions.find((dimension) => dimension.id === magasin.dimension_id)}
                                             ville={villes.find((ville) => ville.id === magasin.ville_id)}
-                                            auth={false}
+                                            auth={auth}
                                         />
                                     ))}
                                 </div>
@@ -326,6 +339,8 @@ export default function CommercePage() {
                     </div>
                 </>
             ) : null}
+
+            <LivresLiesSection type="commerce" id={commerce.id} />
         </>
     ) : null;
 
@@ -349,7 +364,7 @@ export default function CommercePage() {
                             <DynamicModal config={commerceMemberModal} mode="add" onSubmit={addMember} />
                             <TransferFounderModal id={TRANSFER_MODAL_ID} entity="commerce" entityId={id} members={members} onTransfer={handleFounderTransfer} />
                             <DynamicModal config={magasinModal} mode="add" onSubmit={reload} />
-                            {magasins.map((magasin) => (
+                            {[...magasins, ...diriges.flatMap((dirige) => dirige.magasins || [])].map((magasin) => (
                                 <DynamicModal key={magasin.id} config={magasinModal} mode="edit" local={{ id: magasin.id }} onSubmit={reload} onDelete={reload} />
                             ))}
                         </>

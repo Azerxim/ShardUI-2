@@ -17,6 +17,7 @@ export const MONDE = [
   { id: "guerres", href: "/guerres", icon: "fa-solid fa-shield-halved", text: "Guerres" },
   { id: "personnages", href: "/personnages", icon: "fa-solid fa-masks-theater", text: "Personnages" },
   { id: "actions", href: "/actions-secretes", icon: "fa-solid fa-user-secret", text: "Actions secrètes" },
+  { id: "fermes", href: "/fermes", icon: "fa-solid fa-wheat-awn", text: "Fermes" },
 ];
 
 export const CARTE = { id: "carte", href: `${MAPS_BASE_URL}/tetrago-civilisations`, icon: "fa-solid fa-map", text: "Carte" };

@@ -19,6 +19,7 @@ import { formatDate, runAction } from "@/utils/conflits";
 import { EMPTY_LIEUX, EMPTY_REFERENTIEL, PERSONNAGE_STATUTS, loadLieux, loadReferentiel, minecraftBody, personnageFormFields, personnageInitialValues, villeHref } from "@/utils/personnages";
 import { getSessionUser } from "@/services/session";
 import { apiRequest, getPersonnageById } from "@/services/api";
+import LivresLiesSection from "@/components/bibliotheque/LivresLiesSection";
 
 const EDIT_MODAL_ID = "personnage-edit-modal";
 
@@ -192,6 +193,8 @@ export default function PersonnagePage() {
                     ))}
                 </ul>
             )}
+
+            <LivresLiesSection type="personnage" id={personnage.id} />
         </>
     ) : null;
 

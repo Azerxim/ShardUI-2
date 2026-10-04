@@ -3,13 +3,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import MapEmbed from '@/components/carte/MapEmbed';
 import { MAPS_BASE_URL } from '@/config/maps';
 import { emplacement } from '@/utils/cartographie';
+import { joursTexte } from '@/config/marches';
 
 // Carte d'une zone commerciale (marché, quartier marchand) : aperçu de la carte en vue Commerces, nom, description,
 // ville (page des commerces) et boutiques qui s'y tiennent (magasins situés à l'intérieur).
 // boutiques : [{ magasin, commerce }] ; dimension : pour l'aperçu et le lien « Voir sur la carte » (vue Commerces)
-export default function ZoneCommercialeCard({ zone, boutiques = [], dimension = null, ville = null, apercu = true }) {
+// marche : jours d'ouverture { jours, horaires } (crud_marches) ; onModifierJours : bouton des dirigeants de la ville
+export default function ZoneCommercialeCard({ zone, boutiques = [], dimension = null, ville = null, apercu = true, marche = null, onModifierJours = null }) {
     const couleur = zone.color || '#e3a82b';
     const lieu = emplacement(zone);
+    const jours = joursTexte(marche?.jours);
     return (
         <article className="flex flex-col gap-3 bg-base-200 rounded-2xl p-3 border-t-4" style={{ borderTopColor: couleur }}>
             {apercu && dimension && lieu ? (
@@ -29,6 +32,19 @@ export default function ZoneCommercialeCard({ zone, boutiques = [], dimension = 
                     </a>
                 )}
                 {zone.description && <p className="text-sm opacity-80">{zone.description}</p>}
+                <span className="text-sm flex items-start gap-2">
+                    <FontAwesomeIcon icon="fa-solid fa-calendar-day" className="opacity-70 mt-0.5" />
+                    <span className="flex-1">
+                        {jours
+                            ? `Ouvert ${jours}${marche.horaires ? `, ${marche.horaires}` : ''}`
+                            : marche?.horaires || <span className="opacity-60">Jours de marché non précisés</span>}
+                    </span>
+                    {onModifierJours && (
+                        <button type="button" className="btn btn-xs btn-ghost btn-circle" aria-label={`Jours de marché de ${zone.title || 'la zone'}`} onClick={() => onModifierJours(zone)}>
+                            <FontAwesomeIcon icon="fa-solid fa-pen" />
+                        </button>
+                    )}
+                </span>
                 {lieu && <span className="text-xs opacity-60 tabular-nums">X {lieu.x} · Z {lieu.z}</span>}
             </div>
             {dimension?.link && lieu ? (

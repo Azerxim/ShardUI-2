@@ -20,6 +20,7 @@ import {
 } from "@/utils/conflits";
 import { getSessionUser } from "@/services/session";
 import { apiRequest, getAllianceById, getCivilisations } from "@/services/api";
+import LivresLiesSection from "@/components/bibliotheque/LivresLiesSection";
 
 const EDIT_MODAL_ID = "alliance-edit-modal";
 const INVITE_MODAL_ID = "alliance-invite-modal";
@@ -246,6 +247,8 @@ export default function AlliancePage() {
                     ))}
                 </ul>
             )}
+
+            <LivresLiesSection type="alliance" id={alliance.id} />
         </>
     ) : null;
 

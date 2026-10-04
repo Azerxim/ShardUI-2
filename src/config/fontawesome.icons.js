@@ -31,6 +31,7 @@ import { definition as fasBookAtlas } from "@fortawesome/free-solid-svg-icons/fa
 import { definition as fasBookOpen } from "@fortawesome/free-solid-svg-icons/faBookOpen";
 import { definition as fasBookSkull } from "@fortawesome/free-solid-svg-icons/faBookSkull";
 import { definition as fasBookmark } from "@fortawesome/free-solid-svg-icons/faBookmark";
+import { definition as fasBoxOpen } from "@fortawesome/free-solid-svg-icons/faBoxOpen";
 import { definition as fasBuilding } from "@fortawesome/free-solid-svg-icons/faBuilding";
 import { definition as fasBullhorn } from "@fortawesome/free-solid-svg-icons/faBullhorn";
 import { definition as fasBurst } from "@fortawesome/free-solid-svg-icons/faBurst";
@@ -38,6 +39,7 @@ import { definition as fasCakeCandles } from "@fortawesome/free-solid-svg-icons/
 import { definition as fasCalendar } from "@fortawesome/free-solid-svg-icons/faCalendar";
 import { definition as fasCalendarDay } from "@fortawesome/free-solid-svg-icons/faCalendarDay";
 import { definition as fasCalendarDays } from "@fortawesome/free-solid-svg-icons/faCalendarDays";
+import { definition as fasCamera } from "@fortawesome/free-solid-svg-icons/faCamera";
 import { definition as fasChartSimple } from "@fortawesome/free-solid-svg-icons/faChartSimple";
 import { definition as fasCheck } from "@fortawesome/free-solid-svg-icons/faCheck";
 import { definition as fasCheckToSlot } from "@fortawesome/free-solid-svg-icons/faCheckToSlot";
@@ -54,7 +56,9 @@ import { definition as fasCity } from "@fortawesome/free-solid-svg-icons/faCity"
 import { definition as fasClockRotateLeft } from "@fortawesome/free-solid-svg-icons/faClockRotateLeft";
 import { definition as fasCode } from "@fortawesome/free-solid-svg-icons/faCode";
 import { definition as fasCoins } from "@fortawesome/free-solid-svg-icons/faCoins";
+import { definition as fasComment } from "@fortawesome/free-solid-svg-icons/faComment";
 import { definition as fasComments } from "@fortawesome/free-solid-svg-icons/faComments";
+import { definition as fasCow } from "@fortawesome/free-solid-svg-icons/faCow";
 import { definition as fasCross } from "@fortawesome/free-solid-svg-icons/faCross";
 import { definition as fasCrosshairs } from "@fortawesome/free-solid-svg-icons/faCrosshairs";
 import { definition as fasCrown } from "@fortawesome/free-solid-svg-icons/faCrown";
@@ -81,10 +85,12 @@ import { definition as fasFingerprint } from "@fortawesome/free-solid-svg-icons/
 import { definition as fasFire } from "@fortawesome/free-solid-svg-icons/faFire";
 import { definition as fasFlag } from "@fortawesome/free-solid-svg-icons/faFlag";
 import { definition as fasFlagCheckered } from "@fortawesome/free-solid-svg-icons/faFlagCheckered";
+import { definition as fasFlask } from "@fortawesome/free-solid-svg-icons/faFlask";
 import { definition as fasFont } from "@fortawesome/free-solid-svg-icons/faFont";
 import { definition as fasGamepad } from "@fortawesome/free-solid-svg-icons/faGamepad";
 import { definition as fasGavel } from "@fortawesome/free-solid-svg-icons/faGavel";
 import { definition as fasGear } from "@fortawesome/free-solid-svg-icons/faGear";
+import { definition as fasGears } from "@fortawesome/free-solid-svg-icons/faGears";
 import { definition as fasGem } from "@fortawesome/free-solid-svg-icons/faGem";
 import { definition as fasHammer } from "@fortawesome/free-solid-svg-icons/faHammer";
 import { definition as fasHand } from "@fortawesome/free-solid-svg-icons/faHand";
@@ -107,6 +113,7 @@ import { definition as fasLayerGroup } from "@fortawesome/free-solid-svg-icons/f
 import { definition as fasLifeRing } from "@fortawesome/free-solid-svg-icons/faLifeRing";
 import { definition as fasLink } from "@fortawesome/free-solid-svg-icons/faLink";
 import { definition as fasLinkSlash } from "@fortawesome/free-solid-svg-icons/faLinkSlash";
+import { definition as fasListCheck } from "@fortawesome/free-solid-svg-icons/faListCheck";
 import { definition as fasListOl } from "@fortawesome/free-solid-svg-icons/faListOl";
 import { definition as fasListUl } from "@fortawesome/free-solid-svg-icons/faListUl";
 import { definition as fasLocationCrosshairs } from "@fortawesome/free-solid-svg-icons/faLocationCrosshairs";
@@ -114,6 +121,7 @@ import { definition as fasLocationDot } from "@fortawesome/free-solid-svg-icons/
 import { definition as fasLock } from "@fortawesome/free-solid-svg-icons/faLock";
 import { definition as fasLockOpen } from "@fortawesome/free-solid-svg-icons/faLockOpen";
 import { definition as fasMagnifyingGlass } from "@fortawesome/free-solid-svg-icons/faMagnifyingGlass";
+import { definition as fasMagnifyingGlassDollar } from "@fortawesome/free-solid-svg-icons/faMagnifyingGlassDollar";
 import { definition as fasMap } from "@fortawesome/free-solid-svg-icons/faMap";
 import { definition as fasMapLocationDot } from "@fortawesome/free-solid-svg-icons/faMapLocationDot";
 import { definition as fasMasksTheater } from "@fortawesome/free-solid-svg-icons/faMasksTheater";
@@ -133,10 +141,12 @@ import { definition as fasPlaceOfWorship } from "@fortawesome/free-solid-svg-ico
 import { definition as fasPlus } from "@fortawesome/free-solid-svg-icons/faPlus";
 import { definition as fasQuoteLeft } from "@fortawesome/free-solid-svg-icons/faQuoteLeft";
 import { definition as fasRightFromBracket } from "@fortawesome/free-solid-svg-icons/faRightFromBracket";
+import { definition as fasRightToBracket } from "@fortawesome/free-solid-svg-icons/faRightToBracket";
 import { definition as fasRotateRight } from "@fortawesome/free-solid-svg-icons/faRotateRight";
 import { definition as fasRoute } from "@fortawesome/free-solid-svg-icons/faRoute";
 import { definition as fasScaleBalanced } from "@fortawesome/free-solid-svg-icons/faScaleBalanced";
 import { definition as fasScroll } from "@fortawesome/free-solid-svg-icons/faScroll";
+import { definition as fasSeedling } from "@fortawesome/free-solid-svg-icons/faSeedling";
 import { definition as fasServer } from "@fortawesome/free-solid-svg-icons/faServer";
 import { definition as fasShieldHalved } from "@fortawesome/free-solid-svg-icons/faShieldHalved";
 import { definition as fasShirt } from "@fortawesome/free-solid-svg-icons/faShirt";
@@ -145,9 +155,11 @@ import { definition as fasSignInAlt } from "@fortawesome/free-solid-svg-icons/fa
 import { definition as fasSignsPost } from "@fortawesome/free-solid-svg-icons/faSignsPost";
 import { definition as fasSitemap } from "@fortawesome/free-solid-svg-icons/faSitemap";
 import { definition as fasSkull } from "@fortawesome/free-solid-svg-icons/faSkull";
+import { definition as fasStamp } from "@fortawesome/free-solid-svg-icons/faStamp";
 import { definition as fasStore } from "@fortawesome/free-solid-svg-icons/faStore";
 import { definition as fasStrikethrough } from "@fortawesome/free-solid-svg-icons/faStrikethrough";
 import { definition as fasTags } from "@fortawesome/free-solid-svg-icons/faTags";
+import { definition as fasTents } from "@fortawesome/free-solid-svg-icons/faTents";
 import { definition as fasTimeline } from "@fortawesome/free-solid-svg-icons/faTimeline";
 import { definition as fasTrash } from "@fortawesome/free-solid-svg-icons/faTrash";
 import { definition as fasTriangleExclamation } from "@fortawesome/free-solid-svg-icons/faTriangleExclamation";
@@ -195,6 +207,7 @@ export default [
     fasBookOpen,
     fasBookSkull,
     fasBookmark,
+    fasBoxOpen,
     fasBuilding,
     fasBullhorn,
     fasBurst,
@@ -202,6 +215,7 @@ export default [
     fasCalendar,
     fasCalendarDay,
     fasCalendarDays,
+    fasCamera,
     fasChartSimple,
     fasCheck,
     fasCheckToSlot,
@@ -218,7 +232,9 @@ export default [
     fasClockRotateLeft,
     fasCode,
     fasCoins,
+    fasComment,
     fasComments,
+    fasCow,
     fasCross,
     fasCrosshairs,
     fasCrown,
@@ -245,10 +261,12 @@ export default [
     fasFire,
     fasFlag,
     fasFlagCheckered,
+    fasFlask,
     fasFont,
     fasGamepad,
     fasGavel,
     fasGear,
+    fasGears,
     fasGem,
     fasHammer,
     fasHand,
@@ -271,6 +289,7 @@ export default [
     fasLifeRing,
     fasLink,
     fasLinkSlash,
+    fasListCheck,
     fasListOl,
     fasListUl,
     fasLocationCrosshairs,
@@ -278,6 +297,7 @@ export default [
     fasLock,
     fasLockOpen,
     fasMagnifyingGlass,
+    fasMagnifyingGlassDollar,
     fasMap,
     fasMapLocationDot,
     fasMasksTheater,
@@ -297,10 +317,12 @@ export default [
     fasPlus,
     fasQuoteLeft,
     fasRightFromBracket,
+    fasRightToBracket,
     fasRotateRight,
     fasRoute,
     fasScaleBalanced,
     fasScroll,
+    fasSeedling,
     fasServer,
     fasShieldHalved,
     fasShirt,
@@ -309,9 +331,11 @@ export default [
     fasSignsPost,
     fasSitemap,
     fasSkull,
+    fasStamp,
     fasStore,
     fasStrikethrough,
     fasTags,
+    fasTents,
     fasTimeline,
     fasTrash,
     fasTriangleExclamation,

@@ -13,12 +13,14 @@ import { plural } from "@/utils/plural";
 import { showModal } from "@/utils/showModal";
 import { requireLogin } from "@/utils/requireLogin";
 import { commerceModal } from "@/config/modals/commerce";
-import { getCartographies, getCommerces, getDimensions, getVilles } from "@/services/api";
+import { getCartographies, getCommerces, getDimensions, getMarches, getVilles } from "@/services/api";
 import { dansLaZone } from "@/utils/cartographie";
 import ZoneCommercialeCard from "@/components/commerces/ZoneCommercialeCard";
+import FoireCard from "@/components/commerces/FoireCard";
 import TitleH2 from "@/components/ui/TitleH2";
 import EtatVide from '@/components/ui/EtatVide';
 import MonnaieOfficielle from '@/components/monnaie/MonnaieOfficielle';
+import OuAcheter from '@/components/commerces/OuAcheter';
 
 // Regroupe les commerces dirigés (is_commerce_dirigeant false + dirigeant_commerce_id) sous leur dirigeant.
 // Un commerce dirigé dont le dirigeant n'est pas visible reste à la racine.
@@ -72,6 +74,7 @@ export default function CommercesPage() {
     const [zones, setZones] = useState([]);
     const [villes, setVilles] = useState(new Map());
     const [dimensions, setDimensions] = useState(new Map());
+    const [marches, setMarches] = useState({ jours: [], foires: [] });
 
     useEffect(() => {
         getCommerces()
@@ -88,6 +91,8 @@ export default function CommercesPage() {
             setVilles(publiques);
             setZones((Array.isArray(formes) ? formes : []).filter((forme) => forme.type === "commerciale" && publiques.has(forme.type_id)));
         });
+        // Jours de marché des zones et foires à venir des villes publiques
+        getMarches().then(setMarches).catch(() => { });
     }, []);
 
     // Un commerce privé n'est visible que par ses membres et les administrateurs
@@ -99,6 +104,8 @@ export default function CommercesPage() {
     const boutiques = commerces
         .filter(({ commerce }) => commerce.is_public)
         .flatMap(({ commerce, magasins }) => (magasins || []).filter((magasin) => magasin.is_public !== false).map((magasin) => ({ magasin, commerce })));
+    // Filtre « ville » de la recherche : seulement les villes qui ont une boutique
+    const villesMarchandes = new Map([...villes].filter(([id]) => boutiques.some(({ magasin }) => magasin.ville_id === id)));
     const boutiquesDe = (zone) => boutiques.filter(({ magasin }) => magasin.dimension_id === zone.dimension_id && dansLaZone(zone, magasin.x, magasin.z));
     const zonesTriees = [...zones].sort((a, b) => (villes.get(a.type_id)?.title || "").localeCompare(villes.get(b.type_id)?.title || "") || (a.title || "").localeCompare(b.title || ""));
 
@@ -115,7 +122,7 @@ export default function CommercesPage() {
                     <GrimoireHero
                         icon="fa-solid fa-shop"
                         title="Les Commerces de Tetrago"
-                        description="Échoppes, comptoirs et grandes enseignes : découvrez les commerces des joueurs et leurs magasins à travers le monde. Ouvrez le vôtre."
+                        description="Échoppes, comptoirs et grandes enseignes : découvrez les commerces des joueurs, leurs magasins et ce qu'ils vendent à travers le monde. Ouvrez le vôtre."
                         topRight={
                             <button onClick={() => requireLogin(() => showModal(commerceModal, "add"), "ouvrir un commerce")} className="flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left" data-tip="Nouveau commerce" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
                                 <span className="flex">Commerce</span>
@@ -125,6 +132,7 @@ export default function CommercesPage() {
                     />
                     {/* <DynamicNavbar active_id="commerces" /> */}
                     <MonnaieOfficielle compact />
+                    <OuAcheter villes={villesMarchandes} />
 
                     {loading ? (
                         <div className="flex flex-col gap-4 w-full">
@@ -162,13 +170,22 @@ export default function CommercesPage() {
                         </div>
                     )}
 
+                    {marches.foires.length > 0 && (
+                        <>
+                            <TitleH2 text="Prochaines foires" icon="fas fa-tents" aide="foire" />
+                            <div id="foires" className="grid grid-cols-1 lg:grid-cols-2 gap-3 w-full items-start scroll-mt-24">
+                                {marches.foires.map((foire) => <FoireCard key={foire.id} foire={foire} dimension={dimensions.get(foire.dimension_id)} afficherVille />)}
+                            </div>
+                        </>
+                    )}
+
                     {zonesTriees.length > 0 && (
                         <>
                             <TitleH2 text="Zones commerciales" icon="fas fa-store" aide="commerciale" />
                             <p className="text-sm opacity-70 px-1 w-full">Marchés et quartiers marchands des villes, avec les boutiques qui s'y tiennent.</p>
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 w-full items-start">
                                 {zonesTriees.map((zone) => (
-                                    <ZoneCommercialeCard key={zone.id} zone={zone} ville={villes.get(zone.type_id)} dimension={dimensions.get(zone.dimension_id)} boutiques={boutiquesDe(zone)} apercu={false} />
+                                    <ZoneCommercialeCard key={zone.id} zone={zone} ville={villes.get(zone.type_id)} dimension={dimensions.get(zone.dimension_id)} boutiques={boutiquesDe(zone)} marche={marches.jours.find((marche) => marche.cartographie_id === zone.id)} apercu={false} />
                                 ))}
                             </div>
                         </>

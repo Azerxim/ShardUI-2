@@ -275,7 +275,7 @@ export async function getCivilisations() {
 
   // console.log("Fetching all civilisations");
 
-  const response = await fetch(`${apiURL}/civilisations/list`, {
+  const response = await fetch(`${apiURL}/civilisations/list?limit=1000`, {
     method: "GET",
     headers,
   });
@@ -500,7 +500,7 @@ export async function getReligions() {
 
   // console.log("Fetching all religions");
 
-  const response = await fetch(`${apiURL}/religions/list`, {
+  const response = await fetch(`${apiURL}/religions/list?limit=1000`, {
     method: "GET",
     headers,
   });
@@ -739,6 +739,106 @@ export const createAction = (action) => apiRequest("POST", "/actions/create", ac
 
 // motif : obligatoire pour un modérateur qui révèle l'action d'un autre
 export const revelerAction = (actionId, motif = null) => apiRequest("POST", `/actions/${actionId}/reveler`, { motif });
+
+
+//_______________________________CATALOGUE DES BOUTIQUES________________________
+
+// [{ id, title, categorie, description, prix, quantite, prix_unitaire, en_stock, updated_at }]
+export const getCatalogueMagasin = (magasinId) => publicGet(`/catalogue/magasin/${magasinId}`);
+
+// Où acheter : { total, resultats: [{ ...article, magasin, commerce, ville, dimension }] }
+// (magasins publics des commerces publics, en stock d'abord puis du moins cher à l'unité)
+export const rechercherArticles = ({ q = "", categorie = "", villeId = "", enStock = false } = {}) => {
+  const params = new URLSearchParams();
+  if (q.trim()) params.set("q", q.trim());
+  if (categorie) params.set("categorie", categorie);
+  if (villeId) params.set("ville_id", villeId);
+  if (enStock) params.set("en_stock", "true");
+  return publicGet(`/catalogue/recherche?${params}`);
+};
+
+// Fondateur et Admins du commerce : { magasin_id, title, categorie, description, prix, quantite, en_stock }
+export const createArticle = (article) => apiRequest("POST", "/catalogue/articles", article);
+
+export const updateArticle = (articleId, article) => apiRequest("PUT", `/catalogue/articles/${articleId}`, article);
+
+export const deleteArticle = (articleId) => apiRequest("DELETE", `/catalogue/articles/${articleId}`);
+
+
+//_______________________________LIENS DES LIVRES_______________________________
+
+// Religions, commerces, alliances et personnages liés à un livre : [{ id, livre_id, entite: { type, id, title, … } }]
+export const getLiensLivre = (livreId) => publicGet(`/bibliotheque/livres/liens/${livreId}`);
+
+// type : "religion", "commerce", "alliance" ou "personnage" ; [{ lien_id, livre }]
+export const getLivresOfEntite = (type, id) => publicGet(`/bibliotheque/livres/entite/${type}/${id}/list`);
+
+// Droits sur le livre et sur l'entité liée
+export const lierLivre = (livreId, type, id) => apiRequest("POST", "/bibliotheque/livres/liens", { livre_id: livreId, entity_type: type, entity_id: id });
+
+// Droits sur le livre ou sur l'entité liée
+export const delierLivre = (lienId) => apiRequest("DELETE", `/bibliotheque/livres/liens/${lienId}`);
+
+
+//_______________________________MARCHÉS ET FOIRES______________________________
+
+// Villes publiques : { jours: [{ cartographie_id, jours (0 = lundi), horaires }], foires: [foire à venir ou en cours] }
+export const getMarches = () => publicGet("/marches/list");
+
+// { jours, a_venir, passees } ; foire : { id, title, description, date_debut, date_fin, horaires, zone, ville, dimension_id, x, z }
+export const getMarchesVille = (villeId) => publicGet(`/marches/ville/${villeId}`);
+
+// Dirigeants de la civilisation : jours (0 = lundi … 6 = dimanche) et horaires libres d'une zone commerciale
+export const setJoursMarche = (zoneId, jours, horaires) => apiRequest("PUT", `/marches/zones/${zoneId}/jours`, { jours, horaires });
+
+// { ville_id, title, description?, date_debut, date_fin?, horaires?, zone_id? } — annoncée sur Discord
+export const createFoire = (foire) => apiRequest("POST", "/marches/foires", foire);
+
+export const updateFoire = (foireId, foire) => apiRequest("PUT", `/marches/foires/${foireId}`, foire);
+
+export const deleteFoire = (foireId) => apiRequest("DELETE", `/marches/foires/${foireId}`);
+
+
+//_______________________________CIBLES D'UNE GUERRE_____________________________
+
+// { attaquant: [{ entite, villes: [{ id, title, civilisation_id, dimension_id, x, z, destructibles }] }], defenseur: [...] }
+export const getCiblesGuerre = (guerreId) => publicGet(`/guerres/cibles/${guerreId}`);
+
+
+//_______________________________FERMES_________________________________________
+
+// Fermes déclarées par l'utilisateur connecté
+export const getMesFermes = () => apiRequest("GET", "/fermes/mine");
+
+// Modérateurs RP : toutes les fermes, en attente d'abord
+export const getFermes = () => apiRequest("GET", "/fermes/list");
+
+// { title, type, production?, justification, habillage?, dimension_id?, x, y?, z, ville_id? }
+export const declarerFerme = (ferme) => apiRequest("POST", "/fermes/create", ferme);
+
+export const updateFerme = (fermeId, ferme) => apiRequest("PUT", `/fermes/update/${fermeId}`, ferme);
+
+export const deleteFerme = (fermeId) => apiRequest("DELETE", `/fermes/delete/${fermeId}`);
+
+// status : "validee" ou "a_corriger" (note obligatoire)
+export const deciderFerme = (fermeId, status, note = null) => apiRequest("PUT", `/fermes/decision/${fermeId}`, { status, note });
+
+// Photo (PNG, JPEG ou WebP, 5 Mo au plus) envoyée en multipart : pas d'en-tête JSON
+export async function envoyerPhotoFerme(fermeId, fichier) {
+  const corps = new FormData();
+  corps.append("photo", fichier);
+  const response = await fetch(`${apiURL}/fermes/photo/${fermeId}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    body: corps,
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(typeof data?.detail === "string" ? data.detail : `Erreur ${response.status}`);
+  return data;
+}
+
+// Adresse d'affichage d'une photo de ferme (nom aléatoire renvoyé par l'API)
+export const photoFermeUrl = (nom) => `${apiURL}/fermes/photo/${nom}`;
 
 
 // ___________________________________Autres____________________________________

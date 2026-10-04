@@ -20,6 +20,24 @@ test.describe("Mobile", () => {
     });
   }
 
+  test("sur un écran bas, le menu défile au lieu de sortir de l'écran", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 560 });
+    await page.goto("/codex");
+    await page.locator(".navbar").getByRole("button", { name: "Menu" }).click();
+    const menu = page.locator(".navbar ul.dropdown-content").first();
+    await expect(menu).toBeVisible();
+    const { bas, defile } = await menu.evaluate((element) => ({
+      bas: element.getBoundingClientRect().bottom - window.innerHeight,
+      defile: element.scrollHeight > element.clientHeight,
+    }));
+    expect(bas).toBeLessThanOrEqual(0);
+    expect(defile).toBe(true);
+    // Le dernier lien du menu reste atteignable en faisant défiler le menu
+    const dernier = menu.getByRole("link", { name: "Fermes" });
+    await dernier.scrollIntoViewIfNeeded();
+    await expect(dernier).toBeInViewport();
+  });
+
   test("une fiche ville ne défile pas horizontalement", async ({ page }) => {
     const civilisations = await apiGet("/civilisations/list");
     const parent = civilisations.find(({ civilisation, villes }) => civilisation.is_public && (villes || []).length > 0);

@@ -18,6 +18,7 @@ import { checkUserID, checkMemberAuth } from "@/services/authorisation";
 import { showModal } from '@/utils/showModal';
 import { getContrastTextColor } from '@/utils/contrastColor';
 import { livreModal } from '@/config/modals/livre';
+import LivreLiensSection from '@/components/bibliotheque/LivreLiensSection';
 import { livreContentModal } from '@/config/modals/livre-content';
 import {
     getLivreById,
@@ -83,7 +84,6 @@ export default function LivreDetailPage() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [livre, setLivre] = useState(null);
-    const [civilisation, setCivilisation] = useState(null);
     const [chapitres, setChapitres] = useState([]);
     const [loading, setLoading] = useState(true);
     const [loadingChapitres, setLoadingChapitres] = useState(true);
@@ -96,17 +96,8 @@ export default function LivreDetailPage() {
             .then((data) => {
                 const found = data.livre ?? null;
                 setLivre(found);
-                // Livre d'une civilisation : Fondateur / Admin de la civilisation ; sinon son auteur (ou un administrateur)
-                if (!found?.civilisation_id) {
-                    checkUserID(found?.user_id, setAuth);
-                    return;
-                }
-                return getCivilisationById(found.civilisation_id)
-                    .then((civ) => {
-                        setCivilisation(civ.civilisation ?? null);
-                        checkMemberAuth(civ.members ?? [], setAuth);
-                    })
-                    .catch((error) => console.error('Error fetching civilisation:', error));
+                // Son auteur ou un administrateur ; les dirigeants des civilisations liées s'ajoutent avec les liens (onLiens)
+                checkUserID(found?.user_id, setAuth);
             })
             .catch((error) => {
                 console.error('Error fetching livre:', error);
@@ -119,6 +110,15 @@ export default function LivreDetailPage() {
             .catch((error) => console.error('Error fetching chapitres:', error))
             .finally(() => setLoadingChapitres(false));
     }, [id]);
+
+    // Même règle que l'API (crud._check_livre_rights) : le Fondateur ou un Admin d'une civilisation liée peut aussi modifier
+    const droitsParLiens = (liens) => {
+        const civilisations = liens.filter((lien) => lien.entite.type === 'civilisation');
+        Promise.all(civilisations.map((lien) => getCivilisationById(lien.entite.id).catch(() => null)))
+            .then((fiches) => {
+                if (fiches.some((fiche) => fiche && checkMemberAuth(fiche.members ?? []))) setAuth(true);
+            });
+    };
 
     const updateLivre = (data) => {
         if (data.livre) setLivre(data.livre);
@@ -168,13 +168,10 @@ export default function LivreDetailPage() {
                         <InfoLine icon="fa-solid fa-calendar">
                             {published ? `Publié le ${published}` : "Date de publication inconnue"}
                         </InfoLine>
-                        {civilisation ? (
-                            <InfoLine icon="fa-solid fa-flag">
-                                Civilisation : <a href={`/civilisation/${civilisation.id}`} className="link link-hover">{civilisation.title}</a>
-                            </InfoLine>
-                        ) : null}
                         {livre.language ? <InfoLine icon="fa-solid fa-language">{livre.language}</InfoLine> : null}
                     </div>
+
+                    <LivreLiensSection livre={livre} auth={auth} onLiens={droitsParLiens} />
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <Stat icon="fa-solid fa-bookmark" label={chapitres.length > 1 ? "Chapitres" : "Chapitre"} value={loadingChapitres ? "…" : chapitres.length} />
