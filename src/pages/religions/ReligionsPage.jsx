@@ -14,7 +14,6 @@ import { showModal } from '@/utils/showModal';
 import { requireLogin } from '@/utils/requireLogin';
 import { DEFAULT_RELIGION_ICON, religionColor, religionIcon } from '@/utils/religionColor';
 import { religionModal } from '@/config/modals/religion';
-import { navbarConfig } from '@/config/navbar';
 import {
   getReligions
 } from "@/services/api"
@@ -116,7 +115,7 @@ export default function ReligionsPage() {
               </div>
             }
           />
-          <DynamicNavbar active_id="religions" navigation={navbarConfig.navigation} shadow="md" />
+          <DynamicNavbar active_id="religions" />
 
           {loading ? (
             storageReligions.length === 0 ? (

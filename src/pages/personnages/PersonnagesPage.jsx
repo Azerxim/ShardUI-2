@@ -10,7 +10,6 @@ import SkeletonCivilisation from "@/components/civilisations/SkeletonCivilisatio
 import PersonnageAvatar from "@/components/personnages/PersonnageAvatar";
 import FormModal from "@/components/modals/FormModal";
 
-import { navbarConfig } from "@/config/navbar";
 import { showModalID } from "@/utils/showModal";
 import { requireLogin } from "@/utils/requireLogin";
 import { plural } from "@/utils/plural";
@@ -121,7 +120,7 @@ export default function PersonnagesPage() {
                             </button>
                         }
                     />
-                    <DynamicNavbar active_id="personnages" navigation={navbarConfig.navigation} shadow="md" />
+                    <DynamicNavbar active_id="personnages" />
 
                     <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 w-full">
                         <label className="input input-ghost bg-base-200 rounded-3xl flex-1 min-w-0 sm:min-w-64">

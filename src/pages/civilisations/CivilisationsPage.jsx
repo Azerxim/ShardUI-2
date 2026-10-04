@@ -15,7 +15,6 @@ import { showModal } from '@/utils/showModal';
 import { requireLogin } from '@/utils/requireLogin';
 import { civilisationModal } from '@/config/modals/civilisation';
 import { religionModal } from '@/config/modals/religion';
-import { navbarConfig } from '@/config/navbar';
 import {
   getCivilisations
 } from "@/services/api"
@@ -169,7 +168,7 @@ export default function CivilisationsPage() {
               </div>
             }
           />
-          <DynamicNavbar active_id="civilisations" navigation={navbarConfig.navigation} shadow="md" />
+          <DynamicNavbar active_id="civilisations" />
 
           {loading ? (
             storageCivilisations.length === 0 ? (

@@ -10,7 +10,6 @@ import SkeletonCivilisation from "@/components/civilisations/SkeletonCivilisatio
 import ListCard from "@/components/ui/ListCard";
 import FormModal from "@/components/modals/FormModal";
 
-import { navbarConfig } from "@/config/navbar";
 import { showModalID } from "@/utils/showModal";
 import { requireLogin } from "@/utils/requireLogin";
 import { plural } from "@/utils/plural";
@@ -85,7 +84,7 @@ export default function AlliancesPage() {
                             </button>
                         }
                     />
-                    <DynamicNavbar active_id="alliances" navigation={navbarConfig.navigation} shadow="md" />
+                    <DynamicNavbar active_id="alliances" />
 
                     {loading ? (
                         <div className="flex flex-col gap-4 w-full">

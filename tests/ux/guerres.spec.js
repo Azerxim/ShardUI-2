@@ -176,6 +176,17 @@ test("un chef de camp trace une zone de conflit, affichée sur la fiche de la gu
   await mobile.close();
 });
 
+test("depuis une guerre en cours, « Action secrète » ouvre le formulaire avec la guerre choisie", async ({ browser }) => {
+  const { context, page } = await openAs(browser, sessions.attaquant);
+  await page.goto(`/guerre/${guerreId}`);
+  await main(page).getByRole("link", { name: "Action secrète" }).click();
+  await page.waitForURL(`**/actions-secretes?nouvelle=1&guerre=${guerreId}`);
+  const dialog = page.locator("dialog[open]");
+  await expect(dialog).toContainText("Sceller une action");
+  await expect(dialog.locator('select[name="guerre_id"]')).toHaveValue(String(guerreId));
+  await context.close();
+});
+
 test("un modérateur termine la guerre, qui est archivée", async ({ browser }) => {
   const { context, page } = await openAs(browser, sessions.moderateur);
   await page.goto(`/guerre/${guerreId}`);

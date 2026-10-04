@@ -1,155 +1,78 @@
-import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Fragment, useEffect, useRef, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-export default function DynamicNavbar({
-    active_id = '',
-    direction = 'horizontal',
-    width = 'full',
-    rounded = '3xl',
-    background = 'base-200',
-    shadow = 'lg',
-    navigation = {
-        start: [
-            {
-                id: "item", text: 'Item', href: '/', icon: 'fas fa-house',
-                tooltip: {
-                    text: 'Item',
-                    position: 'bottom'
-                },
-                dropdown: []
-            },
-            {
-                id: "dropdown", text: 'Dropdown', href: '', icon: 'fas fa-caret-down',
-                tooltip: {
-                    text: 'Dropdown',
-                    position: 'bottom'
-                },
-                dropdown: [
-                    { id: "item_1", text: 'Item 1', href: '', icon: 'fas fa-circle' },
-                    { id: "item_2", text: 'Item 2', href: '', icon: 'fas fa-triangle' },
-                    { id: "item_3", text: 'Item 3', href: '', icon: 'fas fa-square' },
-                ]
-            }
-        ],
-        center: [
-            {
-                id: "logo", text: 'Logo', href: '/', img: '/images/logo/tetrago.svg', icon: '',
-                tooltip: {
-                    text: '',
-                    position: ''
-                },
-                dropdown: []
-            }
-        ],
-        end: []
-    }
-}) {
-    // Render
+import { SECTIONS } from '@/config/navbar';
+
+// ===== Barre des sections =====
+// Sous le bandeau des pages de liste : les sections du site sur une seule ligne, groupées (Découvrir, Le monde).
+// Quand elles ne tiennent pas (téléphone, tablette), la ligne défile horizontalement : flèches et fondu sur les bords
+// signalent la suite, et la section active est amenée au centre à l'ouverture de la page.
+export default function DynamicNavbar({ active_id = '' }) {
+    const defilementRef = useRef(null);
+    const [bords, setBords] = useState({ gauche: false, droite: false });
+
+    const mettreAJourBords = () => {
+        const element = defilementRef.current;
+        if (!element) return;
+        setBords({
+            gauche: element.scrollLeft > 4,
+            droite: element.scrollLeft + element.clientWidth < element.scrollWidth - 4,
+        });
+    };
+
+    useEffect(() => {
+        const element = defilementRef.current;
+        const actif = element?.querySelector('[aria-current="page"]');
+        // scrollLeft plutôt que scrollIntoView : la page ne doit pas défiler verticalement
+        if (actif) element.scrollLeft = actif.offsetLeft - (element.clientWidth - actif.offsetWidth) / 2;
+        mettreAJourBords();
+        window.addEventListener('resize', mettreAJourBords);
+        return () => window.removeEventListener('resize', mettreAJourBords);
+    }, [active_id]);
+
+    const defiler = (sens) => defilementRef.current?.scrollBy({ left: sens * defilementRef.current.clientWidth * 0.7, behavior: 'smooth' });
+
+    const fleche = (sens) => (
+        <button
+            type="button"
+            onClick={() => defiler(sens)}
+            aria-label={sens < 0 ? 'Sections précédentes' : 'Sections suivantes'}
+            className={`absolute top-0 bottom-0 z-10 w-12 flex items-center ${sens < 0 ? 'left-0 justify-start pl-3 rounded-l-3xl bg-linear-to-r' : 'right-0 justify-end pr-3 rounded-r-3xl bg-linear-to-l'} from-base-200 from-50% to-transparent`}
+        >
+            <FontAwesomeIcon icon={sens < 0 ? 'fa-solid fa-chevron-left' : 'fa-solid fa-chevron-right'} />
+        </button>
+    );
+
     return (
-        <>
-            <div className={`navbar flex ${direction === 'horizontal' ? 'flex-row' : 'flex-col'} justify-between items-center gap-2 z-800 w-${width} rounded-${rounded} bg-${background} shadow-${shadow} mb-1`}>
-                <div className="navbar-start gap-2 flex-wrap w-full">
-                    {/* <!-- Navigation --> */}
-                    {navigation.start.map((item, index) => (
-                        (item.dropdown && item.dropdown.length > 0) ? (
-                            <div key={index} className={`dropdown dropdown-bottom dropdown-start tooltip tooltip-${item.tooltip.position}`} data-tip={item.tooltip.text}>
-                                <div tabIndex={0} role="button" className={`btn bg-base-200 rounded-3xl btn-ghost ${active_id === item.id ? 'bg-secondary text-secondary-content' : ''}`}>
-                                    {item.icon && <FontAwesomeIcon icon={item.icon} />}
-                                    {item.text && <span>{item.text}</span>}
-                                </div>
-                                <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 m-1 mt-6 shadow-xl flex-col gap-1">
-                                    {item.dropdown.map((subItem, subIndex) => (
-                                        <li key={subIndex}>
-                                            <a href={subItem.href} className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active_id === subItem.id ? 'bg-secondary text-secondary-content' : ''}`}>
-                                                {subItem.icon && <FontAwesomeIcon icon={subItem.icon} />}
-                                                {subItem.text && <span>{subItem.text}</span>}
-                                            </a>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        ) : (
-                            <div key={index} className={`tooltip tooltip-${item.tooltip.position}`} data-tip={item.tooltip.text}>
-                                <a href={item.href} className={`btn btn-ghost rounded-3xl ${active_id === item.id ? 'bg-secondary text-secondary-content' : ''}`}>
-                                    {item.icon && <FontAwesomeIcon icon={item.icon} />}
-                                    {item.text && <span>{item.text}</span>}
+        <nav aria-label="Sections du site" className="relative w-full bg-base-200 rounded-3xl shadow-md mb-1">
+            {bords.gauche && fleche(-1)}
+            <div
+                ref={defilementRef}
+                onScroll={mettreAJourBords}
+                className="flex items-center gap-0.5 overflow-x-auto px-2 py-2 snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+                {SECTIONS.map((groupe, index) => (
+                    <Fragment key={groupe.id}>
+                        {index > 0 && <span aria-hidden="true" className="w-px self-stretch bg-base-300 mx-1 shrink-0"></span>}
+                        <span className="hidden 2xl:inline text-xs uppercase tracking-wide opacity-50 px-2 shrink-0">{groupe.titre}</span>
+                        {groupe.liens.map((lien) => {
+                            const actif = active_id === lien.id;
+                            return (
+                                <a
+                                    key={lien.id}
+                                    href={lien.href}
+                                    aria-current={actif ? 'page' : undefined}
+                                    className={`btn btn-ghost btn-sm rounded-3xl gap-2 px-2.5 shrink-0 snap-start ${actif ? 'bg-secondary text-secondary-content' : ''}`}
+                                >
+                                    <FontAwesomeIcon icon={lien.icon} />
+                                    {lien.text}
                                 </a>
-                            </div>
-                        )
-                    ))}
-                </div>
-                {navigation.center.length > 0 && (
-                    <div className="navbar-center hidden sm:flex">
-                        {navigation.center.map((item, index) => (
-                            (item.dropdown && item.dropdown.length > 0) ? (
-                                <div key={index} className={`dropdown dropdown-bottom dropdown-start tooltip tooltip-${item.tooltip.position}`} data-tip={item.tooltip.text}>
-                                    <div tabIndex={0} role="button" className={`btn bg-base-200 rounded-3xl btn-ghost ${active_id === item.id ? 'bg-secondary text-secondary-content' : ''}`}>
-                                        {item.icon && <FontAwesomeIcon icon={item.icon} />}
-                                        {item.text && <span>{item.text}</span>}
-                                    </div>
-                                    <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 m-1 mt-6 shadow-xl flex-col gap-1">
-                                        {item.dropdown.map((subItem, subIndex) => (
-                                            <li key={subIndex}>
-                                                <a href={subItem.href} className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active_id === subItem.id ? 'bg-secondary text-secondary-content' : ''}`}>
-                                                    {subItem.icon && <FontAwesomeIcon icon={subItem.icon} />}
-                                                    {subItem.text && <span>{subItem.text}</span>}
-                                                </a>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ) : (
-                                item.img ? (
-                                    <div key={index} className={`tooltip tooltip-${item.tooltip.position}`} data-tip={item.tooltip.text}>
-                                        <a href={item.href} className={`btn btn-ghost rounded-3xl ${active_id === item.id ? 'bg-secondary text-secondary-content' : ''}`}>
-                                            <img src={item.img} alt={item.text} className="w-8 h-8" />
-                                            {item.text && <span className="hidden sm:flex">{item.text}</span>}
-                                        </a>
-                                    </div>
-                                ) : (
-                                    <div key={index} className={`tooltip tooltip-${item.tooltip.position}`} data-tip={item.tooltip.text}>
-                                        <a href={item.href} className={`btn btn-ghost rounded-3xl ${active_id === item.id ? 'bg-secondary text-secondary-content' : ''}`}>
-                                            {item.icon && <FontAwesomeIcon icon={item.icon} />}
-                                            {item.text && <span>{item.text}</span>}
-                                        </a>
-                                    </div>
-                                )
-                            )
-                        ))}
-                    </div>
-                )}
-                {navigation.end.length > 0 && (
-                    <div className="navbar-end">
-                        {navigation.end.map((item, index) => (
-                            (item.dropdown && item.dropdown.length > 0) ? (
-                                <div key={index} className={`dropdown dropdown-bottom dropdown-end tooltip tooltip-${item.tooltip.position}`} data-tip={item.tooltip.text}>
-                                    <div tabIndex={0} role="button" className={`btn bg-base-200 rounded-3xl btn-ghost ${active_id === item.id ? 'bg-secondary text-secondary-content' : ''}`}>
-                                        {item.icon && <FontAwesomeIcon icon={item.icon} />}
-                                        {item.text && <span>{item.text}</span>}
-                                    </div>
-                                    <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 m-1 mt-6 shadow-xl flex-col gap-1">
-                                        {item.dropdown.map((subItem, subIndex) => (
-                                            <li key={subIndex}>
-                                                <a href={subItem.href} className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active_id === subItem.id ? 'bg-secondary text-secondary-content' : ''}`}>
-                                                    {subItem.icon && <FontAwesomeIcon icon={subItem.icon} />}
-                                                    {subItem.text && <span>{subItem.text}</span>}
-                                                </a>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ) : (
-                                <div key={index} className={`tooltip tooltip-${item.tooltip.position}`} data-tip={item.tooltip.text}>
-                                    <a href={item.href} className={`btn btn-ghost rounded-3xl ${active_id === item.id ? 'bg-secondary text-secondary-content' : ''}`}>
-                                        {item.icon && <FontAwesomeIcon icon={item.icon} />}
-                                        {item.text && <span>{item.text}</span>}
-                                    </a>
-                                </div>
-                            )
-                        ))}
-                    </div>
-                )}
+                            );
+                        })}
+                    </Fragment>
+                ))}
             </div>
-        </>
-    )
+            {bords.droite && fleche(1)}
+        </nav>
+    );
 }
