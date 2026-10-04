@@ -1,26 +1,26 @@
 import { test, expect } from "@playwright/test";
 import { blockExternalRequests } from "./helpers.js";
 
-// La feuille de route s'atteint depuis n'importe quelle page, par le pied de page.
+// La feuille de route s'atteint depuis n'importe quelle page, par le menu de la barre de navigation.
 test.beforeEach(async ({ page }) => {
   await blockExternalRequests(page);
 });
 
 test.describe("Feuille de route", () => {
-  test("le pied de page y mène, à côté du choix de la saison", async ({ page }) => {
+  test("le menu de la barre de navigation y mène", async ({ page }) => {
     await page.goto("/");
-    const footer = page.locator("footer");
-    await expect(footer.locator('[data-tip="Saison"]')).toHaveCount(1);
-    await footer.getByRole("link", { name: "Feuille de route" }).click();
+    await page.locator(".navbar").getByRole("button", { name: "Menu" }).click();
+    await page.locator(".navbar").getByRole("link", { name: "Feuille de route" }).click();
     await expect(page).toHaveURL(/\/roadmap$/);
     await expect(page.getByRole("heading", { name: /feuille de route/i })).toBeVisible();
     await expect(page).toHaveTitle(/Feuille de route/);
   });
 
-  test("les trois états et les fonctionnalités à venir sont annoncés", async ({ page }) => {
+  test("les états et les fonctionnalités à venir sont annoncés", async ({ page }) => {
     await page.goto("/roadmap");
     const main = page.locator("main.container");
-    for (const etat of ["Disponible", "En chantier", "À venir"]) {
+    // La section « En chantier » est retirée tant qu'aucun chantier n'est commencé
+    for (const etat of ["Disponible", "À venir"]) {
       await expect(main.getByText(etat, { exact: true }).first()).toBeVisible();
     }
     for (const titre of ["Organisateur d'élections RP", "Aides et utilitaires", "Catalogue des boutiques", "Jours de marché et foires",
@@ -40,7 +40,7 @@ test.describe("Feuille de route", () => {
 
   test("les ancres du bandeau mènent aux sections", async ({ page }) => {
     await page.goto("/roadmap");
-    for (const etat of ["disponible", "chantier", "avenir"]) {
+    for (const etat of ["disponible", "avenir"]) {
       await expect(page.locator(`main.container a[href="#${etat}"]`)).toHaveCount(1);
       await expect(page.locator(`section#${etat}`)).toHaveCount(1);
     }
