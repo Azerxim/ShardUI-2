@@ -187,7 +187,7 @@ Les routes sont déclarées dans `src/App.jsx`. Le titre de l'onglet vient de `p
 | `/commerces`, `/commerce/:id` | Liste et fiche (membres, magasins, filiales) ; prochaines foires (`/commerces#foires`) et jours de marché des zones ; catalogue de chaque magasin (`CatalogueMagasin`, tenu par le Fondateur et les Admins) et recherche « Où acheter ? » (`/commerces#ou-acheter`, `OuAcheter`) ; `/commerce/:id#magasin-:id` descend jusqu'au magasin | Public |
 | `/alliances`, `/alliance/:id` | Liste et fiche (membres, invitations, guerres) | Public |
 | `/guerres`, `/guerre/:id` | Liste, fiche, chronologie, camps, zones de conflit, cibles (`CiblesSection` : destructibles des villes des deux camps, `#cibles`) | Public (déclarations non validées : parties et modérateurs) |
-| `/personnages`, `/personnage/:id` | Liste et fiche d'un personnage | Public |
+| `/personnages`, `/personnage/:id` | Liste et fiche d'un personnage ; portrait et skin envoyés depuis le formulaire (`enregistrerPersonnage`, `utils/personnages.js`) | Public (édition : son joueur ou un administrateur) |
 | `/admin` | Redirige vers `/admin/dimensions` | — |
 | `/admin/dimensions` | Dimensions de la carte | Administrateur |
 | `/admin/personnages` | Espèces et classes | Administrateur ou modérateur RP |
@@ -265,7 +265,8 @@ immédiat au retour sur la page ; l'API reste la source.
 Les formulaires de création et d'édition sont décrits par des objets de configuration
 (`config/modals/*.js`) et rendus par `DynamicModal` / `FormModal`.
 `FormModal` (formulaires décrits par la page : alliances, guerres, fermes, foires…) accepte aussi les types
-`checkboxes`, `file` et `localisation` ; ce dernier reprend `fields/LocalisationField` des villes (monde, X/Z et carte
+`checkboxes`, `file`, `onglets` (une rangée d'onglets, seuls les champs de l'onglet choisi s'affichent : portrait et
+skin d'un personnage) et `localisation` ; ce dernier reprend `fields/LocalisationField` des villes (monde, X/Z et carte
 de localisation qui suit le déplacement, sur grand écran) et écrit `dimension_id`, `x` et `z`.
 
 ```js

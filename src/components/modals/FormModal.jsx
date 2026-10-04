@@ -11,6 +11,8 @@ const resolve = (option, values) => (typeof option === "function" ? option(value
 //   type : "text" | "textarea" | "select" | "radio" | "checkboxes" | "file" | "date" | "number" | "color" | "icons"
 //   checkboxes : valeur = tableau des options cochées ; file : valeur = File (accept : types acceptés)
 //   localisation : monde + X/Z avec carte de localisation, comme pour les villes (écrit dimension_id, x et z)
+//   onglets : la valeur est l'onglet choisi ; options : [{ value, label, aide?, fields? }] — seuls les champs de
+//     l'onglet actif sont affichés (ceux des autres gardent leur valeur : c'est à onSubmit de l'ignorer)
 //   options (select, radio, icons) et empty (texte si aucun choix) : valeur ou fonction (valeurs) => valeur
 //   resets : champs vidés quand celui-ci change (ex. le type de guerre remet à zéro les camps)
 // onSubmit(valeurs) appelle l'API ; une Error levée affiche son message puis rouvre la modale.
@@ -104,6 +106,31 @@ export default function FormModal({ id, title, intro = null, fields = [], initia
             case "file":
                 // Un champ fichier ne se remplit pas par programme : sa valeur est le File choisi
                 return <input type="file" name={field.name} accept={field.accept} required={field.required} onChange={(e) => setValue(field, e.target.files?.[0] ?? null)} className="file-input file-input-ghost bg-base-100 brightness-98 w-full" />;
+            case "onglets": {
+                const actif = options.find((opt) => String(opt.value) === String(value)) ?? options[0];
+                return (
+                    <div className="flex flex-col gap-2">
+                        <div role="tablist" aria-label={field.label} className="tabs tabs-box bg-base-200 flex-wrap w-fit">
+                            {options.map((opt) => (
+                                <button
+                                    key={opt.value}
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={opt === actif}
+                                    className={`tab ${opt === actif ? "tab-active" : ""}`}
+                                    onClick={() => setValue(field, opt.value)}
+                                >
+                                    {opt.label}
+                                </button>
+                            ))}
+                        </div>
+                        <div role="tabpanel" className="flex flex-col gap-2">
+                            {actif?.aide ? <p className="text-sm opacity-80">{resolve(actif.aide, values)}</p> : null}
+                            {(actif?.fields || []).map(renderChamp)}
+                        </div>
+                    </div>
+                );
+            }
             case "icons":
                 return (
                     <div className="flex flex-row flex-wrap gap-2">
@@ -118,6 +145,28 @@ export default function FormModal({ id, title, intro = null, fields = [], initia
                 return <input type={field.type || "text"} name={field.name} value={value} placeholder={field.placeholder} required={field.required} onChange={(e) => setValue(field, e.target.value)} className={field.type === "color" ? "w-full h-10 cursor-pointer rounded-2xl" : inputClass} />;
         }
     };
+
+    // Un champ avec sa légende et son aide ; aussi appelé pour les champs d'un onglet
+    function renderChamp(field) {
+        if (field.type === "localisation") {
+            // Champ des modales dynamiques (villes, magasins) : il porte sa propre légende
+            return (
+                <LocalisationField
+                    key={field.name}
+                    champ={field}
+                    formValues={values}
+                    onChange={(name, value) => setValues((prev) => ({ ...prev, [name]: value }))}
+                />
+            );
+        }
+        return (
+            <fieldset key={field.name} className="fieldset">
+                <legend className="fieldset-legend">{field.label}{field.required ? " *" : ""}</legend>
+                {renderField(field)}
+                {field.help ? <p className="label whitespace-normal">{resolve(field.help, values)}</p> : null}
+            </fieldset>
+        );
+    }
 
     return (
         <dialog id={id} className="modal">
@@ -135,21 +184,7 @@ export default function FormModal({ id, title, intro = null, fields = [], initia
                                 <span>{intro}</span>
                             </div>
                         ) : null}
-                        {fields.map((field) => field.type === "localisation" ? (
-                            // Champ des modales dynamiques (villes, magasins) : il porte sa propre légende
-                            <LocalisationField
-                                key={field.name}
-                                champ={field}
-                                formValues={values}
-                                onChange={(name, value) => setValues((prev) => ({ ...prev, [name]: value }))}
-                            />
-                        ) : (
-                            <fieldset key={field.name} className="fieldset">
-                                <legend className="fieldset-legend">{field.label}{field.required ? " *" : ""}</legend>
-                                {renderField(field)}
-                                {field.help ? <p className="label whitespace-normal">{resolve(field.help, values)}</p> : null}
-                            </fieldset>
-                        ))}
+                        {fields.map(renderChamp)}
                     </div>
                     <div className="modal-action">
                         <button type="button" className="btn btn-md rounded-3xl" onClick={handleCancel}>Annuler</button>

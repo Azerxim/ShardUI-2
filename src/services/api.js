@@ -674,6 +674,17 @@ export const getPersonnagesOfJournal = (journalId) => publicGet(`/personnages/jo
 
 export const getQuartiers = () => publicGet("/civilisations/quartiers/list?limit=10000");
 
+// Portrait envoyé (PNG, JPEG ou WebP, 5 Mo au plus) : remplace le lien de portrait
+export const envoyerPortraitPersonnage = (personnageId, fichier) => envoyerFichier(`/personnages/portrait/${personnageId}`, "image", fichier);
+
+export const retirerPortraitPersonnage = (personnageId) => apiRequest("DELETE", `/personnages/portrait/${personnageId}`);
+
+// Skin envoyé (PNG 64 × 64 ou 64 × 32, 1 Mo au plus) : devient la source du skin
+export const envoyerSkinPersonnage = (personnageId, fichier) => envoyerFichier(`/personnages/skin/${personnageId}`, "skin", fichier);
+
+// Adresse d'un portrait ou d'un skin envoyé (nom aléatoire renvoyé par l'API)
+export const fichierPersonnageUrl = (nom) => `${apiURL}/personnages/fichier/${nom}`;
+
 // { especes: [{ id, title, description }], classes: [...] } ; gestion : apiRequest sur /personnages/referentiel/{especes|classes}
 export const getPersonnageReferentiel = () => publicGet("/personnages/referentiel");
 
@@ -823,11 +834,11 @@ export const deleteFerme = (fermeId) => apiRequest("DELETE", `/fermes/delete/${f
 // status : "validee" ou "a_corriger" (note obligatoire)
 export const deciderFerme = (fermeId, status, note = null) => apiRequest("PUT", `/fermes/decision/${fermeId}`, { status, note });
 
-// Photo (PNG, JPEG ou WebP, 5 Mo au plus) envoyée en multipart : pas d'en-tête JSON
-export async function envoyerPhotoFerme(fermeId, fichier) {
+// Envoi d'un fichier en multipart (champ `champ`) : pas d'en-tête JSON, le navigateur pose la frontière
+async function envoyerFichier(path, champ, fichier) {
   const corps = new FormData();
-  corps.append("photo", fichier);
-  const response = await fetch(`${apiURL}/fermes/photo/${fermeId}`, {
+  corps.append(champ, fichier);
+  const response = await fetch(`${apiURL}${path}`, {
     method: "POST",
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     body: corps,
@@ -836,6 +847,9 @@ export async function envoyerPhotoFerme(fermeId, fichier) {
   if (!response.ok) throw new Error(typeof data?.detail === "string" ? data.detail : `Erreur ${response.status}`);
   return data;
 }
+
+// Photo (PNG, JPEG ou WebP, 5 Mo au plus)
+export const envoyerPhotoFerme = (fermeId, fichier) => envoyerFichier(`/fermes/photo/${fermeId}`, "photo", fichier);
 
 // Adresse d'affichage d'une photo de ferme (nom aléatoire renvoyé par l'API)
 export const photoFermeUrl = (nom) => `${apiURL}/fermes/photo/${nom}`;

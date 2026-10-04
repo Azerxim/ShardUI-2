@@ -95,7 +95,7 @@ test("le personnage prend le skin du compte Minecraft lié", async ({ browser })
   const modifier = async () => {
     await main(page).getByRole("button", { name: "Modifier" }).first().click();
     const dialog = page.locator("dialog[open]");
-    await dialog.getByLabel("Skin de mon compte Minecraft").check();
+    await dialog.getByRole("tablist", { name: "Skin" }).getByRole("tab", { name: "Compte Minecraft" }).click();
     await dialog.locator('button[type="submit"]').click();
     return readAlert(page);
   };

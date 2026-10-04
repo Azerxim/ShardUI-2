@@ -16,7 +16,7 @@ import FormModal from "@/components/modals/FormModal";
 
 import { showModalID } from "@/utils/showModal";
 import { formatDate, runAction } from "@/utils/conflits";
-import { EMPTY_LIEUX, EMPTY_REFERENTIEL, PERSONNAGE_STATUTS, loadLieux, loadReferentiel, minecraftBody, personnageFormFields, personnageInitialValues, villeHref } from "@/utils/personnages";
+import { EMPTY_LIEUX, EMPTY_REFERENTIEL, PERSONNAGE_STATUTS, enregistrerPersonnage, loadLieux, loadReferentiel, minecraftBody, personnageFormFields, personnageInitialValues, skinFichierUrl, villeHref } from "@/utils/personnages";
 import { getSessionUser } from "@/services/session";
 import { apiRequest, getPersonnageById } from "@/services/api";
 import LivresLiesSection from "@/components/bibliotheque/LivresLiesSection";
@@ -83,10 +83,11 @@ export default function PersonnagePage() {
     };
 
     const saveEdit = async (values) => {
-        const result = await apiRequest("PUT", `/personnages/update/${id}`, values);
-        Swal.fire({ icon: "success", title: "Succès", text: result?.text ?? "Le personnage a été mis à jour" });
+        const { data, avertissement } = await enregistrerPersonnage(values, personnage);
+        Swal.fire({ icon: avertissement ? "warning" : "success", title: avertissement ? "Fichier refusé" : "Succès", text: avertissement ?? data?.text ?? "Le personnage a été mis à jour" });
         reload();
     };
+
 
     const btnReturn = { text: "Retour aux personnages", icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: "/personnages" };
 
@@ -141,7 +142,7 @@ export default function PersonnagePage() {
                     <MarkdownTextEditor value={personnage.description || "Aucune histoire n'a encore été écrite."} />
                 </div>
 
-                {personnage.minecraft_uuid || personnage.skin_url ? (
+                {personnage.minecraft_uuid || skinFichierUrl(personnage) ? (
                     <div className="flex flex-col gap-2">
                         <span className="flex flex-row items-center gap-2 font-bold">
                             <FontAwesomeIcon icon="fas fa-shirt" />
@@ -151,9 +152,9 @@ export default function PersonnagePage() {
                             {personnage.minecraft_uuid ? (
                                 <img src={minecraftBody(personnage.minecraft_uuid, 120)} alt={`Skin Minecraft de ${personnage.name}`} loading="lazy" className="h-48 w-auto" style={{ imageRendering: "pixelated" }} />
                             ) : null}
-                            {personnage.skin_url ? (
-                                <a href={personnage.skin_url} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 link link-hover">
-                                    <img src={personnage.skin_url} alt={`Fichier de skin de ${personnage.name}`} loading="lazy" className="w-32 h-32 bg-base-100 rounded-xl object-contain" style={{ imageRendering: "pixelated" }} />
+                            {skinFichierUrl(personnage) ? (
+                                <a href={skinFichierUrl(personnage)} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 link link-hover">
+                                    <img src={skinFichierUrl(personnage)} alt={`Fichier de skin de ${personnage.name}`} loading="lazy" className="w-32 h-32 bg-base-100 rounded-xl object-contain" style={{ imageRendering: "pixelated" }} />
                                     <span className="text-sm">Ouvrir le fichier de skin</span>
                                 </a>
                             ) : null}
@@ -214,10 +215,11 @@ export default function PersonnagePage() {
 
                     {personnage && canManage ? (
                         <FormModal
-                            key={`edit-${personnage.id}-${reloadKey}`}
+                            // Repart des valeurs enregistrées (portrait et skin envoyés compris) une fois la fiche rechargée
+                            key={`edit-${personnage.id}-${personnage.updated_at}-${personnage.image_fichier}-${personnage.skin_fichier}`}
                             id={EDIT_MODAL_ID}
                             title="Modifier le personnage"
-                            fields={personnageFormFields(lieux, referentiel)}
+                            fields={personnageFormFields(lieux, referentiel, personnage)}
                             initialValues={personnageInitialValues(personnage)}
                             submitLabel="Enregistrer"
                             onSubmit={saveEdit}

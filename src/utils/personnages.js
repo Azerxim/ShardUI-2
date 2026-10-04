@@ -1,5 +1,5 @@
 import { toOptions } from "@/utils/conflits";
-import { getCivilisations, getPersonnageReferentiel, getQuartiers, getVilles } from "@/services/api";
+import { apiRequest, envoyerPortraitPersonnage, envoyerSkinPersonnage, fichierPersonnageUrl, retirerPortraitPersonnage, getCivilisations, getPersonnageReferentiel, getQuartiers, getVilles } from "@/services/api";
 
 // Libellés et formulaire partagés par les pages personnages, le profil et le journal
 
@@ -11,9 +11,16 @@ export const PERSONNAGE_STATUTS = {
 
 export const SKIN_SOURCES = {
     aucun: "Aucun",
-    minecraft: "Skin de mon compte Minecraft",
-    lien: "Lien vers un fichier de skin",
+    minecraft: "Compte Minecraft",
+    lien: "Lien",
+    fichier: "Fichier envoyé",
 };
+
+// Portrait affiché : l'image envoyée, sinon le lien
+export const portraitUrl = (personnage) => (personnage?.image_fichier ? fichierPersonnageUrl(personnage.image_fichier) : personnage?.image_url || null);
+
+// Fichier de skin affiché : le fichier envoyé, sinon le lien
+export const skinFichierUrl = (personnage) => (personnage?.skin_fichier ? fichierPersonnageUrl(personnage.skin_fichier) : personnage?.skin_url || null);
 
 // Rendus du skin Minecraft (UUID du compte lié), servis par mc-heads.net
 export const minecraftHead = (uuid, size = 64) => `https://mc-heads.net/avatar/${uuid}/${size}`;
@@ -53,7 +60,8 @@ export const loadReferentiel = () => getPersonnageReferentiel()
 
 export const EMPTY_REFERENTIEL = { especes: [], classes: [] };
 
-export const personnageFormFields = (lieux, referentiel = EMPTY_REFERENTIEL) => [
+// personnage : fiche en cours de modification (fichiers déjà envoyés), absente à la création
+export const personnageFormFields = (lieux, referentiel = EMPTY_REFERENTIEL, personnage = null) => [
     { name: "name", label: "Nom", type: "text", required: true, placeholder: "Nom du personnage" },
     {
         name: "status", label: "Statut", type: "radio", required: true,
@@ -63,13 +71,32 @@ export const personnageFormFields = (lieux, referentiel = EMPTY_REFERENTIEL) => 
     { name: "classe_id", label: "Classe", type: "select", placeholder: "Non précisée", options: toOptions(referentiel.classes), empty: "Aucune classe n'est encore définie." },
     { name: "grade", label: "Grade ou titre", type: "text", placeholder: "Capitaine de la garde, apprenti forgeron…" },
     { name: "description", label: "Histoire", type: "textarea", placeholder: "Origines, caractère, faits marquants… (Markdown accepté)" },
-    { name: "image_url", label: "Portrait (adresse d'une image)", type: "url", placeholder: "https://…" },
+    // Portrait et skin : un onglet par source, seuls les champs de l'onglet choisi s'affichent
     {
-        name: "skin_source", label: "Skin", type: "radio", required: true,
-        options: Object.entries(SKIN_SOURCES).map(([value, label]) => ({ value, label })),
-        help: "Le skin Minecraft est celui du compte lié à votre profil ; sans portrait, sa tête sert d'avatar.",
+        name: "portrait_source", label: "Portrait", type: "onglets",
+        options: [
+            { value: "aucun", label: "Aucun", aide: "Sans portrait, la tête du skin Minecraft ou l'initiale du personnage sert d'avatar." },
+            {
+                value: "fichier", label: "Image envoyée",
+                aide: personnage?.image_fichier ? "Une image est déjà envoyée : choisissez-en une autre pour la remplacer." : null,
+                fields: [{ name: "portrait", label: "Image", type: "file", accept: "image/png,image/jpeg,image/webp", help: "PNG, JPEG ou WebP, 5 Mo au plus." }],
+            },
+            { value: "lien", label: "Lien", fields: [{ name: "image_url", label: "Adresse de l'image", type: "url", placeholder: "https://…" }] },
+        ],
     },
-    { name: "skin_url", label: "Adresse du fichier de skin", type: "url", placeholder: "https://…/skin.png", help: "Utilisée seulement avec « Lien vers un fichier de skin »." },
+    {
+        name: "skin_source", label: "Skin", type: "onglets",
+        options: [
+            { value: "aucun", label: SKIN_SOURCES.aucun },
+            { value: "minecraft", label: SKIN_SOURCES.minecraft, aide: "Le skin du compte Minecraft lié à votre profil ; sans portrait, sa tête sert d'avatar." },
+            { value: "lien", label: SKIN_SOURCES.lien, fields: [{ name: "skin_url", label: "Adresse du fichier de skin", type: "url", placeholder: "https://…/skin.png" }] },
+            {
+                value: "fichier", label: SKIN_SOURCES.fichier,
+                aide: personnage?.skin_fichier ? "Un skin est déjà envoyé : choisissez-en un autre pour le remplacer." : null,
+                fields: [{ name: "skin", label: "Fichier de skin", type: "file", accept: "image/png", help: "PNG de 64 × 64 pixels (ou 64 × 32, ancien format), comme dans le dossier du jeu." }],
+            },
+        ],
+    },
     { name: "date_naissance", label: "Date de naissance dans le RP", type: "date" },
     { name: "date_deces", label: "Date de décès dans le RP", type: "date", help: "Ignorée tant que le personnage est vivant." },
     {
@@ -88,7 +115,17 @@ export const personnageFormFields = (lieux, referentiel = EMPTY_REFERENTIEL) => 
     },
 ];
 
-export const PERSONNAGE_INITIAL = { status: "vivant", skin_source: "aucun" };
+export const PERSONNAGE_INITIAL = { status: "vivant", portrait_source: "aucun", skin_source: "aucun" };
+
+// Espèce proposée par défaut à la création : « Humain », retrouvé par son nom dans le référentiel (géré par les
+// administrateurs et modérateurs RP, donc sans identifiant fixe) ; aucune s'il n'existe plus
+export const ESPECE_PAR_DEFAUT = "Humain";
+const sansAccents = (texte) => String(texte ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+
+export const personnageValeursCreation = (referentiel = EMPTY_REFERENTIEL) => {
+    const espece = (referentiel.especes || []).find((item) => sansAccents(item.title) === sansAccents(ESPECE_PAR_DEFAUT));
+    return { ...PERSONNAGE_INITIAL, espece_id: espece ? String(espece.id) : "" };
+};
 
 const idValue = (value) => (value ? String(value) : "");
 
@@ -100,7 +137,10 @@ export const personnageInitialValues = (personnage) => ({
     classe_id: idValue(personnage.classe_id),
     grade: personnage.grade ?? "",
     description: personnage.description ?? "",
+    portrait_source: personnage.image_fichier ? "fichier" : personnage.image_url ? "lien" : "aucun",
     image_url: personnage.image_url ?? "",
+    portrait: null,
+    skin: null,
     skin_source: personnage.skin_source || "aucun",
     skin_url: personnage.skin_url ?? "",
     date_naissance: personnage.date_naissance ?? "",
@@ -109,3 +149,50 @@ export const personnageInitialValues = (personnage) => ({
     ville_id: idValue(personnage.ville_id),
     quartier_id: idValue(personnage.quartier_id),
 });
+
+// Création (personnage absent) ou mise à jour, puis envoi du portrait et du skin choisis dans le formulaire.
+// Seul l'onglet choisi compte : un fichier choisi dans un autre onglet est ignoré. Un skin « Fichier envoyé » n'existe
+// qu'une fois le fichier reçu : la source est posée par l'envoi du skin.
+// Renvoie { data, avertissement } : avertissement si un fichier a été refusé (la fiche, elle, est enregistrée).
+export async function enregistrerPersonnage(values, personnage = null) {
+    const { portrait, skin, portrait_source: portraitSource, ...corps } = values;
+    let portraitAEnvoyer = null;
+    let skinAEnvoyer = null;
+    let retirerPortrait = false;
+
+    if (portraitSource === "fichier") {
+        if (portrait) portraitAEnvoyer = portrait;
+        else if (!personnage?.image_fichier) throw new Error("Choisissez l'image du portrait, ou un autre onglet.");
+        delete corps.image_url;
+    } else if (portraitSource === "lien") {
+        if (!corps.image_url?.trim()) throw new Error("Indiquez l'adresse du portrait, ou un autre onglet.");
+    } else {
+        corps.image_url = "";
+        retirerPortrait = Boolean(personnage?.image_fichier);
+    }
+
+    if (corps.skin_source === "fichier") {
+        if (skin) {
+            // L'envoi du skin en fera la source : d'ici là, la fiche garde la sienne (« aucun » à la création)
+            skinAEnvoyer = skin;
+            if (personnage) delete corps.skin_source;
+            else corps.skin_source = "aucun";
+        } else if (!personnage?.skin_fichier) {
+            throw new Error("Choisissez le fichier de skin à envoyer, ou un autre onglet.");
+        }
+    }
+
+    let data = personnage ? await apiRequest("PUT", `/personnages/update/${personnage.id}`, corps) : await apiRequest("POST", "/personnages/create", corps);
+    const id = data.personnage.id;
+    if (retirerPortrait) data = { ...data, ...(await retirerPortraitPersonnage(id)) };
+    const refus = [];
+    for (const [fichier, envoyer, libelle] of [[portraitAEnvoyer, envoyerPortraitPersonnage, "portrait"], [skinAEnvoyer, envoyerSkinPersonnage, "skin"]]) {
+        if (!fichier) continue;
+        try {
+            data = { ...data, ...(await envoyer(id, fichier)) };
+        } catch (error) {
+            refus.push(`${libelle} : ${error.message}`);
+        }
+    }
+    return { data, avertissement: refus.length ? `La fiche est enregistrée, mais un fichier a été refusé (${refus.join(" ; ")}).` : null };
+}

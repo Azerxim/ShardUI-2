@@ -13,9 +13,9 @@ import FormModal from "@/components/modals/FormModal";
 import { showModalID } from "@/utils/showModal";
 import { requireLogin } from "@/utils/requireLogin";
 import { plural } from "@/utils/plural";
-import { EMPTY_LIEUX, EMPTY_REFERENTIEL, PERSONNAGE_INITIAL, PERSONNAGE_STATUTS, identityText, loadLieux, loadReferentiel, personnageFormFields, residenceText } from "@/utils/personnages";
+import { EMPTY_LIEUX, EMPTY_REFERENTIEL, PERSONNAGE_STATUTS, enregistrerPersonnage, personnageValeursCreation, identityText, loadLieux, loadReferentiel, personnageFormFields, residenceText } from "@/utils/personnages";
 import { getSessionUser } from "@/services/session";
-import { apiRequest, getPersonnages } from "@/services/api";
+import { getPersonnages } from "@/services/api";
 import EtatVide from '@/components/ui/EtatVide';
 
 const CREATE_MODAL_ID = "personnage-create-modal";
@@ -99,8 +99,8 @@ export default function PersonnagesPage() {
     ));
 
     const createPersonnage = async (values) => {
-        const data = await apiRequest("POST", "/personnages/create", values);
-        await Swal.fire({ icon: "success", title: "Personnage créé", text: `${data.personnage.name} est prêt à entrer dans l'histoire.` });
+        const { data, avertissement } = await enregistrerPersonnage(values);
+        await Swal.fire({ icon: avertissement ? "warning" : "success", title: "Personnage créé", text: avertissement ?? `${data.personnage.name} est prêt à entrer dans l'histoire.` });
         navigate(`/personnage/${data.personnage.id}`);
     };
 
@@ -169,11 +169,13 @@ export default function PersonnagesPage() {
 
                     {user ? (
                         <FormModal
+                            // Repart des valeurs par défaut (espèce « Humain ») une fois le référentiel chargé
+                            key={`create-${referentiel.especes?.length ?? 0}`}
                             id={CREATE_MODAL_ID}
                             title="Créer un personnage"
                             intro="Pas de validation : votre personnage existe dès sa création. Vous pourrez le modifier à tout moment."
                             fields={personnageFormFields(lieux, referentiel)}
-                            initialValues={PERSONNAGE_INITIAL}
+                            initialValues={personnageValeursCreation(referentiel)}
                             submitLabel="Créer"
                             onSubmit={createPersonnage}
                         />
