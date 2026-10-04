@@ -2,7 +2,7 @@ import { MAPS_BASE_URL } from "@/config/maps";
 
 // ===== Sections du site =====
 // Source unique des liens de navigation : la barre du haut (components/layout/Navbar.jsx : liens visibles sur grand
-// écran, menu burger) et la barre des sections des pages de liste (components/layout/DynamicNavbar.jsx).
+// écran, menu latéral) et la barre des sections des pages de liste (components/layout/DynamicNavbar.jsx).
 
 export const DECOUVRIR = [
   { id: "codex", href: "/codex", icon: "fa-solid fa-scroll", text: "Codex" },

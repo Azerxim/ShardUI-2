@@ -24,7 +24,7 @@ test.describe("Mobile", () => {
     await page.setViewportSize({ width: 390, height: 560 });
     await page.goto("/codex");
     await page.locator(".navbar").getByRole("button", { name: "Menu" }).click();
-    const menu = page.locator(".navbar ul.dropdown-content").first();
+    const menu = page.locator("#panneau-menu ul.menu");
     await expect(menu).toBeVisible();
     const { bas, defile } = await menu.evaluate((element) => ({
       bas: element.getBoundingClientRect().bottom - window.innerHeight,

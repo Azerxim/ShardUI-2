@@ -89,7 +89,6 @@ import { definition as fasFlask } from "@fortawesome/free-solid-svg-icons/faFlas
 import { definition as fasFont } from "@fortawesome/free-solid-svg-icons/faFont";
 import { definition as fasGamepad } from "@fortawesome/free-solid-svg-icons/faGamepad";
 import { definition as fasGavel } from "@fortawesome/free-solid-svg-icons/faGavel";
-import { definition as fasGear } from "@fortawesome/free-solid-svg-icons/faGear";
 import { definition as fasGears } from "@fortawesome/free-solid-svg-icons/faGears";
 import { definition as fasGem } from "@fortawesome/free-solid-svg-icons/faGem";
 import { definition as fasHammer } from "@fortawesome/free-solid-svg-icons/faHammer";
@@ -127,6 +126,7 @@ import { definition as fasMapLocationDot } from "@fortawesome/free-solid-svg-ico
 import { definition as fasMasksTheater } from "@fortawesome/free-solid-svg-icons/faMasksTheater";
 import { definition as fasMedal } from "@fortawesome/free-solid-svg-icons/faMedal";
 import { definition as fasMinus } from "@fortawesome/free-solid-svg-icons/faMinus";
+import { definition as fasMoon } from "@fortawesome/free-solid-svg-icons/faMoon";
 import { definition as fasMusic } from "@fortawesome/free-solid-svg-icons/faMusic";
 import { definition as fasNetworkWired } from "@fortawesome/free-solid-svg-icons/faNetworkWired";
 import { definition as fasNewspaper } from "@fortawesome/free-solid-svg-icons/faNewspaper";
@@ -158,6 +158,7 @@ import { definition as fasSkull } from "@fortawesome/free-solid-svg-icons/faSkul
 import { definition as fasStamp } from "@fortawesome/free-solid-svg-icons/faStamp";
 import { definition as fasStore } from "@fortawesome/free-solid-svg-icons/faStore";
 import { definition as fasStrikethrough } from "@fortawesome/free-solid-svg-icons/faStrikethrough";
+import { definition as fasSun } from "@fortawesome/free-solid-svg-icons/faSun";
 import { definition as fasTags } from "@fortawesome/free-solid-svg-icons/faTags";
 import { definition as fasTents } from "@fortawesome/free-solid-svg-icons/faTents";
 import { definition as fasTimeline } from "@fortawesome/free-solid-svg-icons/faTimeline";
@@ -265,7 +266,6 @@ export default [
     fasFont,
     fasGamepad,
     fasGavel,
-    fasGear,
     fasGears,
     fasGem,
     fasHammer,
@@ -303,6 +303,7 @@ export default [
     fasMasksTheater,
     fasMedal,
     fasMinus,
+    fasMoon,
     fasMusic,
     fasNetworkWired,
     fasNewspaper,
@@ -334,6 +335,7 @@ export default [
     fasStamp,
     fasStore,
     fasStrikethrough,
+    fasSun,
     fasTags,
     fasTents,
     fasTimeline,

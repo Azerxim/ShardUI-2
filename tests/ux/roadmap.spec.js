@@ -10,7 +10,7 @@ test.describe("Feuille de route", () => {
   test("le menu de la barre de navigation y mène", async ({ page }) => {
     await page.goto("/");
     await page.locator(".navbar").getByRole("button", { name: "Menu" }).click();
-    await page.locator(".navbar").getByRole("link", { name: "Feuille de route" }).click();
+    await page.locator("#panneau-menu").getByRole("link", { name: "Feuille de route" }).click();
     await expect(page).toHaveURL(/\/roadmap$/);
     await expect(page.getByRole("heading", { name: /feuille de route/i })).toBeVisible();
     await expect(page).toHaveTitle(/Feuille de route/);

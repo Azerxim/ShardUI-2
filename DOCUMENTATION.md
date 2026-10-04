@@ -198,8 +198,9 @@ Les routes au singulier sans identifiant (`/civilisation`, `/religion`, `/commer
 `/personnage`, `/bibliotheque/journal`, `/bibliotheque/livre`) redirigent vers la liste.
 
 La barre de navigation (`components/layout/Navbar.jsx`) lit ses entrées dans `config/navbar.js` : Codex, Bibliothèque,
-Civilisations, Religions, Commerces, Alliances, Guerres, Personnages. Le menu du compte ajoute les pages
-d'administration selon les rôles.
+Civilisations, Religions, Commerces, Alliances, Guerres, Personnages. Ses boutons ouvrent des panneaux latéraux
+(`PanneauLateral`, masqués par défaut, fermés par la croix, le voile ou Échap) : à gauche le menu (qui ajoute les pages
+d'administration selon les rôles), le compte et le thème ; à droite les joueurs connectés au serveur.
 
 ## Session et droits
 

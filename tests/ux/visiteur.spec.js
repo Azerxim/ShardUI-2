@@ -39,11 +39,85 @@ test.describe("Visiteur", () => {
 
   test("les boutons de la barre de navigation ont un nom accessible", async ({ page }) => {
     await page.goto("/");
-    const buttons = page.locator('.navbar [role="button"]');
+    const buttons = page.locator('.navbar button, .navbar [role="button"]');
     await expect(buttons.first()).toBeVisible();
     for (const button of await buttons.all()) {
       expect(await button.getAttribute("aria-label")).toBeTruthy();
     }
+  });
+
+  test("le menu latéral est masqué jusqu'au clic sur Menu", async ({ page }) => {
+    await page.goto("/");
+    const menu = page.locator("#panneau-menu");
+    const bouton = page.locator(".navbar").getByRole("button", { name: "Menu" });
+    await expect(menu).not.toBeInViewport();
+    await expect(bouton).toHaveAttribute("aria-expanded", "false");
+
+    await bouton.click();
+    await expect(menu).toBeInViewport();
+    await expect(bouton).toHaveAttribute("aria-expanded", "true");
+    await expect(menu.getByRole("link", { name: "Codex" })).toBeVisible();
+
+    // Échap le referme et rend le focus au bouton
+    await page.keyboard.press("Escape");
+    await expect(menu).not.toBeInViewport();
+    await expect(bouton).toBeFocused();
+
+    // Un clic à côté du menu le referme aussi
+    await bouton.click();
+    await expect(menu).toBeInViewport();
+    await page.mouse.click(page.viewportSize().width - 20, page.viewportSize().height / 2);
+    await expect(menu).not.toBeInViewport();
+  });
+
+  test("le compte s'ouvre dans un panneau latéral", async ({ page }) => {
+    await page.goto("/");
+    const panneau = page.locator("#panneau-compte");
+    await expect(panneau).not.toBeInViewport();
+    await page.locator(".navbar").getByRole("button", { name: "Connexion ou inscription" }).click();
+    await expect(panneau).toBeInViewport();
+    await expect(panneau.getByRole("link", { name: "Connexion" })).toBeVisible();
+    await panneau.getByRole("link", { name: "Inscription" }).click();
+    await expect(page).toHaveURL(/\/register$/);
+  });
+
+  test("les joueurs connectés s'affichent dans un panneau latéral à droite", async ({ page }) => {
+    // Réponse simulée de mcapi.us (état du serveur), prioritaire sur le blocage des requêtes externes
+    await page.route(/mcapi\.us/, (route) => route.fulfill({
+      json: { online: true, players: { now: 2, max: 20, sample: [{ name: "Alice_RP", id: "a" }, { name: "Bob_RP", id: "b" }] } },
+    }));
+    await page.goto("/");
+    const panneau = page.locator("#panneau-joueurs");
+    const bouton = page.locator(".navbar").getByRole("button", { name: "Joueurs connectés" });
+    await expect(panneau).not.toBeInViewport();
+
+    await bouton.click();
+    await expect(panneau).toBeInViewport();
+    await expect(panneau.getByText("Alice_RP")).toBeVisible();
+    await expect(panneau.getByText("Bob_RP")).toBeVisible();
+    const { gauche, largeur } = await panneau.evaluate((element) => ({ gauche: element.getBoundingClientRect().left, largeur: window.innerWidth }));
+    expect(gauche).toBeGreaterThan(largeur / 2);
+
+    await page.keyboard.press("Escape");
+    await expect(panneau).not.toBeInViewport();
+    await expect(bouton).toBeFocused();
+  });
+
+  test("le thème se choisit dans un panneau latéral", async ({ page }) => {
+    await page.goto("/");
+    const panneau = page.locator("#panneau-theme");
+    const bouton = page.locator(".navbar").getByRole("button", { name: "Thème" });
+    await expect(panneau).not.toBeInViewport();
+    for (const [nom, theme] of [["Sombre", "dark"], ["Clair", "light"]]) {
+      await bouton.click();
+      await expect(panneau).toBeInViewport();
+      await panneau.getByRole("button", { name: nom }).click();
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+      // Le choix referme le panneau
+      await expect(panneau).not.toBeInViewport();
+    }
+    await bouton.click();
+    await expect(panneau.getByRole("button", { name: "Clair" })).toHaveAttribute("aria-pressed", "true");
   });
 
   for (const { path, tip } of [
