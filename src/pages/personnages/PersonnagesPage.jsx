@@ -120,7 +120,7 @@ export default function PersonnagesPage() {
                             </button>
                         }
                     />
-                    <DynamicNavbar active_id="personnages" />
+                    {/* <DynamicNavbar active_id="personnages" /> */}
 
                     <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 w-full">
                         <label className="input input-ghost bg-base-200 rounded-3xl flex-1 min-w-0 sm:min-w-64">

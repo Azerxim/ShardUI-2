@@ -123,7 +123,7 @@ export default function CommercesPage() {
                             </button>
                         }
                     />
-                    <DynamicNavbar active_id="commerces" />
+                    {/* <DynamicNavbar active_id="commerces" /> */}
                     <MonnaieOfficielle compact />
 
                     {loading ? (

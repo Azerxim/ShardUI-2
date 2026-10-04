@@ -161,7 +161,7 @@ export default function BibliothequePage() {
                             </div>
                         }
                     />
-                    <DynamicNavbar active_id="bibliotheque" />
+                    {/* <DynamicNavbar active_id="bibliotheque" /> */}
 
                     <TitleH2 text="Journaux" fonctions={journaux_fonctions} aide="journal" />
                     {loadingJournaux ? (

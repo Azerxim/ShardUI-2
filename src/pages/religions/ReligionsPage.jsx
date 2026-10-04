@@ -115,7 +115,7 @@ export default function ReligionsPage() {
               </div>
             }
           />
-          <DynamicNavbar active_id="religions" />
+          {/* <DynamicNavbar active_id="religions" /> */}
 
           {loading ? (
             storageReligions.length === 0 ? (

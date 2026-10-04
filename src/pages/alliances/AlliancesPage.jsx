@@ -84,7 +84,7 @@ export default function AlliancesPage() {
                             </button>
                         }
                     />
-                    <DynamicNavbar active_id="alliances" />
+                    {/* <DynamicNavbar active_id="alliances" /> */}
 
                     {loading ? (
                         <div className="flex flex-col gap-4 w-full">

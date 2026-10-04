@@ -24,7 +24,8 @@ function CodexSaison() {
       <Navbar active="codex" />
       <div className="bg-base-100">
         <main className="container mx-auto p-4">
-          <CodexContenu apresHero={<DynamicNavbar active_id="codex" />} />
+          {/* <CodexContenu apresHero={<DynamicNavbar active_id="codex" />} /> */}
+          <CodexContenu />
         </main>
       </div>
     </>

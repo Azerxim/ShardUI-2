@@ -167,7 +167,7 @@ export default function GuerresPage() {
                             </div>
                         }
                     />
-                    <DynamicNavbar active_id="guerres" />
+                    {/* <DynamicNavbar active_id="guerres" /> */}
 
                     {mine.appels.length > 0 ? (
                         <>

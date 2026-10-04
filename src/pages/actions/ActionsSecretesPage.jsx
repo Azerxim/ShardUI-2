@@ -210,7 +210,7 @@ export default function ActionsSecretesPage() {
                             </button>
                         }
                     />
-                    <DynamicNavbar active_id="actions" />
+                    {/* <DynamicNavbar active_id="actions" /> */}
 
                     <ol className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full my-2">
                         {ETAPES.map((etape, index) => (

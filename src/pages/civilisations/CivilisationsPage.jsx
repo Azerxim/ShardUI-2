@@ -168,7 +168,7 @@ export default function CivilisationsPage() {
               </div>
             }
           />
-          <DynamicNavbar active_id="civilisations" />
+          {/* <DynamicNavbar active_id="civilisations" /> */}
 
           {loading ? (
             storageCivilisations.length === 0 ? (
