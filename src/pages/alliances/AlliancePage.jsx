@@ -109,7 +109,7 @@ export default function AlliancePage() {
 
     const BodyHTML = alliance ? (
         <>
-            <TitleH1 text={alliance.title} icon={alliance.icon || type.icon} btn={btnReturn} fonctions={FctModify} />
+            <TitleH1 text={alliance.title} icon={alliance.icon || type.icon} btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Alliances", href: "/alliances" }, { label: alliance.title }]} />
 
             <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4 border-l-8" style={{ borderLeftColor: alliance.color || undefined }}>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -230,7 +230,7 @@ export default function AlliancePage() {
                 </>
             ) : null}
 
-            <TitleH2 text="Guerres des membres" icon="fas fa-shield-halved" />
+            <TitleH2 text="Guerres des membres" icon="fas fa-shield-halved" aide="alliance" />
             {guerres.length === 0 ? (
                 <i className="w-full">Aucun membre de cette alliance n'est engagé dans une guerre.</i>
             ) : (

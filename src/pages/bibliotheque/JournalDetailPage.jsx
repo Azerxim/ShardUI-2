@@ -426,7 +426,7 @@ export default function JournalDetailPage() {
 
   const BodyHTML = journal ? (
     <>
-      <TitleH1 text={journal.title} icon="fas fa-newspaper" btn={btnReturn} fonctions={FctModify} />
+      <TitleH1 text={journal.title} icon="fas fa-newspaper" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Bibliothèque", href: "/bibliotheque" }, { label: journal.title }]} />
 
       {/* En-tête : informations, chiffres clés et description */}
       <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4">

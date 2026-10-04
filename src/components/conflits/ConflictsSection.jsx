@@ -28,7 +28,7 @@ export default function ConflictsSection({ entityType, entityId }) {
         <>
             {entityType === "civilisation" ? (
                 <>
-                    <TitleH2 text="Alliances" icon="fas fa-handshake" />
+                    <TitleH2 text="Alliances" icon="fas fa-handshake" aide="alliance" />
                     {alliances.length === 0 ? (
                         <div className="flex flex-row flex-wrap items-center gap-2 w-full">
                             <i className="flex-1">Cette civilisation ne fait partie d'aucune alliance.</i>

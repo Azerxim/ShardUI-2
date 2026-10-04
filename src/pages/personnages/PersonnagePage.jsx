@@ -94,7 +94,7 @@ export default function PersonnagePage() {
 
     const BodyHTML = personnage ? (
         <>
-            <TitleH1 text={personnage.name} icon="fas fa-masks-theater" btn={btnReturn} fonctions={FctModify} />
+            <TitleH1 text={personnage.name} icon="fas fa-masks-theater" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Personnages", href: "/personnages" }, { label: personnage.name }]} />
 
             <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">

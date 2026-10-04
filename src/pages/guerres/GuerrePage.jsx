@@ -268,7 +268,7 @@ export default function GuerrePage() {
 
     const BodyHTML = guerre ? (
         <>
-            <TitleH1 text={guerre.title} icon={type.icon} btn={btnReturn} fonctions={FctModify} />
+            <TitleH1 text={guerre.title} icon={type.icon} btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Guerres", href: "/guerres" }, { label: guerre.title }]} />
 
             {moderateur && ouverte ? (
                 <div role="region" aria-label="Modération" className="flex flex-col sm:flex-row sm:items-center gap-3 w-full bg-warning/15 border border-warning/40 rounded-2xl p-3 sm:p-4">
@@ -353,7 +353,7 @@ export default function GuerrePage() {
                 ) : null}
             </div>
 
-            <TitleH2 text="Camps en présence" icon="fas fa-people-group" />
+            <TitleH2 text="Camps en présence" icon="fas fa-people-group" aide="appel" />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
                 {["attaquant", "defenseur"].map((camp) => (
                     <section key={camp} aria-label={CAMP_LABELS[camp].title} className="flex flex-col gap-3 bg-base-200 rounded-3xl p-4">

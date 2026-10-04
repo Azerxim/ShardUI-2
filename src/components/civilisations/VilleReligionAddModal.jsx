@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getApiURL, getReligions } from "@/services/api";
 import { formatInfluence } from "@/utils/religionColor";
 import Swal from "sweetalert2";
+import { alerteErreur } from "@/utils/alerteErreur";
 
 export default function VilleReligionAddModal({
   id,
@@ -55,7 +56,7 @@ export default function VilleReligionAddModal({
       onSubmit(data);
       resetForm();
     } catch (error) {
-      Swal.fire({ icon: "error", title: "Oops...", text: error.message });
+      alerteErreur("Ajout impossible", error);
     }
     close();
   };

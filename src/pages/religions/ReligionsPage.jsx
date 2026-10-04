@@ -19,6 +19,7 @@ import {
   getReligions
 } from "@/services/api"
 import GrimoireHero from "@/components/layout/GrimoireHero";
+import EtatVide from '@/components/ui/EtatVide';
 
 const ReligionCard = ({ religion }) => {
   const members = religion.members || [];
@@ -128,7 +129,12 @@ export default function ReligionsPage() {
               <ReligionList religions={storageReligions} />
             )
           ) : religions.length === 0 ? (
-            <p className="italic opacity-70">Aucune religion disponible.</p>
+            <EtatVide
+              icon="fa-solid fa-place-of-worship"
+              texte="Aucune religion n'a encore été fondée."
+              aide="Une religion réunit des fidèles et gagne de l'influence dans les villes où elle s'implante."
+              action={{ label: "Fonder une religion", icon: "fa-solid fa-plus", onClick: () => requireLogin(() => showModal(religionModal, "add"), "fonder une religion") }}
+            />
           ) : (
             <ReligionList religions={religions} />
           )}

@@ -4,6 +4,7 @@ import Swal from "sweetalert2"
 import { getUserToken } from "@/utils/getAuthToken"
 import { getApiURL } from "@/services/api"
 import ExternalLoginButtons from "@/components/users/ExternalLoginButtons"
+import { alerteErreur } from "@/utils/alerteErreur";
 
 export default function Login() {
     const navigate = useNavigate()
@@ -19,8 +20,8 @@ export default function Login() {
         if (email.includes("'") || email.includes('"') || email.includes(";") || password.includes("'") || password.includes('"') || password.includes(";") || email.includes("--") || password.includes("--")) {
             Swal.fire({
                 icon: "error",
-                title: "Oops...",
-                text: "Caractères spéciaux non autorisés",
+                title: "Caractères non autorisés",
+                text: "Les guillemets, points-virgules et doubles tirets ne sont pas acceptés dans l'adresse e-mail ni dans le mot de passe.",
             });
             return;
         }
@@ -40,28 +41,18 @@ export default function Login() {
                         localStorage.setItem("token", token);
                         // console.log("Token d'authentification récupéré:", token);
                         navigate("/profil");
-                    }).catch(error => {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Oops...",
-                            text: error.message || "Erreur lors de la récupération du token",
-                        });
-                    });
+                    }).catch(error => alerteErreur("Connexion impossible", error));
                 } else {
                     Swal.fire({
                         icon: "error",
-                        title: "Oops...",
-                        text: data.text,
+                        title: "Connexion refusée",
+                        text: data.text || "Adresse e-mail ou mot de passe incorrect.",
                     });
                 }
             })
             .catch((error) => {
                 console.log(error);
-                Swal.fire({
-                    icon: "error",
-                    title: "Oops...",
-                    text: error.response?.data?.message || "Une erreur est survenue",
-                });
+                alerteErreur("Connexion impossible", error);
             });
     }
 

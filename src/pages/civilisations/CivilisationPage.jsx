@@ -36,6 +36,8 @@ import {
     deleteMemberCivilisation
 } from "@/services/api"
 import { openMapEditor } from "@/services/mapEditor";
+import { alerteErreur } from "@/utils/alerteErreur";
+import EtatVide from '@/components/ui/EtatVide';
 
 const ROLE_ORDER = { Fondateur: 0, Admin: 1 };
 const TRANSFER_MODAL_ID = "civilisation-transfer-founder-modal";
@@ -198,7 +200,7 @@ export default function CivilisationPage() {
             Swal.fire({ icon: "success", title: "Succès", text: "Membre retiré de la civilisation avec succès." });
         } catch (error) {
             console.error("Erreur lors de la suppression du membre:", error);
-            Swal.fire({ icon: "error", title: "Oops...", text: error.message });
+            alerteErreur("Retrait du membre impossible", error);
         }
     };
 
@@ -207,7 +209,7 @@ export default function CivilisationPage() {
         const ville = villes.find((v) => v.is_capital) || villes[0];
         const dimension = dimensions?.find((dim) => dim.id === ville?.dimension_id) || dimensions?.[0];
         if (!dimension) {
-            Swal.fire({ icon: "error", title: "Oops...", text: "Aucune dimension disponible pour la carte." });
+            Swal.fire({ icon: "info", title: "Carte indisponible", text: "Aucune dimension n'est encore configurée : la carte ne peut pas s'ouvrir. Prévenez un administrateur." });
             return;
         }
         openMapEditor({ dimension, type: "civilisation", id: civilisation.id, x: ville?.x, z: ville?.z });
@@ -243,7 +245,7 @@ export default function CivilisationPage() {
 
     const BodyHTML = civilisation ? (
         <>
-            <TitleH1 text={civilisation.title} icon="fas fa-flag" btn={btnReturn} fonctions={FctModify} />
+            <TitleH1 text={civilisation.title} icon="fas fa-flag" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Civilisations", href: "/civilisations" }, { label: civilisation.title }]} />
 
             {/* En-tête : identité, chiffres clés et description */}
             <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4">
@@ -325,9 +327,14 @@ export default function CivilisationPage() {
 
             <ResidentsSection type="civilisation" id={civilisation.id} />
 
-            <TitleH2 text="Villes" icon="fas fa-city" fonctions={FctVilles} />
+            <TitleH2 text="Villes" icon="fas fa-city" fonctions={FctVilles} aide="ville" />
             {villes.length === 0 ? (
-                <i className="w-full">Cette civilisation n'a encore aucune ville.</i>
+                <EtatVide
+                    icon="fa-solid fa-city"
+                    texte="Cette civilisation n'a encore aucune ville."
+                    aide={auth ? "Fondez sa première ville pour la placer sur la carte." : "Seuls le fondateur et les administrateurs de la civilisation peuvent fonder une ville."}
+                    action={auth ? { label: "Fonder une ville", icon: "fa-solid fa-plus", onClick: () => showModal(villeModal, "add") } : null}
+                />
             ) : (
                 <VillesList villes={villes} civilisationId={civilisation.id} dimensions={dimensions} auth={auth} />
             )}
@@ -354,9 +361,14 @@ export default function CivilisationPage() {
                 </>
             ) : null}
 
-            <TitleH2 text="Livres" icon="fas fa-book" fonctions={FctLivres} />
+            <TitleH2 text="Livres" icon="fas fa-book" fonctions={FctLivres} aide="livre" />
             {livres.length === 0 ? (
-                <i className="w-full">Aucun livre disponible.</i>
+                <EtatVide
+                    icon="fa-solid fa-book"
+                    texte="Aucun livre n'a encore été écrit pour cette civilisation."
+                    aide={auth ? "Racontez son histoire, ses lois ou ses légendes en chapitres." : null}
+                    action={auth ? { label: "Écrire un livre", icon: "fa-solid fa-plus", onClick: () => showModal(livreModal, "add") } : null}
+                />
             ) : <EtagereLivres books={livres} text='livre(s)' />}
         </>
     ) : null;

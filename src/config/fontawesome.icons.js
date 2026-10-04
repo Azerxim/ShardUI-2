@@ -5,6 +5,7 @@ import { definition as fabGithub } from "@fortawesome/free-brands-svg-icons/faGi
 import { definition as fabMicrosoft } from "@fortawesome/free-brands-svg-icons/faMicrosoft";
 import { definition as fabStripeS } from "@fortawesome/free-brands-svg-icons/faStripeS";
 import { definition as farCircleCheck } from "@fortawesome/free-regular-svg-icons/faCircleCheck";
+import { definition as farCircleQuestion } from "@fortawesome/free-regular-svg-icons/faCircleQuestion";
 import { definition as farCircleXmark } from "@fortawesome/free-regular-svg-icons/faCircleXmark";
 import { definition as farCopyright } from "@fortawesome/free-regular-svg-icons/faCopyright";
 import { definition as farImage } from "@fortawesome/free-regular-svg-icons/faImage";
@@ -157,6 +158,7 @@ export default [
     fabMicrosoft,
     fabStripeS,
     farCircleCheck,
+    farCircleQuestion,
     farCircleXmark,
     farCopyright,
     farImage,

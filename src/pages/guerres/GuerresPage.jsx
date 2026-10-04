@@ -17,6 +17,7 @@ import { requireLogin } from "@/utils/requireLogin";
 import { GUERRE_STATUTS, GUERRE_TYPES, formatDate, managedEntities, runAction, toOptions } from "@/utils/conflits";
 import { getSessionUser } from "@/services/session";
 import { apiRequest, getCivilisations, getGuerres, getMesGuerres, getReligions } from "@/services/api";
+import EtatVide from '@/components/ui/EtatVide';
 
 const DECLARE_MODAL_ID = "guerre-declare-modal";
 
@@ -164,7 +165,7 @@ export default function GuerresPage() {
 
                     {mine.appels.length > 0 ? (
                         <>
-                            <TitleH2 text="Appels aux armes" icon="fas fa-bullhorn" />
+                            <TitleH2 text="Appels aux armes" icon="fas fa-bullhorn" aide="appel" />
                             <ul className="flex flex-col gap-2 w-full">
                                 {mine.appels.map((appel) => (
                                     <li key={appel.belligerant_id} className="flex flex-col sm:flex-row sm:items-center gap-2 bg-base-200 rounded-2xl p-3">
@@ -202,9 +203,14 @@ export default function GuerresPage() {
                         </div>
                     ) : (
                         <>
-                            <TitleH2 text="Guerres en cours" icon="fas fa-fire" />
+                            <TitleH2 text="Guerres en cours" icon="fas fa-fire" aide="guerre" />
                             {enCours.length === 0 ? (
-                                <i className="w-full">Aucune guerre ne fait rage pour le moment.</i>
+                                <EtatVide
+                                    icon="fa-solid fa-dove"
+                                    texte="Aucune guerre ne fait rage pour le moment."
+                                    aide="Le dirigeant d'une civilisation ou d'une religion peut déclarer une guerre ; elle reste privée jusqu'à sa validation par un modérateur RP."
+                                    action={{ label: "Déclarer une guerre", icon: "fa-solid fa-shield-halved", onClick: openDeclare }}
+                                />
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                                     {enCours.map(({ guerre, camps }) => <GuerreCard key={guerre.id} guerre={guerre} camps={camps} />)}
@@ -213,7 +219,7 @@ export default function GuerresPage() {
 
                             <TitleH2 text="Archives des guerres" icon="fas fa-book-skull" />
                             {terminees.length === 0 ? (
-                                <i className="w-full">Aucune guerre n'est encore entrée dans l'histoire.</i>
+                                <EtatVide icon="fa-solid fa-book-skull" texte="Aucune guerre n'est encore entrée dans l'histoire." aide="Les guerres terminées sont archivées ici, avec leurs événements." />
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                                     {terminees.map(({ guerre, camps }) => <GuerreCard key={guerre.id} guerre={guerre} camps={camps} />)}

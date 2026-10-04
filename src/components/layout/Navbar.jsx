@@ -6,11 +6,40 @@ import '@/components/layout/Navbar.css';
 import { syncSessionUser } from '@/services/session';
 import { MAPS_BASE_URL } from '@/config/maps';
 import NavbarLaunch from '@/components/layout/NavbarLaunch';
+import RechercheGlobale from '@/components/layout/RechercheGlobale';
+import { ouvrirRecherche } from '@/utils/recherche';
 import { lancementAVenir } from '@/config/saison';
 
 // ===== Constantes =====
 const link_network = 'https://mcapi.us/server/status?ip=spinelle-network.minesr.com';
 const link_serv = 'https://mcapi.us/server/status?ip=mbu-tetrago.minesr.com';
+
+// Sections du site : menu burger groupé, et liens visibles de la barre sur grand écran (xl)
+const DECOUVRIR = [
+    { id: 'codex', href: '/codex', icon: 'fa-solid fa-scroll', text: 'Codex' },
+    { id: 'bibliotheque', href: '/bibliotheque', icon: 'fa-solid fa-book', text: 'Bibliothèque' },
+];
+const MONDE = [
+    { id: 'civilisations', href: '/civilisations', icon: 'fa-solid fa-flag', text: 'Civilisations' },
+    { id: 'religions', href: '/religions', icon: 'fa-solid fa-cross', text: 'Religions' },
+    { id: 'commerces', href: '/commerces', icon: 'fa-solid fa-shop', text: 'Commerces' },
+    { id: 'alliances', href: '/alliances', icon: 'fa-solid fa-handshake', text: 'Alliances' },
+    { id: 'guerres', href: '/guerres', icon: 'fa-solid fa-shield-halved', text: 'Guerres' },
+    { id: 'personnages', href: '/personnages', icon: 'fa-solid fa-masks-theater', text: 'Personnages' },
+];
+const CARTE = { id: 'carte', href: `${MAPS_BASE_URL}/tetrago-civilisations`, icon: 'fa-solid fa-map', text: 'Carte' };
+
+const menuItemClass = (actif) => `justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${actif ? 'bg-secondary text-secondary-content' : ''}`;
+const barItemClass = (actif) => `btn btn-ghost btn-sm rounded-3xl gap-2 ${actif ? 'bg-secondary text-secondary-content' : ''}`;
+
+const MenuLien = ({ lien, active }) => (
+    <li>
+        <a href={lien.href} className={menuItemClass(active === lien.id)}>
+            <FontAwesomeIcon icon={lien.icon} />
+            <span>{lien.text}</span>
+        </a>
+    </li>
+);
 
 // Default Skin
 const MHF = ["MHF_Steve", "MHF_Alex"];
@@ -90,7 +119,7 @@ function NavbarSaison({ active }) {
         <>
             <div className='flex gap-2'>
                 <div className='flex gap-2 items-center bg-base-200' style={{ borderRadius: "20px", padding: "10px 15px", height: "36px" }}>
-                    <strong className='flex gap-1'><span className='hidden sm:flex'>Loading</span></strong>
+                    <strong className='flex gap-1'><span className='hidden sm:flex'>Chargement…</span></strong>
                 </div>
                 <div className='loading loading-spinner loading-lg'></div>
             </div>
@@ -134,81 +163,37 @@ function NavbarSaison({ active }) {
                     <div className="dropdown dropdown-bottom dropdown-start tooltip tooltip-right" data-tip="Menu">
                         <div tabIndex={0} role="button" aria-label="Menu" className="btn bg-base-200 rounded-3xl btn-ghost">
                             <FontAwesomeIcon icon="fa-solid fa-bars-staggered" />
-                            <span className="hidden lg:inline">Menu</span>
+                            <span className="hidden lg:inline xl:hidden">Menu</span>
                         </div>
-                        <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 m-1 mt-6 shadow-xl flex-col gap-1">
-                            <li>
-                                <a href="/" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'home' ? 'bg-secondary text-secondary-content' : ''}`}>
-                                    <FontAwesomeIcon icon="fa-solid fa-house" />
-                                    <span>Accueil</span>
-                                </a>
+                        <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 m-1 mt-6 shadow-xl flex-col gap-1 w-56">
+                            <MenuLien lien={{ id: 'home', href: '/', icon: 'fa-solid fa-house', text: 'Accueil' }} active={active} />
+                            {/* Sur téléphone, la loupe de la barre laisse sa place : la recherche s'ouvre d'ici */}
+                            <li className="sm:hidden">
+                                <button type="button" onClick={ouvrirRecherche} className={menuItemClass(false)}>
+                                    <FontAwesomeIcon icon="fa-solid fa-magnifying-glass" />
+                                    <span>Rechercher</span>
+                                </button>
                             </li>
-                            <li>
-                                <a href={`${MAPS_BASE_URL}/tetrago-civilisations`} className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl`}>
-                                    <FontAwesomeIcon icon="fa-solid fa-map" />
-                                    <span>Cartographie</span>
-                                </a>
-                            </li>
+                            <li className="menu-title pt-3 pb-1">Découvrir</li>
+                            {DECOUVRIR.map((lien) => <MenuLien key={lien.id} lien={lien} active={active} />)}
+                            <MenuLien lien={{ ...CARTE, text: 'Cartographie' }} active={active} />
+                            <MenuLien lien={{ id: 'roadmap', href: '/roadmap', icon: 'fa-solid fa-route', text: 'Feuille de route' }} active={active} />
+                            <li className="menu-title pt-3 pb-1">Le monde</li>
+                            {MONDE.map((lien) => <MenuLien key={lien.id} lien={lien} active={active} />)}
                             {User && User.is_admin && (
-                                <li>
-                                    <a href="https://api.beta.tetrago.fr" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'api' ? 'bg-secondary text-secondary-content' : ''}`}>
-                                        <FontAwesomeIcon icon="fa-solid fa-server" />
-                                        <span>API</span>
-                                        <span className="tooltip" data-tip="Admin uniquement" data-place="top">
-                                            <FontAwesomeIcon icon="fa-solid fa-key" className="text-error" />
-                                        </span>
-                                    </a>
-                                </li>
+                                <>
+                                    <li className="menu-title pt-3 pb-1">Administration</li>
+                                    <li>
+                                        <a href="https://api.beta.tetrago.fr" className={menuItemClass(active === 'api')}>
+                                            <FontAwesomeIcon icon="fa-solid fa-server" />
+                                            <span>API</span>
+                                            <span className="tooltip" data-tip="Admin uniquement" data-place="top">
+                                                <FontAwesomeIcon icon="fa-solid fa-key" className="text-error" />
+                                            </span>
+                                        </a>
+                                    </li>
+                                </>
                             )}
-                            <hr className="my-2 border-t border-base-300" />
-                            <li>
-                                <a href="/codex" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'codex' ? 'bg-secondary text-secondary-content' : ''}`}>
-                                    <FontAwesomeIcon icon="fa-solid fa-scroll" />
-                                    <span>Codex</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/bibliotheque" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'bibliotheque' ? 'bg-secondary text-secondary-content' : ''}`}>
-                                    <FontAwesomeIcon icon="fa-solid fa-book" />
-                                    <span>Bibliothèque</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/civilisations" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'civilisations' ? 'bg-secondary text-secondary-content' : ''}`}>
-                                    <FontAwesomeIcon icon="fa-solid fa-flag" />
-                                    <span>Civilisations</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/religions" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'religions' ? 'bg-secondary text-secondary-content' : ''}`}>
-                                    <FontAwesomeIcon icon="fa-solid fa-cross" />
-                                    <span>Religions</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/commerces" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'commerces' ? 'bg-secondary text-secondary-content' : ''}`}>
-                                    <FontAwesomeIcon icon="fa-solid fa-shop" />
-                                    <span>Commerces</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/alliances" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'alliances' ? 'bg-secondary text-secondary-content' : ''}`}>
-                                    <FontAwesomeIcon icon="fa-solid fa-handshake" />
-                                    <span>Alliances</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/guerres" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'guerres' ? 'bg-secondary text-secondary-content' : ''}`}>
-                                    <FontAwesomeIcon icon="fa-solid fa-shield-halved" />
-                                    <span>Guerres</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/personnages" className={`justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${active === 'personnages' ? 'bg-secondary text-secondary-content' : ''}`}>
-                                    <FontAwesomeIcon icon="fa-solid fa-masks-theater" />
-                                    <span>Personnages</span>
-                                </a>
-                            </li>
                         </ul>
                     </div>
 
@@ -385,7 +370,7 @@ function NavbarSaison({ active }) {
                     </div>
 
                 </div>
-                <div className="navbar-center hidden sm:flex">
+                <div className="navbar-center hidden sm:flex items-center gap-1">
                     <a href='/' className="btn btn-ghost text-xl rounded-3xl">
                         <img
                             src="/images/logo/tetrago.svg"
@@ -395,8 +380,32 @@ function NavbarSaison({ active }) {
                         />
                         <span className="hidden sm:flex font-display text-2xl">Tetrago</span>
                     </a>
+                    {/* Sections principales visibles sur grand écran ; le menu burger les garde toutes */}
+                    <nav aria-label="Sections" className="hidden xl:flex items-center gap-1">
+                        {DECOUVRIR.map((lien) => (
+                            <a key={lien.id} href={lien.href} className={barItemClass(active === lien.id)}>
+                                <FontAwesomeIcon icon={lien.icon} />
+                                {lien.text}
+                            </a>
+                        ))}
+                        <div className="dropdown dropdown-bottom dropdown-center">
+                            <div tabIndex={0} role="button" aria-label="Monde" className={barItemClass(MONDE.some((lien) => lien.id === active))}>
+                                <FontAwesomeIcon icon="fa-solid fa-earth-europe" />
+                                Monde
+                                <FontAwesomeIcon icon="fa-solid fa-chevron-down" className="text-xs opacity-70" />
+                            </div>
+                            <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 mt-5 shadow-xl flex-col gap-1 w-52">
+                                {MONDE.map((lien) => <MenuLien key={lien.id} lien={lien} active={active} />)}
+                            </ul>
+                        </div>
+                        <a href={CARTE.href} className={barItemClass(false)}>
+                            <FontAwesomeIcon icon={CARTE.icon} />
+                            {CARTE.text}
+                        </a>
+                    </nav>
                 </div>
-                <div className="navbar-end">
+                <div className="navbar-end gap-2">
+                    <RechercheGlobale />
                     {(ServerData && NetworkData ? (
                         <div className='flex gap-2'>
                             <div className='btn flex gap-2 items-center bg-base-200 btn-ghost rounded-3xl tooltip tooltip-left' data-tip='Actualiser' onClick={() => reloadComponent()}>

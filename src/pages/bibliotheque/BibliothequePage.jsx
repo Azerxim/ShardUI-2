@@ -19,6 +19,7 @@ import {
     getJournaux,
     getLivres
 } from "@/services/api"
+import EtatVide from '@/components/ui/EtatVide';
 
 
 // const journaux_exemple = [
@@ -163,7 +164,7 @@ export default function BibliothequePage() {
                     />
                     <DynamicNavbar active_id="bibliotheque" navigation={navbarConfig.navigation} shadow="md" />
 
-                    <TitleH2 text="Journaux" fonctions={journaux_fonctions} />
+                    <TitleH2 text="Journaux" fonctions={journaux_fonctions} aide="journal" />
                     {loadingJournaux ? (
                         storageJournaux.length === 0 ? (
                             <div style={{ width: '100%' }}>
@@ -174,15 +175,18 @@ export default function BibliothequePage() {
                         )
                     ) : (
                         journaux.length === 0 ? (
-                            <div style={{ width: '100%' }}>
-                                <i>Aucun journal disponible.</i>
-                            </div>
+                            <EtatVide
+                                icon="fa-solid fa-newspaper"
+                                texte="Aucun journal n'a encore été publié."
+                                aide="Un journal relie un salon Discord au site : ses messages deviennent le récit de vos personnages."
+                                action={{ label: "Publier un journal", icon: "fa-solid fa-plus", onClick: () => requireLogin(() => showModal(journalModal, "add"), "publier un journal") }}
+                            />
                         ) : <EtagereJournaux books={journaux} text='journaux' height={6} width={24} orientation='horizontal' />
                     )}
 
                     <DynamicModal config={journalModal} mode="add" onSubmit={(journal) => { updateJournal(journal) }} />
 
-                    <TitleH2 text="Livres" fonctions={livres_fonctions} />
+                    <TitleH2 text="Livres" fonctions={livres_fonctions} aide="livre" />
                     {loadingLivres ? (
                         storageLivres.length === 0 ? (
                             <div style={{ width: '100%' }}>
@@ -193,9 +197,12 @@ export default function BibliothequePage() {
                         )
                     ) : (
                         livres.length === 0 ? (
-                            <div style={{ width: '100%' }}>
-                                <i>Aucun livre disponible.</i>
-                            </div>
+                            <EtatVide
+                                icon="fa-solid fa-book"
+                                texte="Aucun livre n'a encore été écrit."
+                                aide="Un livre raconte en chapitres l'histoire, les légendes ou les lois de votre monde."
+                                action={{ label: "Écrire un livre", icon: "fa-solid fa-plus", onClick: () => requireLogin(() => showModal(livreModal, "add"), "écrire un livre") }}
+                            />
                         ) : <EtagereLivres books={livres} text='livre(s)' height={12} width={4} orientation='vertical' />
                     )}
 

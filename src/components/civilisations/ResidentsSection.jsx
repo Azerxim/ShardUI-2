@@ -25,7 +25,7 @@ export default function ResidentsSection({ type, id }) {
 
     return (
         <>
-            <TitleH2 text="Habitants" icon="fas fa-people-group" />
+            <TitleH2 text="Habitants" icon="fas fa-people-group" aide="personnage" />
             {fiches.length === 0 ? (
                 <div className="flex flex-row flex-wrap items-center gap-2 w-full">
                     <i className="flex-1">{EMPTY_TEXT[type]}</i>

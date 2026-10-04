@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Swal from "sweetalert2";
 import { getUsers, transferFounderCivilisation, transferFounderReligion, transferFounderCommerce } from "@/services/api";
+import { alerteErreur } from "@/utils/alerteErreur";
 
 // label : "Transférer …", of : "fondateur …", to : "ajouté …", pronoun : "de … transférer"
 const ENTITIES = {
@@ -67,7 +68,7 @@ export default function TransferFounderModal({ id, entity = "civilisation", enti
       onTransfer(data.members || []);
       resetForm();
     } catch (error) {
-      Swal.fire({ icon: "error", title: "Oops...", text: error.message });
+      alerteErreur("Transfert impossible", error);
     }
   };
 

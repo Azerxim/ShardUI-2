@@ -62,8 +62,12 @@ test("la fiche du quartier présente sa ville, sa civilisation et ses actions", 
   await page.waitForURL(`**/quartier/${quartierId}`);
 
   await expect(main(page).locator("h1")).toContainText(titles.quartier);
-  await expect(main(page).getByRole("link", { name: ville.title, exact: true })).toBeVisible();
-  await expect(main(page).getByRole("link", { name: civilisation.title, exact: true })).toBeVisible();
+  // Ville et civilisation figurent dans le fil d'Ariane et dans la fiche
+  const ariane = main(page).getByRole("navigation", { name: "Fil d'Ariane" });
+  await expect(ariane.getByRole("link", { name: ville.title, exact: true })).toBeVisible();
+  await expect(ariane.getByRole("link", { name: civilisation.title, exact: true })).toBeVisible();
+  await expect(main(page).getByRole("link", { name: ville.title, exact: true }).last()).toBeVisible();
+  await expect(main(page).getByRole("link", { name: civilisation.title, exact: true }).last()).toBeVisible();
   await expect(main(page).getByText("X 210 · Z 310")).toBeVisible();
   // La modale de modification (fermée) garde un champ Population masqué : seul l'affichage compte
   await expect(main(page).getByText("Population", { exact: true }).filter({ visible: true })).toHaveCount(0);

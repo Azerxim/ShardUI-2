@@ -9,6 +9,7 @@ import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
 import { getMondeResume, getDimensions, deleteMondeReleve, resoudreMondePseudos } from "@/services/api";
 import { MAPS_BASE_URL } from "@/config/maps";
+import { alerteErreur } from "@/utils/alerteErreur";
 
 
 // Lieux mesurés : libellé et icône par type
@@ -111,7 +112,7 @@ export default function AdminMondePage() {
             setLoading(false);
         } catch (err) {
             setLoading(false);
-            Swal.fire({ icon: "error", title: "Oops...", text: err.message });
+            alerteErreur("Suppression du relevé impossible", err);
         }
     };
 
@@ -130,7 +131,7 @@ export default function AdminMondePage() {
                     : "Aucun pseudo supplémentaire trouvé sur playerdb.co.",
             });
         } catch (err) {
-            Swal.fire({ icon: "error", title: "Oops...", text: err.message });
+            alerteErreur("Recherche des pseudos impossible", err);
         } finally {
             setPseudosEnCours(false);
         }

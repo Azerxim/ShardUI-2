@@ -1,10 +1,12 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import TitleButtons from '@/components/ui/TitleButtons';
 import DynamicIcon from '@/components/ui/DynamicIcon';
+import FilAriane from '@/components/ui/FilAriane';
 
 // iconFallback : icône affichée si `icon` (qui peut venir des données, ex. religion) est introuvable
-export default function TitleH1({ text, icon = '', iconFallback, btn = { text: '', link: '', icon: '', class: '', style: {} }, classes = 'bg-base-200', style = { width: '100%', fontWeight: 'bold', fontSize: '1.6rem', padding: '0.5rem 1rem', minHeight: '5rem' }, style_box = {}, fonctions = [] }) {
-    return (
+// ariane : fil d'Ariane affiché au-dessus du titre, [{ label, href }] jusqu'à la page courante
+export default function TitleH1({ text, icon = '', iconFallback, btn = { text: '', link: '', icon: '', class: '', style: {} }, classes = 'bg-base-200', style = { width: '100%', fontWeight: 'bold', fontSize: '1.6rem', padding: '0.5rem 1rem', minHeight: '5rem' }, style_box = {}, fonctions = [], ariane = null }) {
+    const titre = (
         <div className='flex flex-row gap-2 w-full' style={{ ...style_box }}>
             {btn.text && btn.link && (
                 <div className='flex flex-row gap-2 items-center' style={{ fontSize: '0.9rem' }}>
@@ -21,6 +23,13 @@ export default function TitleH1({ text, icon = '', iconFallback, btn = { text: '
                 </div>
             </div>
             <TitleButtons fonctions={fonctions} />
+        </div>
+    );
+    if (!ariane) return titre;
+    return (
+        <div className='flex flex-col gap-1 w-full min-w-0'>
+            <FilAriane items={ariane} />
+            {titre}
         </div>
     );
 }

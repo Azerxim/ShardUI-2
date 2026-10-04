@@ -17,6 +17,7 @@ import { plural } from "@/utils/plural";
 import { EMPTY_LIEUX, EMPTY_REFERENTIEL, PERSONNAGE_INITIAL, PERSONNAGE_STATUTS, identityText, loadLieux, loadReferentiel, personnageFormFields, residenceText } from "@/utils/personnages";
 import { getSessionUser } from "@/services/session";
 import { apiRequest, getPersonnages } from "@/services/api";
+import EtatVide from '@/components/ui/EtatVide';
 
 const CREATE_MODAL_ID = "personnage-create-modal";
 
@@ -149,9 +150,18 @@ export default function PersonnagesPage() {
                             <span>Impossible de récupérer la liste des personnages.</span>
                         </div>
                     ) : fiches.length === 0 ? (
-                        <p className="italic opacity-70">Aucun personnage n'a encore été créé : soyez le premier !</p>
+                        <EtatVide
+                            icon="fa-solid fa-masks-theater"
+                            texte="Aucun personnage n'a encore été créé : soyez le premier !"
+                            aide="Un personnage signe vos messages de journaux et peut résider dans une ville ou un quartier."
+                            action={{ label: "Créer mon personnage", icon: "fa-solid fa-plus", onClick: openCreate }}
+                        />
                     ) : visibles.length === 0 ? (
-                        <p className="italic opacity-70">Aucun personnage ne correspond à votre recherche.</p>
+                        <EtatVide
+                            icon="fa-solid fa-magnifying-glass"
+                            texte="Aucun personnage ne correspond à votre recherche."
+                            action={{ label: "Effacer les filtres", icon: "fa-solid fa-xmark", onClick: () => { setSearch(""); setStatut(""); setOnlyMine(false); } }}
+                        />
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
                             {visibles.map((fiche) => <PersonnageCard key={fiche.personnage.id} fiche={fiche} />)}
