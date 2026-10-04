@@ -23,13 +23,15 @@ test.describe("Feuille de route", () => {
     for (const etat of ["Disponible", "En chantier", "À venir"]) {
       await expect(main.getByText(etat, { exact: true }).first()).toBeVisible();
     }
-    for (const titre of ["Zones commerciales", "Organisateur d'élections RP", "Aides et utilitaires"]) {
+    for (const titre of ["Organisateur d'élections RP", "Aides et utilitaires", "Catalogue des boutiques", "Jours de marché et foires",
+      "Cibles d'une guerre", "Déclaration des fermes sur le site", "Chroniques de Tetrago", "Calendrier des événements RP",
+      "Lignées et généalogie", "Notifications sur le site", "Tableau de bord des modérateurs RP", "Carte combinée"]) {
       await expect(main.getByRole("heading", { name: titre })).toBeVisible();
     }
     // La monnaie officielle est en jeu : elle figure parmi les fonctionnalités disponibles
     await expect(main.locator("section#disponible").getByRole("heading", { name: "La monnaie officielle : le tetra" })).toBeVisible();
     await expect(main.locator("section#disponible").getByRole("heading", { name: "Zones et bâtiments destructibles" })).toBeVisible();
-    for (const titre of ["Actions secrètes", "Règles des guerres", "Cohérence historique", "Fermes justifiées en RP"]) {
+    for (const titre of ["Population officielle ajustée", "Zones commerciales", "Actions secrètes", "Règles des guerres", "Cohérence historique", "Fermes justifiées en RP"]) {
       await expect(main.locator("section#disponible").getByRole("heading", { name: titre })).toBeVisible();
     }
     // Le conflit d'intérêts des modérateurs reste expliqué (levé par la lecture tracée des actions secrètes)

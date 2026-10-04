@@ -31,9 +31,9 @@ function FooterSaison() {
                 </aside>
                 <nav className="grid-flow-col gap-4 justify-self-end items-center">
                     {/* <!-- Feuille de route --> */}
-                    <Link to="/roadmap" aria-label="Feuille de route" className="btn bg-base-200 rounded-3xl btn-ghost tooltip tooltip-left" data-tip="Feuille de route">
+                    {/* <Link to="/roadmap" aria-label="Feuille de route" className="btn bg-base-200 rounded-3xl btn-ghost tooltip tooltip-left" data-tip="Feuille de route">
                         <FontAwesomeIcon icon="fa-solid fa-route" />
-                    </Link>
+                    </Link> */}
                     {/* <!-- Saison --> */}
                     <div className="dropdown dropdown-top dropdown-start hidden sm:flex tooltip tooltip-left" data-tip="Saison">
                         <div tabIndex={0} role="button" className="btn bg-base-200 rounded-3xl btn-ghost">

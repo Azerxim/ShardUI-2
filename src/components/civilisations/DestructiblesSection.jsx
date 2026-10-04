@@ -8,6 +8,7 @@ import MapEmbed from '@/components/carte/MapEmbed';
 import { getDestructiblesOfVille } from '@/services/api';
 import { getSessionUser } from '@/services/session';
 import { openMapEditor } from '@/services/mapEditor';
+import { emplacement } from '@/utils/cartographie';
 
 // ===== Zones et bâtiments destructibles d'une ville =====
 // Ce qu'une guerre RP autorise à détruire : un marqueur par bâtiment, un polygone par zone, tracés dans
@@ -20,21 +21,6 @@ const GENRES = {
 };
 
 const genre = (element) => (element.shape_type === 'Marker' ? GENRES.batiment : GENRES.zone);
-
-// Coordonnées stockées au format Leaflet [-z, x] : un point pour un bâtiment, les sommets d'une zone.
-// Renvoie le centre (moyenne des sommets) et le zoom de l'aperçu : plus la zone est étendue, plus on dézoome.
-function emplacement(element) {
-    try {
-        const coords = JSON.parse(element.coordinates);
-        const points = Array.isArray(coords[0]) ? coords : [coords];
-        const moyenne = (index) => Math.round(points.reduce((total, point) => total + point[index], 0) / points.length);
-        const etendue = Math.max(...[0, 1].map((index) => Math.max(...points.map((p) => p[index])) - Math.min(...points.map((p) => p[index]))));
-        const zoom = etendue <= 64 ? 1 : etendue <= 160 ? 0 : -1;
-        return { x: moyenne(1), z: -moyenne(0), zoom };
-    } catch {
-        return null;
-    }
-}
 
 // Visuel de la carte : aperçu de la carte en vue Guerres (flamme du bâtiment, zone en pointillés),
 // ou bandeau à la couleur de l'élément quand la dimension est inconnue

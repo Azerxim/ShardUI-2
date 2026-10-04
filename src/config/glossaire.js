@@ -33,6 +33,14 @@ export const GLOSSAIRE = {
         terme: "Zone destructible",
         definition: "Bâtiment ou zone d'une ville qu'une guerre RP autorise à détruire. Les dirigeants de la civilisation et les modérateurs RP les désignent sur la carte.",
     },
+    population: {
+        terme: "Population officielle",
+        definition: "Lits habités comptés dans la ville au dernier relevé du monde, plus les écarts motivés (réfugiés, épidémie…) acceptés par un modérateur RP. La civilisation additionne ses villes, et lève au plus un soldat pour dix habitants.",
+    },
+    commerciale: {
+        terme: "Zone commerciale",
+        definition: "Marché ou quartier marchand d'une ville, tracé sur la carte par les dirigeants de la civilisation. Ses boutiques sont les magasins situés à l'intérieur.",
+    },
     appel: {
         terme: "Appel aux armes",
         definition: "Demande faite à une civilisation alliée de rejoindre un camp dans une guerre. Elle peut l'accepter ou la décliner.",

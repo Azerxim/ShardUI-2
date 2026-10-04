@@ -13,7 +13,10 @@ import { plural } from "@/utils/plural";
 import { showModal } from "@/utils/showModal";
 import { requireLogin } from "@/utils/requireLogin";
 import { commerceModal } from "@/config/modals/commerce";
-import { getCommerces } from "@/services/api";
+import { getCartographies, getCommerces, getDimensions, getVilles } from "@/services/api";
+import { dansLaZone } from "@/utils/cartographie";
+import ZoneCommercialeCard from "@/components/commerces/ZoneCommercialeCard";
+import TitleH2 from "@/components/ui/TitleH2";
 import EtatVide from '@/components/ui/EtatVide';
 import MonnaieOfficielle from '@/components/monnaie/MonnaieOfficielle';
 
@@ -66,6 +69,9 @@ export default function CommercesPage() {
     const [commerces, setCommerces] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+    const [zones, setZones] = useState([]);
+    const [villes, setVilles] = useState(new Map());
+    const [dimensions, setDimensions] = useState(new Map());
 
     useEffect(() => {
         getCommerces()
@@ -75,12 +81,26 @@ export default function CommercesPage() {
                 setError(true);
             })
             .finally(() => setLoading(false));
+        // Zones commerciales (marchés, quartiers marchands) des villes publiques
+        Promise.all([getCartographies().catch(() => []), getVilles().catch(() => []), getDimensions().catch(() => [])]).then(([formes, listeVilles, listeDimensions]) => {
+            setDimensions(new Map((Array.isArray(listeDimensions) ? listeDimensions : []).map((dimension) => [dimension.id, dimension])));
+            const publiques = new Map((Array.isArray(listeVilles) ? listeVilles : []).filter((ville) => ville.is_public !== false).map((ville) => [ville.id, ville]));
+            setVilles(publiques);
+            setZones((Array.isArray(formes) ? formes : []).filter((forme) => forme.type === "commerciale" && publiques.has(forme.type_id)));
+        });
     }, []);
 
     // Un commerce privé n'est visible que par ses membres et les administrateurs
     const visibles = commerces
         .filter(({ commerce, members }) => commerce.is_public || user?.is_admin || (members || []).some((member) => member.user_id === user?.id))
         .sort((a, b) => a.commerce.title.localeCompare(b.commerce.title));
+
+    // Boutiques des zones : magasins publics des commerces publics, situés à l'intérieur de la zone
+    const boutiques = commerces
+        .filter(({ commerce }) => commerce.is_public)
+        .flatMap(({ commerce, magasins }) => (magasins || []).filter((magasin) => magasin.is_public !== false).map((magasin) => ({ magasin, commerce })));
+    const boutiquesDe = (zone) => boutiques.filter(({ magasin }) => magasin.dimension_id === zone.dimension_id && dansLaZone(zone, magasin.x, magasin.z));
+    const zonesTriees = [...zones].sort((a, b) => (villes.get(a.type_id)?.title || "").localeCompare(villes.get(b.type_id)?.title || "") || (a.title || "").localeCompare(b.title || ""));
 
     const addCommerce = (data) => {
         if (!data?.commerce) return;
@@ -140,6 +160,18 @@ export default function CommercesPage() {
                                 )
                             ))}
                         </div>
+                    )}
+
+                    {zonesTriees.length > 0 && (
+                        <>
+                            <TitleH2 text="Zones commerciales" icon="fas fa-store" aide="commerciale" />
+                            <p className="text-sm opacity-70 px-1 w-full">Marchés et quartiers marchands des villes, avec les boutiques qui s'y tiennent.</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 w-full items-start">
+                                {zonesTriees.map((zone) => (
+                                    <ZoneCommercialeCard key={zone.id} zone={zone} ville={villes.get(zone.type_id)} dimension={dimensions.get(zone.dimension_id)} boutiques={boutiquesDe(zone)} apercu={false} />
+                                ))}
+                            </div>
+                        </>
                     )}
 
                     {user ? <DynamicModal config={commerceModal} mode="add" onSubmit={addCommerce} /> : null}

@@ -31,6 +31,8 @@ import {
 import { openMapEditor } from "@/services/mapEditor";
 import EtatVide from '@/components/ui/EtatVide';
 import DestructiblesSection from '@/components/civilisations/DestructiblesSection';
+import ZonesCommercialesSection from '@/components/civilisations/ZonesCommercialesSection';
+import PopulationSection from '@/components/civilisations/PopulationSection';
 
 const RELIGION_ADD_MODAL_ID = "ville-religion-add-modal";
 
@@ -129,6 +131,8 @@ export default function VilleDetailPage() {
     const [magasins, setMagasins] = useState([]);
     const [dimensions, setDimensions] = useState([]);
     const [loading, setLoading] = useState(true);
+    // Mesure du relevé + ajustements acceptés (PopulationSection)
+    const [populationOfficielle, setPopulationOfficielle] = useState(null);
 
     // La ville et ses religions viennent de la fiche de sa civilisation
     usePageTitle(ville?.title);
@@ -255,7 +259,9 @@ export default function VilleDetailPage() {
                     </div>
 
                     <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
-                        <Stat icon="fa-solid fa-people-group" label="Population" value={formatPopulation(ville.population)} />
+                        <a href="#population" className="rounded-2xl hover:ring-2 hover:ring-primary">
+                            <Stat icon="fa-solid fa-people-group" label="Population officielle" value={formatPopulation(populationOfficielle ?? ville.population)} />
+                        </a>
                         <Stat icon="fa-solid fa-hands-praying" label={religions.length > 1 ? "Religions" : "Religion"} value={religions.length} />
                         <Stat icon="fa-solid fa-map-location-dot" label={visibleQuartiers.length > 1 ? "Quartiers" : "Quartier"} value={visibleQuartiers.length} />
                         <Stat icon="fa-solid fa-store" label={visibleMagasins.length > 1 ? "Magasins" : "Magasin"} value={visibleMagasins.length} />
@@ -286,6 +292,8 @@ export default function VilleDetailPage() {
                     </div>
                 ) : null}
             </div>
+
+            <PopulationSection ville={ville} auth={auth} onCharge={setPopulationOfficielle} />
 
             <TitleH2 text="Religions" icon="fas fa-hands-praying" fonctions={FctReligions} aide="religion" />
             <VilleReligions
@@ -328,6 +336,8 @@ export default function VilleDetailPage() {
                     {visibleMagasins.map(({ magasin, commerce }) => <MagasinLink key={magasin.id} magasin={magasin} commerce={commerce} />)}
                 </div>
             )}
+
+            <ZonesCommercialesSection ville={ville} dimension={dimension} auth={auth} magasins={visibleMagasins} />
 
             {autresVilles.length > 0 ? (
                 <>

@@ -624,6 +624,12 @@ export const getZonesOfGuerre = (guerreId) => publicGet(`/cartographie/entity/gu
 // [{ id, title, description, dimension_id, shape_type, coordinates, color }]
 export const getDestructiblesOfVille = (villeId) => publicGet(`/cartographie/entity/destructible/${villeId}`);
 
+// Marchés et quartiers marchands d'une ville (polygones nommés) ; leurs boutiques sont les magasins situés à l'intérieur
+export const getZonesCommercialesOfVille = (villeId) => publicGet(`/cartographie/entity/commerciale/${villeId}`);
+
+// Toutes les formes de cartographie, filtrées par type côté site (ex. zones commerciales de la page des commerces)
+export const getCartographies = () => publicGet("/cartographie/list?limit=10000");
+
 // _______________________________Comptes externes_______________________________
 
 // [{ provider, label, enabled }]
@@ -692,6 +698,25 @@ export const resoudreMondePseudos = (releveId) =>
   apiRequest("POST", `/monde/pseudos${releveId ? `?releve_id=${releveId}` : ""}`);
 
 export const deleteMondeReleve = (releveId) => apiRequest("DELETE", `/monde/releves/${releveId}`);
+
+
+//_______________________________POPULATION OFFICIELLE___________________________
+
+// { mesuree, mesure: { releve_at, methode, rayon }, ajustements (acceptés), en_attente, officielle }
+export const getPopulationVille = (villeId) => publicGet(`/population/ville/${villeId}`);
+
+// { officielle, armee, habitants_par_soldat, villes: [{ id, title, mesuree, officielle }] }
+export const getPopulationCivilisation = (civilisationId) => publicGet(`/population/civilisation/${civilisationId}`);
+
+// Modérateurs RP : demandes d'ajustement à valider, avec leur ville
+export const getAjustementsEnAttente = () => apiRequest("GET", "/population/ajustements/en-attente");
+
+// Dirigeants de la civilisation : { ville_id, ecart, motif }
+export const demanderAjustement = (ajustement) => apiRequest("POST", "/population/ajustements", ajustement);
+
+export const deciderAjustement = (ajustementId, accepte, note = null) => apiRequest("PUT", `/population/ajustements/${ajustementId}/decision`, { accepte, note });
+
+export const retirerAjustement = (ajustementId) => apiRequest("DELETE", `/population/ajustements/${ajustementId}`);
 
 
 //_______________________________ACTIONS SECRÈTES________________________________

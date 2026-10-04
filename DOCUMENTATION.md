@@ -166,6 +166,7 @@ Les routes sont déclarées dans `src/App.jsx`. Le titre de l'onglet vient de `p
 | --- | --- | --- |
 | `/` | Accueil, adresse du serveur | Public |
 | `/codex` | Règles du serveur (contenu dans `pages/codex/CodexPage.jsx`) | Public |
+| `/civilisation/:civ_id/ville/:id#population` | Population officielle de la ville : mesure, ajustements, demande et validation (`PopulationSection`) | Public (demande : dirigeants ; validation : modérateurs RP) |
 | `/actions-secretes` | Actions secrètes : dépôt, registre public, lecture tracée (modérateurs RP), révélation | Public (dépôt : connecté) |
 | `/roadmap` | Feuille de route (contenu dans `pages/roadmap/RoadmapPage.jsx`), atteinte par le pied de page | Public |
 | `/login`, `/register` | Connexion, inscription, connexion par compte externe | Public |
@@ -325,6 +326,7 @@ Ces deux composants lisent l'adresse de la carte dans `config/maps.js` (`MAPS_BA
 | `quartier` | Frontières du quartier |
 | `guerre` | Zones de conflit (guerre en cours) |
 | `destructible` | Bâtiments et zones destructibles de la ville (`id` de la ville), listés sur sa fiche (`DestructiblesSection`) |
+| `commerciale` | Marchés et quartiers marchands de la ville (`id` de la ville), avec les magasins situés à l'intérieur (`ZonesCommercialesSection`, page des commerces) |
 
 Le site et la carte n'ont pas la même origine, donc pas le même `localStorage`. L'éditeur demande le jeton par
 `postMessage` ; `installMapEditorAuth()` (appelée dans `main.jsx`) répond :

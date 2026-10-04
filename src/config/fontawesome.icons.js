@@ -36,6 +36,8 @@ import { definition as fasBullhorn } from "@fortawesome/free-solid-svg-icons/faB
 import { definition as fasBurst } from "@fortawesome/free-solid-svg-icons/faBurst";
 import { definition as fasCakeCandles } from "@fortawesome/free-solid-svg-icons/faCakeCandles";
 import { definition as fasCalendar } from "@fortawesome/free-solid-svg-icons/faCalendar";
+import { definition as fasCalendarDay } from "@fortawesome/free-solid-svg-icons/faCalendarDay";
+import { definition as fasCalendarDays } from "@fortawesome/free-solid-svg-icons/faCalendarDays";
 import { definition as fasChartSimple } from "@fortawesome/free-solid-svg-icons/faChartSimple";
 import { definition as fasCheck } from "@fortawesome/free-solid-svg-icons/faCheck";
 import { definition as fasCheckToSlot } from "@fortawesome/free-solid-svg-icons/faCheckToSlot";
@@ -101,6 +103,7 @@ import { definition as fasKey } from "@fortawesome/free-solid-svg-icons/faKey";
 import { definition as fasKhanda } from "@fortawesome/free-solid-svg-icons/faKhanda";
 import { definition as fasLandmark } from "@fortawesome/free-solid-svg-icons/faLandmark";
 import { definition as fasLanguage } from "@fortawesome/free-solid-svg-icons/faLanguage";
+import { definition as fasLayerGroup } from "@fortawesome/free-solid-svg-icons/faLayerGroup";
 import { definition as fasLifeRing } from "@fortawesome/free-solid-svg-icons/faLifeRing";
 import { definition as fasLink } from "@fortawesome/free-solid-svg-icons/faLink";
 import { definition as fasLinkSlash } from "@fortawesome/free-solid-svg-icons/faLinkSlash";
@@ -140,9 +143,11 @@ import { definition as fasShirt } from "@fortawesome/free-solid-svg-icons/faShir
 import { definition as fasShop } from "@fortawesome/free-solid-svg-icons/faShop";
 import { definition as fasSignInAlt } from "@fortawesome/free-solid-svg-icons/faSignInAlt";
 import { definition as fasSignsPost } from "@fortawesome/free-solid-svg-icons/faSignsPost";
+import { definition as fasSitemap } from "@fortawesome/free-solid-svg-icons/faSitemap";
 import { definition as fasSkull } from "@fortawesome/free-solid-svg-icons/faSkull";
 import { definition as fasStore } from "@fortawesome/free-solid-svg-icons/faStore";
 import { definition as fasStrikethrough } from "@fortawesome/free-solid-svg-icons/faStrikethrough";
+import { definition as fasTags } from "@fortawesome/free-solid-svg-icons/faTags";
 import { definition as fasTimeline } from "@fortawesome/free-solid-svg-icons/faTimeline";
 import { definition as fasTrash } from "@fortawesome/free-solid-svg-icons/faTrash";
 import { definition as fasTriangleExclamation } from "@fortawesome/free-solid-svg-icons/faTriangleExclamation";
@@ -195,6 +200,8 @@ export default [
     fasBurst,
     fasCakeCandles,
     fasCalendar,
+    fasCalendarDay,
+    fasCalendarDays,
     fasChartSimple,
     fasCheck,
     fasCheckToSlot,
@@ -260,6 +267,7 @@ export default [
     fasKhanda,
     fasLandmark,
     fasLanguage,
+    fasLayerGroup,
     fasLifeRing,
     fasLink,
     fasLinkSlash,
@@ -299,9 +307,11 @@ export default [
     fasShop,
     fasSignInAlt,
     fasSignsPost,
+    fasSitemap,
     fasSkull,
     fasStore,
     fasStrikethrough,
+    fasTags,
     fasTimeline,
     fasTrash,
     fasTriangleExclamation,

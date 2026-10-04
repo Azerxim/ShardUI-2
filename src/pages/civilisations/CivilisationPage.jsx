@@ -33,7 +33,8 @@ import {
     getCivilisationDirigees,
     getDimensions,
     getLivresBycivilisationId,
-    deleteMemberCivilisation
+    deleteMemberCivilisation,
+    getPopulationCivilisation,
 } from "@/services/api"
 import { openMapEditor } from "@/services/mapEditor";
 import { alerteErreur } from "@/utils/alerteErreur";
@@ -85,8 +86,14 @@ export default function CivilisationPage() {
     const [dirigees, setDirigees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [auth, setAuth] = useState(false);
+    // Population officielle (somme des villes : mesure + ajustements acceptés) et armée autorisée par le Codex
+    const [populationOfficielle, setPopulationOfficielle] = useState(null);
 
     usePageTitle(civilisation?.title);
+
+    useEffect(() => {
+        getPopulationCivilisation(id).then(setPopulationOfficielle).catch(() => setPopulationOfficielle(null));
+    }, [id]);
 
     useEffect(() => {
         getCivilisationById(id)
@@ -240,7 +247,7 @@ export default function CivilisationPage() {
 
     const dateFounded = formatDate(civilisation?.date_founded);
     const capitale = villes.find((ville) => ville.is_capital);
-    const population = villes.reduce((total, ville) => total + (Number(ville.population) || 0), 0);
+    const population = populationOfficielle?.officielle ?? villes.reduce((total, ville) => total + (Number(ville.population) || 0), 0);
     const sortedMembers = [...members].sort((a, b) => (ROLE_ORDER[a.role] ?? 2) - (ROLE_ORDER[b.role] ?? 2));
 
     const BodyHTML = civilisation ? (
@@ -273,10 +280,14 @@ export default function CivilisationPage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
                     <Stat icon="fa-solid fa-users" label={members.length > 1 ? "Membres" : "Membre"} value={members.length} />
                     <Stat icon="fa-solid fa-city" label={villes.length > 1 ? "Villes" : "Ville"} value={villes.length} />
-                    <Stat icon="fa-solid fa-people-group" label="Population" value={population.toLocaleString('fr-FR')} />
+                    <Stat icon="fa-solid fa-people-group" label="Population officielle" value={population.toLocaleString('fr-FR')} />
+                    {/* Codex, Art. II.5.1 : un soldat pour dix habitants de la population officielle */}
+                    <a href="/codex#guerres-1" className="rounded-2xl hover:ring-2 hover:ring-primary tooltip" data-tip={`Un soldat pour ${populationOfficielle?.habitants_par_soldat ?? 10} habitants (Codex, Art. II.5.1)`}>
+                        <Stat icon="fa-solid fa-chess-knight" label="Armée autorisée" value={`${(populationOfficielle?.armee ?? Math.floor(population / 10)).toLocaleString('fr-FR')} soldats`} />
+                    </a>
                     <Stat icon="fa-solid fa-book" label={livres.length > 1 ? "Livres" : "Livre"} value={livres.length} />
                 </div>
 

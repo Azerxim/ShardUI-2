@@ -39,6 +39,18 @@ const SECTIONS = [
                 texte: "Déclarer une échoppe, son enseigne, sa ville et les membres qui la tiennent.",
             },
             {
+                titre: "Population officielle ajustée",
+                icon: "fa-solid fa-users",
+                lien: "/civilisations",
+                texte: "La population d'une ville, ce sont les lits habités comptés au relevé du monde, plus les écarts motivés (réfugiés, épidémie…) que ses dirigeants demandent et qu'un modérateur RP valide. Chaque civilisation affiche aussi l'armée qu'elle peut lever.",
+            },
+            {
+                titre: "Zones commerciales",
+                icon: "fa-solid fa-store",
+                lien: "/commerces",
+                texte: "Marchés et quartiers marchands tracés sur la carte par chaque ville, avec les boutiques qui s'y tiennent : visibles sur la carte, sur la fiche de la ville et sur la page des commerces.",
+            },
+            {
                 titre: "Règles des guerres",
                 icon: "fa-solid fa-chess-knight",
                 lien: "/codex#guerres",
@@ -126,42 +138,92 @@ const SECTIONS = [
             },
         ],
     },
-    {
-        etat: "chantier",
-        titre: "En chantier",
-        dek: "Commencé, pas encore fini.",
-        fonctionnalites: [
-            {
-                titre: "Frontières de toutes les villes",
-                icon: "fa-solid fa-draw-polygon",
-                texte: "Tant qu'une ville n'a pas de frontières tracées, sa population est mesurée dans un simple rayon autour de son point : le chiffre reste approximatif.",
-            },
-            {
-                titre: "Population officielle ajustée",
-                icon: "fa-solid fa-users",
-                texte: "Aujourd'hui, chaque relevé du monde écrase la population saisie à la main. À terme, un modérateur pourra valider un ajustement quand la mesure ne rend pas justice à la ville.",
-            },
-        ],
-    },
+    // {
+    //     etat: "chantier",
+    //     titre: "En chantier",
+    //     dek: "Commencé, pas encore fini.",
+    //     fonctionnalites: [
+    //         {
+    //             titre: "Frontières de toutes les villes",
+    //             icon: "fa-solid fa-draw-polygon",
+    //             texte: "Tant qu'une ville n'a pas de frontières tracées, sa population est mesurée dans un simple rayon autour de son point : le chiffre reste approximatif.",
+    //         },
+    //     ],
+    // },
     {
         etat: "avenir",
         titre: "À venir",
         dek: "Les chantiers suivants, dans le désordre : l'ordre se décidera avec vous.",
         fonctionnalites: [
             {
-                titre: "Zones commerciales",
-                icon: "fa-solid fa-store",
-                texte: "Déclarer les quartiers marchands et les marchés, les retrouver sur la carte et savoir qui y tient boutique.",
-            },
-            {
                 titre: "Organisateur d'élections RP",
                 icon: "fa-solid fa-check-to-slot",
                 texte: "Ouvrir un scrutin au sein d'une civilisation, d'une alliance ou d'une religion : candidats, votants, dépouillement et résultat conservé.",
+                details: [
+                    "Candidatures, puis vote des membres entre deux dates.",
+                    "Vote secret possible : on compte sans savoir qui a voté quoi.",
+                    "Résultat archivé dans l'histoire de la civilisation, de l'alliance ou de la religion.",
+                ],
             },
             {
                 titre: "Aides et utilitaires",
                 icon: "fa-solid fa-life-ring",
                 texte: "Une section rassemblant les guides, les rappels de commandes et les petits outils du quotidien, pour ne plus fouiller le Discord.",
+                details: [
+                    "Conversion des coordonnées entre la surface et le Nether.",
+                    "Distance et temps de trajet entre deux villes.",
+                    "Conversion entre tetras, diamants et blocs ; fiche de personnage à coller sur Discord.",
+                ],
+            },
+            {
+                titre: "Catalogue des boutiques",
+                icon: "fa-solid fa-tags",
+                texte: "Chaque magasin publie ses articles et leurs prix en tetras, et une recherche répond à « où acheter des flèches ? ».",
+            },
+            {
+                titre: "Jours de marché et foires",
+                icon: "fa-solid fa-calendar-day",
+                texte: "Les zones commerciales affichent leurs jours d'ouverture RP, et une ville peut annoncer une foire, datée, visible sur la carte et annoncée sur Discord.",
+            },
+            {
+                titre: "Cibles d'une guerre",
+                icon: "fa-solid fa-house-crack",
+                texte: "Sur la fiche d'une guerre, les bâtiments et zones destructibles des villes des deux camps, avec leur carte.",
+            },
+            {
+                titre: "Déclaration des fermes sur le site",
+                icon: "fa-solid fa-wheat-awn",
+                texte: "Déclarer une ferme sur le site (position, justification RP, photo) plutôt que par ticket, avec son statut : en attente, validée ou à mettre en conformité.",
+            },
+            {
+                titre: "Chroniques de Tetrago",
+                icon: "fa-solid fa-timeline",
+                texte: "Une frise de l'histoire du monde, remplie toute seule : fondations, alliances, guerres, révélations d'actions secrètes, élections.",
+            },
+            {
+                titre: "Calendrier des événements RP",
+                icon: "fa-solid fa-calendar-days",
+                texte: "Batailles prévues, fêtes et couronnements, avec l'inscription des participants et les événements Discord synchronisés.",
+            },
+            {
+                titre: "Lignées et généalogie",
+                icon: "fa-solid fa-sitemap",
+                texte: "Des liens de parenté entre personnages (parents, époux, héritiers) et l'arbre de chaque maison noble.",
+            },
+            {
+                titre: "Notifications sur le site",
+                icon: "fa-solid fa-bell",
+                texte: "Une cloche dans la barre pour les appels aux armes, les invitations d'alliance, les lectures de vos actions secrètes et les révélations.",
+            },
+            {
+                titre: "Tableau de bord des modérateurs RP",
+                icon: "fa-solid fa-gavel",
+                texte: "Une seule page pour tout ce qui attend une décision : déclarations de guerre, assassinats par piège, fermes déclarées, ajustements de population, litiges.",
+            },
+            {
+                titre: "Carte combinée",
+                icon: "fa-solid fa-layer-group",
+                texte: "Afficher ensemble civilisations, commerces et guerres sur une même carte, avec une légende, au lieu de basculer entre les vues.",
             },
         ],
     },

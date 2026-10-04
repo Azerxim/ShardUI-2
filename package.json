@@ -1,7 +1,7 @@
 {
   "name": "shardui-2",
   "private": true,
-  "version": "2.0.15",
+  "version": "2.0.16",
   "type": "module",
   "scripts": {
     "icons": "node scripts/generate-fontawesome-icons.mjs",
