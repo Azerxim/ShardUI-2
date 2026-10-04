@@ -166,6 +166,7 @@ Les routes sont déclarées dans `src/App.jsx`. Le titre de l'onglet vient de `p
 | --- | --- | --- |
 | `/` | Accueil, adresse du serveur | Public |
 | `/codex` | Règles du serveur (contenu dans `pages/codex/CodexPage.jsx`) | Public |
+| `/actions-secretes` | Actions secrètes : dépôt, registre public, lecture tracée (modérateurs RP), révélation | Public (dépôt : connecté) |
 | `/roadmap` | Feuille de route (contenu dans `pages/roadmap/RoadmapPage.jsx`), atteinte par le pied de page | Public |
 | `/login`, `/register` | Connexion, inscription, connexion par compte externe | Public |
 | `/auth/:provider/callback` | Retour de Discord ou Microsoft (connexion ou liaison) | Public |

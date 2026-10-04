@@ -14,7 +14,6 @@ import { showModal } from '@/utils/showModal';
 import { requireLogin } from '@/utils/requireLogin';
 import { journalModal } from '@/config/modals/journal';
 import { livreModal } from '@/config/modals/livre';
-import { navbarConfig } from '@/config/navbar';
 import {
     getJournaux,
     getLivres
@@ -162,7 +161,7 @@ export default function BibliothequePage() {
                             </div>
                         }
                     />
-                    <DynamicNavbar active_id="bibliotheque" navigation={navbarConfig.navigation} shadow="md" />
+                    <DynamicNavbar active_id="bibliotheque" />
 
                     <TitleH2 text="Journaux" fonctions={journaux_fonctions} aide="journal" />
                     {loadingJournaux ? (

@@ -12,6 +12,7 @@ import Stat from "@/components/ui/Stat";
 import InfoLine from "@/components/ui/InfoLine";
 import MarkdownTextEditor from "@/components/ui/MarkdownTextEditor";
 import FormModal from "@/components/modals/FormModal";
+import ActionCard from "@/components/actions/ActionCard";
 import MapEmbed from "@/components/carte/MapEmbed";
 
 import { showModalID } from "@/utils/showModal";
@@ -24,7 +25,7 @@ import {
     entityHref, formatDate, isModerateur, managedEntities, runAction,
 } from "@/utils/conflits";
 import { getSessionUser } from "@/services/session";
-import { apiRequest, getAlliances, getCivilisations, getDimensions, getGuerreById, getReligions, getZonesOfGuerre } from "@/services/api";
+import { apiRequest, getAlliances, getCivilisations, getDimensions, getGuerreById, getReligions, getActionsOfGuerre, getZonesOfGuerre } from "@/services/api";
 
 const CAMP_LABELS = { attaquant: { title: "Attaquants", icon: "fa-solid fa-khanda" }, defenseur: { title: "Défenseurs", icon: "fa-solid fa-shield-halved" } };
 const MODAL_IDS = {
@@ -92,6 +93,8 @@ export default function GuerrePage() {
     const [alliances, setAlliances] = useState([]);
     const [dimensions, setDimensions] = useState([]);
     const [zones, setZones] = useState([]);
+    // Actions secrètes révélées rattachées à la guerre (les scellées ne disent pas à quelle guerre elles se rapportent)
+    const [actions, setActions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [reloadKey, setReloadKey] = useState(0);
 
@@ -116,6 +119,7 @@ export default function GuerrePage() {
 
     useEffect(() => {
         getZonesOfGuerre(id).then((list) => setZones(Array.isArray(list) ? list : [])).catch((error) => console.error(error));
+        getActionsOfGuerre(id).then((list) => setActions(Array.isArray(list) ? list : [])).catch((error) => console.error(error));
     }, [id, reloadKey]);
 
     const reload = () => setReloadKey((key) => key + 1);
@@ -181,6 +185,12 @@ export default function GuerrePage() {
     ];
 
     const FctModify = [
+        {
+            id: 3, title: "Action secrète", icon: "fas fa-user-secret", class: "bg-base-200 hover:bg-base-300", connected: true,
+            authorisation: guerre?.status === "en_cours",
+            tooltip: { text: "Sceller une action secrète liée à cette guerre", position: "left" },
+            link: `/actions-secretes?nouvelle=1&guerre=${id}`,
+        },
         { id: 1, title: "Modifier", icon: "fas fa-pen", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: moderateur || (guerre?.status === "en_attente" && managesCamp("attaquant")), function: () => showModalID(MODAL_IDS.edit) },
         {
             id: 2, title: "Retirer", icon: "fas fa-trash", class: "bg-base-200 hover:bg-base-300 text-error", connected: true,
@@ -427,6 +437,15 @@ export default function GuerrePage() {
                             <span className="text-sm opacity-70">{plural(zones.length, "zone de conflit tracée", "zones de conflit tracées")}</span>
                         </div>
                     )}
+                </>
+            ) : null}
+
+            {actions.length > 0 ? (
+                <>
+                    <TitleH2 text="Actions secrètes révélées" icon="fas fa-user-secret" aide="action" />
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 w-full items-start">
+                        {actions.map((action) => <ActionCard key={action.id} action={action} />)}
+                    </div>
                 </>
             ) : null}
         </>

@@ -11,7 +11,6 @@ import ListCard from "@/components/ui/ListCard";
 import TitleH2 from "@/components/ui/TitleH2";
 import FormModal from "@/components/modals/FormModal";
 
-import { navbarConfig } from "@/config/navbar";
 import { showModalID } from "@/utils/showModal";
 import { requireLogin } from "@/utils/requireLogin";
 import { GUERRE_STATUTS, GUERRE_TYPES, formatDate, managedEntities, runAction, toOptions } from "@/utils/conflits";
@@ -155,13 +154,20 @@ export default function GuerresPage() {
                         title="Les Guerres de Tetrago"
                         description="Les guerres se déclarent, elles ne s'improvisent pas : chaque conflit est validé par un modérateur RP, puis consigné dans la mémoire du monde, qu'il s'achève par la victoire, la paix ou la ruine."
                         topRight={
-                            <button onClick={openDeclare} className="flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left" data-tip="Déclarer une guerre" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
-                                <span className="flex">Guerre</span>
-                                <FontAwesomeIcon icon="fas fa-plus" />
-                            </button>
+                            <div className="flex flex-col items-end gap-2">
+                                <button onClick={openDeclare} className="flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left" data-tip="Déclarer une guerre" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
+                                    <span className="flex">Guerre</span>
+                                    <FontAwesomeIcon icon="fas fa-plus" />
+                                </button>
+                                {/* Sceller une action secrète (piège, marche de nuit…) : formulaire ouvert sur la page des actions */}
+                                <a href="/actions-secretes?nouvelle=1" aria-label="Sceller une action secrète" className="flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left" data-tip="Sceller une action secrète" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem' }}>
+                                    <span className="flex">Action</span>
+                                    <FontAwesomeIcon icon="fas fa-user-secret" />
+                                </a>
+                            </div>
                         }
                     />
-                    <DynamicNavbar active_id="guerres" navigation={navbarConfig.navigation} shadow="md" />
+                    <DynamicNavbar active_id="guerres" />
 
                     {mine.appels.length > 0 ? (
                         <>

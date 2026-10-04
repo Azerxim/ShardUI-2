@@ -39,6 +39,35 @@ const SECTIONS = [
                 texte: "Déclarer une échoppe, son enseigne, sa ville et les membres qui la tiennent.",
             },
             {
+                titre: "Règles des guerres",
+                icon: "fa-solid fa-chess-knight",
+                lien: "/codex#guerres",
+                texte: "Le règlement d'une guerre RP dans le Codex, pour que chaque camp joue avec les mêmes cartes en main.",
+                details: [
+                    "Troupes à la mesure de la population, réparties et déclarées au modérateur RP.",
+                    "Déplacements publics dans la chronologie, secrets scellés en action secrète.",
+                    "Assassinat par piège : mortel seulement s'il a été scellé avant et validé après.",
+                ],
+            },
+            {
+                titre: "Cohérence historique",
+                icon: "fa-solid fa-landmark",
+                lien: "/codex#coherence",
+                texte: "Un Moyen Âge où la magie existe : ni poudre ni machines, des villes bâties selon leur temps et une mécanique qui se dissimule.",
+            },
+            {
+                titre: "Fermes justifiées en RP",
+                icon: "fa-solid fa-wheat-awn",
+                lien: "/codex#fermes",
+                texte: "Toute ferme se déclare avec sa raison d'être dans l'histoire et s'habille d'un bâtiment qui lui ressemble : plus de boîte de redstone posée au milieu d'un champ.",
+            },
+            {
+                titre: "Actions secrètes",
+                icon: "fa-solid fa-user-secret",
+                lien: "/actions-secretes",
+                texte: "Sceller une action à la date et à l'heure réelles, puis la révéler plus tard (soi-même, par un modérateur RP ou à une date fixée) : la preuve qu'elle a été décidée avant, et non après coup. Le conflit d'intérêts de l'équipe, qui joue aussi, est levé par la lecture tracée : chaque lecture d'un administrateur ou d'un modérateur RP est rendue publique.",
+            },
+            {
                 titre: "Zones et bâtiments destructibles",
                 icon: "fa-solid fa-house-crack",
                 lien: "/civilisations",
@@ -123,32 +152,6 @@ const SECTIONS = [
                 titre: "Zones commerciales",
                 icon: "fa-solid fa-store",
                 texte: "Déclarer les quartiers marchands et les marchés, les retrouver sur la carte et savoir qui y tient boutique.",
-            },
-            {
-                titre: "Règles des guerres",
-                icon: "fa-solid fa-chess-knight",
-                texte: "Le règlement complet d'une guerre RP, pour que chaque camp joue avec les mêmes cartes en main.",
-                details: [
-                    "Répartition des troupes et des soldats entre les camps.",
-                    "Déplacements des troupes : ce qui se déclare en public, ce qui reste secret.",
-                    "Assassinat d'un personnage : ce qu'un piège en jeu permet, et ce qu'il ne permet pas.",
-                ],
-            },
-            {
-                titre: "Actions secrètes",
-                icon: "fa-solid fa-user-secret",
-                texte: "Consigner une action tenue secrète, horodatée à la date et à l'heure réelles, et pouvoir la révéler en public plus tard — la preuve qu'elle a bien été décidée avant, et non après coup.",
-                question: "À trancher : les administrateurs et les modérateurs RP voient les actions secrètes, alors qu'ils jouent eux aussi. Reste à décider comment lever ce conflit d'intérêts.",
-            },
-            {
-                titre: "Cohérence historique",
-                icon: "fa-solid fa-landmark",
-                texte: "Ce que l'époque du serveur admet et ce qu'elle refuse : le thème tient tant que les constructions et les récits s'y tiennent.",
-            },
-            {
-                titre: "Fermes justifiées en RP",
-                icon: "fa-solid fa-wheat-awn",
-                texte: "Toute ferme devra avoir une raison d'être dans l'histoire et une représentation qui lui ressemble : plus de boîte de redstone posée au milieu d'un champ.",
             },
             {
                 titre: "Organisateur d'élections RP",

@@ -23,15 +23,16 @@ test.describe("Feuille de route", () => {
     for (const etat of ["Disponible", "En chantier", "À venir"]) {
       await expect(main.getByText(etat, { exact: true }).first()).toBeVisible();
     }
-    for (const titre of ["Zones commerciales", "Règles des guerres",
-      "Actions secrètes", "Cohérence historique",
-      "Fermes justifiées en RP", "Organisateur d'élections RP", "Aides et utilitaires"]) {
+    for (const titre of ["Zones commerciales", "Organisateur d'élections RP", "Aides et utilitaires"]) {
       await expect(main.getByRole("heading", { name: titre })).toBeVisible();
     }
     // La monnaie officielle est en jeu : elle figure parmi les fonctionnalités disponibles
     await expect(main.locator("section#disponible").getByRole("heading", { name: "La monnaie officielle : le tetra" })).toBeVisible();
     await expect(main.locator("section#disponible").getByRole("heading", { name: "Zones et bâtiments destructibles" })).toBeVisible();
-    // Le conflit d'intérêts des modérateurs reste posé, il ne doit pas disparaître de la page
+    for (const titre of ["Actions secrètes", "Règles des guerres", "Cohérence historique", "Fermes justifiées en RP"]) {
+      await expect(main.locator("section#disponible").getByRole("heading", { name: titre })).toBeVisible();
+    }
+    // Le conflit d'intérêts des modérateurs reste expliqué (levé par la lecture tracée des actions secrètes)
     await expect(main.getByText(/conflit d'intérêts/i)).toBeVisible();
   });
 

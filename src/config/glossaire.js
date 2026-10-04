@@ -37,6 +37,10 @@ export const GLOSSAIRE = {
         terme: "Appel aux armes",
         definition: "Demande faite à une civilisation alliée de rejoindre un camp dans une guerre. Elle peut l'accepter ou la décliner.",
     },
+    action: {
+        terme: "Action secrète",
+        definition: "Action RP scellée à l'heure réelle avant d'être jouée, puis révélée par son auteur, par un modérateur RP ou à une date fixée. Les lectures de l'équipe avant révélation sont tracées et rendues publiques.",
+    },
     moderateur: {
         terme: "Modérateur RP",
         definition: "Membre de l'équipe qui valide les déclarations de guerre et veille à la cohérence du rôle-play.",

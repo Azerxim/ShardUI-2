@@ -13,7 +13,6 @@ import { plural } from "@/utils/plural";
 import { showModal } from "@/utils/showModal";
 import { requireLogin } from "@/utils/requireLogin";
 import { commerceModal } from "@/config/modals/commerce";
-import { navbarConfig } from "@/config/navbar";
 import { getCommerces } from "@/services/api";
 import EtatVide from '@/components/ui/EtatVide';
 import MonnaieOfficielle from '@/components/monnaie/MonnaieOfficielle';
@@ -104,7 +103,7 @@ export default function CommercesPage() {
                             </button>
                         }
                     />
-                    <DynamicNavbar active_id="commerces" navigation={navbarConfig.navigation} shadow="md" />
+                    <DynamicNavbar active_id="commerces" />
                     <MonnaieOfficielle compact />
 
                     {loading ? (

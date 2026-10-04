@@ -694,4 +694,26 @@ export const resoudreMondePseudos = (releveId) =>
 export const deleteMondeReleve = (releveId) => apiRequest("DELETE", `/monde/releves/${releveId}`);
 
 
+//_______________________________ACTIONS SECRÈTES________________________________
+
+// Registre public : [{ id, code, created_at, empreinte, revealed }] pour une action scellée,
+// tout (titre, contenu, entite, guerre, sel, lectures…) pour une action révélée
+export const getActionsSecretes = () => publicGet("/actions/list");
+
+// Actions révélées rattachées à une guerre
+export const getActionsOfGuerre = (guerreId) => publicGet(`/actions/guerre/${guerreId}`);
+
+// Actions dont l'utilisateur connecté est l'auteur, en entier, avec les lectures tracées
+export const getMesActions = () => apiRequest("GET", "/actions/mine");
+
+// Lire une action scellée : libre pour l'auteur, tracé pour un administrateur ou modérateur RP
+export const lireAction = (actionId) => apiRequest("POST", `/actions/lire/${actionId}`);
+
+// { title, content, entity_type, entity_id, guerre_id?, reveal_at? }
+export const createAction = (action) => apiRequest("POST", "/actions/create", action);
+
+// motif : obligatoire pour un modérateur qui révèle l'action d'un autre
+export const revelerAction = (actionId, motif = null) => apiRequest("POST", `/actions/${actionId}/reveler`, { motif });
+
+
 // ___________________________________Autres____________________________________

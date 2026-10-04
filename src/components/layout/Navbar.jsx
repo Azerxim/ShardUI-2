@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import '@/components/layout/Navbar.css';
 import { syncSessionUser } from '@/services/session';
-import { MAPS_BASE_URL } from '@/config/maps';
+import { CARTE, DECOUVRIR, MONDE } from '@/config/navbar';
 import NavbarLaunch from '@/components/layout/NavbarLaunch';
 import RechercheGlobale from '@/components/layout/RechercheGlobale';
 import { ouvrirRecherche } from '@/utils/recherche';
@@ -14,21 +14,7 @@ import { lancementAVenir } from '@/config/saison';
 const link_network = 'https://mcapi.us/server/status?ip=spinelle-network.minesr.com';
 const link_serv = 'https://mcapi.us/server/status?ip=mbu-tetrago.minesr.com';
 
-// Sections du site : menu burger groupé, et liens visibles de la barre sur grand écran (xl)
-const DECOUVRIR = [
-    { id: 'codex', href: '/codex', icon: 'fa-solid fa-scroll', text: 'Codex' },
-    { id: 'bibliotheque', href: '/bibliotheque', icon: 'fa-solid fa-book', text: 'Bibliothèque' },
-];
-const MONDE = [
-    { id: 'civilisations', href: '/civilisations', icon: 'fa-solid fa-flag', text: 'Civilisations' },
-    { id: 'religions', href: '/religions', icon: 'fa-solid fa-cross', text: 'Religions' },
-    { id: 'commerces', href: '/commerces', icon: 'fa-solid fa-shop', text: 'Commerces' },
-    { id: 'alliances', href: '/alliances', icon: 'fa-solid fa-handshake', text: 'Alliances' },
-    { id: 'guerres', href: '/guerres', icon: 'fa-solid fa-shield-halved', text: 'Guerres' },
-    { id: 'personnages', href: '/personnages', icon: 'fa-solid fa-masks-theater', text: 'Personnages' },
-];
-const CARTE = { id: 'carte', href: `${MAPS_BASE_URL}/tetrago-civilisations`, icon: 'fa-solid fa-map', text: 'Carte' };
-
+// Sections du site (config/navbar.js) : menu burger groupé, et liens visibles de la barre sur grand écran (xl)
 const menuItemClass = (actif) => `justify-start flex-row gap-2 pr-5 pl-4 rounded-box rounded-3xl ${actif ? 'bg-secondary text-secondary-content' : ''}`;
 const barItemClass = (actif) => `btn btn-ghost btn-sm rounded-3xl gap-2 ${actif ? 'bg-secondary text-secondary-content' : ''}`;
 
