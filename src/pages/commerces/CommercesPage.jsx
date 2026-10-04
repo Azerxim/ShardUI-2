@@ -15,6 +15,7 @@ import { requireLogin } from "@/utils/requireLogin";
 import { commerceModal } from "@/config/modals/commerce";
 import { navbarConfig } from "@/config/navbar";
 import { getCommerces } from "@/services/api";
+import EtatVide from '@/components/ui/EtatVide';
 
 // Regroupe les commerces dirigés (is_commerce_dirigeant false + dirigeant_commerce_id) sous leur dirigeant.
 // Un commerce dirigé dont le dirigeant n'est pas visible reste à la racine.
@@ -114,7 +115,12 @@ export default function CommercesPage() {
                             <span>Impossible de récupérer la liste des commerces.</span>
                         </div>
                     ) : visibles.length === 0 ? (
-                        <p className="italic opacity-70">Aucun commerce disponible.</p>
+                        <EtatVide
+                            icon="fa-solid fa-shop"
+                            texte="Aucun commerce n'est encore ouvert."
+                            aide="Un commerce regroupe des marchands et ses magasins, implantés dans les villes du monde."
+                            action={{ label: "Ouvrir un commerce", icon: "fa-solid fa-plus", onClick: () => requireLogin(() => showModal(commerceModal, "add"), "ouvrir un commerce") }}
+                        />
                     ) : (
                         <div className="grid grid-cols-1 gap-4 w-full">
                             {buildCommerceTree(visibles).map(({ item: { commerce, fondateur, magasins }, diriges }) => (

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getApiURL } from "@/services/api";
 import Swal from "sweetalert2";
+import { alerteErreur } from "@/utils/alerteErreur";
 
 export default function VilleReligionEditModal({
   id,
@@ -42,7 +43,7 @@ export default function VilleReligionEditModal({
       onSubmit(data);
       setDraft(null);
     } catch (error) {
-      Swal.fire({ icon: "error", title: "Oops...", text: error.message });
+      alerteErreur("Modification impossible", error);
     }
     close();
   };

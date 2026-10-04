@@ -6,6 +6,8 @@ import MarkdownTextEditor from '@/components/ui/MarkdownTextEditor';
 import { showModal } from '@/utils/showModal';
 import { livreContentLocalModal } from '@/config/modals/livre-content-local';
 import { getApiURL } from "@/services/api";
+import { describeApiError } from "@/utils/apiError";
+import { alerteErreur } from "@/utils/alerteErreur";
 
 // Chapitre d'un livre : titre numéroté et contenu Markdown, modifiable directement par les ayants droit.
 // updateLivreContent reçoit { content: chapitre } (même format que la réponse de l'API), deleteLivreContent le chapitre.
@@ -23,10 +25,10 @@ export default function LivreChapitre({ content, index = 0, authorisation = fals
                 body: JSON.stringify(chapitre),
             });
             if (!response.ok) {
-                Swal.fire({ icon: "error", title: "Oops...", text: config.error.edit });
+                Swal.fire({ icon: "error", title: "Enregistrement impossible", text: `${config.error.edit} ${await describeApiError(response)}` });
             }
         } catch (error) {
-            Swal.fire({ icon: "error", title: "Oops...", text: error.message });
+            alerteErreur("Enregistrement impossible", error);
         }
     };
 

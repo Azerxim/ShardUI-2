@@ -4,6 +4,7 @@ import NavbarLaunch from "@/components/layout/NavbarLaunch";
 import GrimoireHero from "@/components/layout/GrimoireHero";
 import TitleH1 from "@/components/ui/TitleH1";
 import TitleH2 from "@/components/ui/TitleH2";
+import Glossaire from "@/components/aide/Glossaire";
 
 // ===== Contenu du codex =====
 // Chaque article peut porter `warn: true` pour les fautes à tolérance zéro.
@@ -164,6 +165,10 @@ export default function CodexPageLaunch() {
                   <span>{chapitre.titre}</span>
                 </a>
               ))}
+              <a href="#glossaire" className="btn btn-sm bg-base-200 hover:bg-base-300 rounded-full">
+                <FontAwesomeIcon icon="fa-solid fa-book-open" />
+                <span>Glossaire</span>
+              </a>
             </div>
           </section>
 
@@ -202,6 +207,13 @@ export default function CodexPageLaunch() {
               </div>
             </section>
           ))}
+
+          {/* Glossaire : cible des « ? » de l'aide contextuelle (/codex#glossaire-<terme>) */}
+          <section className="mb-16">
+            <TitleH1 text="Glossaire" icon="fa-solid fa-book-open" />
+            <p className="mt-3 mb-6 opacity-80 max-w-2xl">Les mots du monde de Tetrago, tels que le site les emploie.</p>
+            <Glossaire />
+          </section>
 
           {/* Serment de clôture */}
           <section className="grimoire-hero rounded-3xl py-16 px-4 text-center">

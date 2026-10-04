@@ -24,6 +24,7 @@ import {
     getLivreContentById,
     getCivilisationById,
 } from "@/services/api"
+import EtatVide from '@/components/ui/EtatVide';
 
 const DEFAULT_COVER_COLOR = "#cd9f5a";
 const WORDS_PER_MINUTE = 230;
@@ -152,7 +153,7 @@ export default function LivreDetailPage() {
 
     const BodyHTML = livre ? (
         <>
-            <TitleH1 text={livre.title} icon="fas fa-book" btn={btnReturn} fonctions={FctModify} />
+            <TitleH1 text={livre.title} icon="fas fa-book" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Bibliothèque", href: "/bibliotheque" }, { label: livre.title }]} />
 
             {/* En-tête : couverture, informations, chiffres clés et description */}
             <div className="flex flex-col sm:flex-row gap-4 w-full bg-base-200 rounded-3xl p-4">
@@ -197,7 +198,12 @@ export default function LivreDetailPage() {
                     <div className="loading loading-spinner loading-lg"></div>
                 </div>
             ) : chapitres.length === 0 ? (
-                <i className="w-full">Ce livre n'a encore aucun chapitre.</i>
+                <EtatVide
+                    icon="fa-solid fa-feather-pointed"
+                    texte="Ce livre n'a encore aucun chapitre."
+                    aide={auth ? "Écrivez le premier chapitre pour ouvrir le livre à ses lecteurs." : null}
+                    action={auth ? { label: "Écrire le premier chapitre", icon: "fa-solid fa-plus", onClick: () => showModal(livreContentModal, "add") } : null}
+                />
             ) : (
                 <div className="flex flex-col lg:flex-row gap-4 w-full items-start">
                     {chapitres.length > 1 ? <Sommaire chapitres={chapitres} /> : null}

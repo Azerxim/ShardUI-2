@@ -9,6 +9,7 @@ import { describeApiError } from "@/utils/apiError";
 import { useParams } from "react-router-dom";
 
 import DynamicField from "@/components/modals/fields/DynamicField";
+import { alerteErreur } from "@/utils/alerteErreur";
 
 export default function DynamicModal({
   config,
@@ -99,13 +100,7 @@ export default function DynamicModal({
             else if (data && data[config.dataKey]) setFormValues(data[config.dataKey]);
           }
         })
-        .catch((error) => {
-          Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: error.message,
-          });
-        });
+        .catch((error) => alerteErreur("Action impossible", error));
     }
     document.getElementById(config.id[mode].replace("$local-id", local.id)).close();
   };
@@ -138,13 +133,7 @@ export default function DynamicModal({
           onDelete();
         }
       })
-      .catch((error) => {
-        Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: error.message,
-        });
-      });
+      .catch((error) => alerteErreur("Suppression impossible", error));
     document.getElementById(config.id[mode].replace("$local-id", local.id)).close();
   };
 

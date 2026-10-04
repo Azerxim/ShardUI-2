@@ -7,6 +7,7 @@ import { showModalID } from "@/utils/showModal";
 import { DEFAULT_RELIGION_ICON, religionColor, religionIcon, formatInfluence } from "@/utils/religionColor";
 import DynamicIcon from "@/components/ui/DynamicIcon";
 import { getApiURL } from "@/services/api";
+import { alerteErreur } from "@/utils/alerteErreur";
 
 const influenceOf = (religion) => Math.max(0, Number(religion.influence) || 0);
 
@@ -92,7 +93,7 @@ export default function VilleReligions({ religions = [], ville = null, scope = "
             onDelete(religion);
         } catch (error) {
             console.error(error);
-            Swal.fire({ icon: "error", title: "Oops...", text: error.message });
+            alerteErreur("Retrait de la religion impossible", error);
         }
     };
 

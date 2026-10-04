@@ -20,6 +20,7 @@ import {
   getCivilisations
 } from "@/services/api"
 import GrimoireHero from "@/components/layout/GrimoireHero";
+import EtatVide from '@/components/ui/EtatVide';
 
 // Regroupe les civilisations dirigées (dirigeante_civilisation_id != 0) sous leur dirigeante.
 // Une dirigée dont la dirigeante n'est pas visible reste à la racine.
@@ -181,7 +182,12 @@ export default function CivilisationsPage() {
               <CivilisationList civilisations={storageCivilisations} />
             )
           ) : civilisations.length === 0 ? (
-            <p className="italic opacity-70">Aucune civilisation disponible.</p>
+            <EtatVide
+              icon="fa-solid fa-flag"
+              texte="Aucune civilisation n'a encore été fondée."
+              aide="Une civilisation rassemble des joueurs sous une même bannière, avec ses villes, ses membres et son gouvernement."
+              action={{ label: "Fonder une civilisation", icon: "fa-solid fa-plus", onClick: () => requireLogin(() => showModal(civilisationModal, "add"), "fonder une civilisation") }}
+            />
           ) : (
             <CivilisationList civilisations={civilisations} />
           )}

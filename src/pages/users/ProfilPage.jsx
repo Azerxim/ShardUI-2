@@ -5,6 +5,7 @@ import UserMemberships from "@/components/users/UserMemberships";
 import LinkedAccounts from "@/components/users/LinkedAccounts";
 import UserPersonnages from "@/components/users/UserPersonnages";
 import ProfilInfos from "@/components/users/ProfilInfos";
+import ActionsEnAttente from "@/components/users/ActionsEnAttente";
 
 export default function ProfilPage() {
   // Sans compte, le composant Profil affiche « Vous n'êtes pas connecté » avec un lien de connexion
@@ -16,6 +17,7 @@ export default function ProfilPage() {
         <Profil User={User} />
         {User ? (
           <>
+            <ActionsEnAttente className="max-w-4xl mx-auto mb-6" />
             <LinkedAccounts />
             <div className="max-w-4xl mx-auto mt-6">
               <ProfilInfos userId={User.id} own />

@@ -86,7 +86,9 @@ test.describe("Visiteur", () => {
     await page.goto(`/civilisation/${parent.civilisation.id}/ville/${ville.id}`);
     const main = page.locator("main.container");
     await expect(main.locator("h1")).toContainText(ville.title);
-    await expect(main.getByRole("link", { name: parent.civilisation.title, exact: true })).toBeVisible();
+    // Le lien vers la civilisation figure dans le fil d'Ariane et dans la fiche
+    await expect(main.getByRole("navigation", { name: "Fil d'Ariane" }).getByRole("link", { name: parent.civilisation.title, exact: true })).toBeVisible();
+    await expect(main.getByRole("link", { name: parent.civilisation.title, exact: true }).last()).toBeVisible();
     await expect(main.getByRole("heading", { name: "Religions", exact: true })).toBeVisible();
     await expect(main.getByRole("heading", { name: "Commerces", exact: true })).toBeVisible();
     await expect(main.getByRole("button", { name: /modifier|frontières|ajouter/i })).toHaveCount(0);

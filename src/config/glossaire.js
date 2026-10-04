@@ -1,0 +1,52 @@
+// Termes propres à Tetrago, expliqués par l'aide contextuelle (components/aide/Aide.jsx)
+// et rassemblés dans le glossaire du Codex (#glossaire).
+export const GLOSSAIRE = {
+    civilisation: {
+        terme: "Civilisation",
+        definition: "Groupe de joueurs réunis sous une même bannière, avec ses villes, ses membres et son gouvernement. Une civilisation peut en diriger d'autres.",
+    },
+    ville: {
+        terme: "Ville",
+        definition: "Établissement d'une civilisation, placé sur la carte. La capitale est sa ville principale.",
+    },
+    quartier: {
+        terme: "Quartier",
+        definition: "Partie d'une ville, où peuvent résider des personnages, s'implanter des religions et ouvrir des magasins.",
+    },
+    religion: {
+        terme: "Religion",
+        definition: "Foi qui réunit des fidèles. Son influence se mesure dans chaque ville ou quartier où elle est présente.",
+    },
+    commerce: {
+        terme: "Commerce",
+        definition: "Entreprise de joueurs. Ses magasins sont implantés dans les villes et quartiers du monde.",
+    },
+    alliance: {
+        terme: "Alliance",
+        definition: "Pacte entre plusieurs civilisations, qui peuvent s'appeler aux armes en cas de guerre.",
+    },
+    guerre: {
+        terme: "Guerre",
+        definition: "Conflit déclaré par le dirigeant d'une civilisation ou d'une religion. La déclaration reste privée jusqu'à sa validation par un modérateur RP.",
+    },
+    appel: {
+        terme: "Appel aux armes",
+        definition: "Demande faite à une civilisation alliée de rejoindre un camp dans une guerre. Elle peut l'accepter ou la décliner.",
+    },
+    moderateur: {
+        terme: "Modérateur RP",
+        definition: "Membre de l'équipe qui valide les déclarations de guerre et veille à la cohérence du rôle-play.",
+    },
+    personnage: {
+        terme: "Personnage",
+        definition: "Rôle que vous incarnez, sans validation. Il signe vos messages de journaux et peut résider dans une ville ou un quartier.",
+    },
+    journal: {
+        terme: "Journal",
+        definition: "Salon Discord relié au site : ses messages forment le récit de vos personnages.",
+    },
+    livre: {
+        terme: "Livre",
+        definition: "Récit écrit en chapitres sur le site : histoire, lois ou légendes d'une civilisation ou du monde.",
+    },
+};

@@ -29,6 +29,7 @@ import {
     getQuartiersByVille
 } from "@/services/api"
 import { openMapEditor } from "@/services/mapEditor";
+import EtatVide from '@/components/ui/EtatVide';
 
 const RELIGION_ADD_MODAL_ID = "ville-religion-add-modal";
 
@@ -226,7 +227,7 @@ export default function VilleDetailPage() {
 
     const BodyHTML = ville ? (
         <>
-            <TitleH1 text={ville.title} icon={villeIcon(ville)} btn={btnReturn} fonctions={FctModify} />
+            <TitleH1 text={ville.title} icon={villeIcon(ville)} btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Civilisations", href: "/civilisations" }, { label: civilisation?.title || "Civilisation", href: `/civilisation/${civ_id}` }, { label: ville.title }]} />
 
             {/* En-tête : identité, chiffres clés, description et carte */}
             <div className="flex flex-col lg:flex-row gap-4 w-full bg-base-200 rounded-3xl p-4">
@@ -285,7 +286,7 @@ export default function VilleDetailPage() {
                 ) : null}
             </div>
 
-            <TitleH2 text="Religions" icon="fas fa-hands-praying" fonctions={FctReligions} />
+            <TitleH2 text="Religions" icon="fas fa-hands-praying" fonctions={FctReligions} aide="religion" />
             <VilleReligions
                 religions={religions}
                 ville={ville}
@@ -294,9 +295,14 @@ export default function VilleDetailPage() {
                 onDelete={deleteReligion}
             />
 
-            <TitleH2 text="Quartiers" icon="fas fa-map-location-dot" fonctions={FctQuartiers} />
+            <TitleH2 text="Quartiers" icon="fas fa-map-location-dot" fonctions={FctQuartiers} aide="quartier" />
             {visibleQuartiers.length === 0 ? (
-                <i className="w-full">Cette ville n'a pas encore de quartier.</i>
+                <EtatVide
+                    icon="fa-solid fa-map-location-dot"
+                    texte="Cette ville n'a pas encore de quartier."
+                    aide={auth ? "Découpez la ville en quartiers pour y loger personnages, religions et magasins." : "Seuls les dirigeants de la civilisation peuvent ajouter un quartier."}
+                    action={auth ? { label: "Ajouter un quartier", icon: "fa-solid fa-plus", onClick: () => showModal(quartierModal, "add") } : null}
+                />
             ) : (
                 <div className="flex flex-col gap-2 w-full">
                     {visibleQuartiers.map((quartier) => <QuartierCard key={quartier.id} quartier={quartier} ville={ville} dimension={dimension} />)}
@@ -305,7 +311,7 @@ export default function VilleDetailPage() {
 
             <ResidentsSection type="ville" id={ville.id} />
 
-            <TitleH2 text="Commerces" icon="fas fa-shop" />
+            <TitleH2 text="Commerces" icon="fas fa-shop" aide="commerce" />
             {visibleMagasins.length === 0 ? (
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
                     <i className="flex-1">Aucun commerce n'est encore implanté dans cette ville.</i>

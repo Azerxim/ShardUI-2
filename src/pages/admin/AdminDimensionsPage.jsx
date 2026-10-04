@@ -13,6 +13,7 @@ import {
     updateDimension,
     deleteDimension
 } from "@/services/api";
+import { alerteErreur } from "@/utils/alerteErreur";
 
 const MODAL_ID = "admin-dimension-modal";
 const EMPTY_FORM = { id: null, title: "", link: "", description: "" };
@@ -92,7 +93,7 @@ export default function AdminDimensionsPage() {
             Swal.fire({ icon: "success", title: "Succès", text: form.id ? "Dimension modifiée." : "Dimension créée." });
         } catch (err) {
             closeForm();
-            Swal.fire({ icon: "error", title: "Oops...", text: err.message });
+            alerteErreur("Enregistrement impossible", err);
         } finally {
             setSaving(false);
         }
@@ -114,7 +115,7 @@ export default function AdminDimensionsPage() {
             setDimensions(dimensions.filter((dim) => dim.id !== dimension.id));
             Swal.fire({ icon: "success", title: "Succès", text: "Dimension supprimée." });
         } catch (err) {
-            Swal.fire({ icon: "error", title: "Oops...", text: err.message });
+            alerteErreur("Suppression impossible", err);
         }
     };
 

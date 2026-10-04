@@ -142,7 +142,7 @@ export default function QuartierDetailPage() {
 
     const BodyHTML = quartier ? (
         <>
-            <TitleH1 text={quartier.title} icon="fas fa-map-location-dot" btn={btnReturn} fonctions={FctModify} />
+            <TitleH1 text={quartier.title} icon="fas fa-map-location-dot" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Civilisations", href: "/civilisations" }, civilisation && { label: civilisation.title, href: `/civilisation/${civilisation.id}` }, ville && { label: ville.title, href: villeUrl }, { label: quartier.title }]} />
 
             {/* En-tête : identité, chiffres clés, description et carte */}
             <div className="flex flex-col lg:flex-row gap-4 w-full bg-base-200 rounded-3xl p-4">
@@ -200,7 +200,7 @@ export default function QuartierDetailPage() {
                 ) : null}
             </div>
 
-            <TitleH2 text="Religions" icon="fas fa-hands-praying" fonctions={FctReligions} />
+            <TitleH2 text="Religions" icon="fas fa-hands-praying" fonctions={FctReligions} aide="religion" />
             <VilleReligions
                 religions={religions}
                 ville={quartier}

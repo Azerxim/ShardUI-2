@@ -29,6 +29,7 @@ import {
     deleteMemberReligion
 } from "@/services/api"
 import Swal from "sweetalert2";
+import { alerteErreur } from "@/utils/alerteErreur";
 
 const ROLE_ORDER = { Fondateur: 0, Admin: 1 };
 const TRANSFER_MODAL_ID = "religion-transfer-founder-modal";
@@ -167,7 +168,7 @@ export default function ReligionPage() {
             Swal.fire({ icon: "success", title: "Succès", text: "Membre retiré de la religion avec succès." });
         } catch (error) {
             console.error("Erreur lors de la suppression du membre:", error);
-            Swal.fire({ icon: "error", title: "Oops...", text: error.message });
+            alerteErreur("Retrait du membre impossible", error);
         }
     };
 
@@ -179,7 +180,7 @@ export default function ReligionPage() {
 
     const BodyHTML = (
         <>
-            <TitleH1 text={religion ? religion.title : "Religion inconnue"} icon={icon} iconFallback={DEFAULT_RELIGION_ICON} btn={btnReturn} fonctions={FctModify} />
+            <TitleH1 text={religion ? religion.title : "Religion inconnue"} icon={icon} iconFallback={DEFAULT_RELIGION_ICON} btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Religions", href: "/religions" }, { label: religion ? religion.title : "Religion inconnue" }]} />
 
             {/* En-tête : identité, chiffres clés, description et carte */}
             <div className="flex flex-col lg:flex-row gap-4 w-full bg-base-200 rounded-3xl p-4 border-l-8" style={{ borderLeftColor: color }}>
@@ -241,7 +242,7 @@ export default function ReligionPage() {
 
             <ConflictsSection entityType="religion" entityId={parseInt(id)} />
 
-            <TitleH2 text="Présence dans les villes" icon="fas fa-city" />
+            <TitleH2 text="Présence dans les villes" icon="fas fa-city" aide="religion" />
             {presences.length === 0 ? (
                 <div className="w-full">
                     <i>Cette religion n'est présente dans aucune ville.</i>

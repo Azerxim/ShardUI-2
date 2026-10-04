@@ -1,19 +1,20 @@
 import { useState } from "react";
 
-export default function CopyButton({ text, icon, classes = "btn btn-success", style = { padding: "24px", fontSize: "1.25rem" }, textCopy = text, tooltip = { text: "Copier", position: "bottom" } }) {
-    // State to manage notification visibility
-    const [showNotification, setShowNotification] = useState(false);
+export default function CopyButton({ text, icon, classes = "btn btn-success", style = { padding: "24px", fontSize: "1.25rem" }, textCopy = text, tooltip = { text: "Copier", position: "bottom" }, onCopy = () => { } }) {
+    // Message affiché après le clic : confirmation, ou texte à recopier à la main si le presse-papier est refusé
+    const [notification, setNotification] = useState(null);
 
     const handleCopy = async () => {
         try {
             // Copy text to clipboard
             await navigator.clipboard.writeText(textCopy);
-            setShowNotification(true); // Show notification
-            // Hide notification after 3 seconds
-            setTimeout(() => setShowNotification(false), 3000);
+            setNotification("Copié dans le presse-papier !");
+            onCopy();
         } catch (err) {
             console.error("Failed to copy text:", err);
+            setNotification(`Copie impossible : recopiez ${textCopy}`);
         }
+        setTimeout(() => setNotification(null), 3000);
     };
 
     return (
@@ -24,7 +25,7 @@ export default function CopyButton({ text, icon, classes = "btn btn-success", st
                 <span>{text}</span>
 
                 {/* Notification */}
-                {showNotification && (
+                {notification && (
                     <div
                         className="bg-info rounded-xl shadow-xl"
                         style={{
@@ -37,7 +38,7 @@ export default function CopyButton({ text, icon, classes = "btn btn-success", st
                             transition: "opacity 0.3s ease-in-out",
                         }}
                     >
-                        Copié dans le presse-papier !
+                        {notification}
                     </div>
                 )}
             </a>

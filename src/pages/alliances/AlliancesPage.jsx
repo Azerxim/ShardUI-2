@@ -17,6 +17,7 @@ import { plural } from "@/utils/plural";
 import { ALLIANCE_TYPES, allianceBody, allianceFormFields, managedEntities, toOptions } from "@/utils/conflits";
 import { getSessionUser } from "@/services/session";
 import { apiRequest, getAlliances, getCivilisations } from "@/services/api";
+import EtatVide from '@/components/ui/EtatVide';
 
 const CREATE_MODAL_ID = "alliance-create-modal";
 const CREATE_INITIAL = { type: "Militaire", color: "#b3263a", icon: "fa-solid fa-shield-halved", is_public: "true" };
@@ -96,7 +97,12 @@ export default function AlliancesPage() {
                             <span>Impossible de récupérer la liste des alliances.</span>
                         </div>
                     ) : visibles.length === 0 ? (
-                        <p className="italic opacity-70">Aucune alliance n'a encore été scellée.</p>
+                        <EtatVide
+                            icon="fa-solid fa-handshake"
+                            texte="Aucune alliance n'a encore été scellée."
+                            aide="Une alliance unit plusieurs civilisations : ses membres peuvent s'appeler à l'aide en cas de guerre."
+                            action={{ label: "Sceller une alliance", icon: "fa-solid fa-plus", onClick: openCreate }}
+                        />
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                             {visibles.map(({ alliance, membres, chef_de_file }) => {

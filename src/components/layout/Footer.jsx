@@ -1,8 +1,16 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Link } from 'react-router-dom'
 import { version } from '../../../package.json'
+import FooterLaunch from '@/components/layout/FooterLaunch'
+import { lancementAVenir } from '@/config/saison'
 
 export default function Footer() {
+    // Pied de page de l'annonce tant que VITE_SAISON_LANCEMENT annonce la saison à venir (config/saison.js)
+    if (lancementAVenir()) return <FooterLaunch />;
+    return <FooterSaison />;
+}
+
+function FooterSaison() {
     const year = new Date().getFullYear();
     let HTMLyear = `${year}`;
     if (year > 2025) {

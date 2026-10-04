@@ -21,6 +21,7 @@ import MemberButton from "@/components/membres/MemberButton";
 import JoinHint from "@/components/membres/JoinHint";
 import { getCommerceById, getDimensions, getVilles, deleteMemberCommerce } from "@/services/api";
 import Swal from "sweetalert2";
+import { alerteErreur } from "@/utils/alerteErreur";
 
 const ROLE_ORDER = { Fondateur: 0, Admin: 1 };
 const TRANSFER_MODAL_ID = "commerce-transfer-founder-modal";
@@ -170,7 +171,7 @@ export default function CommercePage() {
             Swal.fire({ icon: "success", title: "Succès", text: "Membre retiré du commerce avec succès." });
         } catch (error) {
             console.error("Erreur lors de la suppression du membre:", error);
-            Swal.fire({ icon: "error", title: "Oops...", text: error.message });
+            alerteErreur("Retrait du membre impossible", error);
         }
     };
 
@@ -201,7 +202,7 @@ export default function CommercePage() {
 
     const BodyHTML = commerce ? (
         <>
-            <TitleH1 text={commerce.title} icon="fas fa-shop" btn={btnReturn} fonctions={FctModify} />
+            <TitleH1 text={commerce.title} icon="fas fa-shop" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Commerces", href: "/commerces" }, dirigeant && { label: dirigeant.title, href: `/commerce/${dirigeant.id}` }, { label: commerce.title }]} />
 
             <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -275,7 +276,7 @@ export default function CommercePage() {
             </div>
             <JoinHint members={members} entity="ce commerce" />
 
-            <TitleH2 text="Magasins" icon="fas fa-store" fonctions={FctMagasins} />
+            <TitleH2 text="Magasins" icon="fas fa-store" fonctions={FctMagasins} aide="commerce" />
             {visibleMagasins.length === 0 ? (
                 <div className="w-full">
                     <i>Ce commerce n'a encore aucun magasin.</i>
