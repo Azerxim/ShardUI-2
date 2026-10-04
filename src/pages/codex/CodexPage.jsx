@@ -6,6 +6,8 @@ import TitleH1 from "@/components/ui/TitleH1";
 import TitleH2 from "@/components/ui/TitleH2";
 import { navbarConfig } from "@/config/navbar";
 import DynamicNavbar from "@/components/layout/DynamicNavbar";
+import CodexPageLaunch from "@/pages/codex/CodexPageLaunch";
+import { lancementAVenir } from "@/config/saison";
 
 // ===== Contenu du codex =====
 // Chaque article peut porter `warn: true` pour les fautes à tolérance zéro.
@@ -139,6 +141,12 @@ const sommaire = livres.flatMap((livre) =>
 );
 
 export default function CodexPage() {
+  // Codex de l'annonce tant que VITE_SAISON_LANCEMENT annonce la saison à venir (config/saison.js)
+  if (lancementAVenir()) return <CodexPageLaunch />;
+  return <CodexSaison />;
+}
+
+function CodexSaison() {
   return (
     <>
       <Navbar active="codex" />

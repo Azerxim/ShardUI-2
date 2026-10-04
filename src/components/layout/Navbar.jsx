@@ -5,6 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import '@/components/layout/Navbar.css';
 import { syncSessionUser } from '@/services/session';
 import { MAPS_BASE_URL } from '@/config/maps';
+import NavbarLaunch from '@/components/layout/NavbarLaunch';
+import { lancementAVenir } from '@/config/saison';
 
 // ===== Constantes =====
 const link_network = 'https://mcapi.us/server/status?ip=spinelle-network.minesr.com';
@@ -23,6 +25,12 @@ function getRandomInt(max) {
 }
 
 export default function Navbar({ active = '' }) {
+    // Barre allégée tant que VITE_SAISON_LANCEMENT annonce la saison à venir (config/saison.js)
+    if (lancementAVenir()) return <NavbarLaunch active={active} />;
+    return <NavbarSaison active={active} />;
+}
+
+function NavbarSaison({ active }) {
     // Server Statistics
     const [Playerlist, setPlayerlist] = useState(false);
     const [NetworkData, setNetworkData] = useState(null);
