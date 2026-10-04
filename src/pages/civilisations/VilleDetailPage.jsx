@@ -30,6 +30,7 @@ import {
 } from "@/services/api"
 import { openMapEditor } from "@/services/mapEditor";
 import EtatVide from '@/components/ui/EtatVide';
+import DestructiblesSection from '@/components/civilisations/DestructiblesSection';
 
 const RELIGION_ADD_MODAL_ID = "ville-religion-add-modal";
 
@@ -213,7 +214,7 @@ export default function VilleDetailPage() {
     ];
 
     const FctQuartiers = [
-        { id: 1, title: "Ajouter", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, tooltip: { text: "Ajouter un quartier", position: "bottom" }, function: () => showModal(quartierModal, "add") }
+        { id: 1, title: "Ajouter", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, tooltip: { text: "Ajouter un quartier", position: "left" }, function: () => showModal(quartierModal, "add") }
     ];
 
     const btnReturn = { text: 'Retour à la civilisation', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: `/civilisation/${civ_id}` };
@@ -308,6 +309,8 @@ export default function VilleDetailPage() {
                     {visibleQuartiers.map((quartier) => <QuartierCard key={quartier.id} quartier={quartier} ville={ville} dimension={dimension} />)}
                 </div>
             )}
+
+            <DestructiblesSection ville={ville} dimension={dimension} auth={auth} />
 
             <ResidentsSection type="ville" id={ville.id} />
 

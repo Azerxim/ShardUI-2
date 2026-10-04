@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { apiGet, apiPost, blockExternalRequests, createSession, readAlert, signIn, uniqueSuffix } from "./helpers.js";
+import { apiGet, apiPost, blockExternalRequests, createSession, makeModerateur, readAlert, signIn, uniqueSuffix } from "./helpers.js";
 
 // Le fondateur d'une civilisation gère une de ses villes depuis sa fiche : actions visibles, modification, suppression.
 test.describe.configure({ mode: "serial" });
@@ -60,6 +60,34 @@ test("modifier la ville met la page à jour sans la vider", async ({ page }) => 
   ville = { ...ville, title };
 });
 
+test("le fondateur désigne les bâtiments et zones destructibles de sa ville", async ({ page }) => {
+  const section = main(page).getByRole("heading", { name: "Zones et bâtiments destructibles" });
+  await expect(section).toBeVisible();
+  await expect(main(page).getByText(/aucun bâtiment ni aucune zone n'est désigné comme destructible/i)).toBeVisible();
+  await expect(main(page).getByRole("button", { name: "Sélectionner", exact: true })).toBeVisible();
+
+  // Ce que l'éditeur de carte enregistre : un marqueur par bâtiment, un polygone par zone
+  const [dimension] = await apiGet("/cartographie/dimensions/read");
+  const element = (title, shape_type, coordinates) => ({ title, shape_type, coordinates, type: "destructible", type_id: ville.id, dimension_id: dimension?.id ?? 1, color: "#c98a12" });
+  await apiPost("/cartographie/create", session.token, { ...element("Moulin du Gué", "Marker", "[45,120]"), description: "Le moulin à grain" });
+  await apiPost("/cartographie/create", session.token, element("Faubourg sud", "Polygon", "[[40,110],[40,130],[60,130],[60,110]]"));
+
+  // Un autre joueur ne peut rien désigner ; un modérateur RP le peut
+  const autre = await createSession("villeautre");
+  await expect(apiPost("/cartographie/create", autre.token, element("Intrus", "Marker", "[0,0]"))).rejects.toThrow(/403/);
+  const moderateur = await createSession("villemodo");
+  makeModerateur(moderateur.account.username);
+  await apiPost("/cartographie/create", moderateur.token, element("Tour de guet", "Marker", "[50,125]"));
+
+  await page.reload();
+  for (const name of ["Moulin du Gué", "Faubourg sud", "Tour de guet"]) {
+    await expect(main(page).getByText(name, { exact: true })).toBeVisible();
+  }
+  await expect(main(page).getByText("Le moulin à grain")).toBeVisible();
+  await expect(main(page).getByText(/2 bâtiments et 1 zone/)).toBeVisible();
+  await expect(main(page).getByText("X 120 · Z -45")).toHaveCount(2); // la ville et le moulin
+});
+
 test("supprimer la ville ramène à sa civilisation", async ({ page }) => {
   await main(page).getByRole("button", { name: "Modifier", exact: true }).click();
   await page.locator("dialog[open] button.btn-error").click();
@@ -67,4 +95,6 @@ test("supprimer la ville ramène à sa civilisation", async ({ page }) => {
   await page.waitForURL(`**/civilisation/${civilisationId}`);
   const civilisation = await apiGet(`/civilisations/read/${civilisationId}`);
   expect(civilisation.villes.some((item) => item.id === ville.id)).toBe(false);
+  // Ses bâtiments et zones destructibles disparaissent avec elle
+  expect(await apiGet(`/cartographie/entity/destructible/${ville.id}`)).toEqual([]);
 });

@@ -16,6 +16,7 @@ import { commerceModal } from "@/config/modals/commerce";
 import { navbarConfig } from "@/config/navbar";
 import { getCommerces } from "@/services/api";
 import EtatVide from '@/components/ui/EtatVide';
+import MonnaieOfficielle from '@/components/monnaie/MonnaieOfficielle';
 
 // Regroupe les commerces dirigés (is_commerce_dirigeant false + dirigeant_commerce_id) sous leur dirigeant.
 // Un commerce dirigé dont le dirigeant n'est pas visible reste à la racine.
@@ -104,6 +105,7 @@ export default function CommercesPage() {
                         }
                     />
                     <DynamicNavbar active_id="commerces" navigation={navbarConfig.navigation} shadow="md" />
+                    <MonnaieOfficielle compact />
 
                     {loading ? (
                         <div className="flex flex-col gap-4 w-full">

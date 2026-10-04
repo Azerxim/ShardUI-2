@@ -32,6 +32,7 @@ import { definition as fasBookSkull } from "@fortawesome/free-solid-svg-icons/fa
 import { definition as fasBookmark } from "@fortawesome/free-solid-svg-icons/faBookmark";
 import { definition as fasBuilding } from "@fortawesome/free-solid-svg-icons/faBuilding";
 import { definition as fasBullhorn } from "@fortawesome/free-solid-svg-icons/faBullhorn";
+import { definition as fasBurst } from "@fortawesome/free-solid-svg-icons/faBurst";
 import { definition as fasCakeCandles } from "@fortawesome/free-solid-svg-icons/faCakeCandles";
 import { definition as fasCalendar } from "@fortawesome/free-solid-svg-icons/faCalendar";
 import { definition as fasCaretDown } from "@fortawesome/free-solid-svg-icons/faCaretDown";
@@ -53,6 +54,7 @@ import { definition as fasCode } from "@fortawesome/free-solid-svg-icons/faCode"
 import { definition as fasCoins } from "@fortawesome/free-solid-svg-icons/faCoins";
 import { definition as fasComments } from "@fortawesome/free-solid-svg-icons/faComments";
 import { definition as fasCross } from "@fortawesome/free-solid-svg-icons/faCross";
+import { definition as fasCrosshairs } from "@fortawesome/free-solid-svg-icons/faCrosshairs";
 import { definition as fasCrown } from "@fortawesome/free-solid-svg-icons/faCrown";
 import { definition as fasCubes } from "@fortawesome/free-solid-svg-icons/faCubes";
 import { definition as fasDna } from "@fortawesome/free-solid-svg-icons/faDna";
@@ -79,6 +81,7 @@ import { definition as fasFont } from "@fortawesome/free-solid-svg-icons/faFont"
 import { definition as fasGamepad } from "@fortawesome/free-solid-svg-icons/faGamepad";
 import { definition as fasGavel } from "@fortawesome/free-solid-svg-icons/faGavel";
 import { definition as fasGear } from "@fortawesome/free-solid-svg-icons/faGear";
+import { definition as fasGem } from "@fortawesome/free-solid-svg-icons/faGem";
 import { definition as fasHammer } from "@fortawesome/free-solid-svg-icons/faHammer";
 import { definition as fasHand } from "@fortawesome/free-solid-svg-icons/faHand";
 import { definition as fasHandsPraying } from "@fortawesome/free-solid-svg-icons/faHandsPraying";
@@ -118,6 +121,7 @@ import { definition as fasPaperclip } from "@fortawesome/free-solid-svg-icons/fa
 import { definition as fasPen } from "@fortawesome/free-solid-svg-icons/faPen";
 import { definition as fasPenNib } from "@fortawesome/free-solid-svg-icons/faPenNib";
 import { definition as fasPeopleGroup } from "@fortawesome/free-solid-svg-icons/faPeopleGroup";
+import { definition as fasPersonDigging } from "@fortawesome/free-solid-svg-icons/faPersonDigging";
 import { definition as fasPersonWalkingArrowRight } from "@fortawesome/free-solid-svg-icons/faPersonWalkingArrowRight";
 import { definition as fasPlaceOfWorship } from "@fortawesome/free-solid-svg-icons/faPlaceOfWorship";
 import { definition as fasPlus } from "@fortawesome/free-solid-svg-icons/faPlus";
@@ -185,6 +189,7 @@ export default [
     fasBookmark,
     fasBuilding,
     fasBullhorn,
+    fasBurst,
     fasCakeCandles,
     fasCalendar,
     fasCaretDown,
@@ -206,6 +211,7 @@ export default [
     fasCoins,
     fasComments,
     fasCross,
+    fasCrosshairs,
     fasCrown,
     fasCubes,
     fasDna,
@@ -232,6 +238,7 @@ export default [
     fasGamepad,
     fasGavel,
     fasGear,
+    fasGem,
     fasHammer,
     fasHand,
     fasHandsPraying,
@@ -271,6 +278,7 @@ export default [
     fasPen,
     fasPenNib,
     fasPeopleGroup,
+    fasPersonDigging,
     fasPersonWalkingArrowRight,
     fasPlaceOfWorship,
     fasPlus,

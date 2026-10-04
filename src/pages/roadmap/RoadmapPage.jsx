@@ -39,6 +39,18 @@ const SECTIONS = [
                 texte: "Déclarer une échoppe, son enseigne, sa ville et les membres qui la tiennent.",
             },
             {
+                titre: "Zones et bâtiments destructibles",
+                icon: "fa-solid fa-house-crack",
+                lien: "/civilisations",
+                texte: "Savoir, avant la bataille, ce qui peut tomber : chaque ville désigne sur la carte les bâtiments et les zones qu'une guerre RP autorise à détruire, listés sur sa fiche.",
+            },
+            {
+                titre: "La monnaie officielle : le tetra",
+                icon: "fa-solid fa-gem",
+                lien: "/codex#monnaie",
+                texte: "Un tetra vaut un diamant. Il s'obtient par le commerce, le minage ou le trésor d'une civilisation, et c'est la seule monnaie admise entre joueurs.",
+            },
+            {
                 titre: "Alliances",
                 icon: "fa-solid fa-handshake",
                 lien: "/alliances",
@@ -108,11 +120,6 @@ const SECTIONS = [
         dek: "Les chantiers suivants, dans le désordre : l'ordre se décidera avec vous.",
         fonctionnalites: [
             {
-                titre: "La monnaie officielle du serveur",
-                icon: "fa-solid fa-coins",
-                texte: "Une page dédiée à la monnaie de Tetrago : son nom, ce qu'elle vaut, comment on l'obtient et où elle a cours.",
-            },
-            {
                 titre: "Zones commerciales",
                 icon: "fa-solid fa-store",
                 texte: "Déclarer les quartiers marchands et les marchés, les retrouver sur la carte et savoir qui y tient boutique.",
@@ -126,11 +133,6 @@ const SECTIONS = [
                     "Déplacements des troupes : ce qui se déclare en public, ce qui reste secret.",
                     "Assassinat d'un personnage : ce qu'un piège en jeu permet, et ce qu'il ne permet pas.",
                 ],
-            },
-            {
-                titre: "Zones et bâtiments destructibles",
-                icon: "fa-solid fa-house-crack",
-                texte: "Savoir, avant la bataille, ce qui peut tomber : les zones et les bâtiments qu'une guerre RP autorise à détruire, repérés sur la carte.",
             },
             {
                 titre: "Actions secrètes",
