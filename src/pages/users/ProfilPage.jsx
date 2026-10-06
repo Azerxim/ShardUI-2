@@ -17,7 +17,7 @@ export default function ProfilPage() {
         <Profil User={User} />
         {User ? (
           <>
-            <ActionsEnAttente className="max-w-4xl mx-auto mb-6" />
+            <ActionsEnAttente className="max-w-4xl mx-auto mb-6 mt-6" />
             <LinkedAccounts />
             <div className="max-w-4xl mx-auto mt-6">
               <ProfilInfos userId={User.id} own />
