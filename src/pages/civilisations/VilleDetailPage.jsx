@@ -295,6 +295,8 @@ export default function VilleDetailPage() {
 
             <PopulationSection ville={ville} auth={auth} onCharge={setPopulationOfficielle} />
 
+            <ResidentsSection type="ville" id={ville.id} />
+
             <TitleH2 text="Religions" icon="fas fa-hands-praying" fonctions={FctReligions} aide="religion" />
             <VilleReligions
                 religions={religions}
@@ -319,8 +321,6 @@ export default function VilleDetailPage() {
             )}
 
             <DestructiblesSection ville={ville} dimension={dimension} auth={auth} />
-
-            <ResidentsSection type="ville" id={ville.id} />
 
             <TitleH2 text="Commerces" icon="fas fa-shop" aide="commerce" />
             {visibleMagasins.length === 0 ? (
