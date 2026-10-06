@@ -21,7 +21,8 @@ export const MONDE = [
   { id: "fermes", href: "/fermes", icon: "fa-solid fa-wheat-awn", text: "Fermes" },
 ];
 
-export const CARTE = { id: "carte", href: `${MAPS_BASE_URL}/tetrago-civilisations`, icon: "fa-solid fa-map", text: "Carte" };
+// Vue unifiée de la carte : civilisations, commerces et guerres ensemble, avec légende (Shard-Maps layers/unifier.js)
+export const CARTE = { id: "carte", href: `${MAPS_BASE_URL}/tetrago-unifier`, icon: "fa-solid fa-map", text: "Carte" };
 
 // Groupes de la barre des sections
 export const SECTIONS = [

@@ -24,13 +24,13 @@ test.describe("Feuille de route", () => {
       await expect(main.getByText(etat, { exact: true }).first()).toBeVisible();
     }
     for (const titre of ["Organisateur d'élections RP", "Aides et utilitaires", "Chroniques de Tetrago", "Calendrier des événements RP",
-      "Lignées et généalogie", "Notifications sur le site", "Tableau de bord des modérateurs RP", "Carte combinée"]) {
+      "Lignées et généalogie", "Notifications sur le site", "Tableau de bord des modérateurs RP"]) {
       await expect(main.getByRole("heading", { name: titre })).toBeVisible();
     }
     // La monnaie officielle est en jeu : elle figure parmi les fonctionnalités disponibles
     await expect(main.locator("section#disponible").getByRole("heading", { name: "La monnaie officielle : le tetra" })).toBeVisible();
     await expect(main.locator("section#disponible").getByRole("heading", { name: "Zones et bâtiments destructibles" })).toBeVisible();
-    for (const titre of ["Population officielle ajustée", "Zones commerciales", "Actions secrètes", "Règles des guerres", "Cohérence historique", "Fermes justifiées en RP", "Catalogue des boutiques", "Jours de marché et foires", "Cibles d'une guerre", "Levée des troupes", "Compagnies de mercenaires", "Déclaration des fermes sur le site", "Chroniques de Tetrago", "Calendrier des événements RP", "Lignées et généalogie"]) {
+    for (const titre of ["Population officielle ajustée", "Zones commerciales", "Actions secrètes", "Règles des guerres", "Cohérence historique", "Fermes justifiées en RP", "Catalogue des boutiques", "Jours de marché et foires", "Cibles d'une guerre", "Levée des troupes", "Compagnies de mercenaires", "Carte unifiée", "Déclaration des fermes sur le site", "Chroniques de Tetrago", "Calendrier des événements RP", "Lignées et généalogie"]) {
       await expect(main.locator("section#disponible").getByRole("heading", { name: titre })).toBeVisible();
     }
     // Le conflit d'intérêts des modérateurs reste expliqué (levé par la lecture tracée des actions secrètes)

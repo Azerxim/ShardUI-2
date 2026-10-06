@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Navbar from "@/components/layout/Navbar";
 import GrimoireHero from "@/components/layout/GrimoireHero";
 import TitleH2 from "@/components/ui/TitleH2";
+import { CARTE } from "@/config/navbar";
 
 // ===== Feuille de route =====
 // Page publique : ce qui existe déjà sur Tetrago, ce qui est en chantier, ce qui viendra.
@@ -122,6 +123,12 @@ const SECTIONS = [
                 texte: "Une civilisation loue ses soldats en compagnies de mercenaires, avec leur tarif, sans entrer dans les guerres : le camp qui les engage les commande, et leur civilisation peut les rappeler en rompant le contrat.",
             },
             {
+                titre: "Carte unifiée",
+                icon: "fa-solid fa-layer-group",
+                lien: CARTE.href,
+                texte: "Civilisations, commerces et guerres ensemble sur une même carte, avec une légende : chaque thème s'affiche ou se masque, et l'adresse garde la vue choisie pour la partager.",
+            },
+            {
                 titre: "Déclaration des fermes sur le site",
                 icon: "fa-solid fa-wheat-awn",
                 lien: "/fermes",
@@ -238,11 +245,6 @@ const SECTIONS = [
                 titre: "Tableau de bord des modérateurs RP",
                 icon: "fa-solid fa-gavel",
                 texte: "Une seule page pour tout ce qui attend une décision : déclarations de guerre, assassinats par piège, fermes déclarées, ajustements de population, litiges.",
-            },
-            {
-                titre: "Carte combinée",
-                icon: "fa-solid fa-layer-group",
-                texte: "Afficher ensemble civilisations, commerces et guerres sur une même carte, avec une légende, au lieu de basculer entre les vues.",
             },
         ],
     },
