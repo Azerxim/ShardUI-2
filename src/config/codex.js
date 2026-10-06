@@ -120,10 +120,11 @@ export const LIVRES = [
         icon: "fa-solid fa-chess-knight",
         articles: [
           { titre: "Une armée à la mesure de son peuple.", texte: "Une civilisation lève au plus un soldat pour dix habitants de sa population officielle, relevée sur la carte. Les troupes fictives au-delà n'existent pas." },
-          { titre: "Des troupes réparties et déclarées.", texte: "Au début du conflit, chaque camp déclare au modérateur RP de la guerre la répartition de ses soldats entre armées et garnisons. Une même troupe ne combat jamais en deux lieux à la fois." },
+          { titre: "Des troupes réparties et déclarées.", texte: "Chaque civilisation engagée lève ses troupes ville par ville sur la fiche de la guerre, où son camp et le modérateur RP en suivent la répartition. Une troupe est toujours sur un champ de bataille ou en mouvement : une même troupe ne combat jamais en deux lieux à la fois." },
           { titre: "Déplacements publics, déplacements secrets.", texte: "Un déplacement public s'inscrit dans la chronologie de la guerre. Un déplacement secret doit être scellé en action secrète avant d'être joué : celui qu'on révèle sans l'avoir scellé n'a jamais eu lieu." },
           { titre: "Ne tombe que ce qui est désigné.", texte: "Pendant une guerre, seuls les bâtiments et zones destructibles désignés sur la fiche de la ville peuvent être détruits. Tout le reste demeure protégé : le détruire est un grief.", warn: true },
           { titre: "L'assassinat par piège.", texte: "Un piège posé en jeu peut tuer un personnage sans l'accord de sa victime, à deux conditions : avoir été scellé en action secrète avant d'être posé, et validé par un modérateur RP après les faits. Sans l'une ou l'autre, le piège ne fait que blesser.", warn: true },
+          { titre: "Des mercenaires sans drapeau.", texte: "Une civilisation peut louer ses soldats en compagnies de mercenaires, déclarées sur sa fiche et prises sur son armée autorisée. Le camp qui les engage les commande ; leur civilisation n'entre pas dans la guerre, et peut les rappeler en rompant le contrat." },
         ],
       },
       {

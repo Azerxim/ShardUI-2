@@ -182,13 +182,13 @@ Les routes sont déclarées dans `src/App.jsx`. Le titre de l'onglet vient de `p
 | `/bibliotheque` | Étagères des journaux et des livres | Public |
 | `/bibliotheque/journal/:id` | Messages du salon Discord, attribution aux personnages | Public (actions : connecté) |
 | `/bibliotheque/livre/:id` | Livre, chapitres et contenus ; liens vers civilisations, religions, commerces, alliances et personnages (`LivreLiensSection`), affichés sur leur fiche (`LivresLiesSection`, `#livres`) | Public (édition : auteur ou dirigeants d'une civilisation liée ; lier : aussi droits sur l'entité) |
-| `/civilisations`, `/civilisation/:id` | Liste et fiche (gouvernement, membres, villes, alliances, guerres, habitants, carte) | Public |
+| `/civilisations`, `/civilisation/:id` | Liste et fiche (gouvernement, membres, villes, alliances, guerres, mercenaires `#mercenaires`, habitants, carte) | Public |
 | `/civilisation/:civ_id/ville/:id` | Ville : quartiers, religions, magasins, habitants, carte | Public |
 | `/quartier/:id` | Quartier : religions, habitants, carte | Public |
 | `/religions`, `/religion/:id` | Liste et fiche (membres, présence, guerres de religion) | Public |
 | `/commerces`, `/commerce/:id` | Liste et fiche (membres, magasins, filiales) ; prochaines foires (`/commerces#foires`) et jours de marché des zones ; catalogue de chaque magasin (`CatalogueMagasin`, tenu par le Fondateur et les Admins) et recherche « Où acheter ? » (`/commerces#ou-acheter`, `OuAcheter`) ; `/commerce/:id#magasin-:id` descend jusqu'au magasin | Public |
 | `/alliances`, `/alliance/:id` | Liste et fiche (membres, invitations, guerres) | Public |
-| `/guerres`, `/guerre/:id` | Liste, fiche, chronologie, camps, zones de conflit, cibles (`CiblesSection` : destructibles des villes des deux camps, `#cibles`) | Public (déclarations non validées : parties et modérateurs) |
+| `/guerres`, `/guerre/:id` | Liste (et marché des mercenaires, `#mercenaires`), fiche, chronologie, camps, zones de conflit, troupes (`TroupesSection` : levée ville par ville, champ de bataille ou mouvement, engagement de mercenaires, `#troupes` ; affichées sur la carte intégrée, envoyées par `postMessage` à Shard-Maps `layers/troupes.js`), cibles (`CiblesSection` : destructibles des villes des deux camps, `#cibles`) | Public (déclarations non validées : parties et modérateurs) |
 | `/personnages`, `/personnage/:id` | Liste et fiche d'un personnage ; portrait et skin envoyés depuis le formulaire (`enregistrerPersonnage`, `utils/personnages.js`) ; section « Famille » de la fiche (`FamilleSection` : maison, parents, conjoints, enfants, fratrie, héritiers, `#famille`) et demandes de parenté en attente (fiche et liste) | Public (édition : son joueur ou un administrateur) |
 | `/maisons`, `/maison/:id` | Maisons nobles : liste, fondation, fiche avec blason (`BlasonMaison`), membres et arbre de la lignée (`ArbreMaison`) | Public (fonder, entrer : connecté ; gérer : chef, fondateur, modérateurs RP) |
 | `/admin` | Redirige vers `/admin/dimensions` | — |

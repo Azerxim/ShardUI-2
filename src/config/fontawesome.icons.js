@@ -102,6 +102,7 @@ import { definition as fasHandHoldingHeart } from "@fortawesome/free-solid-svg-i
 import { definition as fasHandsPraying } from "@fortawesome/free-solid-svg-icons/faHandsPraying";
 import { definition as fasHandshake } from "@fortawesome/free-solid-svg-icons/faHandshake";
 import { definition as fasHandshakeAngle } from "@fortawesome/free-solid-svg-icons/faHandshakeAngle";
+import { definition as fasHandshakeSlash } from "@fortawesome/free-solid-svg-icons/faHandshakeSlash";
 import { definition as fasHatWizard } from "@fortawesome/free-solid-svg-icons/faHatWizard";
 import { definition as fasHeading } from "@fortawesome/free-solid-svg-icons/faHeading";
 import { definition as fasHorse } from "@fortawesome/free-solid-svg-icons/faHorse";
@@ -110,6 +111,7 @@ import { definition as fasHourglassStart } from "@fortawesome/free-solid-svg-ico
 import { definition as fasHouse } from "@fortawesome/free-solid-svg-icons/faHouse";
 import { definition as fasHouseChimney } from "@fortawesome/free-solid-svg-icons/faHouseChimney";
 import { definition as fasHouseCrack } from "@fortawesome/free-solid-svg-icons/faHouseCrack";
+import { definition as fasHouseFlag } from "@fortawesome/free-solid-svg-icons/faHouseFlag";
 import { definition as fasItalic } from "@fortawesome/free-solid-svg-icons/faItalic";
 import { definition as fasKey } from "@fortawesome/free-solid-svg-icons/faKey";
 import { definition as fasKhanda } from "@fortawesome/free-solid-svg-icons/faKhanda";
@@ -147,6 +149,7 @@ import { definition as fasPeopleArrows } from "@fortawesome/free-solid-svg-icons
 import { definition as fasPeopleGroup } from "@fortawesome/free-solid-svg-icons/faPeopleGroup";
 import { definition as fasPersonBreastfeeding } from "@fortawesome/free-solid-svg-icons/faPersonBreastfeeding";
 import { definition as fasPersonDigging } from "@fortawesome/free-solid-svg-icons/faPersonDigging";
+import { definition as fasPersonHiking } from "@fortawesome/free-solid-svg-icons/faPersonHiking";
 import { definition as fasPersonWalkingArrowRight } from "@fortawesome/free-solid-svg-icons/faPersonWalkingArrowRight";
 import { definition as fasPlaceOfWorship } from "@fortawesome/free-solid-svg-icons/faPlaceOfWorship";
 import { definition as fasPlus } from "@fortawesome/free-solid-svg-icons/faPlus";
@@ -294,6 +297,7 @@ export default [
     fasHandsPraying,
     fasHandshake,
     fasHandshakeAngle,
+    fasHandshakeSlash,
     fasHatWizard,
     fasHeading,
     fasHorse,
@@ -302,6 +306,7 @@ export default [
     fasHouse,
     fasHouseChimney,
     fasHouseCrack,
+    fasHouseFlag,
     fasItalic,
     fasKey,
     fasKhanda,
@@ -339,6 +344,7 @@ export default [
     fasPeopleGroup,
     fasPersonBreastfeeding,
     fasPersonDigging,
+    fasPersonHiking,
     fasPersonWalkingArrowRight,
     fasPlaceOfWorship,
     fasPlus,

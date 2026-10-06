@@ -53,6 +53,14 @@ export const GLOSSAIRE = {
         terme: "Cibles d'une guerre",
         definition: "Bâtiments et zones destructibles des villes des belligérants engagés : ce qu'une guerre RP autorise à détruire, et rien d'autre.",
     },
+    troupe: {
+        terme: "Troupe",
+        definition: "Soldats levés dans une ville par une civilisation engagée dans une guerre, au plus un pour dix habitants de la ville, toutes guerres confondues. Une troupe est toujours sur un champ de bataille (une zone de conflit de la guerre) ou en mouvement. Seuls son camp et les modérateurs RP la voient avant la fin de la guerre.",
+    },
+    mercenaire: {
+        terme: "Compagnie de mercenaires",
+        definition: "Soldats qu'une civilisation déclare en temps de paix, dans une de ses villes, avec leur tarif. Un belligérant les engage dans sa guerre : ils rejoignent son camp et lui obéissent, sans que leur civilisation entre en guerre. Ils reviennent quand on les renvoie, quand leur civilisation rompt le contrat ou à la fin de la guerre.",
+    },
     appel: {
         terme: "Appel aux armes",
         definition: "Demande faite à une civilisation alliée de rejoindre un camp dans une guerre. Elle peut l'accepter ou la décliner.",

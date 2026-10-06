@@ -10,6 +10,7 @@ import SkeletonCivilisation from "@/components/civilisations/SkeletonCivilisatio
 import ListCard from "@/components/ui/ListCard";
 import TitleH2 from "@/components/ui/TitleH2";
 import FormModal from "@/components/modals/FormModal";
+import { MarcheMercenaires } from "@/components/conflits/MercenairesSection";
 
 import { showModalID } from "@/utils/showModal";
 import { requireLogin } from "@/utils/requireLogin";
@@ -222,6 +223,8 @@ export default function GuerresPage() {
                                     {enCours.map(({ guerre, camps }) => <GuerreCard key={guerre.id} guerre={guerre} camps={camps} />)}
                                 </div>
                             )}
+
+                            <MarcheMercenaires />
 
                             <TitleH2 text="Archives des guerres" icon="fas fa-book-skull" />
                             {terminees.length === 0 ? (

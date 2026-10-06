@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePageTitle } from "@/utils/pageTitle";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -15,6 +15,7 @@ import FormModal from "@/components/modals/FormModal";
 import ActionCard from "@/components/actions/ActionCard";
 import MapEmbed from "@/components/carte/MapEmbed";
 import CiblesSection from "@/components/conflits/CiblesSection";
+import TroupesSection from "@/components/conflits/TroupesSection";
 
 import { showModalID } from "@/utils/showModal";
 import { plural } from "@/utils/plural";
@@ -26,6 +27,7 @@ import {
     entityHref, formatDate, isModerateur, managedEntities, runAction,
 } from "@/utils/conflits";
 import { getSessionUser } from "@/services/session";
+import { MAPS_ORIGIN } from "@/config/maps";
 import { apiRequest, getAlliances, getCivilisations, getDimensions, getGuerreById, getReligions, getActionsOfGuerre, getZonesOfGuerre } from "@/services/api";
 
 const CAMP_LABELS = { attaquant: { title: "Attaquants", icon: "fa-solid fa-khanda" }, defenseur: { title: "Défenseurs", icon: "fa-solid fa-shield-halved" } };
@@ -35,7 +37,7 @@ const MODAL_IDS = {
 };
 const callModalId = (camp) => `guerre-appel-${camp}-modal`;
 
-// Chronologie : les six premiers types sont inscrits automatiquement par l'API, les autres sont racontés
+// Chronologie : les sept premiers types sont inscrits automatiquement par l'API, les autres sont racontés
 const EVENEMENT_TYPES = {
     declaration: { label: "Déclaration", icon: "fa-solid fa-scroll" },
     validation: { label: "Début", icon: "fa-solid fa-gavel" },
@@ -43,6 +45,7 @@ const EVENEMENT_TYPES = {
     ralliement: { label: "Ralliement", icon: "fa-solid fa-handshake-angle" },
     retrait: { label: "Retrait", icon: "fa-solid fa-person-walking-arrow-right" },
     fin: { label: "Fin", icon: "fa-solid fa-flag-checkered" },
+    deplacement: { label: "Déplacement", icon: "fa-solid fa-route" },
     bataille: { label: "Bataille", icon: "fa-solid fa-khanda" },
     siege: { label: "Siège", icon: "fa-solid fa-chess-rook" },
     traite: { label: "Traité", icon: "fa-solid fa-file-signature" },
@@ -94,6 +97,10 @@ export default function GuerrePage() {
     const [alliances, setAlliances] = useState([]);
     const [dimensions, setDimensions] = useState([]);
     const [zones, setZones] = useState([]);
+    // Réponse de /guerres/{id}/troupes (via TroupesSection) : troupes que le visiteur peut voir, envoyées à la carte
+    const [troupesData, setTroupesData] = useState(null);
+    const carteRef = useRef(null);
+    const carteFenetre = useRef(null);
     // Actions secrètes révélées rattachées à la guerre (les scellées ne disent pas à quelle guerre elles se rapportent)
     const [actions, setActions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -147,7 +154,43 @@ export default function GuerrePage() {
     const canRaconter = Boolean(user) && ((moderateur && publique) || (guerre?.status === "en_cours" && managesAnyCamp));
     const canEditZones = Boolean(user) && guerre?.status === "en_cours" && (moderateur || managesAnyCamp);
     const canRemoveEvenement = (evenement) => !evenement.is_auto && Boolean(user) && (moderateur || (evenement.created_by === user.id && guerre?.status === "en_cours"));
-    const zoneDimension = dimensions.find((dimension) => dimension.id === zones[0]?.dimension_id);
+
+    // Carte de la guerre : zones de conflit et troupes mobilisées visibles du visiteur, dans le monde de la première zone
+    // (à défaut, celui de la ville d'origine de la première troupe). La carte, servie ailleurs et sans session, reçoit
+    // les troupes par postMessage (Shard-Maps assets/scripts/layers/troupes.js) : aucun jeton ne lui est transmis.
+    const troupesVisibles = ["attaquant", "defenseur"].flatMap((camp) => troupesData?.troupes?.[camp] ?? []).filter((troupe) => troupe.status === "mobilisee");
+    const carteDimensionId = zones[0]?.dimension_id ?? troupesVisibles.find((troupe) => troupe.ville?.dimension_id)?.ville.dimension_id;
+    const zoneDimension = dimensions.find((dimension) => dimension.id === carteDimensionId);
+    const carteZones = zones.filter((zone) => zone.dimension_id === carteDimensionId);
+    const carteTroupes = troupesVisibles
+        .filter((troupe) => (troupe.zone ? troupe.zone.dimension_id : troupe.ville?.dimension_id) === carteDimensionId)
+        .map((troupe) => ({
+            id: troupe.id, title: troupe.title, camp: troupe.camp, effectif: troupe.effectif, position: troupe.position,
+            zone_id: troupe.zone?.id ?? null, ville: troupe.ville, civilisation: troupe.civilisation?.title,
+            mercenaire: Boolean(troupe.mercenaire_id), employeur: troupe.employeur?.title ?? null,
+        }));
+    const carteCentre = carteZones.length
+        ? zoneCenter(carteZones[0])
+        : { x: carteTroupes[0]?.ville?.x ?? 0, z: carteTroupes[0]?.ville?.z ?? 0 };
+    const messageCarte = JSON.stringify({
+        zones: carteZones.map(({ id: zoneId, title, shape_type, coordinates }) => ({ id: zoneId, title, shape_type, coordinates })),
+        troupes: carteTroupes,
+    });
+
+    // Envoi des troupes à la carte intégrée : quand elle annonce qu'elle est prête, puis à chaque changement
+    // (carteFenetre : fenêtre de la carte qui s'est annoncée ; un rechargement de l'iframe la remplace)
+    useEffect(() => {
+        const envoyer = () => carteRef.current?.contentWindow?.postMessage({ source: "shardui", type: "guerre-troupes", ...JSON.parse(messageCarte) }, MAPS_ORIGIN);
+        const onMessage = (event) => {
+            if (event.origin !== MAPS_ORIGIN || !event.source || event.source !== carteRef.current?.contentWindow) return;
+            if (event.data?.source !== "minedmap" || event.data?.type !== "embed-ready") return;
+            carteFenetre.current = event.source;
+            envoyer();
+        };
+        if (carteFenetre.current && carteFenetre.current === carteRef.current?.contentWindow) envoyer();
+        window.addEventListener("message", onMessage);
+        return () => window.removeEventListener("message", onMessage);
+    }, [messageCarte]);
 
     const act = async (request, options) => {
         const result = await runAction(request, options);
@@ -430,16 +473,24 @@ export default function GuerrePage() {
                         <i className="w-full">
                             {canEditZones ? "Aucune zone n'est tracée : utilisez « Tracer » pour marquer les fronts et les territoires disputés." : "Aucune zone de conflit n'a été tracée."}
                         </i>
-                    ) : (
+                    ) : null}
+                    {carteZones.length > 0 || carteTroupes.length > 0 ? (
                         <div className="flex flex-col gap-2 w-full">
                             <div className="w-full h-72 sm:h-96 rounded-2xl overflow-hidden">
-                                <MapEmbed dimension={zoneDimension} embed="guerres" {...zoneCenter(zones[0])} zoom={0} width="100%" height="100%" title={`Zones de conflit de ${guerre.title}`} />
+                                <MapEmbed ref={carteRef} dimension={zoneDimension} embed="guerres" {...carteCentre} zoom={0} width="100%" height="100%" title={`Zones de conflit de ${guerre.title}`} />
                             </div>
-                            <span className="text-sm opacity-70">{plural(zones.length, "zone de conflit tracée", "zones de conflit tracées")}</span>
+                            <span className="text-sm opacity-70">
+                                {[
+                                    zones.length ? plural(zones.length, "zone de conflit tracée", "zones de conflit tracées") : null,
+                                    carteTroupes.length ? `${plural(carteTroupes.length, "troupe", "troupes")} sur la carte (visibles de votre camp et des modérateurs RP)` : null,
+                                ].filter(Boolean).join(" · ")}
+                            </span>
                         </div>
-                    )}
+                    ) : null}
                 </>
             ) : null}
+
+            {publique ? <TroupesSection guerre={guerre} reloadKey={reloadKey} onChange={reload} onData={setTroupesData} /> : null}
 
             {publique ? <CiblesSection guerre={guerre} dimensions={dimensions} /> : null}
 

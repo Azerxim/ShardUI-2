@@ -110,6 +110,18 @@ const SECTIONS = [
                 texte: "Sur la fiche d'une guerre, les bâtiments et zones destructibles des villes des deux camps, avec leur carte : ce que la guerre autorise à détruire.",
             },
             {
+                titre: "Levée des troupes",
+                icon: "fa-solid fa-people-group",
+                lien: "/guerres",
+                texte: "Pendant une guerre, chaque civilisation engagée lève ses troupes ville par ville, au plus un soldat pour dix habitants. Une troupe est toujours sur un champ de bataille ou en mouvement ; ses déplacements publics entrent dans la chronologie, et seuls son camp et les modérateurs RP la voient, y compris sur la carte de la guerre, jusqu'à la fin de celle-ci.",
+            },
+            {
+                titre: "Compagnies de mercenaires",
+                icon: "fa-solid fa-coins",
+                lien: "/guerres#mercenaires",
+                texte: "Une civilisation loue ses soldats en compagnies de mercenaires, avec leur tarif, sans entrer dans les guerres : le camp qui les engage les commande, et leur civilisation peut les rappeler en rompant le contrat.",
+            },
+            {
                 titre: "Déclaration des fermes sur le site",
                 icon: "fa-solid fa-wheat-awn",
                 lien: "/fermes",

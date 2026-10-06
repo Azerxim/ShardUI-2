@@ -1,6 +1,7 @@
 import { MAPS_BASE_URL } from "@/config/maps";
 
-export default function MapEmbed({ dimension, x, z, zoom = 0, embed = 'civilisations', title = 'Carte', width = 300, height = 200, className = '', style = {} }) {
+// ref : l'iframe, pour lui envoyer des données par postMessage (troupes d'une guerre, voir GuerrePage)
+export default function MapEmbed({ ref = null, dimension, x, z, zoom = 0, embed = 'civilisations', title = 'Carte', width = 300, height = 200, className = '', style = {} }) {
     if (!dimension || !dimension.link) {
         return (
             <div
@@ -12,6 +13,7 @@ export default function MapEmbed({ dimension, x, z, zoom = 0, embed = 'civilisat
 
     return (
         <iframe
+            ref={ref}
             src={`${MAPS_BASE_URL}/${dimension.link}-embedfull-${embed}#x=${x}&z=${z}&zoom=${zoom}`}
             title={title}
             style={{ width, height, ...style }}

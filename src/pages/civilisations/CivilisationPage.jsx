@@ -12,6 +12,7 @@ import Stat from "@/components/ui/Stat";
 import InfoLine from "@/components/ui/InfoLine";
 import JoinHint from "@/components/membres/JoinHint";
 import ConflictsSection from "@/components/conflits/ConflictsSection";
+import MercenairesSection from "@/components/conflits/MercenairesSection";
 import ResidentsSection from "@/components/civilisations/ResidentsSection";
 import MemberButton from "@/components/membres/MemberButton";
 import TransferFounderModal from '@/components/membres/TransferFounderModal';
@@ -335,6 +336,8 @@ export default function CivilisationPage() {
             <JoinHint members={members} entity="cette civilisation" />
 
             <ConflictsSection entityType="civilisation" entityId={civilisation.id} />
+
+            <MercenairesSection civilisationId={civilisation.id} />
 
             <ResidentsSection type="civilisation" id={civilisation.id} />
 

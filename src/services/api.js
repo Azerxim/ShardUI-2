@@ -816,6 +816,53 @@ export const deleteFoire = (foireId) => apiRequest("DELETE", `/marches/foires/${
 export const getCiblesGuerre = (guerreId) => publicGet(`/guerres/cibles/${guerreId}`);
 
 
+//_______________________________TROUPES D'UNE GUERRE___________________________
+
+// Jeton joint s'il existe : chaque camp ne voit que ses troupes (les modérateurs RP voient tout, tout le monde une fois
+// la guerre terminée). { champs: [{ id, title, dimension_id }], camps_visibles,
+//   troupes: { attaquant: [troupe] | null, defenseur: [troupe] | null },
+//   levees: [{ camp, civilisation, villes: [{ id, title, population, armee, mobilises, disponibles }] }] }
+// troupe : { id, camp, title, effectif, position, zone, status, civilisation, ville, peut_commander, … }
+export async function getTroupesGuerre(guerreId) {
+  const response = await fetch(`${apiURL}/guerres/${guerreId}/troupes`, { headers: userHeaders() });
+  if (!response.ok) throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  return response.json();
+}
+
+// { ville_id, title, effectif, position: "champ_de_bataille" | "en_mouvement", zone_id? }
+export const leverTroupe = (guerreId, body) => apiRequest("POST", `/guerres/${guerreId}/troupes`, body);
+// { title?, effectif? }
+export const modifierTroupe = (guerreId, troupeId, body) => apiRequest("PUT", `/guerres/${guerreId}/troupes/${troupeId}`, body);
+// { position, zone_id?, secret? }
+export const deplacerTroupe = (guerreId, troupeId, body) => apiRequest("PUT", `/guerres/${guerreId}/troupes/${troupeId}/deplacer`, body);
+export const demobiliserTroupe = (guerreId, troupeId) => apiRequest("PUT", `/guerres/${guerreId}/troupes/${troupeId}/demobiliser`);
+// Compagnie de mercenaires engagée par un belligérant que l'on dirige : { mercenaire_id, employeur_type, employeur_id, position, zone_id? }
+export const engagerMercenaires = (guerreId, body) => apiRequest("POST", `/guerres/${guerreId}/mercenaires`, body);
+
+
+//_______________________________MERCENAIRES___________________________________
+
+// Marché : [{ id, title, description, tarif, effectif, status: "disponible" | "sous_contrat", civilisation, ville }]
+export async function getMercenaires() {
+  const response = await fetch(`${apiURL}/mercenaires/list`, { headers: userHeaders() });
+  if (!response.ok) throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  return response.json();
+}
+
+// { compagnies (avec contrat pour ses dirigeants), gere, villes: [{ id, title, armee, mobilises, disponibles }] }
+export async function getMercenairesCivilisation(civilisationId) {
+  const response = await fetch(`${apiURL}/mercenaires/civilisation/${civilisationId}`, { headers: userHeaders() });
+  if (!response.ok) throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+  return response.json();
+}
+
+// { ville_id, title, effectif, description?, tarif? }
+export const creerCompagnie = (body) => apiRequest("POST", "/mercenaires/create", body);
+export const modifierCompagnie = (compagnieId, body) => apiRequest("PUT", `/mercenaires/${compagnieId}`, body);
+export const rompreContrat = (compagnieId) => apiRequest("PUT", `/mercenaires/${compagnieId}/rompre`);
+export const dissoudreCompagnie = (compagnieId) => apiRequest("DELETE", `/mercenaires/${compagnieId}`);
+
+
 //_______________________________FERMES_________________________________________
 
 // Fermes déclarées par l'utilisateur connecté
