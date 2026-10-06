@@ -36,6 +36,7 @@ import MaisonsPage from '@/pages/maisons/MaisonsPage';
 import MaisonPage from '@/pages/maisons/MaisonPage';
 import AdminDimensionsPage from '@/pages/admin/AdminDimensionsPage';
 import AdminPersonnagesPage from '@/pages/admin/AdminPersonnagesPage';
+import ModerationPage from '@/pages/moderation/ModerationPage';
 import AdminMondePage from '@/pages/admin/AdminMondePage';
 import NotFoundPage from '@/pages/not-found/NotFoundPage';
 
@@ -105,6 +106,7 @@ export default function App() {
           <Route path="/admin" element={<Navigate to="/admin/dimensions" replace />} />
           <Route path="/admin/dimensions" element={<AdminDimensionsPage />} />
           <Route path="/admin/personnages" element={<AdminPersonnagesPage />} />
+          <Route path="/moderation" element={<ModerationPage />} />
           <Route path="/admin/monde" element={<AdminMondePage />} />
 
           <Route path="*" element={<NotFoundPage />} />

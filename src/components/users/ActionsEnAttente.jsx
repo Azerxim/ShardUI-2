@@ -2,17 +2,18 @@ import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Aide from '@/components/aide/Aide';
-import { getAjustementsEnAttente, getMesGuerres } from '@/services/api';
+import { getMesGuerres, getTableauModeration } from '@/services/api';
 import { getSessionUser } from '@/services/session';
 
 // Ce qui attend le joueur connecté, affiché sur l'accueil et le profil :
-// appels aux armes à accepter, déclarations de guerre en attente de validation, déclarations à valider (modérateurs),
-// ajustements de population à valider (modérateurs).
+// appels aux armes à accepter, déclarations de guerre en attente de validation, et pour les modérateurs RP les
+// décisions du tableau de bord (/moderation : guerres, ajustements de population, fermes, pièges).
 // Rien n'est affiché sans session ni quand tout est à jour.
 export default function ActionsEnAttente({ className = '' }) {
     const [user] = useState(getSessionUser);
     const [mine, setMine] = useState(null);
-    const [ajustements, setAjustements] = useState([]);
+    // Modérateurs : décisions qu'ils peuvent prendre ({ guerres, ajustements, fermes, pieges }), hors leurs propres demandes
+    const [moderation, setModeration] = useState(null);
 
     useEffect(() => {
         if (!user) return;
@@ -22,17 +23,21 @@ export default function ActionsEnAttente({ className = '' }) {
             .catch(() => { });
         // Demandé pour tout joueur connecté : le rôle de modérateur stocké dans le navigateur peut dater d'avant
         // sa nomination ; l'API refuse simplement les autres (erreur ignorée)
-        getAjustementsEnAttente()
-            .then((data) => { if (!annule) setAjustements(Array.isArray(data) ? data.filter((a) => a.demande_par?.id !== user.id) : []); })
+        getTableauModeration()
+            .then((data) => {
+                if (annule || !data?.a_traiter) return;
+                const { guerres, ajustements, fermes, pieges } = data.a_traiter;
+                setModeration({ guerres: guerres.length, ajustements: ajustements.filter((a) => !a.propre).length, fermes: fermes.length, pieges: pieges.filter((p) => !p.propre).length });
+            })
             .catch(() => { });
         return () => { annule = true; };
     }, [user]);
 
-    if (!mine && !ajustements.length) return null;
     const appels = mine?.appels?.length || 0;
     const enAttente = mine?.mes_guerres?.length || 0;
     const aValider = mine?.a_valider?.length || 0;
-    if (!appels && !enAttente && !aValider && !ajustements.length) return null;
+    const decisions = moderation ? moderation.guerres + moderation.ajustements + moderation.fermes + moderation.pieges : 0;
+    if (!appels && !enAttente && !decisions) return null;
 
     const pluriel = (n, mot) => `${n} ${mot}${n > 1 ? 's' : ''}`;
     return (
@@ -47,26 +52,21 @@ export default function ActionsEnAttente({ className = '' }) {
                     <a href="/guerres" className="btn btn-sm">Répondre</a>
                 </div>
             )}
-            {aValider > 0 && (
+            {decisions > 0 && (
                 <div role="alert" className="alert alert-warning alert-soft rounded-2xl">
                     <FontAwesomeIcon icon="fa-solid fa-gavel" />
-                    <span>{pluriel(aValider, 'déclaration')} de guerre à valider en tant que modérateur RP.</span>
-                    <a href="/guerres" className="btn btn-sm">Traiter</a>
-                </div>
-            )}
-            {ajustements.length > 0 && (
-                <div role="alert" className="alert alert-warning alert-soft rounded-2xl">
-                    <FontAwesomeIcon icon="fa-solid fa-scale-balanced" />
                     <span className="flex flex-col gap-1">
-                        <span>{pluriel(ajustements.length, 'ajustement')} de population à valider en tant que modérateur RP :</span>
-                        <span className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
-                            {ajustements.slice(0, 5).map((a) => (
-                                <a key={a.id} href={`/civilisation/${a.ville.civilisation_id}/ville/${a.ville.id}#population`} className="link">
-                                    {a.ville.title} ({a.ecart > 0 ? '+' : '−'}{Math.abs(a.ecart)})
-                                </a>
-                            ))}
+                        <span>{decisions > 1 ? `${decisions} décisions attendent` : 'Une décision attend'} la modération RP :</span>
+                        <span className="text-sm opacity-80">
+                            {[
+                                moderation.guerres && pluriel(moderation.guerres, 'déclaration') + ' de guerre',
+                                moderation.ajustements && pluriel(moderation.ajustements, 'ajustement') + ' de population',
+                                moderation.fermes && pluriel(moderation.fermes, 'ferme'),
+                                moderation.pieges && pluriel(moderation.pieges, 'piège'),
+                            ].filter(Boolean).join(' · ')}
                         </span>
                     </span>
+                    <a href="/moderation" className="btn btn-sm">Tableau de bord</a>
                 </div>
             )}
             {enAttente > 0 && aValider === 0 && (

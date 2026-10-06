@@ -99,6 +99,13 @@ export default function ActionsSecretesPage() {
         { name: "title", label: "Titre", type: "text", required: true, placeholder: "Ex. Piège sur la route du Gué" },
         { name: "content", label: "L'action", type: "textarea", required: true, placeholder: "Ce qui est décidé, où, quand, par qui : tout ce qui devra être prouvé à la révélation." },
         {
+            name: "piege", label: "Nature", type: "radio", required: true,
+            options: [{ value: "non", label: "Action" }, { value: "oui", label: "Piège mortel" }],
+            help: (values) => values.piege === "oui"
+                ? "Le piège ne tuera que si un modérateur RP le valide après sa révélation ; sinon il ne fait que blesser. Cela ne se déclare qu'au dépôt."
+                : "Un piège qui doit pouvoir tuer se déclare maintenant : il ne peut plus l'être après coup.",
+        },
+        {
             name: "guerre_id", label: "Guerre liée", type: "select", placeholder: "Aucune",
             options: guerres.map((guerre) => ({ value: guerre.id, label: guerre.title })).sort((a, b) => a.label.localeCompare(b.label)),
             empty: "Aucune guerre en cours.",
@@ -119,6 +126,7 @@ export default function ActionsSecretesPage() {
             content: values.content,
             guerre_id: values.guerre_id ? Number(values.guerre_id) : null,
             reveal_at: values.reveal_at || null,
+            piege: values.piege === "oui",
         });
         await Swal.fire({
             icon: "success",
@@ -268,7 +276,7 @@ export default function ActionsSecretesPage() {
                     {user ? (
                         <FormModal
                             key={`${optionsAuteur.length}-${guerres.length}-${guerreDemandee}`}
-                            initialValues={guerreDemandee ? { guerre_id: guerreDemandee } : {}}
+                            initialValues={guerreDemandee ? { guerre_id: guerreDemandee, piege: "non" } : { piege: "non" }}
                             id={CREATE_MODAL_ID}
                             title="Sceller une action"
                             intro="Une fois scellée, l'action ne peut plus être modifiée ni supprimée. Les administrateurs et modérateurs RP peuvent la lire ; chaque lecture sera rendue publique à sa révélation."

@@ -29,6 +29,7 @@ export default function ActionCard({ action, onLire = null, onReveler = null, co
                 {action.revealed
                     ? <span className="badge badge-success badge-soft gap-1"><FontAwesomeIcon icon="fa-solid fa-lock-open" />Révélée</span>
                     : <span className="badge badge-warning badge-soft gap-1"><FontAwesomeIcon icon="fa-solid fa-lock" />Scellée</span>}
+                {connue && action.piege ? <span className="badge badge-error badge-soft gap-1"><FontAwesomeIcon icon="fa-solid fa-skull" />Piège mortel</span> : null}
                 <span className="text-sm opacity-70">Scellée le {formatDateHeure(action.created_at)}</span>
             </header>
 
@@ -60,6 +61,17 @@ export default function ActionCard({ action, onLire = null, onReveler = null, co
                     Contenu scellé jusqu'à sa révélation.
                 </p>
             )}
+
+            {action.revealed && action.piege ? (
+                <p className={`flex items-start gap-2 text-sm rounded-xl p-3 ${action.piege_verdict === 'mortel' ? 'bg-error/15' : action.piege_verdict ? 'bg-warning/15' : 'bg-base-100'}`}>
+                    <FontAwesomeIcon icon={action.piege_verdict === 'mortel' ? 'fa-solid fa-skull' : action.piege_verdict ? 'fa-solid fa-user-injured' : 'fa-solid fa-gavel'} className="mt-0.5 w-4" />
+                    <span>
+                        {action.piege_verdict === 'mortel' ? 'Piège mortel, validé par la modération RP' : action.piege_verdict ? 'Le piège ne fait que blesser, selon la modération RP' : 'Piège en attente du jugement d\'un modérateur RP : tant qu\'il n\'est pas validé, il ne tue pas.'}
+                        {action.piege_moderateur ? ` (${action.piege_moderateur.full_name || action.piege_moderateur.username}, le ${formatDateHeure(action.piege_decision_at)})` : ''}
+                        {action.piege_note ? ` — ${action.piege_note}` : ''}
+                    </span>
+                </p>
+            ) : null}
 
             <div className="flex flex-col gap-1 text-sm">
                 {action.revealed ? (

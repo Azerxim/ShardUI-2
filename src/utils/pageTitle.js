@@ -43,6 +43,7 @@ const ROUTE_TITLES = [
     ["/admin/dimensions", "Dimensions"],
     ["/admin/personnages", "Espèces et classes"],
     ["/admin/monde", "Statistiques du monde"],
+    ["/moderation", "Modération RP"],
 ];
 
 const setDocumentTitle = (title) => {

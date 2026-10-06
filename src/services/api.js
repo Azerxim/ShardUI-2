@@ -569,9 +569,11 @@ export async function apiRequest(method, path, body = undefined) {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
     const detail = data?.detail;
-    if (response.status === 401) throw new Error("Vous devez être connecté pour effectuer cette action. Votre session a peut-être expiré : reconnectez-vous.");
-    if (Array.isArray(detail)) throw new Error(`Vérifiez les champs : ${[...new Set(detail.map((error) => error.loc?.[error.loc.length - 1]))].join(", ")}.`);
-    throw new Error(typeof detail === "string" ? detail : detail?.text || `Erreur ${response.status}`);
+    let message = typeof detail === "string" ? detail : detail?.text || `Erreur ${response.status}`;
+    if (response.status === 401) message = "Vous devez être connecté pour effectuer cette action. Votre session a peut-être expiré : reconnectez-vous.";
+    else if (Array.isArray(detail)) message = `Vérifiez les champs : ${[...new Set(detail.map((error) => error.loc?.[error.loc.length - 1]))].join(", ")}.`;
+    // status : pour distinguer un refus (403) d'une panne, sans dépendre du texte du message
+    throw Object.assign(new Error(message), { status: response.status });
   }
   return data;
 }
@@ -750,6 +752,21 @@ export const createAction = (action) => apiRequest("POST", "/actions/create", ac
 
 // motif : obligatoire pour un modérateur qui révèle l'action d'un autre
 export const revelerAction = (actionId, motif = null) => apiRequest("POST", `/actions/${actionId}/reveler`, { motif });
+
+// Modérateur RP : piège révélé mortel (true) ou simple blessure (false, motif obligatoire)
+export const deciderPiege = (actionId, mortel, note = null) => apiRequest("PUT", `/actions/${actionId}/piege`, { mortel, note });
+
+// Tableau de bord des modérateurs RP : { a_traiter: { guerres, ajustements, fermes, pieges },
+//   suivi: { guerres, fermes, actions_scellees }, historique: [{ categorie, date, titre, decision, note, lien, moderateur }] }
+export const getTableauModeration = () => apiRequest("GET", "/moderation/tableau");
+
+// Notifications du joueur connecté (cloche de la barre) :
+// { non_lues, notifications: [{ id, type, title, text, link, created_at, lue }] }, plus récentes d'abord
+export const getMesNotifications = (limite = 30) => apiRequest("GET", `/notifications/mine?limite=${limite}`);
+
+export const marquerNotificationLue = (notificationId) => apiRequest("PUT", `/notifications/lue/${notificationId}`);
+
+export const marquerNotificationsLues = () => apiRequest("PUT", "/notifications/lues");
 
 
 //_______________________________CATALOGUE DES BOUTIQUES________________________

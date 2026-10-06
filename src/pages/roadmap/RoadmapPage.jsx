@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import Navbar from "@/components/layout/Navbar";
@@ -6,7 +7,7 @@ import TitleH2 from "@/components/ui/TitleH2";
 import { CARTE } from "@/config/navbar";
 
 // ===== Feuille de route =====
-// Page publique : ce qui existe déjà sur Tetrago, ce qui est en chantier, ce qui viendra.
+// Page publique : ce qui viendra, ce qui est en chantier, puis ce qui existe déjà sur Tetrago (version 2.0).
 // Les tâches internes restent dans TACHES_RESTANTES.md ; ici, seulement ce qui change quelque chose pour les joueurs.
 
 const ETATS = {
@@ -17,8 +18,47 @@ const ETATS = {
 
 const SECTIONS = [
     {
+        etat: "avenir",
+        titre: "À venir",
+        dek: "Les chantiers suivants, dans le désordre : l'ordre se décidera avec vous.",
+        fonctionnalites: [
+            {
+                titre: "Organisateur d'élections RP",
+                icon: "fa-solid fa-check-to-slot",
+                texte: "Ouvrir un scrutin au sein d'une civilisation, d'une alliance ou d'une religion : candidats, votants, dépouillement et résultat conservé.",
+                details: [
+                    "Candidatures, puis vote des membres entre deux dates.",
+                    "Vote secret possible : on compte sans savoir qui a voté quoi.",
+                    "Résultat archivé dans l'histoire de la civilisation, de l'alliance ou de la religion.",
+                ],
+            },
+            {
+                titre: "Aides et utilitaires",
+                icon: "fa-solid fa-life-ring",
+                texte: "Une section rassemblant les guides, les rappels de commandes et les petits outils du quotidien, pour ne plus fouiller le Discord.",
+                details: [
+                    "Conversion des coordonnées entre la surface et le Nether.",
+                    "Distance et temps de trajet entre deux villes.",
+                    "Conversion entre tetras, diamants et blocs ; fiche de personnage à coller sur Discord.",
+                ],
+            },
+        ],
+    },
+    // {
+    //     etat: "chantier",
+    //     titre: "En chantier",
+    //     dek: "Commencé, pas encore fini.",
+    //     fonctionnalites: [
+    //         {
+    //             titre: "Frontières de toutes les villes",
+    //             icon: "fa-solid fa-draw-polygon",
+    //             texte: "Tant qu'une ville n'a pas de frontières tracées, sa population est mesurée dans un simple rayon autour de son point : le chiffre reste approximatif.",
+    //         },
+    //     ],
+    // },
+    {
         etat: "disponible",
-        titre: "Déjà en jeu",
+        titre: "Fonctionnalités de la version 2.0",
         dek: "Tout ceci fonctionne aujourd'hui, sur le site comme sur le serveur.",
         fonctionnalites: [
             {
@@ -123,10 +163,28 @@ const SECTIONS = [
                 texte: "Une civilisation loue ses soldats en compagnies de mercenaires, avec leur tarif, sans entrer dans les guerres : le camp qui les engage les commande, et leur civilisation peut les rappeler en rompant le contrat.",
             },
             {
+                titre: "Tableau de bord des modérateurs RP",
+                icon: "fa-solid fa-gavel",
+                texte: "Une seule page pour tout ce qui attend une décision de la modération RP : déclarations de guerre, ajustements de population, fermes déclarées, pièges révélés. Le suivi des guerres en cours et l'historique de chaque décision y sont rassemblés.",
+                details: [
+                    "Un piège déclaré comme tel au dépôt ne tue qu'une fois validé après sa révélation.",
+                    "Un modérateur ne tranche ni sa propre demande, ni son propre piège.",
+                ],
+            },
+            {
                 titre: "Carte unifiée",
                 icon: "fa-solid fa-layer-group",
                 lien: CARTE.href,
                 texte: "Civilisations, commerces et guerres ensemble sur une même carte, avec une légende : chaque thème s'affiche ou se masque, et l'adresse garde la vue choisie pour la partager.",
+            },
+            {
+                titre: "Notifications sur le site",
+                icon: "fa-solid fa-bell",
+                texte: "Une cloche dans la barre, une fois connecté, pour ce qui vous concerne : appels aux armes, invitations d'alliance, liens de parenté à accepter, lectures tracées et révélations de vos actions secrètes, décisions de la modération RP.",
+                details: [
+                    "Un clic sur une notification mène à la page concernée et la marque comme lue.",
+                    "Les modérateurs RP y voient arriver les déclarations de guerre, les fermes, les ajustements de population et les pièges à juger.",
+                ],
             },
             {
                 titre: "Déclaration des fermes sur le site",
@@ -199,66 +257,44 @@ const SECTIONS = [
             },
         ],
     },
-    // {
-    //     etat: "chantier",
-    //     titre: "En chantier",
-    //     dek: "Commencé, pas encore fini.",
-    //     fonctionnalites: [
-    //         {
-    //             titre: "Frontières de toutes les villes",
-    //             icon: "fa-solid fa-draw-polygon",
-    //             texte: "Tant qu'une ville n'a pas de frontières tracées, sa population est mesurée dans un simple rayon autour de son point : le chiffre reste approximatif.",
-    //         },
-    //     ],
-    // },
-    {
-        etat: "avenir",
-        titre: "À venir",
-        dek: "Les chantiers suivants, dans le désordre : l'ordre se décidera avec vous.",
-        fonctionnalites: [
-            {
-                titre: "Organisateur d'élections RP",
-                icon: "fa-solid fa-check-to-slot",
-                texte: "Ouvrir un scrutin au sein d'une civilisation, d'une alliance ou d'une religion : candidats, votants, dépouillement et résultat conservé.",
-                details: [
-                    "Candidatures, puis vote des membres entre deux dates.",
-                    "Vote secret possible : on compte sans savoir qui a voté quoi.",
-                    "Résultat archivé dans l'histoire de la civilisation, de l'alliance ou de la religion.",
-                ],
-            },
-            {
-                titre: "Aides et utilitaires",
-                icon: "fa-solid fa-life-ring",
-                texte: "Une section rassemblant les guides, les rappels de commandes et les petits outils du quotidien, pour ne plus fouiller le Discord.",
-                details: [
-                    "Conversion des coordonnées entre la surface et le Nether.",
-                    "Distance et temps de trajet entre deux villes.",
-                    "Conversion entre tetras, diamants et blocs ; fiche de personnage à coller sur Discord.",
-                ],
-            },
-            {
-                titre: "Notifications sur le site",
-                icon: "fa-solid fa-bell",
-                texte: "Une cloche dans la barre pour les appels aux armes, les invitations d'alliance, les lectures de vos actions secrètes et les révélations.",
-            },
-            {
-                titre: "Tableau de bord des modérateurs RP",
-                icon: "fa-solid fa-gavel",
-                texte: "Une seule page pour tout ce qui attend une décision : déclarations de guerre, assassinats par piège, fermes déclarées, ajustements de population, litiges.",
-            },
-        ],
-    },
 ];
+
+// Ancre d'une fonctionnalité (#carte-unifiee), pour la partager ou y revenir
+const slug = (texte) => texte.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const normaliser = (texte) => (texte || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const correspond = (fonctionnalite, recherche) => !recherche
+    || [fonctionnalite.titre, fonctionnalite.texte, ...(fonctionnalite.details || [])].some((texte) => normaliser(texte).includes(recherche));
+
+// Sections repliées, gardées dans ce navigateur seulement (simple confort de lecture)
+const CLE_REPLIEES = "roadmap-sections-repliees";
+const lireRepliees = () => {
+    try {
+        return new Set(JSON.parse(localStorage.getItem(CLE_REPLIEES) || "[]"));
+    } catch {
+        return new Set();
+    }
+};
+const ecrireRepliees = (repliees) => {
+    try {
+        localStorage.setItem(CLE_REPLIEES, JSON.stringify([...repliees]));
+    } catch {
+        // stockage indisponible (navigation privée) : le choix vaut pour cette visite
+    }
+};
 
 function Fonctionnalite({ fonctionnalite, etat }) {
     const { titre, icon, texte, lien, details, question } = fonctionnalite;
+    const ancre = slug(titre);
     return (
-        <div className="bg-base-200 rounded-3xl p-4 shadow-md flex flex-col gap-2">
+        <article id={ancre} className="group bg-base-200 rounded-3xl p-4 shadow-md flex flex-col gap-2 scroll-mt-40 target:ring-2 target:ring-primary">
             <div className="flex flex-row items-center gap-3">
                 <FontAwesomeIcon icon={icon} className={`text-xl ${etat.puce}`} />
-                <h3 className="font-bold text-lg">
+                <h3 className="font-bold text-lg flex-1">
                     {lien ? <a href={lien} className="link link-hover">{titre}</a> : titre}
                 </h3>
+                <a href={`#${ancre}`} className="opacity-0 group-hover:opacity-60 focus:opacity-60 text-sm" aria-label={`Lien vers « ${titre} »`}>
+                    <FontAwesomeIcon icon="fa-solid fa-link" />
+                </a>
             </div>
             <p className="opacity-80">{texte}</p>
             {details && (
@@ -272,11 +308,78 @@ function Fonctionnalite({ fonctionnalite, etat }) {
                     <span className="opacity-80">{question}</span>
                 </p>
             )}
-        </div>
+        </article>
     );
 }
 
 export default function RoadmapPage() {
+    const [repliees, setRepliees] = useState(lireRepliees);
+    const [recherche, setRecherche] = useState("");
+    const [actif, setActif] = useState(SECTIONS[0].etat);
+    const [enHaut, setEnHaut] = useState(true);
+
+    const terme = normaliser(recherche.trim());
+    const sections = useMemo(
+        () => SECTIONS.map((section) => ({ ...section, visibles: section.fonctionnalites.filter((f) => correspond(f, terme)) })),
+        [terme]
+    );
+    const trouvees = sections.reduce((total, section) => total + section.visibles.length, 0);
+
+    const changer = (etat, replier) => setRepliees((avant) => {
+        const apres = new Set(avant);
+        if (replier) apres.add(etat);
+        else apres.delete(etat);
+        ecrireRepliees(apres);
+        return apres;
+    });
+    const toutes = (replier) => {
+        const apres = new Set(replier ? SECTIONS.map((section) => section.etat) : []);
+        ecrireRepliees(apres);
+        setRepliees(apres);
+    };
+
+    // Un lien vers une section ou une fonctionnalité repliée la déplie avant d'y aller
+    useEffect(() => {
+        const ouvrirCible = () => {
+            const id = decodeURIComponent(window.location.hash.slice(1));
+            if (!id) return;
+            const section = SECTIONS.find((s) => s.etat === id || s.fonctionnalites.some((f) => slug(f.titre) === id));
+            if (!section) return;
+            setRepliees((avant) => {
+                if (!avant.has(section.etat)) return avant;
+                const apres = new Set(avant);
+                apres.delete(section.etat);
+                ecrireRepliees(apres);
+                return apres;
+            });
+            requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ block: "start" }));
+        };
+        ouvrirCible();
+        window.addEventListener("hashchange", ouvrirCible);
+        return () => window.removeEventListener("hashchange", ouvrirCible);
+    }, []);
+
+    // Section en cours de lecture, soulignée dans la barre de navigation
+    useEffect(() => {
+        const visibles = new Map();
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => visibles.set(entry.target.id, entry.isIntersecting));
+            const premiere = SECTIONS.find((section) => visibles.get(section.etat));
+            if (premiere) setActif(premiere.etat);
+        }, { rootMargin: "-170px 0px -55% 0px" });
+        SECTIONS.forEach((section) => {
+            const element = document.getElementById(section.etat);
+            if (element) observer.observe(element);
+        });
+        return () => observer.disconnect();
+    }, []);
+
+    useEffect(() => {
+        const surDefilement = () => setEnHaut(window.scrollY < 600);
+        window.addEventListener("scroll", surDefilement, { passive: true });
+        return () => window.removeEventListener("scroll", surDefilement);
+    }, []);
+
     return (
         <>
             <Navbar active="roadmap" />
@@ -286,30 +389,73 @@ export default function RoadmapPage() {
                     <GrimoireHero
                         icon="fa-solid fa-route"
                         title="La feuille de route"
-                        description="Ce que Tetrago sait déjà faire, ce qui se construit en ce moment, et ce qui vous attend. Une idée, un désaccord sur l'ordre des chantiers ? Le Discord est là pour ça."
-                    >
-                        <div className="flex flex-wrap justify-center gap-2">
-                            {SECTIONS.map((section) => (
-                                <a key={section.etat} href={`#${section.etat}`} className="btn btn-sm bg-base-100 rounded-full">
-                                    <FontAwesomeIcon icon={ETATS[section.etat].icon} />
-                                    <span>{ETATS[section.etat].label}</span>
-                                    <span className="badge badge-sm">{section.fonctionnalites.length}</span>
-                                </a>
-                            ))}
-                        </div>
-                    </GrimoireHero>
+                        description="Ce qui vous attend, ce qui se construit en ce moment, et ce que Tetrago sait déjà faire. Une idée, un désaccord sur l'ordre des chantiers ? Le Discord est là pour ça."
+                    />
 
-                    {SECTIONS.map((section) => {
+                    {/* Navigation : suit la lecture, filtre et replie les sections */}
+                    <nav aria-label="Sections de la feuille de route" className="sticky top-24 z-20 mt-2 py-2 px-3 rounded-3xl bg-base-200 backdrop-blur shadow-md flex flex-col md:flex-row md:items-center gap-2">
+                        <div className="flex flex-wrap gap-2 flex-1">
+                            {sections.map((section) => {
+                                const etat = ETATS[section.etat];
+                                return (
+                                    <a
+                                        key={section.etat}
+                                        href={`#${section.etat}`}
+                                        aria-current={actif === section.etat ? "true" : undefined}
+                                        className={`btn btn-sm rounded-full ${actif === section.etat ? "btn-primary" : "bg-base-200"}`}
+                                    >
+                                        <FontAwesomeIcon icon={etat.icon} />
+                                        <span>{etat.label}</span>
+                                        <span className="badge badge-sm">{section.visibles.length}</span>
+                                    </a>
+                                );
+                            })}
+                        </div>
+                        <div className="flex flex-row items-center gap-2">
+                            <label className="input input-sm rounded-full bg-base-200 flex-1 md:w-64">
+                                <FontAwesomeIcon icon="fa-solid fa-magnifying-glass" className="opacity-60" />
+                                <input type="search" aria-label="Rechercher dans la feuille de route" placeholder="Rechercher…" value={recherche} onChange={(e) => setRecherche(e.target.value)} />
+                            </label>
+                            <button type="button" className="btn btn-sm btn-ghost rounded-full" onClick={() => toutes(repliees.size < SECTIONS.length)}>
+                                <FontAwesomeIcon icon={repliees.size < SECTIONS.length ? "fa-solid fa-compress" : "fa-solid fa-expand"} />
+                                <span className="hidden sm:inline">{repliees.size < SECTIONS.length ? "Tout replier" : "Tout déplier"}</span>
+                            </button>
+                        </div>
+                    </nav>
+
+                    {terme ? (
+                        <p role="status" className="mt-4 opacity-80">
+                            {trouvees === 0 ? "Aucune fonctionnalité ne correspond à votre recherche." : `${trouvees} fonctionnalité${trouvees > 1 ? "s" : ""} trouvée${trouvees > 1 ? "s" : ""}.`}
+                        </p>
+                    ) : null}
+
+                    {sections.map((section) => {
                         const etat = ETATS[section.etat];
+                        // Une recherche déplie les sections, pour montrer tous les résultats
+                        const repliee = repliees.has(section.etat) && !terme;
+                        if (terme && section.visibles.length === 0) return null;
                         return (
-                            <section key={section.etat} id={section.etat} className="mb-12 mt-6 scroll-mt-24">
-                                <TitleH2 text={section.titre} icon={etat.icon} />
+                            <section key={section.etat} id={section.etat} className="mb-10 mt-6 scroll-mt-40">
+                                <div className="flex flex-row items-center gap-2">
+                                    <div className="flex-1 min-w-0"><TitleH2 text={section.titre} icon={etat.icon} /></div>
+                                    <button
+                                        type="button"
+                                        className="btn btn-sm btn-ghost bg-base-200 rounded-full"
+                                        aria-expanded={!repliee}
+                                        aria-controls={`${section.etat}-contenu`}
+                                        onClick={() => changer(section.etat, !repliee)}
+                                    >
+                                        <FontAwesomeIcon icon="fa-solid fa-chevron-down" className={`transition-transform ${repliee ? "-rotate-90" : ""}`} />
+                                        <span>{repliee ? "Afficher" : "Masquer"}</span>
+                                    </button>
+                                </div>
                                 <p className="mt-3 mb-4 opacity-80 max-w-2xl flex flex-row flex-wrap items-center gap-2">
                                     <span className={`badge ${etat.badge}`}>{etat.label}</span>
                                     <span>{section.dek}</span>
+                                    {repliee ? <span className="text-sm opacity-70">· {section.fonctionnalites.length} fonctionnalité{section.fonctionnalites.length > 1 ? "s" : ""} masquée{section.fonctionnalites.length > 1 ? "s" : ""}</span> : null}
                                 </p>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {section.fonctionnalites.map((fonctionnalite) => (
+                                <div id={`${section.etat}-contenu`} hidden={repliee} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {section.visibles.map((fonctionnalite) => (
                                         <Fonctionnalite key={fonctionnalite.titre} fonctionnalite={fonctionnalite} etat={etat} />
                                     ))}
                                 </div>
@@ -329,6 +475,12 @@ export default function RoadmapPage() {
                             Proposer une idée sur le Discord
                         </a>
                     </section>
+
+                    {enHaut ? null : (
+                        <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="btn btn-circle btn-base-200 fixed bottom-6 right-6 z-30 shadow-lg" aria-label="Revenir en haut de la page">
+                            <FontAwesomeIcon icon="fa-solid fa-arrow-up" />
+                        </a>
+                    )}
 
                 </main>
             </div>

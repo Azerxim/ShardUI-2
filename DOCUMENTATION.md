@@ -168,7 +168,8 @@ Les routes sont déclarées dans `src/App.jsx`. Le titre de l'onglet vient de `p
 | `/codex` | Règles du serveur (contenu dans `pages/codex/CodexPage.jsx`) | Public |
 | `/civilisation/:civ_id/ville/:id#marches` | Zones commerciales, jours de marché et foires de la ville (`ZonesCommercialesSection`) | Public (gestion : dirigeants de la civilisation) |
 | `/civilisation/:civ_id/ville/:id#population` | Population officielle de la ville : mesure, ajustements, demande et validation (`PopulationSection`) | Public (demande : dirigeants ; validation : modérateurs RP) |
-| `/actions-secretes` | Actions secrètes : dépôt, registre public, lecture tracée (modérateurs RP), révélation | Public (dépôt : connecté) |
+| `/actions-secretes` | Actions secrètes : dépôt (action ou piège mortel), registre public, lecture tracée (modérateurs RP), révélation, verdict des pièges | Public (dépôt : connecté) |
+| `/moderation` | Tableau de bord des modérateurs RP : à traiter (guerres, population, fermes, pièges), suivi, historique filtrable | Modérateurs RP et administrateurs (accès décidé par l'API) |
 | `/fermes` | Déclaration des fermes (photo comprise) et suivi ; file de validation des modérateurs RP (`#a-examiner`) ; `#ferme-:id` descend jusqu'à une ferme | Connecté (déclarant et modérateurs RP seulement) |
 | `/calendrier` | Calendrier des événements RP : grille du mois (`?mois=AAAA-MM`), programme avec inscriptions (`#evenement-:id`), annonce et gestion ; foires des villes en lecture seule | Public (annoncer, s'inscrire : connecté) |
 | `/chroniques` | Frise de l'histoire du monde, filtrable par catégorie ; faits marquants des modérateurs RP | Public (faits : modérateur RP) |
@@ -203,7 +204,14 @@ Les routes au singulier sans identifiant (`/civilisation`, `/religion`, `/commer
 La barre de navigation (`components/layout/Navbar.jsx`) lit ses entrées dans `config/navbar.js` : Codex, Bibliothèque,
 Civilisations, Religions, Commerces, Alliances, Guerres, Personnages. Ses boutons ouvrent des panneaux latéraux
 (`PanneauLateral`, masqués par défaut, fermés par la croix, le voile ou Échap) : à gauche le menu (qui ajoute les pages
-d'administration selon les rôles), le compte et le thème ; à droite les joueurs connectés au serveur.
+d'administration selon les rôles), le compte et le thème ; à droite les notifications et les joueurs connectés au serveur.
+
+**Notifications** : une fois connecté, une cloche (`components/layout/Notifications.jsx`) affiche le nombre de
+notifications non lues et ouvre leur panneau. Sur téléphone (sous `sm`), elle est masquée et le menu latéral
+les ouvre (entrée « Notifications », avec le même compteur). `useNotifications.js` les relève (`GET /api/notifications/mine`) au
+chargement, toutes les minutes tant que l'onglet est visible, au retour sur l'onglet et à l'ouverture du panneau.
+Un clic marque la notification comme lue puis mène à sa page ; « Tout marquer comme lu » vide le compteur. Les
+notifications sont écrites par l'API au moment des faits (voir « Notifications » dans les règles métier de Shard-API).
 
 ## Session et droits
 
@@ -256,6 +264,7 @@ Tout passe par `src/services/api.js`. Les URL sont construites sur `${VITE_API_B
 | `transferFounder*`, `deleteMember*` | Membres |
 | `createDimension`, `updateDimension`, `deleteDimension` | Dimensions |
 | `getMondeResume`, `getMondeJoueurs`, `getMondeZones`, `getMondeHistoriqueLieu`, `resoudreMondePseudos`, `deleteMondeReleve` | Statistiques du monde |
+| `getMesNotifications`, `marquerNotificationLue`, `marquerNotificationsLues` | Notifications (cloche de la barre) |
 
 Les fonctions récentes (alliances, guerres, personnages, monde) utilisent `apiRequest` / `publicGet`. Les plus
 anciennes font leur propre `fetch` ; pour un nouvel appel, préférer les deux premières.
@@ -398,6 +407,7 @@ Shard-API d'abord. Les tests tournent l'un après l'autre (un seul worker), en f
 | `editeur-carte.spec.js` | Ouverture de l'éditeur et transmission du jeton |
 | `monde.spec.js` | Envoi d'un relevé et page `/admin/monde` |
 | `mobile.spec.js` | Affichage mobile |
+| `notifications.spec.js` | Cloche : notification ouverte depuis le panneau, lecture tracée, tout marquer comme lu, accès par le menu sur téléphone |
 
 Résultats et traces d'échec : `tests/ux/.results/`. Ajouter un test à chaque nouvelle fonctionnalité.
 

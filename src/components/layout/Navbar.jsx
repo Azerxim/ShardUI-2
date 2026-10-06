@@ -8,6 +8,8 @@ import { syncSessionUser } from '@/services/session';
 import { CARTE, DECOUVRIR, MONDE } from '@/config/navbar';
 import NavbarLaunch from '@/components/layout/NavbarLaunch';
 import RechercheGlobale from '@/components/layout/RechercheGlobale';
+import { BoutonNotifications, ContenuNotifications } from '@/components/layout/Notifications';
+import useNotifications from '@/components/layout/useNotifications';
 import { ouvrirRecherche } from '@/utils/recherche';
 import { lancementAVenir } from '@/config/saison';
 
@@ -112,7 +114,7 @@ const EnteteMenu = (
     </a>
 );
 
-function ContenuMenu({ active, User, fermer }) {
+function ContenuMenu({ active, User, fermer, nonLues, ouvrirNotifications }) {
     const rechercher = () => {
         fermer();
         ouvrirRecherche();
@@ -128,6 +130,16 @@ function ContenuMenu({ active, User, fermer }) {
                     <span>Rechercher</span>
                 </button>
             </li>
+            {/* De même pour la cloche des notifications */}
+            {User && (
+                <li className="sm:hidden">
+                    <button type="button" onClick={() => { fermer(); ouvrirNotifications(); }} className={menuItemClass(false)}>
+                        <FontAwesomeIcon icon="fa-solid fa-bell" />
+                        <span>Notifications</span>
+                        {nonLues > 0 && <span className="badge badge-error badge-sm" aria-label={`${nonLues} non lue${nonLues > 1 ? 's' : ''}`}>{nonLues > 99 ? '99+' : nonLues}</span>}
+                    </button>
+                </li>
+            )}
             <li className="menu-title pt-3 pb-1">Découvrir</li>
             {DECOUVRIR.map((lien) => <MenuLien key={lien.id} lien={lien} active={active} />)}
             <MenuLien lien={{ ...CARTE, text: 'Cartographie' }} active={active} />
@@ -145,7 +157,10 @@ function ContenuMenu({ active, User, fermer }) {
                 </>
             )}
             {(User?.is_admin || User?.is_moderateur) && (
-                <LienAdmin href="/admin/personnages" id="admin-personnages" icon="fa-solid fa-dna" text="Espèces et classes" active={active} moderateurs />
+                <>
+                    <LienAdmin href="/moderation" id="moderation" icon="fa-solid fa-gavel" text="Tableau de bord RP" active={active} moderateurs />
+                    <LienAdmin href="/admin/personnages" id="admin-personnages" icon="fa-solid fa-dna" text="Espèces et classes" active={active} moderateurs />
+                </>
             )}
         </>
     );
@@ -334,13 +349,21 @@ function NavbarSaison({ active }) {
     // User Data
     const User = JSON.parse(localStorage.getItem('user'));
 
-    // Panneaux latéraux ('menu', 'compte', 'theme', 'joueurs' ou null) : à la fermeture, le focus revient au bouton qui l'a ouvert
+    // Notifications du joueur connecté (cloche), relevées en arrière-plan
+    const notifications = useNotifications(Boolean(User && localStorage.getItem('token')));
+    const { rafraichir: rafraichirNotifications } = notifications;
+
+    // Panneaux latéraux ('menu', 'compte', 'theme', 'notifications', 'joueurs' ou null) : à la fermeture, le focus revient au bouton qui l'a ouvert
     const [panneau, setPanneau] = useState(null);
     const boutonsRef = useRef({});
     const fermerPanneau = useCallback(() => {
         boutonsRef.current[panneau]?.focus();
         setPanneau(null);
     }, [panneau]);
+    const ouvrirNotifications = () => {
+        setPanneau('notifications');
+        rafraichirNotifications();
+    };
     const choisirTheme = (nouveau) => {
         updateTheme(nouveau);
         fermerPanneau();
@@ -367,7 +390,7 @@ function NavbarSaison({ active }) {
     return (
         <>
             <PanneauLateral id="panneau-menu" label="Menu principal" ouvert={panneau === 'menu'} fermer={fermerPanneau} entete={EnteteMenu}>
-                <ContenuMenu active={active} User={User} fermer={fermerPanneau} />
+                <ContenuMenu active={active} User={User} fermer={fermerPanneau} nonLues={notifications.nonLues} ouvrirNotifications={ouvrirNotifications} />
             </PanneauLateral>
             <PanneauLateral id="panneau-compte" label="Compte" ouvert={panneau === 'compte'} fermer={fermerPanneau} entete={<TitrePanneau icon={User ? 'fa-solid fa-user-check' : 'fa-solid fa-user-plus'} text={User ? 'Compte' : 'Connexion'} />}>
                 <ContenuCompte active={active} User={User} />
@@ -375,6 +398,11 @@ function NavbarSaison({ active }) {
             <PanneauLateral id="panneau-theme" label="Thème" ouvert={panneau === 'theme'} fermer={fermerPanneau} entete={<TitrePanneau icon="fa-solid fa-palette" text="Thème" />}>
                 <ContenuTheme theme={theme} choisir={choisirTheme} />
             </PanneauLateral>
+            {User && (
+                <PanneauLateral id="panneau-notifications" label="Notifications" cote="droite" ouvert={panneau === 'notifications'} fermer={fermerPanneau} entete={<TitrePanneau icon="fa-solid fa-bell" text="Notifications" />}>
+                    <ContenuNotifications {...notifications} />
+                </PanneauLateral>
+            )}
             {ServerData?.online === true && (
                 <PanneauLateral id="panneau-joueurs" label="Joueurs connectés" cote="droite" ouvert={panneau === 'joueurs'} fermer={fermerPanneau} entete={<TitrePanneau icon="fa-solid fa-people-group" text="Joueurs connectés" />}>
                     <ContenuJoueurs joueurs={ServerData.players?.sample ?? []} />
@@ -421,6 +449,14 @@ function NavbarSaison({ active }) {
                     </nav>
                 </div>
                 <div className="navbar-end gap-2">
+                    {User && (
+                        <BoutonNotifications
+                            nonLues={notifications.nonLues}
+                            ouvert={panneau === 'notifications'}
+                            ouvrir={ouvrirNotifications}
+                            boutonRef={(element) => { boutonsRef.current.notifications = element; }}
+                        />
+                    )}
                     <RechercheGlobale />
                     {(ServerData && NetworkData ? (
                         <div className='flex gap-2'>
