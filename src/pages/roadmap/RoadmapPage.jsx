@@ -14,6 +14,7 @@ const ETATS = {
     disponible: { label: "Disponible", icon: "fa-solid fa-circle-check", badge: "badge-success", puce: "text-success" },
     chantier: { label: "En chantier", icon: "fa-solid fa-hammer", badge: "badge-warning", puce: "text-warning" },
     avenir: { label: "À venir", icon: "fa-solid fa-hourglass-start", badge: "badge-ghost", puce: "opacity-60" },
+    nouveau: { label: "Nouveau", icon: "fa-solid fa-star", badge: "badge-info", puce: "text-info" },
 };
 
 const SECTIONS = [
@@ -47,7 +48,7 @@ const SECTIONS = [
     // {
     //     etat: "chantier",
     //     titre: "En chantier",
-    //     dek: "Commencé, pas encore fini.",
+    //     dek: "Les fonctionnalités actuellement en chantier.",
     //     fonctionnalites: [
     //         {
     //             titre: "Frontières de toutes les villes",
@@ -56,9 +57,22 @@ const SECTIONS = [
     //         },
     //     ],
     // },
+    // {
+    //     etat: "nouveau",
+    //     titre: "Nouvelles fonctionnalités",
+    //     dek: "Les fonctionnalités récemment ajoutées.",
+    //     fonctionnalites: [
+    //         {
+    //             titre: "???",
+    //             icon: "fa-solid fa-question",
+    //             lien: "/",
+    //             texte: "",
+    //         },
+    //     ],
+    // },
     {
         etat: "disponible",
-        titre: "Fonctionnalités de la version 2.0",
+        titre: "Fonctionnalités",
         dek: "Tout ceci fonctionne aujourd'hui, sur le site comme sur le serveur.",
         fonctionnalites: [
             {
