@@ -11,7 +11,8 @@ export default function TitleH2({ text, icon = '', classes = 'bg-base-200', styl
             <div className={`flex flex-wrap gap-2 items-center h-full ${fonctions.length === 0 ? 'justify-start' : 'justify-between'} ${classes} rounded-2xl`} style={{ ...style }}>
                 <div className='flex flex-wrap gap-2 items-center'>
                     {icon && <FontAwesomeIcon icon={icon} />}
-                    <h2>{text}</h2>
+                    {/* data-sommaire : entrée du sommaire des fiches (SommaireFiche) */}
+                    <h2 data-sommaire="">{text}</h2>
                     {aide && <Aide terme={aide} />}
                 </div>
             </div>

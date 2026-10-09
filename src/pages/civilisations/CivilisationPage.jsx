@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import Navbar from "@/components/layout/Navbar";
 import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
+import SommaireFiche from "@/components/ui/SommaireFiche";
 import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
 import InfoLine from "@/components/ui/InfoLine";
@@ -256,6 +257,7 @@ export default function CivilisationPage() {
     const BodyHTML = civilisation ? (
         <>
             <TitleH1 text={civilisation.title} icon="fas fa-flag" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Civilisations", href: "/civilisations" }, { label: civilisation.title }]} />
+            <SommaireFiche />
 
             {/* En-tête : identité, chiffres clés et description */}
             <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4">
@@ -287,8 +289,9 @@ export default function CivilisationPage() {
                     <Stat icon="fa-solid fa-users" label={members.length > 1 ? "Membres" : "Membre"} value={members.length} />
                     <Stat icon="fa-solid fa-city" label={villes.length > 1 ? "Villes" : "Ville"} value={villes.length} />
                     <Stat icon="fa-solid fa-people-group" label="Population officielle" value={population.toLocaleString('fr-FR')} />
-                    {/* Codex, Art. II.5.1 : un soldat pour dix habitants de la population officielle */}
-                    <a href="/codex#guerres-1" className="rounded-2xl hover:ring-2 hover:ring-primary tooltip" data-tip={`Un soldat pour ${populationOfficielle?.habitants_par_soldat ?? 10} habitants (Codex, Art. II.5.1)`}>
+                    {/* Codex, Art. II.5.1 : un soldat pour dix habitants de la population officielle. Infobulle sur grand écran
+                        seulement : sur téléphone, la carte est dans la colonne de droite et la bulle débordait de l'écran */}
+                    <a href="/codex#guerres-1" className="rounded-2xl hover:ring-2 hover:ring-primary lg:tooltip" data-tip={`Un soldat pour ${populationOfficielle?.habitants_par_soldat ?? 10} habitants (Codex, Art. II.5.1)`}>
                         <Stat icon="fa-solid fa-chess-knight" label="Armée autorisée" value={`${(populationOfficielle?.armee ?? Math.floor(population / 10)).toLocaleString('fr-FR')} soldats`} />
                     </a>
                     <Stat icon="fa-solid fa-book" label={livres.length > 1 ? "Livres" : "Livre"} value={livres.length} />

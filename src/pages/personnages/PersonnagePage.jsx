@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import Navbar from "@/components/layout/Navbar";
 import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
+import SommaireFiche from "@/components/ui/SommaireFiche";
 import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
 import InfoLine from "@/components/ui/InfoLine";
@@ -99,6 +100,7 @@ export default function PersonnagePage() {
     const BodyHTML = personnage ? (
         <>
             <TitleH1 text={personnage.name} icon="fas fa-masks-theater" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Personnages", href: "/personnages" }, { label: personnage.name }]} />
+            <SommaireFiche />
 
             <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">

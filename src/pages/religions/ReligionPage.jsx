@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Navbar from "@/components/layout/Navbar";
 import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
+import SommaireFiche from "@/components/ui/SommaireFiche";
 import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
 import JoinHint from "@/components/membres/JoinHint";
@@ -183,6 +184,7 @@ export default function ReligionPage() {
     const BodyHTML = (
         <>
             <TitleH1 text={religion ? religion.title : "Religion inconnue"} icon={icon} iconFallback={DEFAULT_RELIGION_ICON} btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Religions", href: "/religions" }, { label: religion ? religion.title : "Religion inconnue" }]} />
+            <SommaireFiche />
 
             {/* En-tête : identité, chiffres clés, description et carte */}
             <div className="flex flex-col lg:flex-row gap-4 w-full bg-base-200 rounded-3xl p-4 border-l-8" style={{ borderLeftColor: color }}>

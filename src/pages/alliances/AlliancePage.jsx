@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import Navbar from "@/components/layout/Navbar";
 import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
+import SommaireFiche from "@/components/ui/SommaireFiche";
 import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
 import InfoLine from "@/components/ui/InfoLine";
@@ -112,6 +113,7 @@ export default function AlliancePage() {
     const BodyHTML = alliance ? (
         <>
             <TitleH1 text={alliance.title} icon={alliance.icon || type.icon} btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Alliances", href: "/alliances" }, { label: alliance.title }]} />
+            <SommaireFiche />
 
             <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4 border-l-8" style={{ borderLeftColor: alliance.color || undefined }}>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">

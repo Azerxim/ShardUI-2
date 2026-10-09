@@ -45,7 +45,7 @@ export default function DescriptionLongue({ type, id, auth = false }) {
   if (texte === null || (!texte && !auth)) return null;
 
   return (
-    <section id="description" className="w-full scroll-mt-24">
+    <section id="description" data-sommaire="Description" className="w-full scroll-mt-24">
       <MarkdownTextEditor
         value={texte}
         onChange={enregistrer}

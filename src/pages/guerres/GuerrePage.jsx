@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import Navbar from "@/components/layout/Navbar";
 import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
+import SommaireFiche from "@/components/ui/SommaireFiche";
 import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
 import InfoLine from "@/components/ui/InfoLine";
@@ -324,6 +325,7 @@ export default function GuerrePage() {
     const BodyHTML = guerre ? (
         <>
             <TitleH1 text={guerre.title} icon={type.icon} btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Guerres", href: "/guerres" }, { label: guerre.title }]} />
+            <SommaireFiche />
 
             {moderateur && ouverte ? (
                 <div role="region" aria-label="Modération" className="flex flex-col sm:flex-row sm:items-center gap-3 w-full bg-warning/15 border border-warning/40 rounded-2xl p-3 sm:p-4">

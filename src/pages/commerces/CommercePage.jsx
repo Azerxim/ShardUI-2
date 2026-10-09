@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Navbar from "@/components/layout/Navbar";
 import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
+import SommaireFiche from "@/components/ui/SommaireFiche";
 import TitleH2 from "@/components/ui/TitleH2";
 import DynamicModal from "@/components/modals/DynamicModal";
 import MarkdownTextEditor from "@/components/ui/MarkdownTextEditor";
@@ -216,6 +217,7 @@ export default function CommercePage() {
     const BodyHTML = commerce ? (
         <>
             <TitleH1 text={commerce.title} icon="fas fa-shop" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Commerces", href: "/commerces" }, dirigeant && { label: dirigeant.title, href: `/commerce/${dirigeant.id}` }, { label: commerce.title }]} />
+            <SommaireFiche />
 
             <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">
