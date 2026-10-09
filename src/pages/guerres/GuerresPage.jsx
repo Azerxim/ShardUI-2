@@ -18,6 +18,8 @@ import { GUERRE_STATUTS, GUERRE_TYPES, formatDate, managedEntities, runAction, t
 import { getSessionUser } from "@/services/session";
 import { apiRequest, getCivilisations, getGuerres, getMesGuerres, getReligions } from "@/services/api";
 import EtatVide from '@/components/ui/EtatVide';
+import BarreFiltres from "@/components/ui/BarreFiltres";
+import { correspond, normalize, parDate, parNombre, parTitre, useFiltresMemorises } from "@/utils/filtres";
 
 const DECLARE_MODAL_ID = "guerre-declare-modal";
 
@@ -27,6 +29,41 @@ const leaders = (camps) => ({
 });
 
 const engagedCount = (camp) => (camp ?? []).filter((b) => b.status === "engage").length;
+
+// ===== Filtres des guerres publiques (BarreFiltres) : en cours et archives =====
+const FILTRES_DEFAUT = { recherche: "", afficher: "toutes", type: "tous", participant: "tous", tri: "declaration-desc", mesGuerres: false };
+
+const AFFICHER = { toutes: "En cours et archives", en_cours: "En cours seulement", terminee: "Archives seulement" };
+const TYPES = { tous: "Tous les types", ...Object.fromEntries(Object.entries(GUERRE_TYPES).map(([value, { label }]) => [value, label])) };
+
+// Belligérants engagés (une entité supprimée garde son nom dans les archives)
+const engages = (camps) => Object.values(camps ?? {}).flat().filter((b) => b.status === "engage");
+const cleEntite = (entite) => `${entite.type}-${entite.id}`;
+
+const TRIS = {
+    "declaration-desc": { label: "Déclarées récemment", compare: parDate((item) => item.guerre.declared_at, -1) },
+    "declaration-asc": { label: "Déclarées il y a longtemps", compare: parDate((item) => item.guerre.declared_at, 1) },
+    "debut-desc": { label: "Début RP : récentes", compare: parDate((item) => item.guerre.date_debut, -1) },
+    "debut-asc": { label: "Début RP : anciennes", compare: parDate((item) => item.guerre.date_debut, 1) },
+    "titre-asc": { label: "Nom : A → Z", compare: parTitre((item) => item.guerre.title, 1) },
+    "belligerants-desc": { label: "Plus de belligérants", compare: parNombre((item) => engages(item.camps).length, -1) },
+};
+const TRI_LIBELLES = Object.fromEntries(Object.entries(TRIS).map(([value, { label }]) => [value, label]));
+
+// Recherche (nom, casus belli, description, issue, belligérants et leurs alliances), type, participant, « mes guerres »
+// (une civilisation ou religion dont je suis membre est engagée) et tri ; le statut est traité par section
+const filtrerGuerres = (guerres, filtres, participantFiltre, mesEntites) => {
+    const query = normalize(filtres.recherche.trim());
+    return guerres
+        .filter(({ guerre, camps }) => correspond(query, [
+            guerre.title, guerre.casus_belli, guerre.description, guerre.issue,
+            ...engages(camps).flatMap((b) => [b.entite?.title, b.alliance?.title]),
+        ]))
+        .filter(({ guerre }) => filtres.type === "tous" || guerre.type === filtres.type)
+        .filter(({ camps }) => participantFiltre === "tous" || engages(camps).some((b) => b.entite && cleEntite(b.entite) === participantFiltre))
+        .filter(({ camps }) => !filtres.mesGuerres || engages(camps).some((b) => b.entite && mesEntites.has(cleEntite(b.entite))))
+        .sort(TRIS[filtres.tri].compare);
+};
 
 function GuerreCard({ guerre, camps }) {
     const type = GUERRE_TYPES[guerre.type] ?? GUERRE_TYPES.Militaire;
@@ -63,6 +100,7 @@ export default function GuerresPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [reloadKey, setReloadKey] = useState(0);
+    const [filtres, changerFiltres] = useFiltresMemorises("guerres-filtres", FILTRES_DEFAUT, { afficher: AFFICHER, type: TYPES, tri: TRIS });
 
     useEffect(() => {
         getGuerres()
@@ -91,8 +129,29 @@ export default function GuerresPage() {
     const allCivs = civilisations.map((item) => item.civilisation).filter((item) => item.is_public !== false || managedCivIds.has(item.id));
     const allReligions = religions.map((item) => item.religion).filter((item) => item.is_public !== false || managedReligionIds.has(item.id));
 
-    const enCours = guerres.filter(({ guerre }) => guerre.status === "en_cours");
-    const terminees = guerres.filter(({ guerre }) => guerre.status === "terminee");
+    // « Mes guerres » : civilisations et religions dont je suis membre, quel que soit mon rôle
+    const mesEntites = new Set([
+        ...civilisations.filter(({ members }) => (members || []).some((member) => member.user_id === user?.id)).map(({ civilisation }) => `civilisation-${civilisation.id}`),
+        ...religions.filter(({ members }) => (members || []).some((member) => member.user_id === user?.id)).map(({ religion }) => `religion-${religion.id}`),
+    ]);
+
+    // Filtre « participant » : les belligérants engagés des guerres publiques, par nom. Une valeur gardée qui n'y figure
+    // plus est ignorée.
+    const participants = new Map(guerres.flatMap(({ camps }) => engages(camps)).filter((b) => b.entite).map((b) => [cleEntite(b.entite), b.entite]));
+    const optionsParticipants = [
+        ["tous", "Tous les belligérants"],
+        ...[...participants.entries()]
+            .sort(([, a], [, b]) => (a.title || "").localeCompare(b.title || ""))
+            .map(([cle, entite]) => [cle, `${entite.title}${entite.type === "religion" ? " (religion)" : ""}`]),
+    ];
+    const participantFiltre = optionsParticipants.some(([value]) => value === filtres.participant) ? filtres.participant : "tous";
+    const filtrees = filtrerGuerres(guerres, filtres, participantFiltre, mesEntites);
+    const effacerFiltres = { label: "Effacer les filtres", icon: "fa-solid fa-xmark", onClick: () => changerFiltres(FILTRES_DEFAUT) };
+
+    const enCoursToutes = guerres.filter(({ guerre }) => guerre.status === "en_cours");
+    const termineesToutes = guerres.filter(({ guerre }) => guerre.status === "terminee");
+    const enCours = filtrees.filter(({ guerre }) => guerre.status === "en_cours");
+    const terminees = filtrees.filter(({ guerre }) => guerre.status === "terminee");
 
     // À traiter : déclarations à valider (modérateurs), ses déclarations non validées, appels aux armes
     const aValiderIds = new Set(mine.a_valider.map(({ guerre }) => guerre.id));
@@ -210,30 +269,56 @@ export default function GuerresPage() {
                         </div>
                     ) : (
                         <>
-                            <TitleH2 text="Guerres en cours" icon="fas fa-fire" aide="guerre" />
-                            {enCours.length === 0 ? (
-                                <EtatVide
-                                    icon="fa-solid fa-dove"
-                                    texte="Aucune guerre ne fait rage pour le moment."
-                                    aide="Le dirigeant d'une civilisation ou d'une religion peut déclarer une guerre ; elle reste privée jusqu'à sa validation par un modérateur RP."
-                                    action={{ label: "Déclarer une guerre", icon: "fa-solid fa-shield-halved", onClick: openDeclare }}
-                                />
-                            ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                                    {enCours.map(({ guerre, camps }) => <GuerreCard key={guerre.id} guerre={guerre} camps={camps} />)}
-                                </div>
-                            )}
+                            <BarreFiltres
+                                filtres={{ ...filtres, participant: participantFiltre }}
+                                defauts={FILTRES_DEFAUT}
+                                onChange={changerFiltres}
+                                recherche={{ placeholder: "Nom, belligérant, casus belli, issue…", label: "Rechercher une guerre" }}
+                                selects={[
+                                    { name: "afficher", label: "Afficher", options: AFFICHER, className: "sm:w-48" },
+                                    { name: "type", label: "Type", options: TYPES, className: "sm:w-44" },
+                                    { name: "participant", label: "Belligérant", options: optionsParticipants, className: "sm:w-56" },
+                                    { name: "tri", label: "Trier", options: TRI_LIBELLES, className: "sm:w-56" },
+                                ]}
+                                toggles={user ? [{ name: "mesGuerres", label: "Mes guerres" }] : []}
+                            />
+
+                            {filtres.afficher !== "terminee" ? (
+                                <>
+                                    <TitleH2 text="Guerres en cours" icon="fas fa-fire" aide="guerre" />
+                                    {enCoursToutes.length === 0 ? (
+                                        <EtatVide
+                                            icon="fa-solid fa-dove"
+                                            texte="Aucune guerre ne fait rage pour le moment."
+                                            aide="Le dirigeant d'une civilisation ou d'une religion peut déclarer une guerre ; elle reste privée jusqu'à sa validation par un modérateur RP."
+                                            action={{ label: "Déclarer une guerre", icon: "fa-solid fa-shield-halved", onClick: openDeclare }}
+                                        />
+                                    ) : enCours.length === 0 ? (
+                                        <EtatVide icon="fa-solid fa-magnifying-glass" texte="Aucune guerre en cours ne correspond à vos filtres." action={effacerFiltres} />
+                                    ) : (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                                            {enCours.map(({ guerre, camps }) => <GuerreCard key={guerre.id} guerre={guerre} camps={camps} />)}
+                                        </div>
+                                    )}
+                                </>
+                            ) : null}
 
                             <MarcheMercenaires />
 
-                            <TitleH2 text="Archives des guerres" icon="fas fa-book-skull" />
-                            {terminees.length === 0 ? (
-                                <EtatVide icon="fa-solid fa-book-skull" texte="Aucune guerre n'est encore entrée dans l'histoire." aide="Les guerres terminées sont archivées ici, avec leurs événements." />
-                            ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                                    {terminees.map(({ guerre, camps }) => <GuerreCard key={guerre.id} guerre={guerre} camps={camps} />)}
-                                </div>
-                            )}
+                            {filtres.afficher !== "en_cours" ? (
+                                <>
+                                    <TitleH2 text="Archives des guerres" icon="fas fa-book-skull" />
+                                    {termineesToutes.length === 0 ? (
+                                        <EtatVide icon="fa-solid fa-book-skull" texte="Aucune guerre n'est encore entrée dans l'histoire." aide="Les guerres terminées sont archivées ici, avec leurs événements." />
+                                    ) : terminees.length === 0 ? (
+                                        <EtatVide icon="fa-solid fa-magnifying-glass" texte="Aucune guerre archivée ne correspond à vos filtres." action={effacerFiltres} />
+                                    ) : (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                                            {terminees.map(({ guerre, camps }) => <GuerreCard key={guerre.id} guerre={guerre} camps={camps} />)}
+                                        </div>
+                                    )}
+                                </>
+                            ) : null}
                         </>
                     )}
 

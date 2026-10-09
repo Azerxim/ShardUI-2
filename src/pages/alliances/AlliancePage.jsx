@@ -11,6 +11,7 @@ import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
 import InfoLine from "@/components/ui/InfoLine";
 import MarkdownTextEditor from "@/components/ui/MarkdownTextEditor";
+import DescriptionLongue from "@/components/ui/DescriptionLongue";
 import FormModal from "@/components/modals/FormModal";
 
 import { showModalID } from "@/utils/showModal";
@@ -145,6 +146,8 @@ export default function AlliancePage() {
                 </div>
             </div>
 
+            <DescriptionLongue type="alliance" id={alliance.id} auth={isChef} />
+
             <TitleH2 text="Civilisations membres" icon="fas fa-flag" fonctions={FctMembres} />
             <ul className="flex flex-col gap-2 w-full">
                 {membres.map(({ civilisation, role }) => {
@@ -249,6 +252,7 @@ export default function AlliancePage() {
             )}
 
             <LivresLiesSection type="alliance" id={alliance.id} />
+            <LivresLiesSection type="alliance" id={alliance.id} support="journal" />
         </>
     ) : null;
 

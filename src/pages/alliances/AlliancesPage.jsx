@@ -17,9 +17,42 @@ import { ALLIANCE_TYPES, allianceBody, allianceFormFields, managedEntities, toOp
 import { getSessionUser } from "@/services/session";
 import { apiRequest, getAlliances, getCivilisations } from "@/services/api";
 import EtatVide from '@/components/ui/EtatVide';
+import BarreFiltres from "@/components/ui/BarreFiltres";
+import { correspond, normalize, parDate, parNombre, parTitre, useFiltresMemorises } from "@/utils/filtres";
 
 const CREATE_MODAL_ID = "alliance-create-modal";
 const CREATE_INITIAL = { type: "Militaire", color: "#b3263a", icon: "fa-solid fa-shield-halved", is_public: "true" };
+
+// ===== Filtres (BarreFiltres) =====
+const FILTRES_DEFAUT = { recherche: "", type: "tous", civilisation: "toutes", tri: "titre-asc", visibilite: "toutes", mesAlliances: false };
+
+const TYPES = { tous: "Tous les types", ...Object.fromEntries(Object.entries(ALLIANCE_TYPES).map(([value, { label }]) => [value, label])) };
+const VISIBILITES = { toutes: "Publiques et privées", publiques: "Publiques seulement", privees: "Privées seulement" };
+
+const TRIS = {
+    "titre-asc": { label: "Nom : A → Z", compare: parTitre((item) => item.alliance.title, 1) },
+    "titre-desc": { label: "Nom : Z → A", compare: parTitre((item) => item.alliance.title, -1) },
+    "membres-desc": { label: "Plus de civilisations", compare: parNombre((item) => item.membres.length, -1) },
+    "fondation-asc": { label: "Fondation RP : anciennes", compare: parDate((item) => item.alliance.date_founded, 1) },
+    "fondation-desc": { label: "Fondation RP : récentes", compare: parDate((item) => item.alliance.date_founded, -1) },
+};
+const TRI_LIBELLES = Object.fromEntries(Object.entries(TRIS).map(([value, { label }]) => [value, label]));
+
+// Civilisations membres encore existantes (une civilisation supprimée garde une trace « deleted »)
+const civilisationsMembres = (membres) => membres.map((membre) => membre.civilisation).filter((civilisation) => civilisation && !civilisation.deleted);
+
+// Sur des alliances déjà visibles : recherche (nom, description, civilisations membres), type, civilisation membre,
+// visibilité choisie, « mes alliances » (une de mes civilisations en est membre) et tri
+const filtrerAlliances = (visibles, filtres, civilisationFiltre, mesCivilisations) => {
+    const query = normalize(filtres.recherche.trim());
+    return visibles
+        .filter(({ alliance, membres }) => correspond(query, [alliance.title, alliance.description, ...civilisationsMembres(membres).map((civilisation) => civilisation.title)]))
+        .filter(({ alliance }) => filtres.type === "tous" || alliance.type === filtres.type)
+        .filter(({ membres }) => civilisationFiltre === "toutes" || civilisationsMembres(membres).some((civilisation) => String(civilisation.id) === civilisationFiltre))
+        .filter(({ alliance }) => filtres.visibilite === "toutes" || (filtres.visibilite === "privees") === (alliance.is_public === false))
+        .filter(({ membres }) => !filtres.mesAlliances || civilisationsMembres(membres).some((civilisation) => mesCivilisations.has(civilisation.id)))
+        .sort(TRIS[filtres.tri].compare);
+};
 
 export default function AlliancesPage() {
     const navigate = useNavigate();
@@ -28,6 +61,7 @@ export default function AlliancesPage() {
     const [civilisations, setCivilisations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+    const [filtres, changerFiltres] = useFiltresMemorises("alliances-filtres", FILTRES_DEFAUT, { type: TYPES, tri: TRIS, visibilite: VISIBILITES });
 
     useEffect(() => {
         getAlliances()
@@ -47,8 +81,21 @@ export default function AlliancesPage() {
 
     // Une alliance privée n'est visible que par les dirigeants de ses civilisations membres et les administrateurs
     const visibles = alliances
-        .filter(({ alliance, membres }) => alliance.is_public !== false || user?.is_admin || membres.some((membre) => managedIds.has(membre.civilisation.id)))
-        .sort((a, b) => a.alliance.title.localeCompare(b.alliance.title));
+        .filter(({ alliance, membres }) => alliance.is_public !== false || user?.is_admin || membres.some((membre) => managedIds.has(membre.civilisation.id)));
+
+    // « Mes alliances » : celles où figure une civilisation dont je suis membre (quel que soit mon rôle)
+    const mesCivilisations = new Set(civilisations
+        .filter(({ members }) => (members || []).some((member) => member.user_id === user?.id))
+        .map(({ civilisation }) => civilisation.id));
+
+    // Filtre « civilisation » : celles qui sont membres d'une alliance visible. Une valeur gardée qui n'y figure plus est ignorée.
+    const civilisationsDesAlliances = new Map(visibles.flatMap(({ membres }) => civilisationsMembres(membres)).map((civilisation) => [civilisation.id, civilisation]));
+    const optionsCivilisations = [
+        ["toutes", "Toutes les civilisations"],
+        ...[...civilisationsDesAlliances.values()].sort((a, b) => (a.title || "").localeCompare(b.title || "")).map((civilisation) => [String(civilisation.id), civilisation.title]),
+    ];
+    const civilisationFiltre = optionsCivilisations.some(([value]) => value === filtres.civilisation) ? filtres.civilisation : "toutes";
+    const affichees = filtrerAlliances(visibles, filtres, civilisationFiltre, mesCivilisations);
 
     const openCreate = () => requireLogin(() => {
         if (managed.length === 0) {
@@ -86,6 +133,20 @@ export default function AlliancesPage() {
                     />
                     {/* <DynamicNavbar active_id="alliances" /> */}
 
+                    <BarreFiltres
+                        filtres={{ ...filtres, civilisation: civilisationFiltre }}
+                        defauts={FILTRES_DEFAUT}
+                        onChange={changerFiltres}
+                        recherche={{ placeholder: "Nom, civilisation membre…", label: "Rechercher une alliance" }}
+                        selects={[
+                            { name: "type", label: "Type", options: TYPES },
+                            { name: "civilisation", label: "Civilisation membre", options: optionsCivilisations, className: "sm:w-56" },
+                            { name: "tri", label: "Trier", options: TRI_LIBELLES, className: "sm:w-56" },
+                            ...(user ? [{ name: "visibilite", label: "Visibilité", options: VISIBILITES, className: "sm:w-52" }] : []),
+                        ]}
+                        toggles={user ? [{ name: "mesAlliances", label: "Mes alliances" }] : []}
+                    />
+
                     {loading ? (
                         <div className="flex flex-col gap-4 w-full">
                             <SkeletonCivilisation />
@@ -102,9 +163,15 @@ export default function AlliancesPage() {
                             aide="Une alliance unit plusieurs civilisations : ses membres peuvent s'appeler à l'aide en cas de guerre."
                             action={{ label: "Sceller une alliance", icon: "fa-solid fa-plus", onClick: openCreate }}
                         />
+                    ) : affichees.length === 0 ? (
+                        <EtatVide
+                            icon="fa-solid fa-magnifying-glass"
+                            texte="Aucune alliance ne correspond à vos filtres."
+                            action={{ label: "Effacer les filtres", icon: "fa-solid fa-xmark", onClick: () => changerFiltres(FILTRES_DEFAUT) }}
+                        />
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                            {visibles.map(({ alliance, membres, chef_de_file }) => {
+                            {affichees.map(({ alliance, membres, chef_de_file }) => {
                                 const type = ALLIANCE_TYPES[alliance.type] ?? ALLIANCE_TYPES.Militaire;
                                 return (
                                     <ListCard

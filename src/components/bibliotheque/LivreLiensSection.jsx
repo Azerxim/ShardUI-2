@@ -4,31 +4,43 @@ import Swal from 'sweetalert2';
 
 import FormModal from '@/components/modals/FormModal';
 import { LIENS_LIVRES } from '@/config/livresLiens';
-import { delierLivre, getAlliances, getCivilisations, getCommerces, getLiensLivre, getPersonnages, getPersonnagesOfUser, getReligions, lierLivre } from '@/services/api';
+import { delierJournal, delierLivre, getAlliances, getCivilisations, getCommerces, getGuerres, getLiensJournal, getLiensLivre, getPersonnages, getPersonnagesOfUser, getReligions, lierJournal, lierLivre } from '@/services/api';
 import { getSessionUser } from '@/services/session';
-import { managedEntities, runAction, toOptions } from '@/utils/conflits';
+import { isModerateur, managedEntities, runAction, toOptions } from '@/utils/conflits';
 import { showModalID } from '@/utils/showModal';
 
-// ===== Liens d'un livre =====
-// Civilisations, religions, commerces, alliances et personnages liés au livre (Shard-API crud_livres).
-// Lier demande des droits sur le livre (auth) et sur ce qu'on lie : le formulaire ne propose donc que ce que
+// ===== Liens d'un livre ou d'un journal =====
+// Civilisations, religions, commerces, alliances et personnages liés à l'écrit (Shard-API crud_livres).
+// Lier demande des droits sur l'écrit (auth) et sur ce qu'on lie : le formulaire ne propose donc que ce que
 // l'utilisateur gère (dirigeant, chef de file, joueur du personnage ; tout pour un administrateur).
-// Lier une civilisation donne à ses dirigeants le droit de modifier le livre. onLiens(liens) : à chaque chargement.
+// Livre : lier une civilisation donne à ses dirigeants le droit de le modifier. Journal : aucun droit, il reste à son
+// auteur. onLiens(liens) : à chaque chargement.
 
-const MODAL_ID = 'livre-lien-modal';
+const SUPPORTS = {
+    livre: { nom: 'le livre', charger: getLiensLivre, lier: lierLivre, delier: delierLivre, droits: ' Lier une civilisation donne à ses dirigeants le droit de modifier le livre.' },
+    journal: { nom: 'le journal', charger: getLiensJournal, lier: lierJournal, delier: delierJournal, droits: '' },
+};
+
+const capitaliser = (texte) => texte.charAt(0).toUpperCase() + texte.slice(1);
 
 // Ce que l'utilisateur peut lier, par type : [{ value, label }]. Un administrateur peut tout lier (comme l'API) :
 // toutes les civilisations, religions, commerces et alliances, et les personnages de tous les joueurs.
+// Guerres (validées) : toutes pour un modérateur RP, sinon celles où l'une de ses civilisations ou religions est engagée.
 async function chargerChoix(user) {
-    const [religions, commerces, alliances, civilisations, personnages] = await Promise.all([
+    const [religions, commerces, alliances, civilisations, guerres, personnages] = await Promise.all([
         getReligions().catch(() => []),
         getCommerces().catch(() => []),
         getAlliances().catch(() => []),
         getCivilisations().catch(() => []),
+        getGuerres().catch(() => []),
         (user.is_admin ? getPersonnages() : getPersonnagesOfUser(user.id)).catch(() => []),
     ]);
     const tous = (items, key) => (Array.isArray(items) ? items : []).map((item) => item[key]).filter(Boolean);
     const civsGerees = new Set(managedEntities(civilisations, 'civilisation').map((civ) => civ.id));
+    const religionsGerees = new Set(managedEntities(religions, 'religion').map((religion) => religion.id));
+    const gereBelligerant = ({ camps }) => Object.values(camps || {}).flat().some(({ status, entite }) => status === 'engage' && !entite.deleted
+        && (entite.type === 'religion' ? religionsGerees : civsGerees).has(entite.id));
+    const guerresGerees = (Array.isArray(guerres) ? guerres : []).filter((item) => isModerateur(user) || gereBelligerant(item)).map((item) => item.guerre);
     const alliancesGerees = user.is_admin
         ? tous(alliances, 'alliance')
         : (Array.isArray(alliances) ? alliances : []).filter((item) => civsGerees.has(item.chef_de_file?.id)).map((item) => item.alliance);
@@ -37,6 +49,7 @@ async function chargerChoix(user) {
         religion: toOptions(user.is_admin ? tous(religions, 'religion') : managedEntities(religions, 'religion')),
         commerce: toOptions(user.is_admin ? tous(commerces, 'commerce') : managedEntities(commerces, 'commerce')),
         alliance: toOptions(alliancesGerees),
+        guerre: toOptions(guerresGerees),
         // Personnages d'autres joueurs (administrateur) : le nom du joueur les distingue
         personnage: (Array.isArray(personnages) ? personnages : [])
             .map(({ personnage, joueur }) => ({ value: personnage.id, label: user.is_admin && joueur && joueur.id !== user.id ? `${personnage.name} (${joueur.full_name || joueur.username})` : personnage.name }))
@@ -44,13 +57,15 @@ async function chargerChoix(user) {
     };
 }
 
-export default function LivreLiensSection({ livre, auth, onLiens = () => { } }) {
+export default function LivreLiensSection({ ecrit, support = 'livre', auth, onLiens = () => { } }) {
+    const conf = SUPPORTS[support];
+    const MODAL_ID = `${support}-lien-modal`;
     const user = getSessionUser();
     const [liens, setLiens] = useState([]);
     const [choix, setChoix] = useState(null);
     const [edition, setEdition] = useState(0);
 
-    const charger = () => getLiensLivre(livre.id)
+    const charger = () => conf.charger(ecrit.id)
         .then((data) => {
             const liste = Array.isArray(data) ? data : [];
             setLiens(liste);
@@ -61,9 +76,9 @@ export default function LivreLiensSection({ livre, auth, onLiens = () => { } }) 
     useEffect(() => {
         charger();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [livre.id]);
+    }, [ecrit.id, support]);
 
-    useEffect(() => { if (edition) showModalID(MODAL_ID); }, [edition]);
+    useEffect(() => { if (edition) showModalID(MODAL_ID); }, [edition, MODAL_ID]);
 
     const ouvrir = async () => {
         if (!choix) setChoix(await chargerChoix(user));
@@ -71,14 +86,14 @@ export default function LivreLiensSection({ livre, auth, onLiens = () => { } }) 
     };
 
     const lier = async (values) => {
-        const data = await lierLivre(livre.id, values.entity_type, Number(values.entity_id));
+        const data = await conf.lier(ecrit.id, values.entity_type, Number(values.entity_id));
         Swal.fire({ icon: 'success', title: 'Succès', text: data?.text ?? "C'est fait." });
         charger();
     };
 
     const delier = async (lien) => {
-        const result = await runAction(() => delierLivre(lien.id), {
-            confirm: { title: `Retirer le lien avec « ${lien.entite.title} » ?`, text: 'Le livre ne figurera plus sur sa fiche.', button: 'Retirer' },
+        const result = await runAction(() => conf.delier(lien.id), {
+            confirm: { title: `Retirer le lien avec « ${lien.entite.title} » ?`, text: `${capitaliser(conf.nom)} ne figurera plus sur sa fiche.`, button: 'Retirer' },
         });
         if (result) charger();
     };
@@ -116,14 +131,14 @@ export default function LivreLiensSection({ livre, auth, onLiens = () => { } }) 
                 <FormModal
                     key={`${MODAL_ID}-${edition}`}
                     id={MODAL_ID}
-                    title={`Lier « ${livre.title} »`}
-                    intro={`Le livre figurera aussi sur sa fiche. ${user?.is_admin ? 'Administrateur : tout est proposé.' : 'Seul ce que vous gérez est proposé.'} Lier une civilisation donne à ses dirigeants le droit de modifier le livre.`}
+                    title={`Lier « ${ecrit.title} »`}
+                    intro={`${capitaliser(conf.nom)} figurera aussi sur sa fiche. ${user?.is_admin ? 'Administrateur : tout est proposé.' : 'Seul ce que vous gérez est proposé.'}${conf.droits}`}
                     fields={[
                         { name: 'entity_type', label: 'Lier à', type: 'radio', required: true, resets: ['entity_id'], options: Object.entries(LIENS_LIVRES).map(([value, { label }]) => ({ value, label })) },
                         {
                             name: 'entity_id', label: 'Lequel', type: 'select', required: true,
                             options: (values) => choix[values.entity_type] || [],
-                            empty: (values) => (values.entity_type ? `Vous ne gérez aucun(e) ${LIENS_LIVRES[values.entity_type].label.toLowerCase()}.` : 'Choisissez d\'abord à quoi lier le livre.'),
+                            empty: (values) => (values.entity_type ? `Vous ne gérez aucun(e) ${LIENS_LIVRES[values.entity_type].label.toLowerCase()}.` : `Choisissez d'abord à quoi lier ${conf.nom}.`),
                         },
                     ]}
                     initialValues={{ entity_type: '', entity_id: '' }}

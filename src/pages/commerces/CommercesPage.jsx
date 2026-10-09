@@ -21,9 +21,59 @@ import TitleH2 from "@/components/ui/TitleH2";
 import EtatVide from '@/components/ui/EtatVide';
 import MonnaieOfficielle from '@/components/monnaie/MonnaieOfficielle';
 import OuAcheter from '@/components/commerces/OuAcheter';
+import BarreFiltres from '@/components/ui/BarreFiltres';
+import { correspond, normalize, parDate, parNombre, parTitre, useFiltresMemorises } from '@/utils/filtres';
 
-// Regroupe les commerces dirigés (is_commerce_dirigeant false + dirigeant_commerce_id) sous leur dirigeant.
-// Un commerce dirigé dont le dirigeant n'est pas visible reste à la racine.
+// ===== Filtres (BarreFiltres) =====
+const FILTRES_DEFAUT = { recherche: '', statut: 'tous', ville: 'toutes', tri: 'titre-asc', visibilite: 'tous', mesCommerces: false };
+
+const STATUTS = {
+    tous: 'Tous les commerces',
+    independants: 'Indépendants',
+    dirigeants: "Qui en dirigent d'autres",
+    diriges: 'Dirigés',
+};
+const VISIBILITES = { tous: 'Publics et privés', publics: 'Publics seulement', prives: 'Privés seulement' };
+
+const TRIS = {
+    'titre-asc': { label: 'Nom : A → Z', compare: parTitre((item) => item.commerce.title, 1) },
+    'titre-desc': { label: 'Nom : Z → A', compare: parTitre((item) => item.commerce.title, -1) },
+    'magasins-desc': { label: 'Plus de magasins', compare: parNombre((item) => (item.magasins || []).length, -1) },
+    'membres-desc': { label: 'Plus de membres', compare: parNombre((item) => (item.members || []).length, -1) },
+    'fondation-asc': { label: 'Fondation RP : anciens', compare: parDate((item) => item.commerce.date_founded, 1) },
+    'fondation-desc': { label: 'Fondation RP : récents', compare: parDate((item) => item.commerce.date_founded, -1) },
+};
+const TRI_LIBELLES = Object.fromEntries(Object.entries(TRIS).map(([value, { label }]) => [value, label]));
+
+const estDirige = (commerce) => commerce.is_commerce_dirigeant === false && Boolean(commerce.dirigeant_commerce_id) && commerce.dirigeant_commerce_id !== commerce.id;
+
+// Sur des commerces déjà visibles : recherche (nom, description, fondateur, magasins et leurs villes), statut, ville d'un
+// magasin, visibilité choisie, « mes commerces » et tri. villes : Map des villes publiques.
+const filtrerCommerces = (visibles, filtres, villeFiltre, villes, user) => {
+    const query = normalize(filtres.recherche.trim());
+    const dirigeants = new Set(visibles.filter(({ commerce }) => estDirige(commerce)).map(({ commerce }) => commerce.dirigeant_commerce_id));
+    return visibles
+        .filter(({ commerce, fondateur, magasins }) => correspond(query, [
+            commerce.title,
+            commerce.description,
+            fondateur?.full_name,
+            fondateur?.username,
+            ...(magasins || []).flatMap((magasin) => [magasin.title, villes.get(magasin.ville_id)?.title]),
+        ]))
+        .filter(({ commerce }) => ({
+            tous: true,
+            independants: !estDirige(commerce),
+            dirigeants: dirigeants.has(commerce.id),
+            diriges: estDirige(commerce),
+        })[filtres.statut])
+        .filter(({ magasins }) => villeFiltre === 'toutes' || (magasins || []).some((magasin) => String(magasin.ville_id) === villeFiltre))
+        .filter(({ commerce }) => filtres.visibilite === 'tous' || (filtres.visibilite === 'prives') === !commerce.is_public)
+        .filter(({ members }) => !filtres.mesCommerces || (members || []).some((member) => member.user_id === user?.id))
+        .sort(TRIS[filtres.tri].compare);
+};
+
+// Regroupe les commerces dirigés (is_commerce_dirigeant false + dirigeant_commerce_id) sous leur dirigeant, dans l'ordre
+// reçu (tri). Un commerce dirigé dont le dirigeant n'est pas affiché (privé ou écarté par les filtres) reste à la racine.
 const buildCommerceTree = (list) => {
     const parIdentifiant = new Map(list.map((item) => [item.commerce.id, item]));
     const racines = [];
@@ -75,6 +125,7 @@ export default function CommercesPage() {
     const [villes, setVilles] = useState(new Map());
     const [dimensions, setDimensions] = useState(new Map());
     const [marches, setMarches] = useState({ jours: [], foires: [] });
+    const [filtres, changerFiltres] = useFiltresMemorises('commerces-filtres', FILTRES_DEFAUT, { statut: STATUTS, tri: TRIS, visibilite: VISIBILITES });
 
     useEffect(() => {
         getCommerces()
@@ -97,8 +148,19 @@ export default function CommercesPage() {
 
     // Un commerce privé n'est visible que par ses membres et les administrateurs
     const visibles = commerces
-        .filter(({ commerce, members }) => commerce.is_public || user?.is_admin || (members || []).some((member) => member.user_id === user?.id))
-        .sort((a, b) => a.commerce.title.localeCompare(b.commerce.title));
+        .filter(({ commerce, members }) => commerce.is_public || user?.is_admin || (members || []).some((member) => member.user_id === user?.id));
+
+    // Filtre « ville » : les villes publiques où un commerce visible a un magasin. Une ville gardée qui n'y figure plus
+    // (ou pas encore, pendant le chargement des villes) est ignorée.
+    const villesDesCommerces = [
+        ['toutes', 'Toutes les villes'],
+        ...[...villes.values()]
+            .filter((ville) => visibles.some(({ magasins }) => (magasins || []).some((magasin) => magasin.ville_id === ville.id)))
+            .sort((a, b) => (a.title || '').localeCompare(b.title || ''))
+            .map((ville) => [String(ville.id), ville.title]),
+    ];
+    const villeFiltre = villesDesCommerces.some(([value]) => value === filtres.ville) ? filtres.ville : 'toutes';
+    const affiches = filtrerCommerces(visibles, filtres, villeFiltre, villes, user);
 
     // Boutiques des zones : magasins publics des commerces publics, situés à l'intérieur de la zone
     const boutiques = commerces
@@ -134,6 +196,21 @@ export default function CommercesPage() {
                     <MonnaieOfficielle compact />
                     <OuAcheter villes={villesMarchandes} />
 
+                    <TitleH2 text="Commerces" icon="fas fa-shop" />
+                    <BarreFiltres
+                        filtres={{ ...filtres, ville: villeFiltre }}
+                        defauts={FILTRES_DEFAUT}
+                        onChange={changerFiltres}
+                        recherche={{ placeholder: "Nom, fondateur, magasin, ville…", label: "Rechercher un commerce" }}
+                        selects={[
+                            { name: 'statut', label: 'Statut', options: STATUTS },
+                            { name: 'ville', label: "Ville d'un magasin", options: villesDesCommerces, className: 'sm:w-48' },
+                            { name: 'tri', label: 'Trier', options: TRI_LIBELLES, className: 'sm:w-56' },
+                            ...(user ? [{ name: 'visibilite', label: 'Visibilité', options: VISIBILITES, className: 'sm:w-48' }] : []),
+                        ]}
+                        toggles={user ? [{ name: 'mesCommerces', label: 'Mes commerces' }] : []}
+                    />
+
                     {loading ? (
                         <div className="flex flex-col gap-4 w-full">
                             <SkeletonCivilisation />
@@ -150,9 +227,15 @@ export default function CommercesPage() {
                             aide="Un commerce regroupe des marchands et ses magasins, implantés dans les villes du monde."
                             action={{ label: "Ouvrir un commerce", icon: "fa-solid fa-plus", onClick: () => requireLogin(() => showModal(commerceModal, "add"), "ouvrir un commerce") }}
                         />
+                    ) : affiches.length === 0 ? (
+                        <EtatVide
+                            icon="fa-solid fa-magnifying-glass"
+                            texte="Aucun commerce ne correspond à vos filtres."
+                            action={{ label: "Effacer les filtres", icon: "fa-solid fa-xmark", onClick: () => changerFiltres(FILTRES_DEFAUT) }}
+                        />
                     ) : (
                         <div className="grid grid-cols-1 gap-4 w-full">
-                            {buildCommerceTree(visibles).map(({ item: { commerce, fondateur, magasins }, diriges }) => (
+                            {buildCommerceTree(affiches).map(({ item: { commerce, fondateur, magasins }, diriges }) => (
                                 diriges.length > 0 ? (
                                     <ListCardTree
                                         key={commerce.id}

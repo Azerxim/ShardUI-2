@@ -67,7 +67,7 @@ function chargerIndex() {
             ...alliances.filter(({ alliance }) => visible(alliance)).map(({ alliance }) => ({ type: 'alliance', titre: alliance.title, href: `/alliance/${alliance.id}` })),
             ...guerres.map(({ guerre }) => ({ type: 'guerre', titre: guerre.title, href: `/guerre/${guerre.id}` })),
             ...livres.filter((livre) => visible(livre)).map((livre) => ({ type: 'livre', titre: livre.title, href: `/bibliotheque/livre/${livre.id}` })),
-            ...journaux.filter((journal) => visible(journal)).map((journal) => ({ type: 'journal', titre: journal.title, href: `/bibliotheque/journal/${journal.id}` })),
+            ...journaux.filter((journal) => visible(journal) || journal.user_id === user?.id).map((journal) => ({ type: 'journal', titre: journal.title, href: `/bibliotheque/journal/${journal.id}` })),
         ]
             .filter((item) => item.titre)
             .map((item) => ({ ...item, cle: normaliser(`${item.titre} ${item.detail || ''}`) }));

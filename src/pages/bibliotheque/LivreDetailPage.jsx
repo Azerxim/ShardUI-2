@@ -171,7 +171,7 @@ export default function LivreDetailPage() {
                         {livre.language ? <InfoLine icon="fa-solid fa-language">{livre.language}</InfoLine> : null}
                     </div>
 
-                    <LivreLiensSection livre={livre} auth={auth} onLiens={droitsParLiens} />
+                    <LivreLiensSection ecrit={livre} auth={auth} onLiens={droitsParLiens} />
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <Stat icon="fa-solid fa-bookmark" label={chapitres.length > 1 ? "Chapitres" : "Chapitre"} value={loadingChapitres ? "…" : chapitres.length} />

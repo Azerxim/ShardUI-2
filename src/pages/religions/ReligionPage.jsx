@@ -15,6 +15,7 @@ import MemberButton from "@/components/membres/MemberButton";
 import TransferFounderModal from "@/components/membres/TransferFounderModal";
 import DynamicModal from "@/components/modals/DynamicModal";
 import MarkdownTextEditor from "@/components/ui/MarkdownTextEditor";
+import DescriptionLongue from "@/components/ui/DescriptionLongue";
 import VilleReligions from "@/components/civilisations/VilleReligions";
 
 import { showModal, showModalID } from '@/utils/showModal';
@@ -219,6 +220,8 @@ export default function ReligionPage() {
                 </div>
             </div>
 
+            {religion ? <DescriptionLongue type="religion" id={religion.id} auth={auth} /> : null}
+
             <TitleH2 text="Membres" icon="fas fa-users" fonctions={FctMembers} />
             <div className="flex flex-row flex-wrap gap-2 w-full">
                 {sortedMembers.length > 0 ? (
@@ -301,6 +304,7 @@ export default function ReligionPage() {
             ) : null}
 
             {religion ? <LivresLiesSection type="religion" id={religion.id} /> : null}
+            {religion ? <LivresLiesSection type="religion" id={religion.id} support="journal" /> : null}
         </>
     );
 

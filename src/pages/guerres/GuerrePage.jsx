@@ -16,6 +16,7 @@ import ActionCard from "@/components/actions/ActionCard";
 import MapEmbed from "@/components/carte/MapEmbed";
 import CiblesSection from "@/components/conflits/CiblesSection";
 import TroupesSection from "@/components/conflits/TroupesSection";
+import LivresLiesSection from "@/components/bibliotheque/LivresLiesSection";
 
 import { showModalID } from "@/utils/showModal";
 import { plural } from "@/utils/plural";
@@ -502,6 +503,9 @@ export default function GuerrePage() {
                     </div>
                 </>
             ) : null}
+
+            <LivresLiesSection type="guerre" id={guerre.id} />
+            <LivresLiesSection type="guerre" id={guerre.id} support="journal" />
         </>
     ) : null;
 

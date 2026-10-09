@@ -11,6 +11,7 @@ import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
 import InfoLine from "@/components/ui/InfoLine";
 import MarkdownTextEditor from "@/components/ui/MarkdownTextEditor";
+import DescriptionLongue from "@/components/ui/DescriptionLongue";
 import PersonnageAvatar from "@/components/personnages/PersonnageAvatar";
 import FormModal from "@/components/modals/FormModal";
 
@@ -164,6 +165,8 @@ export default function PersonnagePage() {
                 ) : null}
             </div>
 
+            <DescriptionLongue type="personnage" id={personnage.id} auth={canManage} />
+
             <FamilleSection key={personnage.id} personnage={personnage} canManage={canManage} />
 
             <TitleH2 text="Messages de journaux" icon="fas fa-feather" />
@@ -199,6 +202,7 @@ export default function PersonnagePage() {
             )}
 
             <LivresLiesSection type="personnage" id={personnage.id} />
+            <LivresLiesSection type="personnage" id={personnage.id} support="journal" />
         </>
     ) : null;
 

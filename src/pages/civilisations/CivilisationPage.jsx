@@ -18,7 +18,9 @@ import MemberButton from "@/components/membres/MemberButton";
 import TransferFounderModal from '@/components/membres/TransferFounderModal';
 import DynamicModal from '@/components/modals/DynamicModal';
 import EtagereLivres from "@/components/bibliotheque/EtagereLivres";
+import LivresLiesSection from "@/components/bibliotheque/LivresLiesSection";
 import MarkdownTextEditor from "@/components/ui/MarkdownTextEditor";
+import DescriptionLongue from "@/components/ui/DescriptionLongue";
 import Ville from "@/components/civilisations/Ville";
 
 import { checkMemberAuth } from "@/services/authorisation";
@@ -315,6 +317,8 @@ export default function CivilisationPage() {
                 <i className="w-full">Cette civilisation n'a pas de gouvernement.</i>
             )}
 
+            <DescriptionLongue type="civilisation" id={civilisation.id} auth={auth} />
+
             <TitleH2 text="Membres" icon="fas fa-users" fonctions={FctMembers} />
             <div className="flex flex-row flex-wrap gap-2 w-full">
                 {sortedMembers.length > 0 ? (
@@ -384,6 +388,8 @@ export default function CivilisationPage() {
                     action={auth ? { label: "Écrire un livre", icon: "fa-solid fa-plus", onClick: () => showModal(livreModal, "add") } : null}
                 />
             ) : <EtagereLivres books={livres} text='livre(s)' />}
+
+            <LivresLiesSection type="civilisation" id={civilisation.id} support="journal" />
         </>
     ) : null;
 

@@ -11,12 +11,12 @@ export const DECOUVRIR = [
 
 export const MONDE = [
   { id: "civilisations", href: "/civilisations", icon: "fa-solid fa-flag", text: "Civilisations" },
-  { id: "religions", href: "/religions", icon: "fa-solid fa-cross", text: "Religions" },
   { id: "commerces", href: "/commerces", icon: "fa-solid fa-shop", text: "Commerces" },
-  { id: "alliances", href: "/alliances", icon: "fa-solid fa-handshake", text: "Alliances" },
-  { id: "guerres", href: "/guerres", icon: "fa-solid fa-shield-halved", text: "Guerres" },
+  { id: "religions", href: "/religions", icon: "fa-solid fa-cross", text: "Religions" },
   { id: "personnages", href: "/personnages", icon: "fa-solid fa-masks-theater", text: "Personnages" },
   { id: "maisons", href: "/maisons", icon: "fa-solid fa-chess-king", text: "Maisons" },
+  { id: "alliances", href: "/alliances", icon: "fa-solid fa-handshake", text: "Alliances" },
+  { id: "guerres", href: "/guerres", icon: "fa-solid fa-shield-halved", text: "Guerres" },
   { id: "actions", href: "/actions-secretes", icon: "fa-solid fa-user-secret", text: "Actions secrètes" },
   { id: "fermes", href: "/fermes", icon: "fa-solid fa-wheat-awn", text: "Fermes" },
 ];

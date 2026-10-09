@@ -28,7 +28,6 @@ import { definition as fasBell } from "@fortawesome/free-solid-svg-icons/faBell"
 import { definition as fasBinoculars } from "@fortawesome/free-solid-svg-icons/faBinoculars";
 import { definition as fasBold } from "@fortawesome/free-solid-svg-icons/faBold";
 import { definition as fasBook } from "@fortawesome/free-solid-svg-icons/faBook";
-import { definition as fasBookAtlas } from "@fortawesome/free-solid-svg-icons/faBookAtlas";
 import { definition as fasBookOpen } from "@fortawesome/free-solid-svg-icons/faBookOpen";
 import { definition as fasBookSkull } from "@fortawesome/free-solid-svg-icons/faBookSkull";
 import { definition as fasBookmark } from "@fortawesome/free-solid-svg-icons/faBookmark";
@@ -85,9 +84,7 @@ import { definition as fasEye } from "@fortawesome/free-solid-svg-icons/faEye";
 import { definition as fasEyeSlash } from "@fortawesome/free-solid-svg-icons/faEyeSlash";
 import { definition as fasFeather } from "@fortawesome/free-solid-svg-icons/faFeather";
 import { definition as fasFeatherPointed } from "@fortawesome/free-solid-svg-icons/faFeatherPointed";
-import { definition as fasFileAlt } from "@fortawesome/free-solid-svg-icons/faFileAlt";
 import { definition as fasFileCode } from "@fortawesome/free-solid-svg-icons/faFileCode";
-import { definition as fasFileInvoice } from "@fortawesome/free-solid-svg-icons/faFileInvoice";
 import { definition as fasFileSignature } from "@fortawesome/free-solid-svg-icons/faFileSignature";
 import { definition as fasFingerprint } from "@fortawesome/free-solid-svg-icons/faFingerprint";
 import { definition as fasFire } from "@fortawesome/free-solid-svg-icons/faFire";
@@ -108,7 +105,6 @@ import { definition as fasHandshake } from "@fortawesome/free-solid-svg-icons/fa
 import { definition as fasHandshakeAngle } from "@fortawesome/free-solid-svg-icons/faHandshakeAngle";
 import { definition as fasHandshakeSlash } from "@fortawesome/free-solid-svg-icons/faHandshakeSlash";
 import { definition as fasHatWizard } from "@fortawesome/free-solid-svg-icons/faHatWizard";
-import { definition as fasHeading } from "@fortawesome/free-solid-svg-icons/faHeading";
 import { definition as fasHorse } from "@fortawesome/free-solid-svg-icons/faHorse";
 import { definition as fasHourglassHalf } from "@fortawesome/free-solid-svg-icons/faHourglassHalf";
 import { definition as fasHourglassStart } from "@fortawesome/free-solid-svg-icons/faHourglassStart";
@@ -116,6 +112,7 @@ import { definition as fasHouse } from "@fortawesome/free-solid-svg-icons/faHous
 import { definition as fasHouseChimney } from "@fortawesome/free-solid-svg-icons/faHouseChimney";
 import { definition as fasHouseCrack } from "@fortawesome/free-solid-svg-icons/faHouseCrack";
 import { definition as fasHouseFlag } from "@fortawesome/free-solid-svg-icons/faHouseFlag";
+import { definition as fasImage } from "@fortawesome/free-solid-svg-icons/faImage";
 import { definition as fasInbox } from "@fortawesome/free-solid-svg-icons/faInbox";
 import { definition as fasItalic } from "@fortawesome/free-solid-svg-icons/faItalic";
 import { definition as fasKey } from "@fortawesome/free-solid-svg-icons/faKey";
@@ -176,11 +173,14 @@ import { definition as fasSignInAlt } from "@fortawesome/free-solid-svg-icons/fa
 import { definition as fasSignsPost } from "@fortawesome/free-solid-svg-icons/faSignsPost";
 import { definition as fasSitemap } from "@fortawesome/free-solid-svg-icons/faSitemap";
 import { definition as fasSkull } from "@fortawesome/free-solid-svg-icons/faSkull";
+import { definition as fasSquareCheck } from "@fortawesome/free-solid-svg-icons/faSquareCheck";
 import { definition as fasStamp } from "@fortawesome/free-solid-svg-icons/faStamp";
 import { definition as fasStar } from "@fortawesome/free-solid-svg-icons/faStar";
 import { definition as fasStore } from "@fortawesome/free-solid-svg-icons/faStore";
 import { definition as fasStrikethrough } from "@fortawesome/free-solid-svg-icons/faStrikethrough";
 import { definition as fasSun } from "@fortawesome/free-solid-svg-icons/faSun";
+import { definition as fasTable } from "@fortawesome/free-solid-svg-icons/faTable";
+import { definition as fasTableColumns } from "@fortawesome/free-solid-svg-icons/faTableColumns";
 import { definition as fasTags } from "@fortawesome/free-solid-svg-icons/faTags";
 import { definition as fasTents } from "@fortawesome/free-solid-svg-icons/faTents";
 import { definition as fasTimeline } from "@fortawesome/free-solid-svg-icons/faTimeline";
@@ -230,7 +230,6 @@ export default [
     fasBinoculars,
     fasBold,
     fasBook,
-    fasBookAtlas,
     fasBookOpen,
     fasBookSkull,
     fasBookmark,
@@ -287,9 +286,7 @@ export default [
     fasEyeSlash,
     fasFeather,
     fasFeatherPointed,
-    fasFileAlt,
     fasFileCode,
-    fasFileInvoice,
     fasFileSignature,
     fasFingerprint,
     fasFire,
@@ -310,7 +307,6 @@ export default [
     fasHandshakeAngle,
     fasHandshakeSlash,
     fasHatWizard,
-    fasHeading,
     fasHorse,
     fasHourglassHalf,
     fasHourglassStart,
@@ -318,6 +314,7 @@ export default [
     fasHouseChimney,
     fasHouseCrack,
     fasHouseFlag,
+    fasImage,
     fasInbox,
     fasItalic,
     fasKey,
@@ -378,11 +375,14 @@ export default [
     fasSignsPost,
     fasSitemap,
     fasSkull,
+    fasSquareCheck,
     fasStamp,
     fasStar,
     fasStore,
     fasStrikethrough,
     fasSun,
+    fasTable,
+    fasTableColumns,
     fasTags,
     fasTents,
     fasTimeline,

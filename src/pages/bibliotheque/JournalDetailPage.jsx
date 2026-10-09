@@ -16,6 +16,7 @@ import FormModal from '@/components/modals/FormModal';
 import LinkifiedText from '@/components/ui/LinkifiedText';
 import PersonnageAvatar from '@/components/personnages/PersonnageAvatar';
 import DynamicIcon from '@/components/ui/DynamicIcon';
+import LivreLiensSection from '@/components/bibliotheque/LivreLiensSection';
 
 import { checkUserID } from "@/services/authorisation";
 import { getSessionUser } from "@/services/session";
@@ -277,7 +278,7 @@ export default function JournalDetailPage() {
     setContentError("Impossible de récupérer les messages de ce journal.");
   };
 
-  usePageTitle(journal?.title);
+  usePageTitle(journal?.is_public === false && !auth ? null : journal?.title);
 
   useEffect(() => {
     let cancelled = false;
@@ -409,6 +410,8 @@ export default function JournalDetailPage() {
   const lastGroup = groups[groups.length - 1];
   const lastMessageDate = lastGroup ? formatDate(lastGroup[lastGroup.length - 1].timestamp) : null;
   const published = formatDate(journal?.published_date);
+  // Un journal privé n'est visible que par son auteur et les administrateurs (auth)
+  const hidden = journal?.is_public === false && !auth;
 
   const btnReturn = { text: 'Retour à la bibliothèque', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/bibliotheque' };
 
@@ -442,8 +445,13 @@ export default function JournalDetailPage() {
               {published ? `Publié le ${published}` : "Date de publication inconnue"}
             </InfoLine>
             {journal.uid ? <InfoLine icon="fa-brands fa-discord">Alimenté par un salon Discord</InfoLine> : null}
+            <InfoLine icon={journal.is_public === false ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"}>
+              {journal.is_public === false ? "Journal privé" : "Journal public"}
+            </InfoLine>
           </div>
         </div>
+
+        <LivreLiensSection ecrit={journal} support="journal" auth={auth} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
           <Stat icon="fa-solid fa-comments" label={messages.length > 1 ? "Messages" : "Message"} value={statValue(messages.length)} />
@@ -539,7 +547,7 @@ export default function JournalDetailPage() {
         <div className="flex flex-col items-center justify-center gap-2">
           {loading ? (
             <Skeleton />
-          ) : !journal ? (
+          ) : !journal || hidden ? (
             <>
               <TitleH1 text="Journal introuvable" icon="fas fa-newspaper" btn={btnReturn} />
               <p>Ce journal n'existe pas ou n'est plus disponible.</p>

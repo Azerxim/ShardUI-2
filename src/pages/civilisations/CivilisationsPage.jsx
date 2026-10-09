@@ -9,6 +9,9 @@ import DynamicNavbar from "@/components/layout/DynamicNavbar";
 import SkeletonCivilisation from "@/components/civilisations/SkeletonCivilisation";
 import ListCard from "@/components/ui/ListCard";
 import ListCardTree from "@/components/ui/ListCardTree";
+import BarreFiltres from "@/components/ui/BarreFiltres";
+import { correspond, normalize, parDate, parNombre, parTitre, useFiltresMemorises } from "@/utils/filtres";
+import { getSessionUser } from "@/services/session";
 import { plural } from "@/utils/plural";
 
 import { showModal } from '@/utils/showModal';
@@ -21,10 +24,61 @@ import {
 import GrimoireHero from "@/components/layout/GrimoireHero";
 import EtatVide from '@/components/ui/EtatVide';
 
-// Regroupe les civilisations dirigées (dirigeante_civilisation_id != 0) sous leur dirigeante.
-// Une dirigée dont la dirigeante n'est pas visible reste à la racine.
-const buildCivilisationTree = (list) => {
-  const visibles = list.filter((civilisation) => civilisation.is_public || civilisation.auth);
+// Une civilisation privée n'est visible que par ses dirigeants (Fondateur, Admin) et les administrateurs (auth)
+const estVisible = (civilisation) => civilisation.is_public || civilisation.auth;
+
+// ===== Filtres (BarreFiltres) =====
+const FILTRES_DEFAUT = { recherche: '', statut: 'toutes', tri: 'titre-asc', visibilite: 'toutes', mesCivilisations: false };
+
+const STATUTS = {
+  toutes: 'Toutes les civilisations',
+  independantes: 'Indépendantes',
+  dirigeantes: 'Qui en dirigent d\'autres',
+  dirigees: 'Dirigées',
+};
+const VISIBILITES = { toutes: 'Publiques et privées', publiques: 'Publiques seulement', privees: 'Privées seulement' };
+
+const population = (civilisation) => (civilisation.villes || []).reduce((total, ville) => total + (Number(ville.population) || 0), 0);
+
+const TRIS = {
+  'titre-asc': { label: 'Nom : A → Z', compare: parTitre((c) => c.title, 1) },
+  'titre-desc': { label: 'Nom : Z → A', compare: parTitre((c) => c.title, -1) },
+  'membres-desc': { label: 'Plus de membres', compare: parNombre((c) => (c.members || []).length, -1) },
+  'villes-desc': { label: 'Plus de villes', compare: parNombre((c) => (c.villes || []).length, -1) },
+  'population-desc': { label: 'Plus peuplées', compare: parNombre(population, -1) },
+  'fondation-asc': { label: 'Fondation RP : anciennes', compare: parDate((c) => c.date_founded, 1) },
+  'fondation-desc': { label: 'Fondation RP : récentes', compare: parDate((c) => c.date_founded, -1) },
+};
+const TRI_LIBELLES = Object.fromEntries(Object.entries(TRIS).map(([value, { label }]) => [value, label]));
+
+const estDirigee = (civilisation) => Boolean(civilisation.dirigeante_civilisation_id) && civilisation.dirigeante_civilisation_id !== civilisation.id;
+
+// Visibilité, puis recherche (nom, description, fondateur, villes), statut, visibilité choisie, « mes civilisations » et tri
+const filtrerCivilisations = (civilisations, filtres, user) => {
+  const query = normalize(filtres.recherche.trim());
+  const visibles = civilisations.filter(estVisible);
+  const dirigeantes = new Set(visibles.filter(estDirigee).map((civilisation) => civilisation.dirigeante_civilisation_id));
+  return visibles
+    .filter((civilisation) => correspond(query, [
+      civilisation.title,
+      civilisation.description,
+      ...(civilisation.members || []).filter((member) => member.role === 'Fondateur').map((member) => member.username),
+      ...(civilisation.villes || []).map((ville) => ville.title),
+    ]))
+    .filter((civilisation) => ({
+      toutes: true,
+      independantes: !estDirigee(civilisation),
+      dirigeantes: dirigeantes.has(civilisation.id),
+      dirigees: estDirigee(civilisation),
+    })[filtres.statut])
+    .filter((civilisation) => filtres.visibilite === 'toutes' || (filtres.visibilite === 'privees') === !civilisation.is_public)
+    .filter((civilisation) => !filtres.mesCivilisations || (civilisation.members || []).some((member) => member.user_id === user?.id))
+    .sort(TRIS[filtres.tri].compare);
+};
+
+// Regroupe les civilisations dirigées (dirigeante_civilisation_id != 0) sous leur dirigeante, dans l'ordre reçu (tri).
+// Une dirigée dont la dirigeante n'est pas affichée (privée ou écartée par les filtres) reste à la racine.
+const buildCivilisationTree = (visibles) => {
   const parIdentifiant = new Map(visibles.map((civilisation) => [civilisation.id, civilisation]));
 
   const racines = [];
@@ -99,6 +153,8 @@ export default function CivilisationsPage() {
   const [civilisations, setCivilisations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [storageCivilisations, setStorageCivilisations] = useState(JSON.parse(localStorage.getItem('civilisations')) || []);
+  const [filtres, changerFiltres] = useFiltresMemorises('civilisations-filtres', FILTRES_DEFAUT, { statut: STATUTS, tri: TRIS, visibilite: VISIBILITES });
+  const user = getSessionUser();
 
   useEffect(() => {
     const MIN_LOADING_TIME = 1000;
@@ -146,6 +202,10 @@ export default function CivilisationsPage() {
     // console.log("Civilisations mises à jour:", civilisations);
   };
 
+  // Pendant le chargement : la dernière liste gardée dans le navigateur
+  const source = loading ? storageCivilisations : civilisations;
+  const affichees = filtrerCivilisations(source, filtres, user);
+
   return (
     <>
       <Navbar active="civilisations" />
@@ -170,25 +230,40 @@ export default function CivilisationsPage() {
           />
           {/* <DynamicNavbar active_id="civilisations" /> */}
 
-          {loading ? (
-            storageCivilisations.length === 0 ? (
-              <div className="flex flex-col gap-4 w-full">
-                <SkeletonCivilisation />
-                <SkeletonCivilisation />
-                <SkeletonCivilisation />
-              </div>
-            ) : (
-              <CivilisationList civilisations={storageCivilisations} />
-            )
-          ) : civilisations.length === 0 ? (
+          <BarreFiltres
+            filtres={filtres}
+            defauts={FILTRES_DEFAUT}
+            onChange={changerFiltres}
+            recherche={{ placeholder: "Nom, fondateur, ville…", label: "Rechercher une civilisation" }}
+            selects={[
+              { name: 'statut', label: 'Statut', options: STATUTS },
+              { name: 'tri', label: 'Trier', options: TRI_LIBELLES, className: 'sm:w-56' },
+              ...(user ? [{ name: 'visibilite', label: 'Visibilité', options: VISIBILITES, className: 'sm:w-52' }] : []),
+            ]}
+            toggles={user ? [{ name: 'mesCivilisations', label: 'Mes civilisations' }] : []}
+          />
+
+          {loading && storageCivilisations.length === 0 ? (
+            <div className="flex flex-col gap-4 w-full">
+              <SkeletonCivilisation />
+              <SkeletonCivilisation />
+              <SkeletonCivilisation />
+            </div>
+          ) : source.length === 0 ? (
             <EtatVide
               icon="fa-solid fa-flag"
               texte="Aucune civilisation n'a encore été fondée."
               aide="Une civilisation rassemble des joueurs sous une même bannière, avec ses villes, ses membres et son gouvernement."
               action={{ label: "Fonder une civilisation", icon: "fa-solid fa-plus", onClick: () => requireLogin(() => showModal(civilisationModal, "add"), "fonder une civilisation") }}
             />
+          ) : affichees.length === 0 ? (
+            <EtatVide
+              icon="fa-solid fa-magnifying-glass"
+              texte="Aucune civilisation ne correspond à vos filtres."
+              action={{ label: "Effacer les filtres", icon: "fa-solid fa-xmark", onClick: () => changerFiltres(FILTRES_DEFAUT) }}
+            />
           ) : (
-            <CivilisationList civilisations={civilisations} />
+            <CivilisationList civilisations={affichees} />
           )}
 
           <DynamicModal config={civilisationModal} mode="add" onSubmit={(civilisation) => { updateCivilisation(civilisation) }} />

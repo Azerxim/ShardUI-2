@@ -98,6 +98,22 @@ export const journalModal = {
       display: true,
       param: false,
     },
+    {
+      name: "is_public",
+      label: "Le journal est-il public ?",
+      description: "Un journal privé n'est visible que par son auteur et les administrateurs.",
+      placeholder: "",
+      type: "radio",
+      defaultValue: true,
+      render: null,
+      option: [
+        { label: "Public", value: "true" },
+        { label: "Privé", value: "false" },
+      ],
+      required: false,
+      display: true,
+      param: false,
+    },
   ],
   api: {
     get: { method: "GET", url: "$apiURL/bibliotheque/journaux/read/$id" },

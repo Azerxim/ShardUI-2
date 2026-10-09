@@ -9,6 +9,7 @@ import TitleH1 from "@/components/ui/TitleH1";
 import TitleH2 from "@/components/ui/TitleH2";
 import DynamicModal from "@/components/modals/DynamicModal";
 import MarkdownTextEditor from "@/components/ui/MarkdownTextEditor";
+import DescriptionLongue from "@/components/ui/DescriptionLongue";
 import MapEmbed from "@/components/carte/MapEmbed";
 import CatalogueMagasin from "@/components/commerces/CatalogueMagasin";
 
@@ -267,6 +268,8 @@ export default function CommercePage() {
                 </div>
             </div>
 
+            <DescriptionLongue type="commerce" id={commerce.id} auth={auth} />
+
             <TitleH2 text="Membres" icon="fas fa-users" fonctions={FctMembers} />
             <div className="flex flex-row flex-wrap gap-2 w-full">
                 {sortedMembers.length > 0 ? (
@@ -341,6 +344,7 @@ export default function CommercePage() {
             ) : null}
 
             <LivresLiesSection type="commerce" id={commerce.id} />
+            <LivresLiesSection type="commerce" id={commerce.id} support="journal" />
         </>
     ) : null;
 

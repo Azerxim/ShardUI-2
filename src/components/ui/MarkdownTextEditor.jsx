@@ -12,9 +12,10 @@ const markdownComponents = {
     h5: ({ node, ...props }) => <h5 className="text-base font-semibold mt-2 mb-1" {...props} />,
     h6: ({ node, ...props }) => <h6 className="text-base font-semibold mt-2 mb-1" {...props} />,
     p: ({ node, ...props }) => <p className="mb-3 leading-relaxed last:mb-0" {...props} />,
-    ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-3 flex flex-col gap-1" {...props} />,
-    ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-3 flex flex-col gap-1" {...props} />,
-    li: ({ node, ...props }) => <li className="leading-relaxed" {...props} />,
+    // className de remark-gfm (contains-task-list, task-list-item) ajoutée aux nôtres, sans les remplacer
+    ul: ({ node, className, ...props }) => <ul className={`list-disc list-inside mb-3 flex flex-col gap-1 ${className || ''}`} {...props} />,
+    ol: ({ node, className, ...props }) => <ol className={`list-decimal list-inside mb-3 flex flex-col gap-1 ${className || ''}`} {...props} />,
+    li: ({ node, className, ...props }) => <li className={`leading-relaxed ${className === 'task-list-item' ? 'list-none' : ''}`} {...props} />,
     blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-primary/50 pl-4 italic text-base-content/80 my-3" {...props} />,
     a: ({ node, ...props }) => <a className="link link-primary" target="_blank" rel="noopener noreferrer" {...props} />,
     strong: ({ node, ...props }) => <strong className="font-bold" {...props} />,
@@ -42,27 +43,56 @@ function MarkdownContent({ text, className = '', style = {} }) {
     );
 }
 
-const TOOLBAR_ACTIONS = [
-    { id: 'bold', icon: 'fas fa-bold', tip: 'Gras' },
-    { id: 'italic', icon: 'fas fa-italic', tip: 'Italique' },
-    { id: 'strike', icon: 'fas fa-strikethrough', tip: 'Barré' },
-    { id: 'heading', icon: 'fas fa-heading', tip: 'Titre' },
-    { id: 'quote', icon: 'fas fa-quote-left', tip: 'Citation' },
-    { id: 'ul', icon: 'fas fa-list-ul', tip: 'Liste à puces' },
-    { id: 'ol', icon: 'fas fa-list-ol', tip: 'Liste numérotée' },
-    { id: 'link', icon: 'fas fa-link', tip: 'Lien' },
-    { id: 'code', icon: 'fas fa-code', tip: 'Code' },
-    { id: 'codeblock', icon: 'fas fa-file-code', tip: 'Bloc de code' },
-    { id: 'hr', icon: 'fas fa-minus', tip: 'Séparateur' },
+// label : texte affiché à la place d'une icône (titres) ; groupes séparés par un trait vertical
+const TOOLBAR_GROUPS = [
+    [
+        { id: 'bold', icon: 'fas fa-bold', tip: 'Gras (Ctrl+B)' },
+        { id: 'italic', icon: 'fas fa-italic', tip: 'Italique (Ctrl+I)' },
+        { id: 'strike', icon: 'fas fa-strikethrough', tip: 'Barré' },
+    ],
+    [
+        { id: 'h1', label: 'H1', tip: 'Titre' },
+        { id: 'h2', label: 'H2', tip: 'Sous-titre' },
+        { id: 'h3', label: 'H3', tip: 'Intertitre' },
+    ],
+    [
+        { id: 'quote', icon: 'fas fa-quote-left', tip: 'Citation' },
+        { id: 'ul', icon: 'fas fa-list-ul', tip: 'Liste à puces' },
+        { id: 'ol', icon: 'fas fa-list-ol', tip: 'Liste numérotée' },
+        { id: 'task', icon: 'fas fa-square-check', tip: 'Liste de tâches' },
+    ],
+    [
+        { id: 'link', icon: 'fas fa-link', tip: 'Lien (Ctrl+K)' },
+        { id: 'image', icon: 'fas fa-image', tip: 'Image (adresse)' },
+        { id: 'table', icon: 'fas fa-table', tip: 'Tableau' },
+    ],
+    [
+        { id: 'code', icon: 'fas fa-code', tip: 'Code' },
+        { id: 'codeblock', icon: 'fas fa-file-code', tip: 'Bloc de code' },
+        { id: 'hr', icon: 'fas fa-minus', tip: 'Séparateur' },
+    ],
 ];
 
-export default function MarkdownTextEditor({ value = '', onChange = () => { }, placeholder = 'Cliquez pour ajouter du contenu...', connected = true, authorisation = false, classes = '' }) {
+const TABLE_TEMPLATE = '\n| Colonne 1 | Colonne 2 |\n| --- | --- |\n| Texte | Texte |\n';
+
+// Modes d'édition ; « côte à côte » seulement sur grand écran
+const MODES = [
+    { id: 'ecrire', icon: 'fas fa-pen', label: 'Écrire' },
+    { id: 'apercu', icon: 'fas fa-eye', label: 'Aperçu' },
+    { id: 'cote', icon: 'fas fa-table-columns', label: 'Côte à côte', className: 'hidden lg:inline-flex' },
+];
+
+// onChange(texte) à l'enregistrement : s'il renvoie une promesse, l'éditeur reste ouvert (brouillon gardé) tant qu'elle
+// n'est pas tenue, et s'il y a un échec. defaultMode : mode d'édition à l'ouverture.
+export default function MarkdownTextEditor({ value = '', onChange = () => { }, placeholder = 'Cliquez pour ajouter du contenu...', connected = true, authorisation = false, classes = '', defaultMode = 'ecrire' }) {
     const User = JSON.parse(localStorage.getItem('user'));
     const editable = connected ? (!!User && authorisation) : true;
 
     const [editing, setEditing] = useState(false);
-    const [preview, setPreview] = useState(false);
+    const [mode, setMode] = useState(defaultMode);
+    const [saving, setSaving] = useState(false);
     const [draft, setDraft] = useState(value);
+    const preview = mode === 'apercu';
     const textareaRef = useRef(null);
 
     const fitToContent = () => {
@@ -90,32 +120,47 @@ export default function MarkdownTextEditor({ value = '', onChange = () => { }, p
     const startEditing = () => {
         if (!editable) return;
         setDraft(value);
-        setPreview(false);
+        setMode(defaultMode === 'apercu' ? 'ecrire' : defaultMode);
         setEditing(true);
         focusResize();
     };
 
-    const save = () => {
+    const close = () => {
         setEditing(false);
-        setPreview(false);
-        if (draft !== value) {
-            onChange(draft);
+        setMode(defaultMode);
+    };
+
+    const save = () => {
+        if (saving) return;
+        if (draft === value) {
+            close();
+            return;
+        }
+        const result = onChange(draft);
+        if (result && typeof result.then === 'function') {
+            setSaving(true);
+            result.then(close, () => { }).finally(() => setSaving(false));
+        } else {
+            close();
         }
     };
 
     const cancel = () => {
         setDraft(value);
-        setEditing(false);
-        setPreview(false);
+        close();
     };
 
     const handleKeyDown = (e) => {
+        const mod = e.ctrlKey || e.metaKey;
         if (e.key === 'Escape') {
             e.preventDefault();
             cancel();
-        } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        } else if (e.key === 'Enter' && mod) {
             e.preventDefault();
             save();
+        } else if (mod && ['b', 'i', 'k'].includes(e.key.toLowerCase())) {
+            e.preventDefault();
+            handleToolbarAction({ b: 'bold', i: 'italic', k: 'link' }[e.key.toLowerCase()]);
         }
     };
 
@@ -206,11 +251,16 @@ export default function MarkdownTextEditor({ value = '', onChange = () => { }, p
             case 'bold': return wrapSelection('**', '**', 'texte en gras');
             case 'italic': return wrapSelection('*', '*', 'texte en italique');
             case 'strike': return wrapSelection('~~', '~~', 'texte barré');
-            case 'heading': return prefixLine('## ');
+            case 'h1': return prefixLine('# ');
+            case 'h2': return prefixLine('## ');
+            case 'h3': return prefixLine('### ');
             case 'quote': return prefixLine('> ');
             case 'ul': return prefixLine('- ');
             case 'ol': return prefixLine('1. ');
+            case 'task': return prefixLine('- [ ] ');
             case 'link': return insertLink();
+            case 'image': return wrapSelection('![', '](https://)', 'description de l\'image');
+            case 'table': return insertAtCursor(TABLE_TEMPLATE);
             case 'code': return wrapSelection('`', '`', 'code');
             case 'codeblock': return insertCodeBlock();
             case 'hr': return insertAtCursor('\n---\n');
@@ -219,69 +269,77 @@ export default function MarkdownTextEditor({ value = '', onChange = () => { }, p
     };
 
     if (editing) {
+        const textarea = (
+            <textarea
+                ref={textareaRef}
+                value={draft}
+                onChange={(e) => { setDraft(e.target.value); growIfNeeded(); }}
+                onKeyDown={handleKeyDown}
+                className="textarea textarea-ghost bg-base-100 brightness-98 w-full resize-y leading-relaxed font-mono text-sm"
+                style={{ overflowY: 'auto', minHeight: mode === 'cote' ? '16rem' : '4rem' }}
+                placeholder={placeholder}
+                aria-label="Texte en Markdown"
+            />
+        );
+        const apercu = <MarkdownContent text={draft || '*Rien à prévisualiser*'} className="w-full min-w-0 rounded-3xl bg-base-100 brightness-98 overflow-x-auto" style={{ padding: '0.5rem 1rem' }} />;
+
         return (
             <div className={`flex flex-col gap-2 w-full ${classes}`}>
                 <div className="flex flex-wrap items-center justify-between gap-2 bg-base-200 rounded-3xl p-1">
                     <div className="flex flex-wrap items-center gap-1">
-                        {TOOLBAR_ACTIONS.map((action) => (
-                            <div key={action.id} className="tooltip" data-tip={action.tip}>
-                                <button
-                                    type="button"
-                                    className="btn btn-md btn-ghost rounded-3xl"
-                                    disabled={preview}
-                                    onMouseDown={(e) => e.preventDefault()}
-                                    onClick={() => handleToolbarAction(action.id)}
-                                >
-                                    <FontAwesomeIcon icon={action.icon} />
-                                </button>
+                        {TOOLBAR_GROUPS.map((group, index) => (
+                            <div key={index} className={`flex flex-wrap items-center gap-1 ${index > 0 ? 'border-l border-base-300 pl-1' : ''}`}>
+                                {group.map((action) => (
+                                    <div key={action.id} className="tooltip" data-tip={action.tip}>
+                                        <button
+                                            type="button"
+                                            className="btn btn-md btn-ghost rounded-3xl px-3"
+                                            disabled={preview}
+                                            aria-label={action.tip}
+                                            onMouseDown={(e) => e.preventDefault()}
+                                            onClick={() => handleToolbarAction(action.id)}
+                                        >
+                                            {action.label ? <span className="font-bold text-sm">{action.label}</span> : <FontAwesomeIcon icon={action.icon} />}
+                                        </button>
+                                    </div>
+                                ))}
                             </div>
                         ))}
                     </div>
                     <div className="flex gap-1">
-                        <button
-                            type="button"
-                            className={`btn btn-md ${!preview ? 'btn-primary' : 'btn-ghost'} rounded-3xl`}
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => { setPreview(false); focusResize(); }}
-                        >
-                            <FontAwesomeIcon icon="fas fa-pen" /> Écrire
-                        </button>
-                        <button
-                            type="button"
-                            className={`btn btn-md ${preview ? 'btn-primary' : 'btn-ghost'} rounded-3xl`}
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => setPreview(true)}
-                        >
-                            <FontAwesomeIcon icon="fas fa-eye" /> Aperçu
-                        </button>
+                        {MODES.map((item) => (
+                            <button
+                                key={item.id}
+                                type="button"
+                                className={`btn btn-md ${mode === item.id ? 'btn-primary' : 'btn-ghost'} rounded-3xl ${item.className || ''}`}
+                                onMouseDown={(e) => e.preventDefault()}
+                                onClick={() => { setMode(item.id); if (item.id !== 'apercu') focusResize(); }}
+                            >
+                                <FontAwesomeIcon icon={item.icon} /> {item.label}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
-                {preview ? (
-                    <MarkdownContent text={draft || '*Rien à prévisualiser*'} className="w-full rounded-3xl bg-base-100 brightness-98" style={{ padding: '0.5rem 1rem' }} />
-                ) : (
-                    <textarea
-                        ref={textareaRef}
-                        value={draft}
-                        onChange={(e) => { setDraft(e.target.value); growIfNeeded(); }}
-                        onKeyDown={handleKeyDown}
-                        className="textarea textarea-ghost bg-base-100 brightness-98 w-full resize-y leading-relaxed font-mono text-sm"
-                        style={{ overflowY: 'auto', minHeight: '4rem' }}
-                        placeholder={placeholder}
-                    />
-                )}
+                {mode === 'cote' ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 items-start">
+                        {textarea}
+                        {apercu}
+                    </div>
+                ) : preview ? apercu : textarea}
 
-                <div className="flex flex-row-reverse gap-2">
-                    <div className="tooltip tooltip-primary" data-tip="Sauvegarder">
-                        <button type="button" className="btn btn-md btn-primary rounded-3xl" onMouseDown={(e) => e.preventDefault()} onClick={save}>
-                            <FontAwesomeIcon icon="fas fa-check" />
+                <div className="flex flex-row-reverse items-center gap-2">
+                    <div className="tooltip tooltip-primary" data-tip="Sauvegarder (Ctrl+Entrée)">
+                        <button type="button" className="btn btn-md btn-primary rounded-3xl" disabled={saving} aria-label="Sauvegarder" onMouseDown={(e) => e.preventDefault()} onClick={save}>
+                            {saving ? <span className="loading loading-spinner loading-sm"></span> : <FontAwesomeIcon icon="fas fa-check" />}
                         </button>
                     </div>
-                    <div className="tooltip" data-tip="Annuler">
-                        <button type="button" className="btn btn-md rounded-3xl" onMouseDown={(e) => e.preventDefault()} onClick={cancel}>
+                    <div className="tooltip" data-tip="Annuler (Échap)">
+                        <button type="button" className="btn btn-md rounded-3xl" disabled={saving} aria-label="Annuler" onMouseDown={(e) => e.preventDefault()} onClick={cancel}>
                             <FontAwesomeIcon icon="fas fa-xmark" />
                         </button>
                     </div>
+                    <span className="text-xs opacity-60 mr-auto px-2">Markdown : **gras**, *italique*, # titre, - liste, [lien](https://…)</span>
                 </div>
             </div>
         );

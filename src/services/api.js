@@ -798,7 +798,7 @@ export const deleteArticle = (articleId) => apiRequest("DELETE", `/catalogue/art
 // Religions, commerces, alliances et personnages liés à un livre : [{ id, livre_id, entite: { type, id, title, … } }]
 export const getLiensLivre = (livreId) => publicGet(`/bibliotheque/livres/liens/${livreId}`);
 
-// type : "religion", "commerce", "alliance" ou "personnage" ; [{ lien_id, livre }]
+// type : "civilisation", "religion", "commerce", "alliance", "guerre" ou "personnage" ; [{ lien_id, livre }]
 export const getLivresOfEntite = (type, id) => publicGet(`/bibliotheque/livres/entite/${type}/${id}/list`);
 
 // Droits sur le livre et sur l'entité liée
@@ -806,6 +806,24 @@ export const lierLivre = (livreId, type, id) => apiRequest("POST", "/bibliothequ
 
 // Droits sur le livre ou sur l'entité liée
 export const delierLivre = (lienId) => apiRequest("DELETE", `/bibliotheque/livres/liens/${lienId}`);
+
+
+//_______________________________LIENS DES JOURNAUX_______________________________
+
+// Tous les liens des livres et des journaux (recherche de la bibliothèque) : [{ support: "livre" | "journal", ecrit_id, entite: { type, id, title } }]
+export const getTousLesLiens = () => publicGet("/bibliotheque/liens/list");
+
+// Mêmes liens que les livres, sans droits donnés sur le journal : [{ id, journal_id, entite: { type, id, title, … } }]
+export const getLiensJournal = (journalId) => publicGet(`/bibliotheque/journaux/liens/${journalId}`);
+
+// type : "civilisation", "religion", "commerce", "alliance", "guerre" ou "personnage" ; [{ lien_id, journal }]
+export const getJournauxOfEntite = (type, id) => publicGet(`/bibliotheque/journaux/entite/${type}/${id}/list`);
+
+// Auteur du journal et droits sur l'entité liée
+export const lierJournal = (journalId, type, id) => apiRequest("POST", "/bibliotheque/journaux/liens", { journal_id: journalId, entity_type: type, entity_id: id });
+
+// Auteur du journal ou droits sur l'entité liée
+export const delierJournal = (lienId) => apiRequest("DELETE", `/bibliotheque/journaux/liens/${lienId}`);
 
 
 //_______________________________MARCHÉS ET FOIRES______________________________
@@ -985,3 +1003,12 @@ export const deleteFaitChronique = (faitId) => apiRequest("DELETE", `/chroniques
 
 
 // ___________________________________Autres____________________________________
+
+
+//_______________________________DESCRIPTIONS LONGUES_______________________________
+
+// type : "civilisation", "commerce", "religion", "alliance" ou "personnage" ; { type, id, description_longue }
+export const getDescriptionLongue = (type, id) => publicGet(`/descriptions/${type}/${id}`);
+
+// Gestionnaires de la fiche (dirigeants, chef de file, joueur du personnage) ; texte vide : description effacée
+export const updateDescriptionLongue = (type, id, texte) => apiRequest("PUT", `/descriptions/${type}/${id}`, { description_longue: texte });

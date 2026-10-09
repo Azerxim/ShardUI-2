@@ -7,6 +7,7 @@ import GrimoireHero from "@/components/layout/GrimoireHero";
 import TitleH2 from "@/components/ui/TitleH2";
 import EtatVide from "@/components/ui/EtatVide";
 import FormModal from "@/components/modals/FormModal";
+import BarreFiltres from "@/components/ui/BarreFiltres";
 
 import { showModalID } from "@/utils/showModal";
 import { requireLogin } from "@/utils/requireLogin";
@@ -14,6 +15,7 @@ import { isModerateur, runAction } from "@/utils/conflits";
 import { getSessionUser } from "@/services/session";
 import { MAPS_BASE_URL } from "@/config/maps";
 import { STATUTS_FERMES, TYPES_FERMES, typeFerme } from "@/config/fermes";
+import { correspond, normalize, parDate, parTitre, useFiltresMemorises } from "@/utils/filtres";
 import {
     declarerFerme, deleteFerme, deciderFerme, envoyerPhotoFerme, getDimensions, getFermes, getMesFermes, getVilles,
     photoFermeUrl, updateFerme,
@@ -59,6 +61,34 @@ const valeursInitiales = (ferme, dimensions) => ({
     habillage: ferme?.habillage ?? "",
     photo: null,
 });
+
+// ===== Filtres (BarreFiltres), appliqués à chaque section : à examiner, mes fermes, déjà examinées =====
+const FILTRES_DEFAUT = { recherche: "", type: "tous", statut: "tous", ville: "toutes", tri: "declaration-desc" };
+
+const TYPES = { tous: "Tous les types", ...Object.fromEntries(TYPES_FERMES.map(({ value, label }) => [value, label])) };
+const STATUTS = { tous: "Tous les statuts", ...Object.fromEntries(Object.entries(STATUTS_FERMES).map(([value, { label }]) => [value, label])) };
+
+const TRIS = {
+    "declaration-desc": { label: "Déclarées récemment", compare: parDate((f) => f.created_at, -1) },
+    "declaration-asc": { label: "Déclarées il y a longtemps", compare: parDate((f) => f.created_at, 1) },
+    "decision-desc": { label: "Décidées récemment", compare: parDate((f) => (f.status === "en_attente" ? null : f.decision_at), -1) },
+    "titre-asc": { label: "Nom : A → Z", compare: parTitre((f) => f.title, 1) },
+};
+const TRI_LIBELLES = Object.fromEntries(Object.entries(TRIS).map(([value, { label }]) => [value, label]));
+
+// villeFiltre : "toutes", "hors" (hors des villes) ou l'id d'une ville
+const filtrerFermes = (fermes, filtres, villeFiltre) => {
+    const query = normalize(filtres.recherche.trim());
+    return (fermes || [])
+        .filter((ferme) => correspond(query, [
+            ferme.title, ferme.production, ferme.justification, ferme.habillage, ferme.ville?.title, ferme.dimension?.title,
+            ferme.declarant?.full_name, ferme.declarant?.username,
+        ]))
+        .filter((ferme) => filtres.type === "tous" || ferme.type === filtres.type)
+        .filter((ferme) => filtres.statut === "tous" || ferme.status === filtres.statut)
+        .filter((ferme) => villeFiltre === "toutes" || (villeFiltre === "hors" ? !ferme.ville : String(ferme.ville?.id) === villeFiltre))
+        .sort(TRIS[filtres.tri].compare);
+};
 
 const dateCourte = (date) => (date ? new Date(date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : null);
 const nom = (user) => user?.full_name || user?.username || "compte supprimé";
@@ -122,6 +152,7 @@ export default function FermesPage() {
     const [villes, setVilles] = useState([]);
     const [edition, setEdition] = useState(null); // { ferme (null : nouvelle), count }
     const [reloadKey, setReloadKey] = useState(0);
+    const [filtres, changerFiltres] = useFiltresMemorises("fermes-filtres", FILTRES_DEFAUT, { type: TYPES, statut: STATUTS, tri: TRIS });
 
     useEffect(() => {
         if (!user) return;
@@ -217,6 +248,23 @@ export default function FermesPage() {
 
     const enAttente = toutes.filter((ferme) => ferme.status === "en_attente");
     const autres = toutes.filter((ferme) => ferme.status !== "en_attente");
+
+    // Filtre « ville » : les villes des fermes affichées, plus « hors des villes ». Une valeur gardée qui n'y figure plus est ignorée.
+    const fermesVisibles = [...(mesFermes || []), ...toutes];
+    const villesDesFermes = new Map(fermesVisibles.filter((ferme) => ferme.ville).map((ferme) => [ferme.ville.id, ferme.ville]));
+    const optionsVilles = [
+        ["toutes", "Toutes les villes"],
+        ...(fermesVisibles.some((ferme) => !ferme.ville) ? [["hors", "Hors des villes"]] : []),
+        ...[...villesDesFermes.values()].sort((a, b) => (a.title || "").localeCompare(b.title || "")).map((ville) => [String(ville.id), ville.title]),
+    ];
+    const villeFiltre = optionsVilles.some(([value]) => value === filtres.ville) ? filtres.ville : "toutes";
+    const filtrer = (fermes) => filtrerFermes(fermes, filtres, villeFiltre);
+    const enAttenteFiltrees = filtrer(enAttente);
+    const autresFiltrees = filtrer(autres);
+    const mesFermesFiltrees = filtrer(mesFermes);
+    const aucuneCorrespondance = (texte) => (
+        <EtatVide icon="fa-solid fa-magnifying-glass" texte={texte} action={{ label: "Effacer les filtres", icon: "fa-solid fa-xmark", onClick: () => changerFiltres(FILTRES_DEFAUT) }} />
+    );
     const declarer = () => requireLogin(() => ouvrir(), "déclarer une ferme");
 
     return (
@@ -259,12 +307,29 @@ export default function FermesPage() {
                         />
                     ) : (
                         <>
+                            {fermesVisibles.length > 0 && (
+                                <BarreFiltres
+                                    filtres={{ ...filtres, ville: villeFiltre }}
+                                    defauts={FILTRES_DEFAUT}
+                                    onChange={changerFiltres}
+                                    recherche={{ placeholder: moderateur ? "Nom, production, habillage, déclarant…" : "Nom, production, habillage…", label: "Rechercher une ferme" }}
+                                    selects={[
+                                        { name: "type", label: "Type", options: TYPES, className: "sm:w-52" },
+                                        { name: "statut", label: "Statut", options: STATUTS, className: "sm:w-56" },
+                                        { name: "ville", label: "Ville", options: optionsVilles, className: "sm:w-48" },
+                                        { name: "tri", label: "Trier", options: TRI_LIBELLES, className: "sm:w-56" },
+                                    ]}
+                                />
+                            )}
+
                             {moderateur && (
                                 <section id="a-examiner" className="flex flex-col gap-2 w-full">
                                     <TitleH2 text={`À examiner (${enAttente.length})`} icon="fas fa-stamp" aide="ferme" />
                                     {enAttente.length === 0 ? (
                                         <p className="text-sm opacity-70 px-1">Aucune ferme n'attend de décision.</p>
-                                    ) : enAttente.map((ferme) => <FermeCard key={ferme.id} ferme={ferme} actions={actionsModerateur(ferme)} />)}
+                                    ) : enAttenteFiltrees.length === 0 ? (
+                                        <p className="text-sm opacity-70 px-1">Aucune ferme à examiner ne correspond à vos filtres.</p>
+                                    ) : enAttenteFiltrees.map((ferme) => <FermeCard key={ferme.id} ferme={ferme} actions={actionsModerateur(ferme)} />)}
                                 </section>
                             )}
 
@@ -279,13 +344,17 @@ export default function FermesPage() {
                                         aide="Champ, étable, ferme à mobs ou machine : déclarez-la avant de l'exploiter."
                                         action={{ label: "Déclarer une ferme", icon: "fa-solid fa-plus", onClick: () => ouvrir() }}
                                     />
-                                ) : mesFermes.map((ferme) => <FermeCard key={ferme.id} ferme={ferme} actions={actionsDeclarant(ferme)} />)}
+                                ) : mesFermesFiltrees.length === 0 ? (
+                                    aucuneCorrespondance("Aucune de vos fermes ne correspond à vos filtres.")
+                                ) : mesFermesFiltrees.map((ferme) => <FermeCard key={ferme.id} ferme={ferme} actions={actionsDeclarant(ferme)} />)}
                             </section>
 
                             {moderateur && autres.length > 0 && (
                                 <section id="toutes" className="flex flex-col gap-2 w-full">
                                     <TitleH2 text="Fermes déjà examinées" icon="fas fa-list-check" />
-                                    {autres.map((ferme) => <FermeCard key={ferme.id} ferme={ferme} actions={actionsModerateur(ferme)} />)}
+                                    {autresFiltrees.length === 0 ? (
+                                        <p className="text-sm opacity-70 px-1">Aucune ferme examinée ne correspond à vos filtres.</p>
+                                    ) : autresFiltrees.map((ferme) => <FermeCard key={ferme.id} ferme={ferme} actions={actionsModerateur(ferme)} />)}
                                 </section>
                             )}
                         </>

@@ -10,6 +10,8 @@ import TitleH2 from "@/components/ui/TitleH2";
 import EtatVide from "@/components/ui/EtatVide";
 import FormModal from "@/components/modals/FormModal";
 import ActionCard from "@/components/actions/ActionCard";
+import BarreFiltres from "@/components/ui/BarreFiltres";
+import { correspond, normalize, parDate, parTitre, useFiltresMemorises } from "@/utils/filtres";
 
 import { showModalID } from "@/utils/showModal";
 import { requireLogin } from "@/utils/requireLogin";
@@ -29,6 +31,31 @@ import {
 
 const CREATE_MODAL_ID = "action-secrete-modal";
 
+// ===== Filtres du registre public (BarreFiltres) =====
+// Une action scellée ne montre que son code et sa date : auteur, titre, guerre et nature ne se filtrent qu'une fois révélée.
+const FILTRES_DEFAUT = { recherche: "", etat: "toutes", nature: "toutes", guerre: "toutes", tri: "scellee-desc" };
+
+const ETATS = { toutes: "Scellées et révélées", scellees: "Encore scellées", revelees: "Révélées" };
+const NATURES = { toutes: "Toutes natures", actions: "Actions (révélées)", pieges: "Pièges mortels (révélés)" };
+
+const TRIS = {
+    "scellee-desc": { label: "Scellées récemment", compare: parDate((a) => a.created_at, -1) },
+    "scellee-asc": { label: "Scellées il y a longtemps", compare: parDate((a) => a.created_at, 1) },
+    "revelee-desc": { label: "Révélées récemment", compare: parDate((a) => a.revealed_at, -1) },
+    "code-asc": { label: "Code", compare: parTitre((a) => a.code, 1) },
+};
+const TRI_LIBELLES = Object.fromEntries(Object.entries(TRIS).map(([value, { label }]) => [value, label]));
+
+const filtrerActions = (actions, filtres, guerreFiltre) => {
+    const query = normalize(filtres.recherche.trim());
+    return actions
+        .filter((action) => correspond(query, [action.code, action.title, action.content, action.entite?.title, action.guerre?.title, action.created_by?.full_name, action.created_by?.username]))
+        .filter((action) => ({ toutes: true, scellees: !action.revealed, revelees: action.revealed })[filtres.etat])
+        .filter((action) => ({ toutes: true, actions: action.revealed && !action.piege, pieges: action.revealed && action.piege })[filtres.nature])
+        .filter((action) => guerreFiltre === "toutes" || String(action.guerre?.id) === guerreFiltre)
+        .sort(TRIS[filtres.tri].compare);
+};
+
 const ETAPES = [
     { icon: "fa-solid fa-envelope-circle-check", titre: "Scellez", texte: "L'action est horodatée à la date et à l'heure réelles. Son empreinte, publiée aussitôt, prouvera qu'elle n'a pas été réécrite." },
     { icon: "fa-solid fa-eye", titre: "Lecture tracée", texte: "Les administrateurs et modérateurs RP peuvent la lire pour arbitrer, mais chaque lecture est enregistrée et rendue publique." },
@@ -45,6 +72,7 @@ export default function ActionsSecretesPage() {
     const [auteurs, setAuteurs] = useState({ personnages: [], civilisations: [], religions: [] });
     const [guerres, setGuerres] = useState([]);
     const [pret, setPret] = useState(false);
+    const [filtres, changerFiltres] = useFiltresMemorises("actions-filtres", FILTRES_DEFAUT, { etat: ETATS, nature: NATURES, tri: TRIS });
     // Bouton « Action » des pages de guerre : /actions-secretes?nouvelle=1[&guerre=ID]
     const [searchParams] = useSearchParams();
     const demandeDepot = searchParams.get("nouvelle") === "1";
@@ -84,6 +112,15 @@ export default function ActionsSecretesPage() {
     const mesIds = new Set(mesActions.map((action) => action.id));
     const autres = (registre || []).filter((action) => !mesIds.has(action.id)).map((action) => luesParMoi[action.id] || action);
     const scellees = autres.filter((action) => !action.revealed).length;
+
+    // Filtre « guerre » : guerres liées aux actions révélées. Une valeur gardée qui n'y figure plus est ignorée.
+    const guerresDesActions = new Map(autres.filter((action) => action.guerre).map((action) => [action.guerre.id, action.guerre]));
+    const optionsGuerres = [
+        ["toutes", "Toutes les guerres"],
+        ...[...guerresDesActions.values()].sort((a, b) => (a.title || "").localeCompare(b.title || "")).map((guerre) => [String(guerre.id), guerre.title]),
+    ];
+    const guerreFiltre = optionsGuerres.some(([value]) => value === filtres.guerre) ? filtres.guerre : "toutes";
+    const affichees = filtrerActions(autres, filtres, guerreFiltre);
 
     const optionsAuteur = [
         ...auteurs.personnages.map((p) => ({ value: `personnage:${p.id}`, label: `Personnage · ${p.name}` })),
@@ -260,16 +297,36 @@ export default function ActionsSecretesPage() {
                             <p className="text-sm opacity-70 px-1 w-full">
                                 {autres.length} action{autres.length > 1 ? "s" : ""}, dont {scellees} encore scellée{scellees > 1 ? "s" : ""}. Le contenu, l'auteur et la guerre liée d'une action scellée restent cachés.
                             </p>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 w-full items-start">
-                                {autres.map((action) => (
-                                    <ActionCard
-                                        key={action.id}
-                                        action={action}
-                                        onLire={moderateur && !action.revealed && action.content === undefined ? () => lire(action) : null}
-                                        onReveler={moderateur && !action.revealed ? () => reveler(action, false) : null}
-                                    />
-                                ))}
-                            </div>
+                            <BarreFiltres
+                                filtres={{ ...filtres, guerre: guerreFiltre }}
+                                defauts={FILTRES_DEFAUT}
+                                onChange={changerFiltres}
+                                recherche={{ placeholder: "Code, titre, auteur, guerre…", label: "Rechercher une action" }}
+                                selects={[
+                                    { name: "etat", label: "État", options: ETATS, className: "sm:w-44" },
+                                    { name: "nature", label: "Nature", options: NATURES, className: "sm:w-52" },
+                                    { name: "guerre", label: "Guerre liée", options: optionsGuerres, className: "sm:w-48" },
+                                    { name: "tri", label: "Trier", options: TRI_LIBELLES, className: "sm:w-52" },
+                                ]}
+                            />
+                            {affichees.length === 0 ? (
+                                <EtatVide
+                                    icon="fa-solid fa-magnifying-glass"
+                                    texte="Aucune action ne correspond à vos filtres."
+                                    action={{ label: "Effacer les filtres", icon: "fa-solid fa-xmark", onClick: () => changerFiltres(FILTRES_DEFAUT) }}
+                                />
+                            ) : (
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 w-full items-start">
+                                    {affichees.map((action) => (
+                                        <ActionCard
+                                            key={action.id}
+                                            action={action}
+                                            onLire={moderateur && !action.revealed && action.content === undefined ? () => lire(action) : null}
+                                            onReveler={moderateur && !action.revealed ? () => reveler(action, false) : null}
+                                        />
+                                    ))}
+                                </div>
+                            )}
                         </>
                     )}
 
