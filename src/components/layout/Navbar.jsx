@@ -14,8 +14,8 @@ import { ouvrirRecherche } from '@/utils/recherche';
 import { lancementAVenir } from '@/config/saison';
 
 // ===== Constantes =====
-const link_network = 'https://mcapi.us/server/status?ip=spinelle-network.minesr.com';
-const link_serv = 'https://mcapi.us/server/status?ip=mbu-tetrago.minesr.com';
+const link_network = `${import.meta.env.VITE_MC_API}${import.meta.env.VITE_MC_PROXY}`;
+const link_serv = `${import.meta.env.VITE_MC_API}${import.meta.env.VITE_MC_SERVER}`;
 
 // Sections du site (config/navbar.js) : menu latéral groupé, et liens visibles de la barre sur grand écran (xl)
 // Listes déroulantes de la barre : sur un écran trop bas, elles défilent au lieu de sortir de l'écran.
