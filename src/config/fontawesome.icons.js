@@ -155,6 +155,7 @@ import { definition as fasPersonHiking } from "@fortawesome/free-solid-svg-icons
 import { definition as fasPersonWalkingArrowRight } from "@fortawesome/free-solid-svg-icons/faPersonWalkingArrowRight";
 import { definition as fasPlaceOfWorship } from "@fortawesome/free-solid-svg-icons/faPlaceOfWorship";
 import { definition as fasPlus } from "@fortawesome/free-solid-svg-icons/faPlus";
+import { definition as fasQuestion } from "@fortawesome/free-solid-svg-icons/faQuestion";
 import { definition as fasQuoteLeft } from "@fortawesome/free-solid-svg-icons/faQuoteLeft";
 import { definition as fasRightFromBracket } from "@fortawesome/free-solid-svg-icons/faRightFromBracket";
 import { definition as fasRightToBracket } from "@fortawesome/free-solid-svg-icons/faRightToBracket";
@@ -357,6 +358,7 @@ export default [
     fasPersonWalkingArrowRight,
     fasPlaceOfWorship,
     fasPlus,
+    fasQuestion,
     fasQuoteLeft,
     fasRightFromBracket,
     fasRightToBracket,
