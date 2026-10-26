@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Outil, { ChampNombre } from '@/components/aides/Outil';
-import { entier, formatNombre } from '@/utils/aides';
+import { dureeRp, entier, formatNombre } from '@/utils/aides';
 import { getVilles } from '@/services/api';
-import { RAPPORT_NETHER, VITESSES } from '@/config/aides';
+import { ECHELLE_RP, RAPPORT_NETHER, VITESSES } from '@/config/aides';
 
 // Distance à vol d'oiseau entre deux villes publiques placées sur la carte (ou deux points saisis), et temps de
-// trajet estimé selon le moyen de transport ; par le Nether, la distance est divisée par 8.
+// trajet estimé selon le moyen de transport, en temps réel et en temps RP (config/aides.js : ECHELLE_RP) ; par le Nether,
+// la distance est divisée par 8.
 const LIBRE = 'libre';
 
 const duree = (secondes) => {
@@ -109,11 +110,18 @@ export default function DistanceVilles() {
                                     {moyen.label}
                                 </span>
                                 <span className="font-semibold tabular-nums">{duree(parcourue / moyen.vitesse)}</span>
+                                <span className="text-sm tabular-nums">
+                                    <span className="opacity-70">RP : </span>
+                                    <span className="font-semibold">{dureeRp(parcourue / moyen.vitesse)}</span>
+                                </span>
                                 {moyen.note && <span className="text-xs opacity-60">{moyen.note}</span>}
                             </li>
                         ))}
                     </ul>
-                    <p className="text-xs opacity-60">En ligne droite, sans relief ni détour : comptez davantage en pratique.</p>
+                    <p className="text-xs opacity-60">
+                        En ligne droite, sans relief ni détour : comptez davantage en pratique.
+                        {' '}Temps RP : dans le récit, un bloc vaut {ECHELLE_RP} mètres, et un jour de Minecraft (20 minutes) fait un jour.
+                    </p>
                 </div>
             )}
         </Outil>

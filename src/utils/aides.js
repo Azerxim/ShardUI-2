@@ -1,6 +1,6 @@
 import { PERSONNAGE_STATUTS, identityText, residenceText } from "@/utils/personnages";
 import { dateRp } from "@/config/chroniques";
-import { LIMITE_DISCORD } from "@/config/aides";
+import { DUREE_JOUR_MINECRAFT, ECHELLE_RP, LIMITE_DISCORD } from "@/config/aides";
 
 // Calculs des outils de la page des aides (components/aides/)
 
@@ -12,6 +12,16 @@ export const entier = (valeur) => {
 };
 
 export const formatNombre = (nombre) => nombre.toLocaleString("fr-FR");
+
+// Durée réelle d'un trajet en jeu (secondes) → temps RP : « 9 jours 17 h », « 1 jour », « 5 h », « moins d'une heure »
+export function dureeRp(secondes) {
+    const heures = Math.round((secondes * ECHELLE_RP / DUREE_JOUR_MINECRAFT) * 24);
+    if (heures < 1) return "moins d'une heure";
+    const jours = Math.floor(heures / 24);
+    const reste = heures % 24;
+    const texteJours = jours ? `${jours} jour${jours > 1 ? "s" : ""}` : "";
+    return [texteJours, reste ? `${reste} h` : ""].filter(Boolean).join(" ");
+}
 
 // Fiche d'un de ses personnages, mise en forme pour un message Discord (Markdown de Discord) : identité, résidence,
 // dates RP, histoire et lien vers la fiche du site. L'histoire est raccourcie pour tenir dans un seul message.

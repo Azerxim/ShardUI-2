@@ -98,6 +98,11 @@ export const VITESSES = [
     { id: "cheval", label: "À cheval", icon: "fa-solid fa-horse", vitesse: 9.5, note: "selon la monture" },
 ];
 
+// Temps de trajet RP : le trajet compté à l'échelle du récit (1 bloc = ECHELLE_RP mètres), au rythme du jeu,
+// où un jour de Minecraft (20 minutes réelles) vaut un jour RP. Avec une échelle de 1 : les jours de Minecraft.
+export const ECHELLE_RP = 10;
+export const DUREE_JOUR_MINECRAFT = 1200; // secondes réelles
+
 // Taille d'une pile d'objets dans l'inventaire
 export const TAILLE_PILE = 64;
 

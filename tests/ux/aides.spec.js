@@ -21,19 +21,38 @@ test.beforeAll(async () => {
 
 const main = (page) => page.locator("main.container");
 
-test("la page rassemble guides et commandes, et se trouve depuis le menu", async ({ page }) => {
+test("la page range guides, commandes et outils en onglets, et se trouve depuis le menu", async ({ page }) => {
   await blockExternalRequests(page);
   await page.goto("/aides");
   await expect(page).toHaveTitle("Aides et utilitaires - Tetrago");
-  await expect(main(page).getByRole("region", { name: "Guides" })).toContainText("Rejoindre le serveur");
-  await expect(main(page).getByRole("region", { name: "Commandes du serveur" })).toContainText("/sethome <nom>");
+  const guides = main(page).getByRole("tabpanel", { name: "Guides" });
+  await expect(guides).toContainText("Rejoindre le serveur");
   await expect(main(page).getByRole("link", { name: /Profil/ }).first()).toHaveAttribute("href", "/profil");
+
+  // Un onglet à la fois, repris dans l'adresse
+  await main(page).getByRole("tab", { name: "Commandes" }).click();
+  await expect(main(page).getByRole("tabpanel", { name: "Commandes" })).toContainText("/sethome <nom>");
+  await expect(guides).toBeHidden();
+  await expect(page).toHaveURL(/\/aides#commandes$/);
+  // Flèches du clavier d'un onglet à l'autre
+  await page.keyboard.press("ArrowRight");
+  await expect(main(page).getByRole("tab", { name: "Outils" })).toBeFocused();
+  await expect(main(page).getByRole("tab", { name: "Outils" })).toHaveAttribute("aria-selected", "true");
+
+  // Sans ancre dans l'adresse, la page revient au dernier onglet ouvert
+  await page.goto("/aides");
+  await expect(main(page).getByRole("tab", { name: "Outils" })).toHaveAttribute("aria-selected", "true");
+
+  // Une ancre intérieure ouvre son onglet : le lien du guide vers la fiche Discord
+  await main(page).getByRole("tab", { name: "Guides" }).click();
+  await guides.getByRole("link", { name: /Fiche Discord/ }).click();
+  await expect(page.locator("#fiche-discord")).toBeVisible();
   await expect(page.locator(".navbar").getByRole("link", { name: "Aides et utilitaires" })).toHaveAttribute("aria-current", "page");
 });
 
 test("les coordonnées passent de la surface au Nether, et inversement", async ({ page }) => {
   await blockExternalRequests(page);
-  await page.goto("/aides");
+  await page.goto("/aides#outils");
   const outil = page.locator("#nether");
   const surface = outil.getByRole("group", { name: "Surface" });
   const nether = outil.getByRole("group", { name: "Nether" });
@@ -47,7 +66,7 @@ test("les coordonnées passent de la surface au Nether, et inversement", async (
 
 test("un montant en tetras se répartit en blocs et diamants", async ({ page }) => {
   await blockExternalRequests(page);
-  await page.goto("/aides");
+  await page.goto("/aides#outils");
   const outil = page.locator("#tetras");
   await outil.getByLabel("Montant en tetras").fill("100");
   await expect(outil.getByLabel("Blocs de diamant")).toHaveValue("11");
@@ -59,7 +78,7 @@ test("un montant en tetras se répartit en blocs et diamants", async ({ page }) 
 
 test("la distance entre deux villes publiques donne les temps de trajet", async ({ page }) => {
   await blockExternalRequests(page);
-  await page.goto("/aides");
+  await page.goto("/aides#outils");
   const outil = page.locator("#distance");
   const depart = outil.getByRole("combobox", { name: "Départ" });
   await expect(depart.locator("option", { hasText: `Aval ${suffixe}` })).toHaveCount(1);
@@ -69,6 +88,8 @@ test("la distance entre deux villes publiques donne les temps de trajet", async 
   await outil.getByRole("combobox", { name: "Arrivée" }).selectOption({ label: `Amont ${suffixe}` });
   await expect(outil).toContainText("5 000 blocs à vol d'oiseau");
   await expect(outil.locator("li", { hasText: "À pied" })).toContainText("19 min 23 s");
+  // Temps RP : 50 km à l'échelle du récit, à 4,3 blocs par seconde, un jour RP par jour de Minecraft
+  await expect(outil.locator("li", { hasText: "À pied" })).toContainText("RP : 9 jours 17 h");
   await outil.getByLabel(/Passer par le Nether/).check();
   await expect(outil).toContainText("soit 625 blocs dans le Nether");
 
@@ -81,11 +102,12 @@ test("la distance entre deux villes publiques donne les temps de trajet", async 
 
 test("la fiche Discord d'un personnage est prête à copier", async ({ page, context }) => {
   await blockExternalRequests(page);
-  await page.goto("/aides");
+  await page.goto("/aides#fiche-discord");
   await expect(page.locator("#fiche-discord")).toContainText("Connectez-vous pour copier la fiche de vos personnages.");
 
   await signIn(context, joueur);
-  await page.goto("/aides");
+  // Même page, seule l'ancre changerait : on recharge pour que la session soit lue
+  await page.reload();
   const apercu = page.locator("#fiche-discord").getByLabel("Aperçu de la fiche");
   await expect(apercu).toContainText(`## Héraut ${suffixe}`);
   await expect(apercu).toContainText("*Messager");
