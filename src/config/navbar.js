@@ -13,6 +13,9 @@ export const DECOUVRIR = [
   { id: "bibliotheque", href: "/bibliotheque", icon: "fa-solid fa-book", text: "Bibliothèque" },
 ];
 
+// Aides et utilitaires : bouton « ? » à droite de la barre du haut, à côté de la recherche
+export const AIDES = { id: "aides", href: "/aides", icon: "fa-solid fa-life-ring", text: "Aides" };
+
 export const MONDE = [
   { id: "civilisations", href: "/civilisations", icon: "fa-solid fa-flag", text: "Civilisations" },
   { id: "commerces", href: "/commerces", icon: "fa-solid fa-shop", text: "Commerces" },
@@ -30,6 +33,6 @@ export const CARTE = { id: "carte", href: `${MAPS_BASE_URL}/tetrago-unifier`, ic
 
 // Groupes de la barre des sections
 export const SECTIONS = [
-  { id: "decouvrir", titre: "Découvrir", liens: [...DECOUVRIR, CARTE] },
+  { id: "decouvrir", titre: "Découvrir", liens: [...DECOUVRIR, AIDES, CARTE] },
   { id: "monde", titre: "Le monde", liens: MONDE },
 ];

@@ -29,11 +29,12 @@ function quand(date) {
     return moment.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
 }
 
-export function BoutonNotifications({ nonLues, ouvert, ouvrir, boutonRef }) {
+// infobulle : côté où s'affiche « Notifications » (tooltip-left ou tooltip-right de DaisyUI)
+export function BoutonNotifications({ nonLues, ouvert, ouvrir, boutonRef, infobulle = 'left' }) {
     const label = nonLues ? `Notifications, ${nonLues} non lue${nonLues > 1 ? 's' : ''}` : 'Notifications';
     return (
-        // Masquée sur téléphone, où la barre manque de place : le menu latéral ouvre alors les notifications
-        <div className="tooltip tooltip-left hidden sm:inline-block" data-tip="Notifications">
+        // Masquée sous 1024 px (lg), où la barre manque de place : le menu latéral ouvre alors les notifications
+        <div className={`tooltip ${infobulle === 'right' ? 'tooltip-right' : 'tooltip-left'} hidden lg:inline-block`} data-tip="Notifications">
             <button
                 ref={boutonRef}
                 type="button"

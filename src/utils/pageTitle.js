@@ -34,6 +34,7 @@ const ROUTE_TITLES = [
     ["/personnage/:id", "Personnage"],
     ["/codex", "Codex"],
     ["/roadmap", "Feuille de route"],
+    ["/aides", "Aides et utilitaires"],
     ["/actions-secretes", "Actions secrètes"],
     ["/fermes", "Fermes"],
     ["/calendrier", "Calendrier"],

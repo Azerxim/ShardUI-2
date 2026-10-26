@@ -169,7 +169,7 @@ export default function RechercheGlobale() {
 
     return (
         <>
-            <button type="button" onClick={ouvrir} aria-label="Rechercher" className="btn bg-base-200 rounded-3xl btn-ghost tooltip tooltip-left hidden sm:inline-flex" data-tip="Rechercher (Ctrl+K)">
+            <button type="button" onClick={ouvrir} aria-label="Rechercher" className="btn bg-base-200 rounded-3xl btn-ghost tooltip tooltip-left hidden lg:inline-flex" data-tip="Rechercher (Ctrl+K)">
                 <FontAwesomeIcon icon="fa-solid fa-magnifying-glass" />
                 <kbd className="kbd kbd-sm hidden 2xl:inline-flex">Ctrl K</kbd>
             </button>

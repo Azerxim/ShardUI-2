@@ -117,8 +117,8 @@ function ContenuMenu({ active, User, fermer, nonLues, ouvrirNotifications }) {
     return (
         <>
             <MenuLien lien={{ id: 'home', href: '/', icon: 'fa-solid fa-house', text: 'Accueil' }} active={active} />
-            {/* Sur téléphone, la loupe de la barre laisse sa place : la recherche s'ouvre d'ici */}
-            <li className="sm:hidden">
+            {/* Sous 1024 px (lg), la loupe de la barre laisse sa place : la recherche s'ouvre d'ici */}
+            <li className="lg:hidden">
                 <button type="button" onClick={rechercher} className={menuItemClass(false)}>
                     <FontAwesomeIcon icon="fa-solid fa-magnifying-glass" />
                     <span>Rechercher</span>
@@ -126,7 +126,7 @@ function ContenuMenu({ active, User, fermer, nonLues, ouvrirNotifications }) {
             </li>
             {/* De même pour la cloche des notifications */}
             {User && (
-                <li className="sm:hidden">
+                <li className="lg:hidden">
                     <button type="button" onClick={() => { fermer(); ouvrirNotifications(); }} className={menuItemClass(false)}>
                         <FontAwesomeIcon icon="fa-solid fa-bell" />
                         <span>Notifications</span>

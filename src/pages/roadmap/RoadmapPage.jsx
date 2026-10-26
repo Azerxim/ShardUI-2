@@ -33,16 +33,6 @@ const SECTIONS = [
                     "Résultat archivé dans l'histoire de la civilisation, de l'alliance ou de la religion.",
                 ],
             },
-            {
-                titre: "Aides et utilitaires",
-                icon: "fa-solid fa-life-ring",
-                texte: "Une section rassemblant les guides, les rappels de commandes et les petits outils du quotidien, pour ne plus fouiller le Discord.",
-                details: [
-                    "Conversion des coordonnées entre la surface et le Nether.",
-                    "Distance et temps de trajet entre deux villes.",
-                    "Conversion entre tetras, diamants et blocs ; fiche de personnage à coller sur Discord.",
-                ],
-            },
         ],
     },
     // {
@@ -253,6 +243,17 @@ const SECTIONS = [
                 icon: "fa-solid fa-scroll",
                 lien: "/codex",
                 texte: "La loi du serveur et les règles du rôle-play, réunies en deux livres.",
+            },
+            {
+                titre: "Aides et utilitaires",
+                icon: "fa-solid fa-life-ring",
+                lien: "/aides",
+                texte: "Les guides pour bien démarrer, les rappels de commandes et les petits outils du quotidien, pour ne plus fouiller le Discord.",
+                details: [
+                    "Conversion des coordonnées entre la surface et le Nether.",
+                    "Distance et temps de trajet entre deux villes.",
+                    "Conversion entre tetras, diamants et blocs ; fiche de personnage à coller sur Discord.",
+                ],
             },
             {
                 titre: "Carte interactive",

@@ -5,6 +5,7 @@ export const MONNAIE = {
     icon: "fa-solid fa-gem",
     valeur: "1 tetra = 1 diamant",
     equivalence: "Un bloc de diamant vaut 9 tetras.",
+    diamantsParBloc: 9,
     cours: "Seule monnaie admise dans les échanges entre joueurs, partout sur le serveur.",
     obtention: [
         { icon: "fa-solid fa-handshake", titre: "Commerce", texte: "En vendant des biens et des services aux autres joueurs." },
