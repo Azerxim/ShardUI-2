@@ -323,7 +323,7 @@ export default function CivilisationPage() {
                 <i className="w-full">Cette civilisation n'a pas de gouvernement.</i>
             )}
 
-            <ElectionsSection entityType="civilisation" entityId={civilisation.id} peutOrganiser={auth} villes={villes} />
+            <ElectionsSection entityType="civilisation" entityId={civilisation.id} peutOrganiser={auth} villes={villes} derniersClos={2} />
 
             <DescriptionLongue type="civilisation" id={civilisation.id} auth={auth} />
 

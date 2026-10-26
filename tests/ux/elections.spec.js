@@ -171,6 +171,24 @@ test("sans majorité absolue, un second tour départage les deux premiers ; le v
   expect(lu.bulletins.filter((b) => b.tour === 2).map((b) => b.votant_title).sort()).toEqual([`Brune ${suffixe}`, `Clovis ${suffixe}`]);
 });
 
+test("la fiche de la civilisation ne montre que les scrutins en cours et les deux derniers clos", async ({ page }) => {
+  // Troisième scrutin clos (sans candidat : clos dès l'ouverture du vote), et un scrutin en cours
+  const { scrutin: vide } = await apiPost("/elections", fondateur.token, { title: `Sans candidat ${suffixe}`, entity_type: "civilisation", entity_id: civilisationId, vote_debut: iso(60), vote_fin: iso(120) });
+  deplacerScrutin(vide.id, { vote_debut: -1 });
+  expect((await lire(vide.id, fondateur)).resultat).toBe("sans_candidat");
+  await apiPost("/elections", fondateur.token, { title: `Ban des récoltes ${suffixe}`, entity_type: "civilisation", entity_id: civilisationId, vote_debut: iso(60), vote_fin: iso(120) });
+
+  await blockExternalRequests(page);
+  await page.goto(`/civilisation/${civilisationId}`);
+  const section = page.locator("#elections");
+  await expect(section.getByRole("link", { name: `Ban des récoltes ${suffixe}` })).toBeVisible();
+  await expect(section.getByRole("link", { name: `Sans candidat ${suffixe}` })).toBeVisible();
+  await expect(section.getByRole("link", { name: `Conseil ${suffixe}` })).toBeVisible();
+  // Le plus ancien est caché, avec un lien vers toutes les élections
+  await expect(section.getByRole("link", { name: `Couronnement ${suffixe}` })).toHaveCount(0);
+  await expect(section).toContainText("Un scrutin plus ancien ou annulé n'est pas affiché");
+});
+
 test("dans une alliance, chaque civilisation vote par son représentant", async () => {
   const voisin = await createSession("voisin");
   const autre = await civilisationAvecVille(voisin, "Comté");

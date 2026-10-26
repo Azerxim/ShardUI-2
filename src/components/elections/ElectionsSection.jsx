@@ -12,6 +12,8 @@ import { CORPS, CORPS_PAR_ENTITE, MODES } from '@/config/elections';
 // Section des fiches : scrutins en cours puis passés (Shard-API crud_elections), et ouverture d'un scrutin par le
 // fondateur ou un admin (organisateur : droits calculés par la fiche, vérifiés par l'API).
 // villes : villes de la civilisation, dont les postes peuvent être mis en jeu comme ceux de son gouvernement.
+// derniersClos : n'afficher, en plus des scrutins en cours, que ce nombre de scrutins clos (les plus récents) ;
+// les annulés et les plus anciens restent sur /elections.
 
 const MODAL_ID = 'scrutin-modal';
 
@@ -44,7 +46,10 @@ const scrutinFields = (entityType, postes) => [
     { name: 'date_rp', label: 'Date RP du scrutin', type: 'date', help: 'Facultative : avec elle, le résultat entre dans les chroniques.' },
 ];
 
-export default function ElectionsSection({ entityType, entityId, peutOrganiser = false, villes = [] }) {
+const EN_COURS = ['candidatures', 'vote', 'second_tour'];
+const recents = (a, b) => new Date(b.closed_at ?? 0) - new Date(a.closed_at ?? 0);
+
+export default function ElectionsSection({ entityType, entityId, peutOrganiser = false, villes = [], derniersClos = null }) {
     const [scrutins, setScrutins] = useState(null);
     const [postes, setPostes] = useState([]);
     const [version, setVersion] = useState(0);
@@ -92,6 +97,11 @@ export default function ElectionsSection({ entityType, entityId, peutOrganiser =
         tooltip: { text: 'Ouvrir un scrutin', position: 'bottom' }, function: () => setOuverture((n) => n + 1),
     }];
     const fixe = CORPS_PAR_ENTITE[entityType];
+    const visibles = derniersClos == null ? scrutins : [
+        ...scrutins.filter((s) => EN_COURS.includes(s.phase)),
+        ...scrutins.filter((s) => s.phase === 'clos').sort(recents).slice(0, derniersClos),
+    ];
+    const masques = scrutins.length - visibles.length;
 
     return (
         <section id="elections" className="flex flex-col gap-2 w-full scroll-mt-24">
@@ -100,9 +110,15 @@ export default function ElectionsSection({ entityType, entityId, peutOrganiser =
                 <i className="w-full">Aucun scrutin pour l'instant : ouvrez-en un pour désigner un dirigeant ou trancher une question.</i>
             ) : (
                 <ul className="grid grid-cols-1 lg:grid-cols-2 gap-3 w-full">
-                    {scrutins.map((scrutin) => <ScrutinCard key={scrutin.id} scrutin={scrutin} />)}
+                    {visibles.map((scrutin) => <ScrutinCard key={scrutin.id} scrutin={scrutin} />)}
                 </ul>
             )}
+            {masques > 0 ? (
+                <p className="text-sm opacity-70 px-1">
+                    {masques > 1 ? `${masques} scrutins plus anciens ou annulés ne sont pas affichés` : 'Un scrutin plus ancien ou annulé n\'est pas affiché'} :{' '}
+                    <a href="/elections#termines" className="link link-hover font-semibold">toutes les élections</a>.
+                </p>
+            ) : null}
             {ouverture ? (
                 <FormModal
                     key={ouverture}
