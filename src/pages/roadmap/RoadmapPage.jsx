@@ -18,23 +18,13 @@ const ETATS = {
 };
 
 const SECTIONS = [
-    {
-        etat: "avenir",
-        titre: "À venir",
-        dek: "Les chantiers suivants, dans le désordre : l'ordre se décidera avec vous.",
-        fonctionnalites: [
-            {
-                titre: "Organisateur d'élections RP",
-                icon: "fa-solid fa-check-to-slot",
-                texte: "Ouvrir un scrutin au sein d'une civilisation, d'une alliance ou d'une religion : candidats, votants, dépouillement et résultat conservé.",
-                details: [
-                    "Candidatures, puis vote des membres entre deux dates.",
-                    "Vote secret possible : on compte sans savoir qui a voté quoi.",
-                    "Résultat archivé dans l'histoire de la civilisation, de l'alliance ou de la religion.",
-                ],
-            },
-        ],
-    },
+    // Retirée tant qu'aucun chantier n'est annoncé
+    // {
+    //     etat: "avenir",
+    //     titre: "À venir",
+    //     dek: "Les chantiers suivants, dans le désordre : l'ordre se décidera avec vous.",
+    //     fonctionnalites: [],
+    // },
     // {
     //     etat: "chantier",
     //     titre: "En chantier",
@@ -243,6 +233,17 @@ const SECTIONS = [
                 icon: "fa-solid fa-scroll",
                 lien: "/codex",
                 texte: "La loi du serveur et les règles du rôle-play, réunies en deux livres.",
+            },
+            {
+                titre: "Élections RP",
+                icon: "fa-solid fa-check-to-slot",
+                lien: "/elections",
+                texte: "Ouvrir un scrutin au sein d'une civilisation, d'une alliance ou d'une religion : candidatures, vote entre deux heures, dépouillement, et l'élu qui prend son poste au gouvernement.",
+                details: [
+                    "Vote secret, ou public avec les bulletins nommés ; second tour sans majorité absolue.",
+                    "Civilisation : ses habitants votent. Alliance : chaque civilisation, par son représentant. Religion : ses fidèles, ou les villes où elle domine.",
+                    "Postes de gouvernement pour les civilisations et les villes ; résultat inscrit dans les chroniques.",
+                ],
             },
             {
                 titre: "Aides et utilitaires",

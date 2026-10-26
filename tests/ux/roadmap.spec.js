@@ -16,14 +16,14 @@ test.describe("Feuille de route", () => {
     await expect(page).toHaveTitle(/Feuille de route/);
   });
 
-  test("les états et les fonctionnalités à venir sont annoncés", async ({ page }) => {
+  test("les états et les fonctionnalités sont annoncés", async ({ page }) => {
     await page.goto("/roadmap");
     const main = page.locator("main.container");
-    // La section « En chantier » est retirée tant qu'aucun chantier n'est commencé
-    for (const etat of ["Disponible", "À venir"]) {
+    // Les sections « En chantier » et « À venir » sont retirées tant qu'aucun chantier n'est commencé ni annoncé
+    for (const etat of ["Disponible"]) {
       await expect(main.getByText(etat, { exact: true }).first()).toBeVisible();
     }
-    for (const titre of ["Organisateur d'élections RP", "Aides et utilitaires", "Chroniques de Tetrago", "Calendrier des événements RP",
+    for (const titre of ["Élections RP", "Aides et utilitaires", "Chroniques de Tetrago", "Calendrier des événements RP",
       "Lignées et généalogie", "Notifications sur le site"]) {
       await expect(main.getByRole("heading", { name: titre })).toBeVisible();
     }
@@ -39,7 +39,7 @@ test.describe("Feuille de route", () => {
 
   test("les ancres du bandeau mènent aux sections", async ({ page }) => {
     await page.goto("/roadmap");
-    for (const etat of ["disponible", "avenir"]) {
+    for (const etat of ["disponible"]) {
       await expect(page.locator(`main.container a[href="#${etat}"]`)).toHaveCount(1);
       await expect(page.locator(`section#${etat}`)).toHaveCount(1);
     }
@@ -47,17 +47,17 @@ test.describe("Feuille de route", () => {
 
   test("une section se masque, reste masquée et se rouvre par un lien direct", async ({ page }) => {
     await page.goto("/roadmap");
-    const avenir = page.locator("section#avenir");
-    await avenir.getByRole("button", { name: "Masquer" }).click();
-    await expect(page.locator("#avenir-contenu")).toBeHidden();
-    await expect(avenir).toContainText(/fonctionnalités? masquées?/);
+    const disponible = page.locator("section#disponible");
+    await disponible.getByRole("button", { name: "Masquer" }).click();
+    await expect(page.locator("#disponible-contenu")).toBeHidden();
+    await expect(disponible).toContainText(/fonctionnalités? masquées?/);
     await page.reload();
-    await expect(page.locator("#avenir-contenu")).toBeHidden();
+    await expect(page.locator("#disponible-contenu")).toBeHidden();
 
     // Un lien vers une fonctionnalité d'une section repliée la déplie
-    await page.goto("/roadmap#organisateur-d-elections-rp");
-    await expect(page.locator("#organisateur-d-elections-rp")).toBeVisible();
-    await expect(avenir.getByRole("button", { name: "Masquer" })).toHaveAttribute("aria-expanded", "true");
+    await page.goto("/roadmap#elections-rp");
+    await expect(page.locator("#elections-rp")).toBeVisible();
+    await expect(disponible.getByRole("button", { name: "Masquer" })).toHaveAttribute("aria-expanded", "true");
   });
 
   test("la recherche filtre les fonctionnalités, sans tenir compte des accents", async ({ page }) => {

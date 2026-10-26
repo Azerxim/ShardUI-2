@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Aide from '@/components/aide/Aide';
-import { getMesGuerres, getTableauModeration } from '@/services/api';
+import { getMesGuerres, getMesVotes, getTableauModeration } from '@/services/api';
 import { getSessionUser } from '@/services/session';
 
 // Ce qui attend le joueur connecté, affiché sur l'accueil et le profil :
-// appels aux armes à accepter, déclarations de guerre en attente de validation, et pour les modérateurs RP les
+// appels aux armes à accepter, votes à donner, déclarations de guerre en attente de validation, et pour les modérateurs RP les
 // décisions du tableau de bord (/moderation : guerres, ajustements de population, fermes, pièges).
 // Rien n'est affiché sans session ni quand tout est à jour.
 export default function ActionsEnAttente({ className = '' }) {
@@ -14,12 +14,17 @@ export default function ActionsEnAttente({ className = '' }) {
     const [mine, setMine] = useState(null);
     // Modérateurs : décisions qu'ils peuvent prendre ({ guerres, ajustements, fermes, pieges }), hors leurs propres demandes
     const [moderation, setModeration] = useState(null);
+    // Scrutins où il reste une voix à donner (personnage votant, ou représentant d'une civilisation ou d'une ville)
+    const [votes, setVotes] = useState([]);
 
     useEffect(() => {
         if (!user) return;
         let annule = false;
         getMesGuerres()
             .then((data) => { if (!annule) setMine(data); })
+            .catch(() => { });
+        getMesVotes()
+            .then((data) => { if (!annule && Array.isArray(data)) setVotes(data); })
             .catch(() => { });
         // Demandé pour tout joueur connecté : le rôle de modérateur stocké dans le navigateur peut dater d'avant
         // sa nomination ; l'API refuse simplement les autres (erreur ignorée)
@@ -37,7 +42,7 @@ export default function ActionsEnAttente({ className = '' }) {
     const enAttente = mine?.mes_guerres?.length || 0;
     const aValider = mine?.a_valider?.length || 0;
     const decisions = moderation ? moderation.guerres + moderation.ajustements + moderation.fermes + moderation.pieges : 0;
-    if (!appels && !enAttente && !decisions) return null;
+    if (!appels && !enAttente && !decisions && !votes.length) return null;
 
     const pluriel = (n, mot) => `${n} ${mot}${n > 1 ? 's' : ''}`;
     return (
@@ -50,6 +55,16 @@ export default function ActionsEnAttente({ className = '' }) {
                         <Aide terme="appel" />
                     </span>
                     <a href="/guerres" className="btn btn-sm">Répondre</a>
+                </div>
+            )}
+            {votes.length > 0 && (
+                <div role="alert" className="alert alert-info alert-soft rounded-2xl">
+                    <FontAwesomeIcon icon="fa-solid fa-check-to-slot" />
+                    <span className="flex flex-col gap-1">
+                        <span>{votes.length > 1 ? `${votes.length} scrutins attendent` : 'Un scrutin attend'} votre vote :</span>
+                        <span className="text-sm opacity-80">{votes.map((scrutin) => scrutin.title).join(' · ')}</span>
+                    </span>
+                    <a href={votes.length > 1 ? '/elections#en-cours' : `/election/${votes[0].id}`} className="btn btn-sm">Voter</a>
                 </div>
             )}
             {decisions > 0 && (

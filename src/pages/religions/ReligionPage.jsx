@@ -33,6 +33,7 @@ import {
 import Swal from "sweetalert2";
 import { alerteErreur } from "@/utils/alerteErreur";
 import LivresLiesSection from "@/components/bibliotheque/LivresLiesSection";
+import ElectionsSection from "@/components/elections/ElectionsSection";
 
 const ROLE_ORDER = { Fondateur: 0, Admin: 1 };
 const TRANSFER_MODAL_ID = "religion-transfer-founder-modal";
@@ -245,6 +246,8 @@ export default function ReligionPage() {
                 )}
             </div>
             <JoinHint members={members} entity="cette religion" />
+
+            <ElectionsSection entityType="religion" entityId={parseInt(id)} peutOrganiser={auth} />
 
             <ConflictsSection entityType="religion" entityId={parseInt(id)} />
 

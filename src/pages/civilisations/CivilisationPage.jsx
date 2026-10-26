@@ -8,6 +8,8 @@ import Navbar from "@/components/layout/Navbar";
 import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
 import SommaireFiche from "@/components/ui/SommaireFiche";
+import PostesGouvernement from "@/components/elections/PostesGouvernement";
+import ElectionsSection from "@/components/elections/ElectionsSection";
 import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
 import InfoLine from "@/components/ui/InfoLine";
@@ -315,10 +317,13 @@ export default function CivilisationPage() {
                         <GouvernementTile icon="fa-solid fa-music" label="Hymne" value={gouvernement.hymne} />
                     </div>
                     {gouvernement.description ? <p className="px-1 break-words">{gouvernement.description}</p> : null}
+                    <PostesGouvernement entityType="civilisation" entityId={civilisation.id} civilisationId={civilisation.id} auth={auth} />
                 </div>
             ) : (
                 <i className="w-full">Cette civilisation n'a pas de gouvernement.</i>
             )}
+
+            <ElectionsSection entityType="civilisation" entityId={civilisation.id} peutOrganiser={auth} villes={villes} />
 
             <DescriptionLongue type="civilisation" id={civilisation.id} auth={auth} />
 
@@ -346,7 +351,7 @@ export default function CivilisationPage() {
 
             <MercenairesSection civilisationId={civilisation.id} />
 
-            <ResidentsSection type="civilisation" id={civilisation.id} />
+            <ResidentsSection type="civilisation" id={civilisation.id} creation />
 
             <TitleH2 text="Villes" icon="fas fa-city" fonctions={FctVilles} aide="ville" />
             {villes.length === 0 ? (

@@ -5,7 +5,7 @@ import Outil from '@/components/aides/Outil';
 import CopyButton from '@/components/ui/CopyButton';
 import EtatVide from '@/components/ui/EtatVide';
 import { getSessionUser } from '@/services/session';
-import { getPersonnagesOfUser } from '@/services/api';
+import { libellePersonnage, personnagesChoisissables } from '@/utils/personnages';
 import { ficheDiscord } from '@/utils/aides';
 import { LIMITE_DISCORD } from '@/config/aides';
 
@@ -18,9 +18,9 @@ export default function FicheDiscord() {
 
     useEffect(() => {
         if (!userId) return;
-        getPersonnagesOfUser(userId)
-            .then((liste) => {
-                const valides = Array.isArray(liste) ? liste : [];
+        // Ses personnages ; tous ceux du site pour un administrateur
+        personnagesChoisissables(getSessionUser())
+            .then((valides) => {
                 setFiches(valides);
                 if (valides.length) setChoix(String(valides[0].personnage.id));
             })
@@ -44,7 +44,7 @@ export default function FicheDiscord() {
                     <label className="flex flex-col gap-1 flex-1 min-w-0">
                         <span className="text-xs font-semibold opacity-70">Personnage</span>
                         <select value={choix} onChange={(e) => setChoix(e.target.value)} className="select select-ghost bg-base-100 w-full">
-                            {fiches.map((item) => <option key={item.personnage.id} value={String(item.personnage.id)}>{item.personnage.name}</option>)}
+                            {fiches.map((item) => <option key={item.personnage.id} value={String(item.personnage.id)}>{libellePersonnage(item, user)}</option>)}
                         </select>
                     </label>
                     <CopyButton

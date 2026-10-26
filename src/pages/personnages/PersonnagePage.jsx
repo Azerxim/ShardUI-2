@@ -20,7 +20,7 @@ import { showModalID } from "@/utils/showModal";
 import { formatDate, runAction } from "@/utils/conflits";
 import { EMPTY_LIEUX, EMPTY_REFERENTIEL, PERSONNAGE_STATUTS, enregistrerPersonnage, loadLieux, loadReferentiel, minecraftBody, personnageFormFields, personnageInitialValues, skinFichierUrl, villeHref } from "@/utils/personnages";
 import { getSessionUser } from "@/services/session";
-import { apiRequest, getPersonnageById } from "@/services/api";
+import { apiRequest, getPersonnageById, getPostesPersonnage } from "@/services/api";
 import LivresLiesSection from "@/components/bibliotheque/LivresLiesSection";
 import FamilleSection from "@/components/personnages/FamilleSection";
 
@@ -35,6 +35,8 @@ export default function PersonnagePage() {
     const [reloadKey, setReloadKey] = useState(0);
     const [lieux, setLieux] = useState(EMPTY_LIEUX);
     const [referentiel, setReferentiel] = useState(EMPTY_REFERENTIEL);
+    // Rôles : postes de gouvernement qu'il occupe (civilisations et villes)
+    const [roles, setRoles] = useState([]);
 
     usePageTitle(data?.personnage?.name);
 
@@ -46,6 +48,10 @@ export default function PersonnagePage() {
                 setData(null);
             })
             .finally(() => setLoading(false));
+    }, [id, reloadKey]);
+
+    useEffect(() => {
+        getPostesPersonnage(id).then((liste) => setRoles(Array.isArray(liste) ? liste : [])).catch(() => setRoles([]));
     }, [id, reloadKey]);
 
     const personnage = data?.personnage;
@@ -63,7 +69,7 @@ export default function PersonnagePage() {
     const messages = data?.messages ?? [];
     const journaux = new Set(messages.map((message) => message.journal?.id).filter(Boolean));
     const statut = PERSONNAGE_STATUTS[personnage?.status] ?? PERSONNAGE_STATUTS.vivant;
-    const { joueur, civilisation, ville, quartier, espece, classe } = data ?? {};
+    const { joueur, civilisation, ville, quartier, espece, classe, religion } = data ?? {};
 
     const FctModify = [
         { id: 1, title: "Modifier", icon: "fas fa-pen", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: canManage, function: () => showModalID(EDIT_MODAL_ID) },
@@ -129,6 +135,21 @@ export default function PersonnagePage() {
                                     {civilisation ? <>{ville ? " (" : ""}<a href={`/civilisation/${civilisation.id}`} className="link link-hover">{civilisation.title}</a>{ville ? ")" : ""}</> : null}
                                 </>
                             ) : "Sans résidence connue"}
+                        </InfoLine>
+                        {roles.length > 0 ? (
+                            <InfoLine icon="fa-solid fa-crown">
+                                {roles.length > 1 ? "Rôles" : "Rôle"} :{" "}
+                                {roles.map((role, index) => (
+                                    <span key={role.id}>
+                                        {index > 0 ? " · " : ""}
+                                        <strong>{role.title}</strong> (<a href={role.lieu.lien} className="link link-hover">{role.lieu.title}</a>)
+                                        {role.is_representant ? <span className="badge badge-xs badge-secondary ml-1 align-middle">Représentant</span> : null}
+                                    </span>
+                                ))}
+                            </InfoLine>
+                        ) : null}
+                        <InfoLine icon="fa-solid fa-hands-praying">
+                            {religion ? <>Foi : <a href={`/religion/${religion.id}`} className="link link-hover">{religion.title}</a></> : "Sans religion déclarée"}
                         </InfoLine>
                     </div>
                 </div>

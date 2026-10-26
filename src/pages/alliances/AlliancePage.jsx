@@ -23,6 +23,7 @@ import {
 import { getSessionUser } from "@/services/session";
 import { apiRequest, getAllianceById, getCivilisations } from "@/services/api";
 import LivresLiesSection from "@/components/bibliotheque/LivresLiesSection";
+import ElectionsSection from "@/components/elections/ElectionsSection";
 
 const EDIT_MODAL_ID = "alliance-edit-modal";
 const INVITE_MODAL_ID = "alliance-invite-modal";
@@ -235,6 +236,8 @@ export default function AlliancePage() {
                     </ul>
                 </>
             ) : null}
+
+            <ElectionsSection entityType="alliance" entityId={alliance.id} peutOrganiser={isChef} />
 
             <TitleH2 text="Guerres des membres" icon="fas fa-shield-halved" aide="alliance" />
             {guerres.length === 0 ? (

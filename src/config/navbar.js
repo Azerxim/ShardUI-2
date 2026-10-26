@@ -24,6 +24,7 @@ export const MONDE = [
   { id: "maisons", href: "/maisons", icon: "fa-solid fa-chess-king", text: "Maisons" },
   { id: "alliances", href: "/alliances", icon: "fa-solid fa-handshake", text: "Alliances" },
   { id: "guerres", href: "/guerres", icon: "fa-solid fa-shield-halved", text: "Guerres" },
+  { id: "elections", href: "/elections", icon: "fa-solid fa-check-to-slot", text: "Élections" },
   { id: "actions", href: "/actions-secretes", icon: "fa-solid fa-user-secret", text: "Actions secrètes" },
   { id: "fermes", href: "/fermes", icon: "fa-solid fa-wheat-awn", text: "Fermes" },
 ];
