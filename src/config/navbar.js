@@ -4,6 +4,10 @@ import { MAPS_BASE_URL } from "@/config/maps";
 // Source unique des liens de navigation : la barre du haut (components/layout/Navbar.jsx : liens visibles sur grand
 // écran, menu latéral) et la barre des sections des pages de liste (components/layout/DynamicNavbar.jsx).
 
+export const LAUNCH = [
+  { id: "codex", href: "/codex", icon: "fa-solid fa-scroll", text: "Codex" },
+];
+
 export const DECOUVRIR = [
   { id: "codex", href: "/codex", icon: "fa-solid fa-scroll", text: "Codex" },
   { id: "bibliotheque", href: "/bibliotheque", icon: "fa-solid fa-book", text: "Bibliothèque" },
