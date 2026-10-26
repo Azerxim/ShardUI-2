@@ -14,12 +14,13 @@ import BarreFiltres from "@/components/ui/BarreFiltres";
 import { correspond, normalize, parDate, parTitre, useFiltresMemorises } from "@/utils/filtres";
 
 import { showModalID } from "@/utils/showModal";
+import { libellePersonnage, personnagesChoisissables } from "@/utils/personnages";
 import { requireLogin } from "@/utils/requireLogin";
 import { isModerateur, managedEntities } from "@/utils/conflits";
 import { alerteErreur } from "@/utils/alerteErreur";
 import { getSessionUser } from "@/services/session";
 import {
-    createAction, getActionsSecretes, getCivilisations, getGuerres, getMesActions, getPersonnagesOfUser, getReligions,
+    createAction, getActionsSecretes, getCivilisations, getGuerres, getMesActions, getReligions,
     lireAction, revelerAction,
 } from "@/services/api";
 
@@ -92,13 +93,14 @@ export default function ActionsSecretesPage() {
     useEffect(() => {
         if (!user) return;
         Promise.all([
-            getPersonnagesOfUser(user.id).catch(() => []),
+            personnagesChoisissables(user).catch(() => []),
             getCivilisations().catch(() => []),
             getReligions().catch(() => []),
             getGuerres().catch(() => []),
         ]).then(([personnages, civilisations, religions, listeGuerres]) => {
             setAuteurs({
-                personnages: (Array.isArray(personnages) ? personnages : []).map((item) => item.personnage),
+                // Ses personnages ; tous ceux du site pour un administrateur
+                personnages: (Array.isArray(personnages) ? personnages : []).map((fiche) => ({ id: fiche.personnage.id, name: libellePersonnage(fiche, user) })),
                 civilisations: managedEntities(civilisations, "civilisation"),
                 religions: managedEntities(religions, "religion"),
             });

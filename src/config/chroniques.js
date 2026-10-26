@@ -6,6 +6,7 @@ export const CATEGORIES_CHRONIQUES = {
     diplomatie: { label: "Diplomatie", icon: "fa-solid fa-handshake", puce: "bg-info/15 text-info" },
     guerres: { label: "Guerres", icon: "fa-solid fa-shield-halved", puce: "bg-error/15 text-error" },
     lignees: { label: "Lignées", icon: "fa-solid fa-sitemap", puce: "bg-secondary/15 text-secondary" },
+    elections: { label: "Élections", icon: "fa-solid fa-check-to-slot", puce: "bg-accent/15 text-accent" },
     faits: { label: "Faits marquants", icon: "fa-solid fa-feather", puce: "bg-warning/20 text-warning-content" },
 };
 

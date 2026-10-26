@@ -19,7 +19,8 @@ import { isModerateur, runAction } from "@/utils/conflits";
 import { plural } from "@/utils/plural";
 import { getSessionUser } from "@/services/session";
 import { dateRp, vieRp } from "@/config/lignees";
-import { deleteMaison, getCivilisations, getMaison, getPersonnagesOfUser, rejoindreMaison, retirerMembreMaison, updateMaison } from "@/services/api";
+import { deleteMaison, getCivilisations, getMaison, rejoindreMaison, retirerMembreMaison, updateMaison } from "@/services/api";
+import { libellePersonnage, personnagesChoisissables } from "@/utils/personnages";
 import { maisonChamps, maisonCorps, maisonValeurs } from "@/pages/maisons/maisonForm";
 
 // ===== Fiche d'une maison noble =====
@@ -50,7 +51,8 @@ export default function MaisonPage() {
 
     useEffect(() => {
         if (!user) return;
-        getPersonnagesOfUser(user.id).then((liste) => setMesPersonnages((Array.isArray(liste) ? liste : []).map((item) => item.personnage))).catch(() => { });
+        // Ses personnages ; tous ceux du site pour un administrateur
+        personnagesChoisissables(user).then(setMesPersonnages).catch(() => { });
         getCivilisations()
             .then((liste) => setCivilisations((Array.isArray(liste) ? liste : []).map((item) => item.civilisation).filter((civ) => civ.is_public !== false)
                 .map((civ) => ({ value: civ.id, label: civ.title })).sort((a, b) => a.label.localeCompare(b.label))))
@@ -61,7 +63,7 @@ export default function MaisonPage() {
     const reload = () => setReloadKey((key) => key + 1);
     const membres = data?.membres ?? [];
     const canManage = Boolean(user && maison && (isModerateur(user) || maison.created_by === user.id || maison.chef?.user_id === user.id));
-    const aFaireEntrer = mesPersonnages.filter((p) => p.maison_id !== maison?.id);
+    const aFaireEntrer = mesPersonnages.filter((fiche) => fiche.personnage.maison_id !== maison?.id);
 
     const faireEntrer = async () => {
         if (aFaireEntrer.length === 0) {
@@ -73,7 +75,7 @@ export default function MaisonPage() {
             title: `Entrer dans la maison ${maison.title}`,
             text: "Un personnage déjà membre d'une autre maison la quitte.",
             input: "select",
-            inputOptions: new Map(aFaireEntrer.map((p) => [String(p.id), p.name])),
+            inputOptions: new Map(aFaireEntrer.map((fiche) => [String(fiche.personnage.id), libellePersonnage(fiche, user)])),
             showCancelButton: true,
             confirmButtonText: "Entrer",
             cancelButtonText: "Annuler",

@@ -28,9 +28,9 @@ import {
   getJournalById,
   getJournalContentById,
   getLinkedPlatforms,
-  getPersonnagesOfJournal,
-  getPersonnagesOfUser
+  getPersonnagesOfJournal
 } from "@/services/api"
+import { libellePersonnage, personnagesChoisissables } from "@/utils/personnages";
 
 const PER_PAGE_OPTIONS = [5, 10, 20, 50, 100];
 const PER_PAGE_STORAGE_KEY = 'messagesPerPage';
@@ -336,9 +336,10 @@ export default function JournalDetailPage() {
       .finally(() => {
         if (!cancelled) setPlatformsChecked(true);
       });
-    getPersonnagesOfUser(userId)
+    // Ses personnages ; tous ceux du site pour un administrateur
+    personnagesChoisissables(getSessionUser())
       .then((list) => {
-        if (!cancelled) setMyPersonnages(Array.isArray(list) ? list : []);
+        if (!cancelled) setMyPersonnages(list);
       })
       .catch((error) => console.error('Error fetching my personnages:', error));
     return () => {
@@ -564,7 +565,7 @@ export default function JournalDetailPage() {
               intro="Le message apparaîtra au nom du personnage choisi dans ce journal et sur sa fiche."
               fields={[{
                 name: "personnage_id", label: "Personnage", type: "select", required: true,
-                options: myPersonnages.map(({ personnage }) => ({ value: personnage.id, label: personnage.name })),
+                options: myPersonnages.map((fiche) => ({ value: fiche.personnage.id, label: libellePersonnage(fiche, getSessionUser()) })),
                 empty: "Vous n'avez encore aucun personnage : créez-en un depuis la page Personnages ou votre profil.",
               }]}
               initialValues={{

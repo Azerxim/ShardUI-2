@@ -1002,6 +1002,48 @@ export const updateFaitChronique = (faitId, fait) => apiRequest("PUT", `/chroniq
 export const deleteFaitChronique = (faitId) => apiRequest("DELETE", `/chroniques/faits/${faitId}`);
 
 
+//_______________________________ÉLECTIONS ET POSTES___________________________
+
+// Postes du gouvernement d'une civilisation ou d'une ville : [{ id, title, is_representant, ordre, personnage }]
+export const getPostes = (entityType, entityId) => publicGet(`/elections/postes/${entityType}/${entityId}`);
+
+// Rôles d'un personnage : [{ id, title, is_representant, lieu: { type, id, title, lien } }]
+export const getPostesPersonnage = (personnageId) => publicGet(`/elections/postes/personnage/${personnageId}`);
+
+// { entity_type: civilisation | ville, entity_id, title, personnage_id?, is_representant? }
+export const createPoste = (poste) => apiRequest("POST", "/elections/postes", poste);
+
+// { title?, personnage_id? (vide : poste libéré), is_representant?, ordre? }
+export const updatePoste = (posteId, poste) => apiRequest("PUT", `/elections/postes/${posteId}`, poste);
+
+export const deletePoste = (posteId) => apiRequest("DELETE", `/elections/postes/${posteId}`);
+
+// Scrutins d'une entité (civilisation, religion, alliance), ou de toutes les entités publiques
+export const getScrutins = (entityType = null, entityId = null) => publicGet(entityType ? `/elections/list?entity_type=${entityType}&entity_id=${entityId}` : "/elections/list");
+
+// Jeton joint quand il existe : mes_voix et mes_candidats_possibles dépendent du joueur
+export async function getScrutin(scrutinId) {
+  const response = await fetch(`${apiURL}/elections/${scrutinId}`, { headers: userHeaders() });
+  if (!response.ok) throw Object.assign(new Error(`Erreur ${response.status}: ${response.statusText}`), { status: response.status });
+  return response.json();
+}
+
+// Scrutins où le joueur a encore une voix à donner
+export const getMesVotes = () => apiRequest("GET", "/elections/mes-votes");
+
+// { title, entity_type, entity_id, corps? (religion : personnages | villes), mode, deux_tours, poste_id?, vote_debut, vote_fin, date_rp?, description? }
+export const createScrutin = (scrutin) => apiRequest("POST", "/elections", scrutin);
+
+export const annulerScrutin = (scrutinId) => apiRequest("POST", `/elections/${scrutinId}/annuler`);
+
+export const candidater = (scrutinId, personnageId, programme) => apiRequest("POST", `/elections/${scrutinId}/candidatures`, { personnage_id: personnageId, programme });
+
+export const retirerCandidature = (scrutinId, candidatId) => apiRequest("DELETE", `/elections/${scrutinId}/candidatures/${candidatId}`);
+
+// votant : la voix donnée (personnage, ville ou civilisation, voir mes_voix du scrutin)
+export const voter = (scrutinId, votantType, votantId, candidatId) => apiRequest("POST", `/elections/${scrutinId}/votes`, { votant_type: votantType, votant_id: votantId, candidat_id: candidatId });
+
+
 // ___________________________________Autres____________________________________
 
 

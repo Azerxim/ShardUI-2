@@ -6,6 +6,7 @@ import LinkedAccounts from "@/components/users/LinkedAccounts";
 import UserPersonnages from "@/components/users/UserPersonnages";
 import ProfilInfos from "@/components/users/ProfilInfos";
 import ActionsEnAttente from "@/components/users/ActionsEnAttente";
+import { lancementAVenir } from "@/config/saison";
 
 export default function ProfilPage() {
   // Sans compte, le composant Profil affiche « Vous n'êtes pas connecté » avec un lien de connexion
@@ -19,11 +20,16 @@ export default function ProfilPage() {
           <>
             <ActionsEnAttente className="max-w-4xl mx-auto mb-6 mt-6" />
             <LinkedAccounts />
-            <div className="max-w-4xl mx-auto mt-6">
-              <ProfilInfos userId={User.id} own />
-            </div>
-            <UserPersonnages userId={User.id} own />
-            <UserMemberships />
+            {/* Avant le lancement de la saison, le profil s'arrête aux comptes liés */}
+            {!lancementAVenir() && (
+              <>
+                <div className="max-w-4xl mx-auto mt-6">
+                  <ProfilInfos userId={User.id} own />
+                </div>
+                <UserPersonnages userId={User.id} own />
+                <UserMemberships />
+              </>
+            )}
           </>
         ) : null}
       </main>

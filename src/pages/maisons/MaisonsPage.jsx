@@ -13,7 +13,8 @@ import { requireLogin } from "@/utils/requireLogin";
 import { plural } from "@/utils/plural";
 import { getSessionUser } from "@/services/session";
 import { dateRp } from "@/config/lignees";
-import { createMaison, getCivilisations, getMaisons, getPersonnagesOfUser } from "@/services/api";
+import { createMaison, getCivilisations, getMaisons } from "@/services/api";
+import { libellePersonnage, personnagesChoisissables } from "@/utils/personnages";
 import { maisonChamps, maisonCorps, maisonValeurs } from "@/pages/maisons/maisonForm";
 
 // ===== Maisons nobles =====
@@ -49,8 +50,9 @@ export default function MaisonsPage() {
     useEffect(() => {
         getMaisons().then((data) => setMaisons(Array.isArray(data) ? data : [])).catch(() => setMaisons([]));
         if (!user) return;
-        Promise.all([getPersonnagesOfUser(user.id).catch(() => []), getCivilisations().catch(() => [])]).then(([personnages, civilisations]) => setOptions({
-            chefs: (Array.isArray(personnages) ? personnages : []).map(({ personnage }) => ({ value: personnage.id, label: personnage.name })),
+        // Chef : un de ses personnages ; n'importe lequel pour un administrateur
+        Promise.all([personnagesChoisissables(user).catch(() => []), getCivilisations().catch(() => [])]).then(([personnages, civilisations]) => setOptions({
+            chefs: personnages.map((fiche) => ({ value: fiche.personnage.id, label: libellePersonnage(fiche, user) })),
             civilisations: (Array.isArray(civilisations) ? civilisations : []).map((item) => item.civilisation).filter((civ) => civ.is_public !== false)
                 .map((civ) => ({ value: civ.id, label: civ.title })).sort((a, b) => a.label.localeCompare(b.label)),
         }));

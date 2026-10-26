@@ -1,5 +1,5 @@
 import { toOptions } from "@/utils/conflits";
-import { apiRequest, envoyerPortraitPersonnage, envoyerSkinPersonnage, fichierPersonnageUrl, retirerPortraitPersonnage, getCivilisations, getPersonnageReferentiel, getQuartiers, getVilles } from "@/services/api";
+import { apiRequest, envoyerPortraitPersonnage, envoyerSkinPersonnage, fichierPersonnageUrl, retirerPortraitPersonnage, getCivilisations, getPersonnageReferentiel, getPersonnages, getPersonnagesOfUser, getQuartiers, getReligions, getVilles } from "@/services/api";
 
 // Libellés et formulaire partagés par les pages personnages, le profil et le journal
 
@@ -40,18 +40,30 @@ export const identityText = ({ personnage, espece, classe }) => [personnage?.gra
 
 const asList = (value) => (Array.isArray(value) ? value : []);
 
-// Civilisations, villes et quartiers proposés dans le formulaire
+// Personnages proposés dans un choix (inscription, action secrète, maison, poste…) : les siens, ou tous ceux du site pour
+// un administrateur ; fiches { personnage, joueur, … }
+export const personnagesChoisissables = (user) => (user?.is_admin ? getPersonnages() : getPersonnagesOfUser(user.id)).then(asList);
+
+// Libellé d'un choix : pour un administrateur, le joueur d'un personnage qui n'est pas le sien
+export const libellePersonnage = (fiche, user) => {
+    const joueur = user?.is_admin && fiche.joueur && fiche.personnage.user_id !== user.id ? fiche.joueur.full_name || fiche.joueur.username : null;
+    return joueur ? `${fiche.personnage.name} (${joueur})` : fiche.personnage.name;
+};
+
+// Civilisations, villes et quartiers proposés dans le formulaire, et religions pour la foi
 export const loadLieux = () => Promise.all([
     getCivilisations().catch(() => []),
     getVilles().catch(() => []),
     getQuartiers().catch(() => []),
-]).then(([civilisations, villes, quartiers]) => ({
+    getReligions().catch(() => []),
+]).then(([civilisations, villes, quartiers, religions]) => ({
     civilisations: asList(civilisations).map((item) => item.civilisation).filter(Boolean),
     villes: asList(villes),
     quartiers: asList(quartiers),
+    religions: asList(religions).map((item) => item.religion ?? item).filter((religion) => religion?.id && religion.is_public !== false),
 }));
 
-export const EMPTY_LIEUX = { civilisations: [], villes: [], quartiers: [] };
+export const EMPTY_LIEUX = { civilisations: [], villes: [], quartiers: [], religions: [] };
 
 // Espèces et classes proposées dans le formulaire
 export const loadReferentiel = () => getPersonnageReferentiel()
@@ -113,6 +125,11 @@ export const personnageFormFields = (lieux, referentiel = EMPTY_REFERENTIEL, per
         options: (values) => values.ville_id ? toOptions(lieux.quartiers.filter((quartier) => String(quartier.ville_id) === String(values.ville_id))) : [],
         empty: (values) => values.ville_id ? "Cette ville n'a pas encore de quartier." : "Choisissez d'abord une ville.",
     },
+    {
+        name: "religion_id", label: "Foi", type: "select", placeholder: "Aucune",
+        options: toOptions(lieux.religions || []), empty: "Aucune religion n'existe encore.",
+        help: "Ses fidèles votent aux élections de leur religion.",
+    },
 ];
 
 export const PERSONNAGE_INITIAL = { status: "vivant", portrait_source: "aucun", skin_source: "aucun" };
@@ -148,6 +165,7 @@ export const personnageInitialValues = (personnage) => ({
     civilisation_id: idValue(personnage.civilisation_id),
     ville_id: idValue(personnage.ville_id),
     quartier_id: idValue(personnage.quartier_id),
+    religion_id: idValue(personnage.religion_id),
 });
 
 // Création (personnage absent) ou mise à jour, puis envoi du portrait et du skin choisis dans le formulaire.

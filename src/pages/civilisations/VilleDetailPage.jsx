@@ -33,6 +33,7 @@ import EtatVide from '@/components/ui/EtatVide';
 import DestructiblesSection from '@/components/civilisations/DestructiblesSection';
 import ZonesCommercialesSection from '@/components/civilisations/ZonesCommercialesSection';
 import PopulationSection from '@/components/civilisations/PopulationSection';
+import PostesGouvernement from '@/components/elections/PostesGouvernement';
 
 const RELIGION_ADD_MODAL_ID = "ville-religion-add-modal";
 
@@ -296,6 +297,12 @@ export default function VilleDetailPage() {
             <PopulationSection ville={ville} auth={auth} onCharge={setPopulationOfficielle} />
 
             <ResidentsSection type="ville" id={ville.id} />
+
+            {/* Dirigeants de la ville : le représentant vote en son nom aux élections des religions */}
+            <TitleH2 text="Gouvernement de la ville" icon="fas fa-landmark" />
+            <div className="w-full bg-base-200 rounded-3xl p-4">
+                <PostesGouvernement entityType="ville" entityId={ville.id} civilisationId={ville.civilisation_id} auth={auth} />
+            </div>
 
             <TitleH2 text="Religions" icon="fas fa-hands-praying" fonctions={FctReligions} aide="religion" />
             <VilleReligions

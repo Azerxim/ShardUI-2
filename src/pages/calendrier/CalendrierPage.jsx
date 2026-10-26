@@ -14,13 +14,14 @@ import { showModalID } from "@/utils/showModal";
 import { requireLogin } from "@/utils/requireLogin";
 import { isModerateur, managedEntities, runAction } from "@/utils/conflits";
 import { getSessionUser } from "@/services/session";
+import { libellePersonnage, personnagesChoisissables } from "@/utils/personnages";
 import {
     FOIRE, JOURS_COURTS, ORGANISATEURS, TYPES_EVENEMENTS, debutDuMois, horaireEvenement, isoJour, isoMois, joursCouverts,
     moisVoisin, semainesDuMois, titreMois, typeEvenement, valeurDateHeure,
 } from "@/config/calendrier";
 import {
     annulerEvenement, createEvenement, desinscrireEvenement, getAlliances, getCalendrier, getCivilisations, getCommerces,
-    getGuerres, getPersonnagesOfUser, getReligions, getVilles, inscrireEvenement, updateEvenement,
+    getGuerres, getReligions, getVilles, inscrireEvenement, updateEvenement,
 } from "@/services/api";
 
 // ===== Calendrier des événements RP =====
@@ -97,6 +98,7 @@ function EvenementCard({ evenement, user, gerer, inscrire, desinscrire }) {
                         {annule && <span className="badge badge-sm badge-ghost">Annulé</span>}
                         {!annule && evenement.termine && <span className="badge badge-sm badge-ghost">Terminé</span>}
                         {inscription && !annule && <span className="badge badge-sm badge-success">Inscrit</span>}
+                        {evenement.organisateur.type === "global" && <span className="badge badge-sm badge-primary"><FontAwesomeIcon icon="fa-solid fa-globe" />Événement global</span>}
                     </span>
                     <span className="text-sm first-letter:uppercase">{horaireEvenement(evenement)}</span>
                     <span className="text-sm opacity-80 flex flex-wrap items-center gap-x-3">
@@ -236,8 +238,9 @@ export default function CalendrierPage() {
             })))
             .catch(() => { });
         if (!user) return;
-        getPersonnagesOfUser(user.id)
-            .then((liste) => setPersonnages((Array.isArray(liste) ? liste : []).map((item) => item.personnage).filter((personnage) => personnage.status !== "mort")))
+        // Ses personnages ; tous ceux du site pour un administrateur
+        personnagesChoisissables(user)
+            .then((liste) => setPersonnages(liste.filter((fiche) => fiche.personnage.status !== "mort")))
             .catch(() => { });
         Promise.all([
             getCivilisations().catch(() => []), getReligions().catch(() => []), getCommerces().catch(() => []),
@@ -257,6 +260,8 @@ export default function CalendrierPage() {
                 ...prev,
                 organisateurs: [
                     { value: "joueur", label: `Moi-même (${nom(user)})` },
+                    // Événement de tout le serveur, au nom de Tetrago : administrateurs du site seulement
+                    ...(user.is_admin ? [{ value: "global", label: "Tetrago · Événement global" }] : []),
                     ...civs.map((c) => ({ value: `civilisation:${c.id}`, label: `Civilisation · ${c.title}` })).sort(parTitre),
                     ...rels.map((r) => ({ value: `religion:${r.id}`, label: `Religion · ${r.title}` })).sort(parTitre),
                     ...coms.map((c) => ({ value: `commerce:${c.id}`, label: `Commerce · ${c.title}` })).sort(parTitre),
@@ -329,7 +334,7 @@ export default function CalendrierPage() {
                 text: "Sous quels traits y participez-vous ?",
                 input: "select",
                 // Map : un objet rangerait les identifiants numériques avant « Moi-même »
-                inputOptions: new Map([["", `Moi-même (${nom(user)})`], ...personnages.map((p) => [String(p.id), p.name])]),
+                inputOptions: new Map([["", `Moi-même (${nom(user)})`], ...personnages.map((fiche) => [String(fiche.personnage.id), libellePersonnage(fiche, user)])]),
                 inputValue: String(evenement.inscrits.find((inscrit) => inscrit.user?.id === user.id)?.personnage?.id ?? ""),
                 showCancelButton: true,
                 confirmButtonText: "M'inscrire",

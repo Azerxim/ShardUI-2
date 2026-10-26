@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // ===== Notifications (cloche de la barre) =====
 // Écrites par l'API au moment des faits (crud_notifications) : appels aux armes, invitations, liens de parenté,
-// lectures tracées, révélations, décisions des modérateurs RP… Relevées par useNotifications.
+// lectures tracées, révélations, décisions des modérateurs RP, étapes des élections… Relevées par useNotifications.
 
 const TYPES = {
     appel: { icon: 'fa-solid fa-bullhorn', classe: 'text-error' },
@@ -15,6 +15,7 @@ const TYPES = {
     evenement: { icon: 'fa-solid fa-calendar-xmark', classe: 'text-info' },
     mercenaires: { icon: 'fa-solid fa-coins', classe: 'text-warning' },
     guerre: { icon: 'fa-solid fa-shield-halved', classe: 'text-error' },
+    election: { icon: 'fa-solid fa-check-to-slot', classe: 'text-info' },
 };
 const TYPE_PAR_DEFAUT = { icon: 'fa-solid fa-bell', classe: 'text-primary' };
 
@@ -29,11 +30,12 @@ function quand(date) {
     return moment.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
 }
 
-export function BoutonNotifications({ nonLues, ouvert, ouvrir, boutonRef }) {
+// infobulle : côté où s'affiche « Notifications » (tooltip-left ou tooltip-right de DaisyUI)
+export function BoutonNotifications({ nonLues, ouvert, ouvrir, boutonRef, infobulle = 'left' }) {
     const label = nonLues ? `Notifications, ${nonLues} non lue${nonLues > 1 ? 's' : ''}` : 'Notifications';
     return (
-        // Masquée sur téléphone, où la barre manque de place : le menu latéral ouvre alors les notifications
-        <div className="tooltip tooltip-left hidden sm:inline-block" data-tip="Notifications">
+        // Masquée sous 1024 px (lg), où la barre manque de place : le menu latéral ouvre alors les notifications
+        <div className={`tooltip ${infobulle === 'right' ? 'tooltip-right' : 'tooltip-left'} hidden lg:inline-block`} data-tip="Notifications">
             <button
                 ref={boutonRef}
                 type="button"

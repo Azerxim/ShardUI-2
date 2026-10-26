@@ -21,6 +21,8 @@ export const ORGANISATEURS = {
     religion: { label: "Religion", icon: "fa-solid fa-cross", href: (id) => `/religion/${id}` },
     commerce: { label: "Commerce", icon: "fa-solid fa-shop", href: (id) => `/commerce/${id}` },
     alliance: { label: "Alliance", icon: "fa-solid fa-handshake", href: (id) => `/alliance/${id}` },
+    // Événement de tout le serveur, annoncé par un administrateur du site
+    global: { label: "Tetrago", icon: "fa-solid fa-globe", href: null },
 };
 
 export const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];

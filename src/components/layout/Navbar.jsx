@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import '@/components/layout/Navbar.css';
 import { syncSessionUser } from '@/services/session';
-import { CARTE, DECOUVRIR, MONDE } from '@/config/navbar';
+import { AIDES, CARTE, DECOUVRIR, MONDE } from '@/config/navbar';
 import NavbarLaunch from '@/components/layout/NavbarLaunch';
 import RechercheGlobale from '@/components/layout/RechercheGlobale';
 import { BoutonNotifications, ContenuNotifications } from '@/components/layout/Notifications';
@@ -52,7 +52,7 @@ const THEMES = [
 ];
 
 // ===== Panneaux latéraux =====
-// Menu, compte et thème (à gauche), joueurs connectés (à droite) : masqués par défaut, ils glissent depuis le bord
+// Menu, compte, thème et notifications (à gauche), joueurs connectés (à droite) : masqués par défaut, ils glissent depuis le bord
 // de leur bouton de la barre. Se ferment par la croix, un clic sur le voile, ou Échap. Rendus dans body, comme la
 // modale de recherche.
 function PanneauLateral({ id, label, ouvert, fermer, entete, cote = 'gauche', children }) {
@@ -123,8 +123,8 @@ function ContenuMenu({ active, User, fermer, nonLues, ouvrirNotifications }) {
     return (
         <>
             <MenuLien lien={{ id: 'home', href: '/', icon: 'fa-solid fa-house', text: 'Accueil' }} active={active} />
-            {/* Sur téléphone, la loupe de la barre laisse sa place : la recherche s'ouvre d'ici */}
-            <li className="sm:hidden">
+            {/* Sous 1024 px (lg), la loupe de la barre laisse sa place : la recherche s'ouvre d'ici */}
+            <li className="lg:hidden">
                 <button type="button" onClick={rechercher} className={menuItemClass(false)}>
                     <FontAwesomeIcon icon="fa-solid fa-magnifying-glass" />
                     <span>Rechercher</span>
@@ -132,7 +132,7 @@ function ContenuMenu({ active, User, fermer, nonLues, ouvrirNotifications }) {
             </li>
             {/* De même pour la cloche des notifications */}
             {User && (
-                <li className="sm:hidden">
+                <li className="lg:hidden">
                     <button type="button" onClick={() => { fermer(); ouvrirNotifications(); }} className={menuItemClass(false)}>
                         <FontAwesomeIcon icon="fa-solid fa-bell" />
                         <span>Notifications</span>
@@ -142,6 +142,7 @@ function ContenuMenu({ active, User, fermer, nonLues, ouvrirNotifications }) {
             )}
             <li className="menu-title pt-3 pb-1">Découvrir</li>
             {DECOUVRIR.map((lien) => <MenuLien key={lien.id} lien={lien} active={active} />)}
+            <MenuLien lien={AIDES} active={active} />
             <MenuLien lien={{ ...CARTE, text: 'Cartographie' }} active={active} />
             <MenuLien lien={{ id: 'calendrier', href: '/calendrier', icon: 'fa-solid fa-calendar-days', text: 'Calendrier' }} active={active} />
             <MenuLien lien={{ id: 'chroniques', href: '/chroniques', icon: 'fa-solid fa-timeline', text: 'Chroniques' }} active={active} />
@@ -151,7 +152,7 @@ function ContenuMenu({ active, User, fermer, nonLues, ouvrirNotifications }) {
             {(User?.is_admin || User?.is_moderateur) && <li className="menu-title pt-3 pb-1">Administration</li>}
             {User?.is_admin && (
                 <>
-                    <LienAdmin href="https://api.beta.tetrago.fr" id="api" icon="fa-solid fa-server" text="API" active={active} />
+                    <LienAdmin href="https://api.tetrago.fr" id="api" icon="fa-solid fa-server" text="API" active={active} />
                     <LienAdmin href="/admin/dimensions" id="admin-dimensions" icon="fa-solid fa-earth-europe" text="Dimensions" active={active} />
                     <LienAdmin href="/admin/monde" id="admin-monde" icon="fa-solid fa-chart-simple" text="Statistiques du monde" active={active} />
                 </>
@@ -399,7 +400,7 @@ function NavbarSaison({ active }) {
                 <ContenuTheme theme={theme} choisir={choisirTheme} />
             </PanneauLateral>
             {User && (
-                <PanneauLateral id="panneau-notifications" label="Notifications" cote="droite" ouvert={panneau === 'notifications'} fermer={fermerPanneau} entete={<TitrePanneau icon="fa-solid fa-bell" text="Notifications" />}>
+                <PanneauLateral id="panneau-notifications" label="Notifications" ouvert={panneau === 'notifications'} fermer={fermerPanneau} entete={<TitrePanneau icon="fa-solid fa-bell" text="Notifications" />}>
                     <ContenuNotifications {...notifications} />
                 </PanneauLateral>
             )}
@@ -413,6 +414,15 @@ function NavbarSaison({ active }) {
                     {boutonPanneau('menu', { tip: 'Menu', label: 'Menu', icon: 'fa-solid fa-bars-staggered', text: 'Menu', textClass: 'hidden lg:inline xl:hidden' })}
                     {boutonPanneau('compte', { tip: 'Profil', label: User ? 'Mon compte' : 'Connexion ou inscription', icon: User ? 'fa-solid fa-user-check' : 'fa-solid fa-user-plus', text: User ? 'Compte' : 'Connexion' })}
                     {boutonPanneau('theme', { tip: 'Thème', label: 'Thème', icon: 'fa-solid fa-palette', text: 'Thème' })}
+                    {User && (
+                        <BoutonNotifications
+                            nonLues={notifications.nonLues}
+                            ouvert={panneau === 'notifications'}
+                            ouvrir={ouvrirNotifications}
+                            boutonRef={(element) => { boutonsRef.current.notifications = element; }}
+                            infobulle="right"
+                        />
+                    )}
                 </div>
                 <div className="navbar-center hidden sm:flex items-center gap-1">
                     <a href='/' className="btn btn-ghost text-xl rounded-3xl">
@@ -449,14 +459,16 @@ function NavbarSaison({ active }) {
                     </nav>
                 </div>
                 <div className="navbar-end gap-2">
-                    {User && (
-                        <BoutonNotifications
-                            nonLues={notifications.nonLues}
-                            ouvert={panneau === 'notifications'}
-                            ouvrir={ouvrirNotifications}
-                            boutonRef={(element) => { boutonsRef.current.notifications = element; }}
-                        />
-                    )}
+                    {/* Sous 1024 px (lg), le menu latéral garde le lien des aides */}
+                    <a
+                        href={AIDES.href}
+                        aria-label="Aides et utilitaires"
+                        aria-current={active === AIDES.id ? 'page' : undefined}
+                        className={`btn rounded-3xl btn-ghost tooltip tooltip-left hidden lg:inline-flex ${active === AIDES.id ? 'bg-secondary text-secondary-content' : 'bg-base-200'}`}
+                        data-tip="Aides et utilitaires"
+                    >
+                        <FontAwesomeIcon icon="fa-solid fa-question" />
+                    </a>
                     <RechercheGlobale />
                     {(ServerData && NetworkData ? (
                         <div className='flex gap-2'>

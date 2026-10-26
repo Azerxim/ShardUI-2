@@ -18,6 +18,14 @@ export function makeAdmin(username) {
   runPython("import sqlite3, sys; db = sqlite3.connect(sys.argv[1]); db.execute('update users set is_admin = 1 where username = ?', (sys.argv[2],)); db.commit()", [username]);
 }
 
+// Avance l'horloge d'un scrutin : chaque champ (vote_debut, vote_fin, tour2_fin) placé à maintenant + minutes
+export function deplacerScrutin(scrutinId, champs) {
+  for (const [champ, minutes] of Object.entries(champs)) {
+    if (!["vote_debut", "vote_fin", "tour2_fin"].includes(champ)) throw new Error(`Champ inconnu : ${champ}`);
+    runPython(`import sqlite3, sys, datetime; db = sqlite3.connect(sys.argv[1]); db.execute('update scrutins set ${champ} = ? where id = ?', (str(datetime.datetime.now() + datetime.timedelta(minutes=float(sys.argv[3]))), int(sys.argv[2]))); db.commit()`, [scrutinId, minutes]);
+  }
+}
+
 function runPython(script, args) {
   const apiDir = path.resolve(process.env.SHARD_API_DIR ?? path.join(here, "../../../Shard-API"));
   return execFileSync(path.join(apiDir, ".venv", "bin", "python"), ["-c", script, path.join(here, ".env-api", "ShardDB.db"), ...args.map(String)]).toString().trim();

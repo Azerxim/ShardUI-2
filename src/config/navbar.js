@@ -4,10 +4,17 @@ import { MAPS_BASE_URL } from "@/config/maps";
 // Source unique des liens de navigation : la barre du haut (components/layout/Navbar.jsx : liens visibles sur grand
 // écran, menu latéral) et la barre des sections des pages de liste (components/layout/DynamicNavbar.jsx).
 
+export const LAUNCH = [
+  { id: "codex", href: "/codex", icon: "fa-solid fa-scroll", text: "Codex" },
+];
+
 export const DECOUVRIR = [
   { id: "codex", href: "/codex", icon: "fa-solid fa-scroll", text: "Codex" },
   { id: "bibliotheque", href: "/bibliotheque", icon: "fa-solid fa-book", text: "Bibliothèque" },
 ];
+
+// Aides et utilitaires : bouton « ? » à droite de la barre du haut, à côté de la recherche
+export const AIDES = { id: "aides", href: "/aides", icon: "fa-solid fa-life-ring", text: "Aides" };
 
 export const MONDE = [
   { id: "civilisations", href: "/civilisations", icon: "fa-solid fa-flag", text: "Civilisations" },
@@ -17,6 +24,7 @@ export const MONDE = [
   { id: "maisons", href: "/maisons", icon: "fa-solid fa-chess-king", text: "Maisons" },
   { id: "alliances", href: "/alliances", icon: "fa-solid fa-handshake", text: "Alliances" },
   { id: "guerres", href: "/guerres", icon: "fa-solid fa-shield-halved", text: "Guerres" },
+  { id: "elections", href: "/elections", icon: "fa-solid fa-check-to-slot", text: "Élections" },
   { id: "actions", href: "/actions-secretes", icon: "fa-solid fa-user-secret", text: "Actions secrètes" },
   { id: "fermes", href: "/fermes", icon: "fa-solid fa-wheat-awn", text: "Fermes" },
 ];
@@ -26,6 +34,6 @@ export const CARTE = { id: "carte", href: `${MAPS_BASE_URL}/tetrago-unifier`, ic
 
 // Groupes de la barre des sections
 export const SECTIONS = [
-  { id: "decouvrir", titre: "Découvrir", liens: [...DECOUVRIR, CARTE] },
+  { id: "decouvrir", titre: "Découvrir", liens: [...DECOUVRIR, AIDES, CARTE] },
   { id: "monde", titre: "Le monde", liens: MONDE },
 ];
