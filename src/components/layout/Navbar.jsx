@@ -151,7 +151,7 @@ function ContenuMenu({ active, User, fermer, nonLues, ouvrirNotifications }) {
             {(User?.is_admin || User?.is_moderateur) && <li className="menu-title pt-3 pb-1">Administration</li>}
             {User?.is_admin && (
                 <>
-                    <LienAdmin href="https://api.beta.tetrago.fr" id="api" icon="fa-solid fa-server" text="API" active={active} />
+                    <LienAdmin href="https://api.tetrago.fr" id="api" icon="fa-solid fa-server" text="API" active={active} />
                     <LienAdmin href="/admin/dimensions" id="admin-dimensions" icon="fa-solid fa-earth-europe" text="Dimensions" active={active} />
                     <LienAdmin href="/admin/monde" id="admin-monde" icon="fa-solid fa-chart-simple" text="Statistiques du monde" active={active} />
                 </>
