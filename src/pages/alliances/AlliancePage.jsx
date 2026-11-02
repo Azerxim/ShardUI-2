@@ -147,11 +147,11 @@ export default function AlliancePage() {
             <DescriptionLongue type="alliance" id={alliance.id} auth={isChef} />
 
             <TitleH2 text="Civilisations membres" icon="fas fa-flag" fonctions={FctMembres} />
-            <ul className="flex flex-col gap-2 w-full">
+            <ul className="flex flex-col w-full">
                 {membres.map(({ civilisation, role }) => {
                     const canLeave = managedIds.has(civilisation.id) && role !== "Chef de file";
                     return (
-                        <li key={civilisation.id} className="flex flex-col sm:flex-row sm:items-center gap-2 bg-base-200 rounded-2xl p-3">
+                        <li key={civilisation.id} className="flex flex-col sm:flex-row sm:items-center gap-2 ligne-fiche">
                             <a href={`/civilisation/${civilisation.id}`} className="flex flex-row items-center gap-3 flex-1 min-w-0 link link-hover">
                                 <FontAwesomeIcon icon={role === "Chef de file" ? "fa-solid fa-crown" : "fa-solid fa-flag"} className="opacity-80" />
                                 <span className="font-bold break-words">{civilisation.title}</span>
@@ -202,13 +202,13 @@ export default function AlliancePage() {
             {invitations.length > 0 ? (
                 <>
                     <TitleH2 text="Invitations et demandes en attente" icon="fas fa-envelope-open-text" />
-                    <ul className="flex flex-col gap-2 w-full">
+                    <ul className="flex flex-col w-full">
                         {invitations.map((invitation) => {
                             const civManaged = managedIds.has(invitation.civilisation.id);
                             const canAnswer = invitation.direction === "invitation" ? civManaged : isChef;
                             const canCancel = invitation.direction === "invitation" ? isChef : civManaged;
                             return (
-                                <li key={invitation.id} className="flex flex-col sm:flex-row sm:items-center gap-2 bg-base-200 rounded-2xl p-3">
+                                <li key={invitation.id} className="flex flex-col sm:flex-row sm:items-center gap-2 ligne-fiche">
                                     <span className="flex flex-row flex-wrap items-center gap-2 flex-1 min-w-0">
                                         <FontAwesomeIcon icon={invitation.direction === "invitation" ? "fa-solid fa-envelope" : "fa-solid fa-hand"} className="opacity-70" />
                                         <a href={`/civilisation/${invitation.civilisation.id}`} className="font-bold link link-hover">{invitation.civilisation.title}</a>
@@ -238,10 +238,10 @@ export default function AlliancePage() {
             {guerres.length === 0 ? (
                 <i className="w-full">Aucun membre de cette alliance n'est engagé dans une guerre.</i>
             ) : (
-                <ul className="flex flex-col gap-2 w-full">
+                <ul className="flex flex-col w-full">
                     {guerres.map(({ guerre }) => (
                         <li key={guerre.id}>
-                            <a href={`/guerre/${guerre.id}`} className="flex flex-row flex-wrap items-center gap-2 bg-base-200 hover:bg-base-300 transition-colors rounded-2xl p-3">
+                            <a href={`/guerre/${guerre.id}`} className="flex flex-row flex-wrap items-center gap-2 ligne-fiche">
                                 <FontAwesomeIcon icon={(GUERRE_TYPES[guerre.type] ?? GUERRE_TYPES.Militaire).icon} className="opacity-80" />
                                 <span className="font-bold flex-1 min-w-0 break-words">{guerre.title}</span>
                                 <span className={`badge badge-sm ${GUERRE_STATUTS[guerre.status]?.badge ?? "badge-ghost"}`}>{GUERRE_STATUTS[guerre.status]?.label ?? guerre.status}</span>

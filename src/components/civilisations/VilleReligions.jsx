@@ -100,7 +100,7 @@ export default function VilleReligions({ religions = [], ville = null, scope = "
     const dominant = sorted.length > 1 && influenceOf(sorted[0]) > influenceOf(sorted[1]) ? sorted[0].id : null;
 
     return (
-        <div className="flex flex-col gap-3 w-full bg-base-100 p-2 sm:p-4 rounded-2xl">
+        <div className="flex flex-col gap-3 w-full">
             <ReligionsBar religions={sorted} total={total} />
             {total < 100 ? (
                 <span className="text-sm opacity-70">Sans religion : {formatInfluence(100 - total)}</span>
@@ -108,11 +108,11 @@ export default function VilleReligions({ religions = [], ville = null, scope = "
                 <span className="text-sm text-warning">Total des influences : {formatInfluence(total)} (plus de 100 %)</span>
             ) : null}
 
-            <ul className="flex flex-col gap-2">
+            <ul className="flex flex-col">
                 {sorted.map((religion) => {
                     const color = religionColor(religion);
                     return (
-                        <li key={religion.id} className="flex flex-row items-center gap-2 sm:gap-3 bg-base-200 rounded-2xl p-2 sm:p-3">
+                        <li key={religion.id} className="flex flex-row items-center gap-2 sm:gap-3 ligne-fiche">
                             <button
                                 type="button"
                                 className="flex flex-row items-center gap-2 sm:gap-3 flex-1 min-w-0 text-left cursor-pointer"

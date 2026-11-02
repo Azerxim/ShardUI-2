@@ -46,7 +46,7 @@ function MagasinCard({ magasin, dimension, ville, auth }) {
 
     return (
         // id : cible des liens de la recherche « Où acheter ? » (/commerce/:id#magasin-:magasinId)
-        <div id={`magasin-${magasin.id}`} className="flex flex-col lg:flex-row gap-4 w-full bg-base-200 rounded-2xl p-3 sm:p-4 scroll-mt-24 target:ring-2 target:ring-primary">
+        <div id={`magasin-${magasin.id}`} className="flex flex-col lg:flex-row gap-4 w-full ligne-fiche scroll-mt-24 target:ring-2 target:ring-primary">
             <div className="flex flex-col gap-2 flex-1 min-w-0">
                 <div className="flex flex-row items-start gap-3">
                     <FontAwesomeIcon icon={magasin.is_siege ? "fa-solid fa-building" : "fa-solid fa-store"} className="text-xl mt-1" />
@@ -290,7 +290,7 @@ export default function CommercePage() {
                     <i>Ce commerce n'a encore aucun magasin.</i>
                 </div>
             ) : (
-                <div className="flex flex-col gap-2 w-full">
+                <div className="flex flex-col w-full">
                     {visibleMagasins.map((magasin) => (
                         <MagasinCard
                             key={magasin.id}

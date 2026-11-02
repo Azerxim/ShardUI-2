@@ -164,7 +164,7 @@ export default function MaisonPage() {
                             )}
 
                             <TitleH2 text="Arbre de la lignée" icon="fas fa-sitemap" />
-                            <div className="w-full bg-base-200 rounded-3xl p-4 overflow-x-auto">
+                            <div className="w-full px-1 overflow-x-auto">
                                 {membres.length === 0 ? (
                                     <p className="opacity-70">La maison n'a encore aucun membre.</p>
                                 ) : (

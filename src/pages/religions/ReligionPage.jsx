@@ -44,7 +44,7 @@ const influenceOf = (lien) => Math.max(0, Number(lien?.influence) || 0);
 
 function InfluenceBar({ influence, color }) {
     return (
-        <div className="w-full h-2 rounded-full bg-base-100 overflow-hidden">
+        <div className="w-full h-2 rounded-full bg-base-300 overflow-hidden">
             <div className="h-full rounded-full" style={{ width: `${Math.min(100, influence)}%`, backgroundColor: color }}></div>
         </div>
     );
@@ -244,12 +244,12 @@ export default function ReligionPage() {
                     <i>Cette religion n'est présente dans aucune ville.</i>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 w-full">
                     {presences.map(({ ville, influence, others, dominant }) => (
                         <a
                             key={ville.id}
                             href={ville.civilisation_id ? `/civilisation/${ville.civilisation_id}/ville/${ville.id}` : undefined}
-                            className="flex flex-col gap-3 w-full bg-base-200 hover:bg-base-300 transition-colors p-4 rounded-2xl"
+                            className="flex flex-col gap-3 w-full ligne-fiche"
                         >
                             <div className="flex flex-row items-center gap-3">
                                 <FontAwesomeIcon icon={`fa-solid fa-${ville.is_capital ? 'archway' : 'city'}`} className="text-xl" />
@@ -280,9 +280,9 @@ export default function ReligionPage() {
             {quartiers.length > 0 ? (
                 <>
                     <TitleH2 text="Présence dans les quartiers" icon="fas fa-map-location-dot" />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 w-full">
                         {[...quartiers].sort((a, b) => influenceOf(b.quartiers_religions) - influenceOf(a.quartiers_religions)).map(({ quartier, quartiers_religions }) => (
-                            <a key={quartier.id} href={`/quartier/${quartier.id}`} className="flex flex-col gap-3 w-full bg-base-200 hover:bg-base-300 transition-colors p-4 rounded-2xl">
+                            <a key={quartier.id} href={`/quartier/${quartier.id}`} className="flex flex-col gap-3 w-full ligne-fiche">
                                 <div className="flex flex-row items-center gap-3">
                                     <FontAwesomeIcon icon="fa-solid fa-map-location-dot" className="text-xl" />
                                     <span className="flex-1 font-bold truncate">{quartier.title}</span>

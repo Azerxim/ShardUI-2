@@ -58,7 +58,7 @@ function QuartierCard({ quartier, ville, dimension }) {
     const href = `/quartier/${quartier.id}`;
 
     return (
-        <div className="flex flex-col lg:flex-row gap-4 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
+        <div className="flex flex-col lg:flex-row gap-4 w-full ligne-fiche">
             <div className="flex flex-col gap-2 flex-1 min-w-0">
                 <a href={href} className="flex flex-row flex-wrap items-center gap-2 font-bold text-lg link link-hover">
                     <FontAwesomeIcon icon="fa-solid fa-map-location-dot" className="opacity-80" />
@@ -107,8 +107,8 @@ function QuartierCard({ quartier, ville, dimension }) {
 
 function MagasinLink({ magasin, commerce }) {
     return (
-        <a href={`/commerce/${commerce.id}`} className="flex flex-row items-center gap-3 w-full bg-base-200 hover:bg-base-300 transition-colors rounded-2xl p-3">
-            <span className="flex items-center justify-center w-10 h-10 rounded-full bg-base-100 shrink-0">
+        <a href={`/commerce/${commerce.id}`} className="flex flex-row items-center gap-3 w-full ligne-fiche">
+            <span className="flex items-center justify-center w-10 h-10 rounded-full bg-base-200 shrink-0">
                 <FontAwesomeIcon icon={magasin.is_siege ? "fa-solid fa-building" : "fa-solid fa-store"} />
             </span>
             <span className="flex flex-col flex-1 min-w-0">
@@ -243,10 +243,11 @@ export default function VilleDetailPage() {
             <EnTeteFiche
                 couleur={couleur}
                 embleme={<Blason champ={metalSur(couleur)} meuble={couleur} icon={villeIcon(ville)} iconFallback="fa-solid fa-city" titre={`Armes de ${ville.title}`} />}
-                surtitre={[ville.is_capital ? "Capitale" : "Ville", ville.is_public === false ? "privée" : null, founded ? `fondée le ${founded}` : null].filter(Boolean).join(" · ")}
+                surtitre={["Ville", ville.is_public === false ? "privée" : null, founded ? `fondée le ${founded}` : null].filter(Boolean).join(" · ")}
                 titre={ville.title}
                 infos={
                     <>
+                        {ville.is_capital ? <span className="badge badge-primary">Capitale</span> : null}
                         <InfoLine icon="fa-solid fa-flag">
                             {civilisation ? <a href={`/civilisation/${civilisation.id}`} className="link link-hover">{civilisation.title}</a> : "Civilisation inconnue"}
                         </InfoLine>
@@ -298,7 +299,7 @@ export default function VilleDetailPage() {
 
             {/* Dirigeants de la ville : le représentant vote en son nom aux élections des religions */}
             <TitleH2 text="Gouvernement de la ville" icon="fas fa-landmark" />
-            <div className="w-full bg-base-200 rounded-3xl p-4">
+            <div className="w-full">
                 <PostesGouvernement entityType="ville" entityId={ville.id} civilisationId={ville.civilisation_id} auth={auth} />
             </div>
 
@@ -320,7 +321,7 @@ export default function VilleDetailPage() {
                     action={auth ? { label: "Ajouter un quartier", icon: "fa-solid fa-plus", onClick: () => showModal(quartierModal, "add") } : null}
                 />
             ) : (
-                <div className="flex flex-col gap-2 w-full">
+                <div className="flex flex-col w-full">
                     {visibleQuartiers.map((quartier) => <QuartierCard key={quartier.id} quartier={quartier} ville={ville} dimension={dimension} />)}
                 </div>
             )}
@@ -337,7 +338,7 @@ export default function VilleDetailPage() {
                     </a>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 w-full">
                     {visibleMagasins.map(({ magasin, commerce }) => <MagasinLink key={magasin.id} magasin={magasin} commerce={commerce} />)}
                 </div>
             )}

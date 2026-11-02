@@ -11,7 +11,7 @@ export default function Ville({ info, dimensions }) {
     return (
         <>
             <div className="flex flex-row gap-2 w-full">
-                <div className="flex flex-col gap-4 w-full bg-base-200 p-4 rounded-2xl">
+                <div className="flex flex-col gap-4 w-full ligne-fiche">
                     <div className="flex flex-row gap-2 w-full justify-between">
                         <div className="flex flex-col gap-2">
                             <div className="flex flex-row gap-2 items-center font-bold text-2xl">

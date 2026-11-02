@@ -21,7 +21,7 @@ function VilleCibles({ ville, dimension, enCours }) {
     const nombre = ville.destructibles.length;
     return (
         <li className="flex flex-col gap-2">
-            <div className="flex flex-row flex-wrap items-center gap-2 bg-base-100 rounded-xl px-3 py-2">
+            <div className="flex flex-row flex-wrap items-center gap-2 ligne-fiche">
                 <button type="button" className="flex flex-row items-center gap-2 flex-1 min-w-0 text-left disabled:cursor-default" onClick={() => setOuverte(!ouverte)} disabled={nombre === 0} aria-expanded={ouverte}>
                     <FontAwesomeIcon icon="fa-solid fa-chevron-right" className={`w-3 opacity-70 transition-transform ${ouverte ? 'rotate-90' : ''} ${nombre === 0 ? 'invisible' : ''}`} />
                     <FontAwesomeIcon icon="fa-solid fa-city" className="opacity-70" />
@@ -69,7 +69,7 @@ export default function CiblesSection({ guerre, dimensions = [] }) {
                         const belligerants = cibles[cle] || [];
                         const total = belligerants.reduce((somme, b) => somme + b.villes.reduce((s, v) => s + v.destructibles.length, 0), 0);
                         return (
-                            <div key={cle} className="flex flex-col gap-3 bg-base-200 rounded-2xl p-3">
+                            <div key={cle} className="groupe-fiche">
                                 <h3 className="flex flex-row items-center gap-2 font-bold">
                                     <FontAwesomeIcon icon={icon} />
                                     {titre}
@@ -81,7 +81,7 @@ export default function CiblesSection({ guerre, dimensions = [] }) {
                                         {villes.length === 0 ? (
                                             <i className="text-sm opacity-70">{entite.type === 'religion' ? 'Implantée dans aucune ville publique.' : 'Aucune ville publique.'}</i>
                                         ) : (
-                                            <ul className="flex flex-col gap-2">
+                                            <ul className="flex flex-col">
                                                 {villes.map((ville) => <VilleCibles key={ville.id} ville={ville} dimension={dimensionDe(ville)} enCours={enCours} />)}
                                             </ul>
                                         )}

@@ -60,7 +60,7 @@ const sortVilles = (villes) => [...villes].sort((a, b) => Number(Boolean(b.is_ca
 
 function GouvernementTile({ icon, label, value }) {
     return (
-        <div className="flex flex-row items-center gap-3 bg-base-100 rounded-2xl p-3">
+        <div className="flex flex-row items-center gap-3 bg-base-200 rounded-2xl p-3">
             <FontAwesomeIcon icon={icon} className="text-xl opacity-80" />
             <div className="flex flex-col min-w-0">
                 <span className="text-sm opacity-70">{label}</span>
@@ -72,7 +72,7 @@ function GouvernementTile({ icon, label, value }) {
 
 function VillesList({ villes, civilisationId, dimensions, auth = false }) {
     return (
-        <div className="flex flex-col gap-2 w-full">
+        <div className="flex flex-col w-full">
             {sortVilles(villes).map((ville) => (
                 <a key={ville.id} href={`/civilisation/${civilisationId}/ville/${ville.id}`}>
                     <Ville info={ville} dimensions={dimensions} auth={auth} />
@@ -310,7 +310,7 @@ export default function CivilisationPage() {
 
             <TitleH2 text={gouvernement?.title || "Gouvernement"} icon="fas fa-landmark" fonctions={gouvernement ? FctGouvernement : []} />
             {gouvernement ? (
-                <div className="flex flex-col gap-3 w-full bg-base-200 rounded-3xl p-4">
+                <div className="flex flex-col gap-3 w-full">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                         <GouvernementTile icon="fa-solid fa-scale-balanced" label="Régime" value={gouvernement.type} />
                         <GouvernementTile icon="fa-solid fa-quote-left" label="Devise" value={gouvernement.devise} />

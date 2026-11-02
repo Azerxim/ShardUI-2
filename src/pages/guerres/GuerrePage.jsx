@@ -325,7 +325,7 @@ export default function GuerrePage() {
         const canAnswer = b.status === "appele" && managed && ouverte;
         const canRemove = !b.is_leader && guerre.status !== "terminee" && (managed || managesCamp(b.camp));
         return (
-            <li key={b.id} className="flex flex-col sm:flex-row sm:items-center gap-2 bg-base-100 rounded-2xl p-3">
+            <li key={b.id} className="flex flex-col sm:flex-row sm:items-center gap-2 ligne-fiche">
                 {/* Entité supprimée : son nom reste dans les archives, sans lien */}
                 <EntityLink entite={b.entite}>
                     <EntityAvatar entite={b.entite} />
@@ -458,18 +458,18 @@ export default function GuerrePage() {
             <TitleH2 text="Camps en présence" icon="fas fa-people-group" aide="appel" />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
                 {["attaquant", "defenseur"].map((camp) => (
-                    <section key={camp} aria-label={CAMP_LABELS[camp].title} className="flex flex-col gap-3 bg-base-200 rounded-3xl p-4">
+                    <section key={camp} aria-label={CAMP_LABELS[camp].title} className="flex flex-col gap-1">
                         <div className="flex flex-row items-center gap-2">
                             <FontAwesomeIcon icon={CAMP_LABELS[camp].icon} className={camp === "attaquant" ? "text-error" : "text-info"} />
-                            <h2 className="text-xl font-bold flex-1">{CAMP_LABELS[camp].title}</h2>
+                            <h3 className="text-lg font-bold flex-1">{CAMP_LABELS[camp].title}</h3>
                             {managesCamp(camp) && ouverte ? (
-                                <button type="button" className="btn btn-sm btn-ghost bg-base-100" onClick={() => showModalID(callModalId(camp))}>
+                                <button type="button" className="btn btn-sm btn-ghost bg-base-200" onClick={() => showModalID(callModalId(camp))}>
                                     <FontAwesomeIcon icon="fa-solid fa-bullhorn" />
                                     Appeler un allié
                                 </button>
                             ) : null}
                         </div>
-                        <ul className="flex flex-col gap-2">{camps[camp].map(renderBelligerant)}</ul>
+                        <ul className="flex flex-col border-t border-base-300">{camps[camp].map(renderBelligerant)}</ul>
                     </section>
                 ))}
             </div>
@@ -478,11 +478,11 @@ export default function GuerrePage() {
             {evenements.length === 0 ? (
                 <i className="w-full">Aucun événement n'a encore été inscrit.</i>
             ) : (
-                <ol aria-label="Chronologie" className="flex flex-col gap-3 w-full border-l-2 border-base-300 ml-4 pl-5">
+                <ol aria-label="Chronologie" className="flex flex-col w-full border-l-2 border-base-300 ml-4 pl-5">
                     {evenements.map((evenement) => {
                         const kind = EVENEMENT_TYPES[evenement.type] ?? EVENEMENT_TYPES.autre;
                         return (
-                            <li key={evenement.id} className="relative flex flex-col gap-1 bg-base-200 rounded-2xl p-3">
+                            <li key={evenement.id} className="relative flex flex-col gap-1 ligne-fiche">
                                 <span className="absolute -left-9 top-3 flex items-center justify-center w-7 h-7 rounded-full bg-base-100 border-2 border-base-300 text-xs" aria-hidden="true">
                                     <FontAwesomeIcon icon={kind.icon} />
                                 </span>

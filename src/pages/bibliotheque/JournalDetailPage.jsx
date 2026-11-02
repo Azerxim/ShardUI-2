@@ -120,7 +120,7 @@ function Attachment({ attachment }) {
     );
   }
   return (
-    <a href={attachment.url} target="_blank" rel="noopener noreferrer" className="flex flex-row items-center gap-2 w-fit max-w-full bg-base-100 hover:bg-base-300 transition-colors rounded-xl px-3 py-2">
+    <a href={attachment.url} target="_blank" rel="noopener noreferrer" className="flex flex-row items-center gap-2 w-fit max-w-full bg-base-200 hover:bg-base-300 transition-colors rounded-xl px-3 py-2">
       <FontAwesomeIcon icon="fa-solid fa-paperclip" className="opacity-70" />
       <span className="truncate">{attachment.filename}</span>
       <span className="text-xs opacity-60 shrink-0">{formatSize(attachment.size)}</span>
@@ -145,7 +145,7 @@ function Message({ message, link, canLink, onLink, onUnlink }) {
       {reactions.length > 0 ? (
         <div className="flex flex-wrap gap-2">
           {reactions.map(([emoji, count]) => (
-            <span key={emoji} className="inline-flex items-center gap-1 bg-base-100 rounded-full px-2.5 py-0.5 text-sm">
+            <span key={emoji} className="inline-flex items-center gap-1 bg-base-200 rounded-full px-2.5 py-0.5 text-sm">
               <span>{emoji}</span>
               <span className="tabular-nums">{count}</span>
             </span>
@@ -173,7 +173,7 @@ function MessageGroup({ group, links, myDiscordUid, onLink, onUnlink }) {
   const color = authorColor(author.id);
   const canLink = Boolean(myDiscordUid) && String(author.id) === String(myDiscordUid);
   return (
-    <div className="flex flex-row gap-3 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
+    <div className="flex flex-row gap-3 w-full ligne-fiche">
       {personnage ? (
         <a href={`/personnage/${personnage.id}`} className="shrink-0 h-fit" aria-label={`Fiche de ${personnage.name}`}>
           <PersonnageAvatar personnage={personnage} />
@@ -516,7 +516,7 @@ export default function JournalDetailPage() {
             </div>
           ) : null}
 
-          <div className="flex flex-col gap-2 w-full">
+          <div className="flex flex-col w-full">
             {pageGroups.map((group, index) => (
               <Fragment key={group[0].id}>
                 {index === 0 || dayKey(group[0].timestamp) !== dayKey(pageGroups[index - 1][0].timestamp) ? (

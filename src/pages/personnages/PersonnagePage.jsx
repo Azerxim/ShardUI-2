@@ -220,9 +220,9 @@ export default function PersonnagePage() {
                     </p>
                 </div>
             ) : (
-                <ul className="flex flex-col gap-2 w-full">
+                <ul className="flex flex-col w-full">
                     {messages.map((message) => (
-                        <li key={message.id} className="flex flex-col gap-2 bg-base-200 rounded-2xl p-3 sm:p-4">
+                        <li key={message.id} className="flex flex-col gap-2 ligne-fiche">
                             <div className="flex flex-row flex-wrap items-center gap-x-3 gap-y-1">
                                 {message.journal ? (
                                     <a href={`/bibliotheque/journal/${message.journal.id}`} className="flex flex-row items-center gap-2 font-bold link link-hover min-w-0">
