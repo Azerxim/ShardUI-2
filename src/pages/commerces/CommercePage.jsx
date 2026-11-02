@@ -41,55 +41,57 @@ const canSeeCommerce = (commerce, members, user) => Boolean(
 
 const formatDate =(date) => date ? new Date(date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) : null;
 
+// Magasin dans la liste d'un commerce (charte « Chancellerie ») : une ligne compacte (nom, badges, lieu, ouverture,
+// actions), sa description et son catalogue. La carte s'ouvre à la demande sous la ligne.
 function MagasinCard({ magasin, dimension, ville, auth }) {
+    const [carte, setCarte] = useState(false);
     const opened = formatDate(magasin.founded_date);
+    const lieu = [
+        magasin.dimension_id ? `${dimension ? `${dimension.title} · ` : ""}X ${magasin.x ?? 0} · Z ${magasin.z ?? 0}` : null,
+        opened ? `Ouvert le ${opened}` : null,
+    ].filter(Boolean);
 
     return (
         // id : cible des liens de la recherche « Où acheter ? » (/commerce/:id#magasin-:magasinId)
-        <div id={`magasin-${magasin.id}`} className="flex flex-col lg:flex-row gap-4 w-full ligne-fiche scroll-mt-24 target:ring-2 target:ring-primary">
-            <div className="flex flex-col gap-2 flex-1 min-w-0">
-                <div className="flex flex-row items-start gap-3">
-                    <FontAwesomeIcon icon={magasin.is_siege ? "fa-solid fa-building" : "fa-solid fa-store"} className="text-xl mt-1" />
-                    <span className="flex flex-row flex-wrap items-center gap-2 flex-1 min-w-0 font-bold text-lg">
-                        <span className="break-words">{magasin.title}</span>
+        <div id={`magasin-${magasin.id}`} className="flex flex-col gap-2 w-full ligne-fiche scroll-mt-24 target:ring-2 target:ring-primary">
+            <div className="flex flex-row items-center gap-3">
+                <span className="flex items-center justify-center w-10 h-10 rounded-full bg-base-200 shrink-0">
+                    <FontAwesomeIcon icon={magasin.is_siege ? "fa-solid fa-building" : "fa-solid fa-store"} />
+                </span>
+                <span className="flex flex-col flex-1 min-w-0">
+                    <span className="flex flex-row flex-wrap items-center gap-2">
+                        <span className="font-bold text-lg break-words">{magasin.title}</span>
                         {magasin.is_siege ? <span className="badge badge-sm badge-primary">Siège</span> : null}
                         {!magasin.is_public ? <span className="badge badge-sm badge-warning">Privé</span> : null}
                     </span>
+                    <span className="flex flex-row flex-wrap items-center gap-x-2 text-sm opacity-80">
+                        {ville ? (
+                            <a href={`/civilisation/${ville.civilisation_id}/ville/${ville.id}`} className="link link-hover">{ville.title}</a>
+                        ) : null}
+                        {lieu.map((morceau, index) => (
+                            <span key={morceau} className={`tabular-nums ${ville || index > 0 ? "before:content-['·'] before:mr-2" : ""}`}>{morceau}</span>
+                        ))}
+                    </span>
+                </span>
+                <span className="flex flex-row items-center gap-1 shrink-0">
+                    {dimension ? (
+                        <button type="button" className="btn btn-sm btn-ghost bg-base-200" aria-expanded={carte} onClick={() => setCarte((ouverte) => !ouverte)}>
+                            <FontAwesomeIcon icon={carte ? "fa-solid fa-xmark" : "fa-solid fa-map-location-dot"} />
+                            <span className="hidden sm:inline">{carte ? "Fermer la carte" : "Carte"}</span>
+                        </button>
+                    ) : null}
                     {auth ? (
-                        <button type="button" className="btn btn-sm btn-ghost btn-circle tooltip tooltip-left" data-tip="Modifier le magasin" onClick={() => showModal(magasinModal, "edit", { id: magasin.id })}>
+                        <button type="button" className="btn btn-sm btn-ghost btn-circle tooltip tooltip-left" data-tip="Modifier le magasin" aria-label="Modifier le magasin" onClick={() => showModal(magasinModal, "edit", { id: magasin.id })}>
                             <FontAwesomeIcon icon="fa-solid fa-pen" />
                         </button>
                     ) : null}
-                </div>
-
-                <div className="flex flex-col gap-1 text-sm">
-                    {ville ? (
-                        <a href={`/civilisation/${ville.civilisation_id}/ville/${ville.id}`} className="flex flex-row items-center gap-2 link link-hover">
-                            <FontAwesomeIcon icon={`fa-solid fa-${ville.is_capital ? 'archway' : 'city'}`} className="opacity-70 w-4" />
-                            <span>{ville.title}</span>
-                        </a>
-                    ) : null}
-                    {magasin.dimension_id ? (
-                        <span className="flex flex-row items-center gap-2">
-                            <FontAwesomeIcon icon="fa-solid fa-location-dot" className="opacity-70 w-4" />
-                            <span className="tabular-nums">{dimension ? `${dimension.title} · ` : ""}X {magasin.x ?? 0} · Z {magasin.z ?? 0}</span>
-                        </span>
-                    ) : null}
-                    {opened ? (
-                        <span className="flex flex-row items-center gap-2">
-                            <FontAwesomeIcon icon="fa-solid fa-calendar" className="opacity-70 w-4" />
-                            <span>Ouvert le {opened}</span>
-                        </span>
-                    ) : null}
-                </div>
-
-                {magasin.description ? <p className="break-words">{magasin.description}</p> : null}
-
-                <CatalogueMagasin magasin={magasin} auth={auth} />
+                </span>
             </div>
 
-            {dimension ? (
-                <div className="w-full h-48 lg:w-[400px] shrink-0">
+            {magasin.description ? <p className="break-words sm:pl-[3.25rem]">{magasin.description}</p> : null}
+
+            {carte && dimension ? (
+                <div className="w-full h-56 sm:h-64 rounded-2xl overflow-hidden">
                     <MapEmbed
                         dimension={dimension}
                         width="100%"
@@ -102,6 +104,10 @@ function MagasinCard({ magasin, dimension, ville, auth }) {
                     />
                 </div>
             ) : null}
+
+            <div className="sm:pl-[3.25rem]">
+                <CatalogueMagasin magasin={magasin} auth={auth} />
+            </div>
         </div>
     );
 }
