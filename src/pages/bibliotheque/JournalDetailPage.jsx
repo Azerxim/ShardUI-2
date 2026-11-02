@@ -154,12 +154,12 @@ function Message({ message, link, canLink, onLink, onUnlink }) {
       ) : null}
       {canLink ? (
         <div className="flex flex-row flex-wrap gap-1">
-          <button type="button" className="btn btn-xs btn-ghost bg-base-100 gap-1" onClick={() => onLink(message, link)}>
+          <button type="button" className="btn btn-xs btn-ghost bg-base-200 gap-1" onClick={() => onLink(message, link)}>
             <FontAwesomeIcon icon="fa-solid fa-masks-theater" />
             {link ? "Changer de personnage" : "Associer à un personnage"}
           </button>
           {link ? (
-            <button type="button" className="btn btn-xs btn-ghost bg-base-100 text-error" onClick={() => onUnlink(link)}>Dissocier</button>
+            <button type="button" className="btn btn-xs btn-ghost bg-base-200 text-error" onClick={() => onUnlink(link)}>Dissocier</button>
           ) : null}
         </div>
       ) : null}
@@ -188,13 +188,13 @@ function MessageGroup({ group, links, myDiscordUid, onLink, onUnlink }) {
           {personnage ? (
             <>
               <a href={`/personnage/${personnage.id}`} className="font-bold break-words link link-hover">{personnage.name}</a>
-              <span className="text-xs opacity-60 break-words">joué par {author.name || "auteur inconnu"}</span>
+              <span className="text-sm opacity-70 break-words">joué par {author.name || "auteur inconnu"}</span>
             </>
           ) : (
-            <span className="font-bold break-words" style={{ color }}>{author.name || "Auteur inconnu"}</span>
+            <span className="font-bold break-words">{author.name || "Auteur inconnu"}</span>
           )}
           {author.is_bot ? <span className="badge badge-xs badge-info">BOT</span> : null}
-          <span className="text-xs opacity-60">{formatTime(group[0].timestamp)}</span>
+          <span className="text-sm opacity-70">{formatTime(group[0].timestamp)}</span>
         </div>
         {group.map((message) => (
           <Message key={message.id} message={message} link={links.get(String(message.id))} canLink={canLink} onLink={onLink} onUnlink={onUnlink} />
@@ -445,7 +445,6 @@ export default function JournalDetailPage() {
             <InfoLine icon="fa-solid fa-feather">
               {journal.author ? <>Rédigé par <strong>{journal.author}</strong></> : "Auteur inconnu"}
             </InfoLine>
-            {journal.uid ? <InfoLine icon="fa-brands fa-discord">Alimenté par un salon Discord</InfoLine> : null}
           </>
         }
         fonctions={FctModify}
@@ -457,9 +456,6 @@ export default function JournalDetailPage() {
           courtes à droite. Sur téléphone, la colonne de droite passe au-dessus du contenu. */}
       <div className="fiche grid grid-cols-1 lg:grid-cols-3 gap-x-10 w-full items-start">
         <div className="lg:col-span-2 flex flex-col gap-2 min-w-0">
-          <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
-          <MarkdownTextEditor value={journal.description || 'Aucune description'} />
-
           <div id="journal-messages" className="w-full scroll-mt-24">
             <TitleH2 text="Messages" icon="fas fa-comments" fonctions={FctMessages} />
           </div>
@@ -537,6 +533,16 @@ export default function JournalDetailPage() {
               <Stat icon="fa-solid fa-masks-theater" label={personnagesCount > 1 ? "Personnages" : "Personnage"} value={statValue(personnagesCount)} />
               <Stat icon="fa-solid fa-clock-rotate-left" label="Dernier message" value={statValue(lastMessageDate || "—")} />
             </div>
+          </div>
+
+          <TitleH2 text="À propos" icon="fas fa-circle-info" />
+          <div className="flex flex-col gap-2 px-1">
+            <MarkdownTextEditor value={journal.description || 'Aucune description'} />
+            <InfoLine icon="fa-solid fa-feather">
+              {journal.author ? <>Rédigé par <strong>{journal.author}</strong></> : "Auteur inconnu"}
+            </InfoLine>
+            {published ? <InfoLine icon="fa-solid fa-calendar">Publié le {published}</InfoLine> : null}
+            {journal.uid ? <InfoLine icon="fa-brands fa-discord">Alimenté par un salon Discord</InfoLine> : null}
             <LivreLiensSection ecrit={journal} support="journal" auth={auth} />
           </div>
         </aside>
