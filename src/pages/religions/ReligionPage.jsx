@@ -196,107 +196,112 @@ export default function ReligionPage() {
             />
             <SommaireFiche />
 
-            {/* Présentation à gauche, chiffres clés à droite (empilés sur téléphone) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-2 w-full">
-                <section className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+            {/* Corps en deux colonnes (charte « Chancellerie ») : le contenu à gauche, les chiffres clés et les informations
+                courtes à droite. Sur téléphone, la colonne de droite passe au-dessus du contenu. */}
+            <div className="fiche grid grid-cols-1 lg:grid-cols-3 gap-x-10 w-full items-start">
+                <div className="lg:col-span-2 flex flex-col gap-2 min-w-0">
                     <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
                     <MarkdownTextEditor value={religion?.description ? religion.description : 'Aucune description'} />
-                </section>
-                <div className="grid grid-cols-2 gap-2 content-start bg-base-200 rounded-3xl p-2 lg:mt-4">
-                    <Stat icon="fa-solid fa-users" label={members.length > 1 ? "Membres" : "Membre"} value={members.length} color={color} />
-                    <Stat icon="fa-solid fa-city" label={villes.length > 1 ? "Villes" : "Ville"} value={villes.length} color={color} />
-                    <Stat icon="fa-solid fa-crown" label="Majoritaire" value={`${dominantCount} ville${dominantCount > 1 ? "s" : ""}`} color={color} />
-                    <Stat icon="fa-solid fa-hands-praying" label="Influence moyenne" value={averageInfluence == null ? "—" : formatInfluence(averageInfluence)} color={color} />
-                </div>
-            </div>
 
-            {religion ? <DescriptionLongue type="religion" id={religion.id} auth={auth} /> : null}
+                    {religion ? <DescriptionLongue type="religion" id={religion.id} auth={auth} /> : null}
 
-            <TitleH2 text="Membres" icon="fas fa-users" fonctions={FctMembers} />
-            <div className="flex flex-row flex-wrap gap-2 w-full">
-                {sortedMembers.length > 0 ? (
-                    sortedMembers.map((member) => (
-                        <MemberButton
-                            key={member.user_id}
-                            member={member}
-                            roleColor={color}
-                            editConfig={religionMemberEditModal}
-                            // Fondateur : transfert par lui-même ou un administrateur du site ; autres membres : Fondateur / Admin
-                            auth={member.role === "Fondateur" ? (member.user_id === user?.id || Boolean(user?.is_admin)) : auth}
-                            onDelete={handleMemberDelete}
-                            onModifyMember={handleMemberModify}
-                            onTransfer={() => showModalID(TRANSFER_MODAL_ID)}
-                        />
-                    ))
-                ) : (
-                    <i>Aucun membre pour cette religion.</i>
-                )}
-            </div>
-            <JoinHint members={members} entity="cette religion" />
+                    <ElectionsSection entityType="religion" entityId={parseInt(id)} peutOrganiser={auth} />
 
-            <ElectionsSection entityType="religion" entityId={parseInt(id)} peutOrganiser={auth} />
+                    <TitleH2 text="Présence dans les villes" icon="fas fa-city" aide="religion" />
+                    {presences.length === 0 ? (
+                        <div className="w-full">
+                            <i>Cette religion n'est présente dans aucune ville.</i>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 w-full">
+                            {presences.map(({ ville, influence, others, dominant }) => (
+                                <a
+                                    key={ville.id}
+                                    href={ville.civilisation_id ? `/civilisation/${ville.civilisation_id}/ville/${ville.id}` : undefined}
+                                    className="flex flex-col gap-3 w-full ligne-fiche"
+                                >
+                                    <div className="flex flex-row items-center gap-3">
+                                        <FontAwesomeIcon icon={`fa-solid fa-${ville.is_capital ? 'archway' : 'city'}`} className="text-xl" />
+                                        <div className="flex flex-col flex-1 min-w-0">
+                                            <span className="flex flex-row items-center gap-2 font-bold">
+                                                <span className="truncate">{ville.title}</span>
+                                                {dominant ? <span className="badge badge-sm badge-neutral">Majoritaire</span> : null}
+                                            </span>
+                                            <span className="text-sm opacity-70 truncate">
+                                                {civilisations[ville.civilisation_id]?.title ?? "Civilisation inconnue"}
+                                                {ville.is_capital ? " · Capitale" : ""}
+                                            </span>
+                                        </div>
+                                        <span className="text-lg font-semibold tabular-nums">{formatInfluence(influence)}</span>
+                                    </div>
+                                    <InfluenceBar influence={influence} color={color} />
+                                    {others.length > 1 ? (
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-sm opacity-70">Religions de la ville</span>
+                                            <VilleReligions religions={others} compact />
+                                        </div>
+                                    ) : null}
+                                </a>
+                            ))}
+                        </div>
+                    )}
 
-            <ConflictsSection entityType="religion" entityId={parseInt(id)} />
-
-            <TitleH2 text="Présence dans les villes" icon="fas fa-city" aide="religion" />
-            {presences.length === 0 ? (
-                <div className="w-full">
-                    <i>Cette religion n'est présente dans aucune ville.</i>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 w-full">
-                    {presences.map(({ ville, influence, others, dominant }) => (
-                        <a
-                            key={ville.id}
-                            href={ville.civilisation_id ? `/civilisation/${ville.civilisation_id}/ville/${ville.id}` : undefined}
-                            className="flex flex-col gap-3 w-full ligne-fiche"
-                        >
-                            <div className="flex flex-row items-center gap-3">
-                                <FontAwesomeIcon icon={`fa-solid fa-${ville.is_capital ? 'archway' : 'city'}`} className="text-xl" />
-                                <div className="flex flex-col flex-1 min-w-0">
-                                    <span className="flex flex-row items-center gap-2 font-bold">
-                                        <span className="truncate">{ville.title}</span>
-                                        {dominant ? <span className="badge badge-sm badge-neutral">Majoritaire</span> : null}
-                                    </span>
-                                    <span className="text-sm opacity-70 truncate">
-                                        {civilisations[ville.civilisation_id]?.title ?? "Civilisation inconnue"}
-                                        {ville.is_capital ? " · Capitale" : ""}
-                                    </span>
-                                </div>
-                                <span className="text-lg font-semibold tabular-nums">{formatInfluence(influence)}</span>
+                    {quartiers.length > 0 ? (
+                        <>
+                            <TitleH2 text="Présence dans les quartiers" icon="fas fa-map-location-dot" />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 w-full">
+                                {[...quartiers].sort((a, b) => influenceOf(b.quartiers_religions) - influenceOf(a.quartiers_religions)).map(({ quartier, quartiers_religions }) => (
+                                    <a key={quartier.id} href={`/quartier/${quartier.id}`} className="flex flex-col gap-3 w-full ligne-fiche">
+                                        <div className="flex flex-row items-center gap-3">
+                                            <FontAwesomeIcon icon="fa-solid fa-map-location-dot" className="text-xl" />
+                                            <span className="flex-1 font-bold truncate">{quartier.title}</span>
+                                            <span className="text-lg font-semibold tabular-nums">{formatInfluence(quartiers_religions?.influence)}</span>
+                                        </div>
+                                        <InfluenceBar influence={influenceOf(quartiers_religions)} color={color} />
+                                    </a>
+                                ))}
                             </div>
-                            <InfluenceBar influence={influence} color={color} />
-                            {others.length > 1 ? (
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-sm opacity-70">Religions de la ville</span>
-                                    <VilleReligions religions={others} compact />
-                                </div>
-                            ) : null}
-                        </a>
-                    ))}
+                        </>
+                    ) : null}
+
+                    {religion ? <LivresLiesSection type="religion" id={religion.id} /> : null}
+                    {religion ? <LivresLiesSection type="religion" id={religion.id} support="journal" /> : null}
                 </div>
-            )}
-
-            {quartiers.length > 0 ? (
-                <>
-                    <TitleH2 text="Présence dans les quartiers" icon="fas fa-map-location-dot" />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 w-full">
-                        {[...quartiers].sort((a, b) => influenceOf(b.quartiers_religions) - influenceOf(a.quartiers_religions)).map(({ quartier, quartiers_religions }) => (
-                            <a key={quartier.id} href={`/quartier/${quartier.id}`} className="flex flex-col gap-3 w-full ligne-fiche">
-                                <div className="flex flex-row items-center gap-3">
-                                    <FontAwesomeIcon icon="fa-solid fa-map-location-dot" className="text-xl" />
-                                    <span className="flex-1 font-bold truncate">{quartier.title}</span>
-                                    <span className="text-lg font-semibold tabular-nums">{formatInfluence(quartiers_religions?.influence)}</span>
-                                </div>
-                                <InfluenceBar influence={influenceOf(quartiers_religions)} color={color} />
-                            </a>
-                        ))}
+                <aside className="flex flex-col gap-2 min-w-0 order-first lg:order-none">
+                    <div className="flex flex-col gap-2 mt-4 lg:mt-7">
+                        <div className="grid grid-cols-2 gap-2 bg-base-200 rounded-3xl p-2">
+                            <Stat icon="fa-solid fa-users" label={members.length > 1 ? "Membres" : "Membre"} value={members.length} color={color} />
+                            <Stat icon="fa-solid fa-city" label={villes.length > 1 ? "Villes" : "Ville"} value={villes.length} color={color} />
+                            <Stat icon="fa-solid fa-crown" label="Majoritaire" value={`${dominantCount} ville${dominantCount > 1 ? "s" : ""}`} color={color} />
+                            <Stat icon="fa-solid fa-hands-praying" label="Influence moyenne" value={averageInfluence == null ? "—" : formatInfluence(averageInfluence)} color={color} />
+                        </div>
                     </div>
-                </>
-            ) : null}
 
-            {religion ? <LivresLiesSection type="religion" id={religion.id} /> : null}
-            {religion ? <LivresLiesSection type="religion" id={religion.id} support="journal" /> : null}
+                    <TitleH2 text="Membres" icon="fas fa-users" fonctions={FctMembers} />
+                    <div className="flex flex-row flex-wrap gap-2 w-full">
+                        {sortedMembers.length > 0 ? (
+                            sortedMembers.map((member) => (
+                                <MemberButton
+                                    key={member.user_id}
+                                    member={member}
+                                    roleColor={color}
+                                    editConfig={religionMemberEditModal}
+                                    // Fondateur : transfert par lui-même ou un administrateur du site ; autres membres : Fondateur / Admin
+                                    auth={member.role === "Fondateur" ? (member.user_id === user?.id || Boolean(user?.is_admin)) : auth}
+                                    onDelete={handleMemberDelete}
+                                    onModifyMember={handleMemberModify}
+                                    onTransfer={() => showModalID(TRANSFER_MODAL_ID)}
+                                />
+                            ))
+                        ) : (
+                            <i>Aucun membre pour cette religion.</i>
+                        )}
+                    </div>
+                    <JoinHint members={members} entity="cette religion" />
+
+                    <ConflictsSection entityType="religion" entityId={parseInt(id)} />
+                </aside>
+            </div>
         </>
     );
 

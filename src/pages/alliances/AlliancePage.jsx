@@ -132,127 +132,132 @@ export default function AlliancePage() {
             />
             <SommaireFiche />
 
-            {/* Présentation à gauche, chiffres clés à droite (empilés sur téléphone) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-2 w-full">
-                <section className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+            {/* Corps en deux colonnes (charte « Chancellerie ») : le contenu à gauche, les chiffres clés et les informations
+                courtes à droite. Sur téléphone, la colonne de droite passe au-dessus du contenu. */}
+            <div className="fiche grid grid-cols-1 lg:grid-cols-3 gap-x-10 w-full items-start">
+                <div className="lg:col-span-2 flex flex-col gap-2 min-w-0">
                     <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
                     <MarkdownTextEditor value={alliance.description || "Aucune description"} />
-                </section>
-                <div className="grid grid-cols-2 gap-2 content-start bg-base-200 rounded-3xl p-2 lg:mt-4">
-                    <Stat icon="fa-solid fa-flag" label={membres.length > 1 ? "Civilisations" : "Civilisation"} value={membres.length} color={alliance.color || undefined} />
-                    <Stat icon="fa-solid fa-shield-halved" label={guerresEnCours.length > 1 ? "Guerres en cours" : "Guerre en cours"} value={guerresEnCours.length} color={alliance.color || undefined} />
-                </div>
-            </div>
 
-            <DescriptionLongue type="alliance" id={alliance.id} auth={isChef} />
+                    <DescriptionLongue type="alliance" id={alliance.id} auth={isChef} />
 
-            <TitleH2 text="Civilisations membres" icon="fas fa-flag" fonctions={FctMembres} />
-            <ul className="flex flex-col w-full">
-                {membres.map(({ civilisation, role }) => {
-                    const canLeave = managedIds.has(civilisation.id) && role !== "Chef de file";
-                    return (
-                        <li key={civilisation.id} className="flex flex-col sm:flex-row sm:items-center gap-2 ligne-fiche">
-                            <a href={`/civilisation/${civilisation.id}`} className="flex flex-row items-center gap-3 flex-1 min-w-0 link link-hover">
-                                <FontAwesomeIcon icon={role === "Chef de file" ? "fa-solid fa-crown" : "fa-solid fa-flag"} className="opacity-80" />
-                                <span className="font-bold break-words">{civilisation.title}</span>
-                                <span className={`badge badge-sm ${ALLIANCE_ROLE_BADGES[role] ?? "badge-ghost"}`}>{role}</span>
-                            </a>
-                            <div className="flex flex-row flex-wrap gap-1">
-                                {isChef && role !== "Chef de file" ? (
-                                    <>
-                                        <button type="button" className="btn btn-xs btn-ghost bg-base-100" onClick={() => act(() => apiRequest("PUT", `/alliances/${id}/membres/${civilisation.id}`, { role: role === "Observateur" ? "Membre" : "Observateur" }))}>
-                                            {role === "Observateur" ? "Passer membre" : "Passer observateur"}
-                                        </button>
-                                        <button type="button" className="btn btn-xs btn-ghost bg-base-100" onClick={() => act(() => apiRequest("PUT", `/alliances/${id}/transfert`, { civilisation_id: civilisation.id }), { confirm: { title: "Transférer la direction ?", text: `${civilisation.title} deviendra chef de file et gérera l'alliance.`, button: "Transférer" } })}>
-                                            Nommer chef de file
-                                        </button>
-                                        <button type="button" className="btn btn-xs btn-ghost bg-base-100 text-error" onClick={() => act(() => apiRequest("DELETE", `/alliances/${id}/membres/${civilisation.id}`), { confirm: { title: "Exclure cette civilisation ?", text: `${civilisation.title} quittera l'alliance.`, button: "Exclure" } })}>
-                                            Exclure
-                                        </button>
-                                    </>
-                                ) : null}
-                                {canLeave && !isChef ? (
-                                    <button type="button" className="btn btn-xs btn-ghost bg-base-100 text-error" onClick={() => act(() => apiRequest("DELETE", `/alliances/${id}/membres/${civilisation.id}`), { confirm: { title: "Quitter l'alliance ?", text: `${civilisation.title} ne fera plus partie de ${alliance.title}.`, button: "Quitter" } })}>
-                                        Quitter l'alliance
-                                    </button>
-                                ) : null}
-                            </div>
-                        </li>
-                    );
-                })}
-            </ul>
-
-            {/* Rejoindre : demande au nom d'une civilisation dirigée, ou explication pour les autres */}
-            {!isMember ? (
-                <div role="note" className="flex flex-col sm:flex-row sm:items-center gap-3 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
-                    <FontAwesomeIcon icon="fa-solid fa-circle-info" className="text-info text-xl shrink-0" />
-                    <p className="flex-1">
-                        {alliance.is_public === false
-                            ? "Cette alliance recrute uniquement sur invitation de son chef de file."
-                            : joinables.length > 0
-                                ? "Une civilisation que vous dirigez peut demander à rejoindre cette alliance : son chef de file devra accepter."
-                                : "Pour rejoindre cette alliance, le fondateur ou un admin d'une civilisation doit en faire la demande, puis le chef de file l'accepter."}
-                    </p>
-                    {alliance.is_public !== false && joinables.length > 0 ? (
-                        <button type="button" className="btn btn-sm btn-primary" onClick={() => showModalID(JOIN_MODAL_ID)}>Demander à rejoindre</button>
-                    ) : null}
-                </div>
-            ) : null}
-
-            {invitations.length > 0 ? (
-                <>
-                    <TitleH2 text="Invitations et demandes en attente" icon="fas fa-envelope-open-text" />
+                    <TitleH2 text="Civilisations membres" icon="fas fa-flag" fonctions={FctMembres} />
                     <ul className="flex flex-col w-full">
-                        {invitations.map((invitation) => {
-                            const civManaged = managedIds.has(invitation.civilisation.id);
-                            const canAnswer = invitation.direction === "invitation" ? civManaged : isChef;
-                            const canCancel = invitation.direction === "invitation" ? isChef : civManaged;
+                        {membres.map(({ civilisation, role }) => {
+                            const canLeave = managedIds.has(civilisation.id) && role !== "Chef de file";
                             return (
-                                <li key={invitation.id} className="flex flex-col sm:flex-row sm:items-center gap-2 ligne-fiche">
-                                    <span className="flex flex-row flex-wrap items-center gap-2 flex-1 min-w-0">
-                                        <FontAwesomeIcon icon={invitation.direction === "invitation" ? "fa-solid fa-envelope" : "fa-solid fa-hand"} className="opacity-70" />
-                                        <a href={`/civilisation/${invitation.civilisation.id}`} className="font-bold link link-hover">{invitation.civilisation.title}</a>
-                                        <span className="text-sm opacity-70">{invitation.direction === "invitation" ? "est invitée à rejoindre l'alliance" : "demande à rejoindre l'alliance"}</span>
-                                    </span>
+                                <li key={civilisation.id} className="flex flex-col sm:flex-row sm:items-center gap-2 ligne-fiche">
+                                    <a href={`/civilisation/${civilisation.id}`} className="flex flex-row items-center gap-3 flex-1 min-w-0 link link-hover">
+                                        <FontAwesomeIcon icon={role === "Chef de file" ? "fa-solid fa-crown" : "fa-solid fa-flag"} className="opacity-80" />
+                                        <span className="font-bold break-words">{civilisation.title}</span>
+                                        <span className={`badge badge-sm ${ALLIANCE_ROLE_BADGES[role] ?? "badge-ghost"}`}>{role}</span>
+                                    </a>
                                     <div className="flex flex-row flex-wrap gap-1">
-                                        {canAnswer ? (
+                                        {isChef && role !== "Chef de file" ? (
                                             <>
-                                                <button type="button" className="btn btn-xs btn-success" onClick={() => act(() => apiRequest("PUT", `/alliances/invitations/${invitation.id}/repondre`, { accepter: true }))}>Accepter</button>
-                                                <button type="button" className="btn btn-xs btn-ghost bg-base-100" onClick={() => act(() => apiRequest("PUT", `/alliances/invitations/${invitation.id}/repondre`, { accepter: false }))}>Refuser</button>
+                                                <button type="button" className="btn btn-xs btn-ghost bg-base-100" onClick={() => act(() => apiRequest("PUT", `/alliances/${id}/membres/${civilisation.id}`, { role: role === "Observateur" ? "Membre" : "Observateur" }))}>
+                                                    {role === "Observateur" ? "Passer membre" : "Passer observateur"}
+                                                </button>
+                                                <button type="button" className="btn btn-xs btn-ghost bg-base-100" onClick={() => act(() => apiRequest("PUT", `/alliances/${id}/transfert`, { civilisation_id: civilisation.id }), { confirm: { title: "Transférer la direction ?", text: `${civilisation.title} deviendra chef de file et gérera l'alliance.`, button: "Transférer" } })}>
+                                                    Nommer chef de file
+                                                </button>
+                                                <button type="button" className="btn btn-xs btn-ghost bg-base-100 text-error" onClick={() => act(() => apiRequest("DELETE", `/alliances/${id}/membres/${civilisation.id}`), { confirm: { title: "Exclure cette civilisation ?", text: `${civilisation.title} quittera l'alliance.`, button: "Exclure" } })}>
+                                                    Exclure
+                                                </button>
                                             </>
                                         ) : null}
-                                        {canCancel ? (
-                                            <button type="button" className="btn btn-xs btn-ghost bg-base-100 text-error" onClick={() => act(() => apiRequest("DELETE", `/alliances/invitations/${invitation.id}`))}>Annuler</button>
+                                        {canLeave && !isChef ? (
+                                            <button type="button" className="btn btn-xs btn-ghost bg-base-100 text-error" onClick={() => act(() => apiRequest("DELETE", `/alliances/${id}/membres/${civilisation.id}`), { confirm: { title: "Quitter l'alliance ?", text: `${civilisation.title} ne fera plus partie de ${alliance.title}.`, button: "Quitter" } })}>
+                                                Quitter l'alliance
+                                            </button>
                                         ) : null}
                                     </div>
                                 </li>
                             );
                         })}
                     </ul>
-                </>
-            ) : null}
 
-            <ElectionsSection entityType="alliance" entityId={alliance.id} peutOrganiser={isChef} />
+                    {/* Rejoindre : demande au nom d'une civilisation dirigée, ou explication pour les autres */}
+                    {!isMember ? (
+                        <div role="note" className="flex flex-col sm:flex-row sm:items-center gap-3 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
+                            <FontAwesomeIcon icon="fa-solid fa-circle-info" className="text-info text-xl shrink-0" />
+                            <p className="flex-1">
+                                {alliance.is_public === false
+                                    ? "Cette alliance recrute uniquement sur invitation de son chef de file."
+                                    : joinables.length > 0
+                                        ? "Une civilisation que vous dirigez peut demander à rejoindre cette alliance : son chef de file devra accepter."
+                                        : "Pour rejoindre cette alliance, le fondateur ou un admin d'une civilisation doit en faire la demande, puis le chef de file l'accepter."}
+                            </p>
+                            {alliance.is_public !== false && joinables.length > 0 ? (
+                                <button type="button" className="btn btn-sm btn-primary" onClick={() => showModalID(JOIN_MODAL_ID)}>Demander à rejoindre</button>
+                            ) : null}
+                        </div>
+                    ) : null}
 
-            <TitleH2 text="Guerres des membres" icon="fas fa-shield-halved" aide="alliance" />
-            {guerres.length === 0 ? (
-                <i className="w-full">Aucun membre de cette alliance n'est engagé dans une guerre.</i>
-            ) : (
-                <ul className="flex flex-col w-full">
-                    {guerres.map(({ guerre }) => (
-                        <li key={guerre.id}>
-                            <a href={`/guerre/${guerre.id}`} className="flex flex-row flex-wrap items-center gap-2 ligne-fiche">
-                                <FontAwesomeIcon icon={(GUERRE_TYPES[guerre.type] ?? GUERRE_TYPES.Militaire).icon} className="opacity-80" />
-                                <span className="font-bold flex-1 min-w-0 break-words">{guerre.title}</span>
-                                <span className={`badge badge-sm ${GUERRE_STATUTS[guerre.status]?.badge ?? "badge-ghost"}`}>{GUERRE_STATUTS[guerre.status]?.label ?? guerre.status}</span>
-                            </a>
-                        </li>
-                    ))}
-                </ul>
-            )}
+                    <ElectionsSection entityType="alliance" entityId={alliance.id} peutOrganiser={isChef} />
 
-            <LivresLiesSection type="alliance" id={alliance.id} />
-            <LivresLiesSection type="alliance" id={alliance.id} support="journal" />
+                    <TitleH2 text="Guerres des membres" icon="fas fa-shield-halved" aide="alliance" />
+                    {guerres.length === 0 ? (
+                        <i className="w-full">Aucun membre de cette alliance n'est engagé dans une guerre.</i>
+                    ) : (
+                        <ul className="flex flex-col w-full">
+                            {guerres.map(({ guerre }) => (
+                                <li key={guerre.id}>
+                                    <a href={`/guerre/${guerre.id}`} className="flex flex-row flex-wrap items-center gap-2 ligne-fiche">
+                                        <FontAwesomeIcon icon={(GUERRE_TYPES[guerre.type] ?? GUERRE_TYPES.Militaire).icon} className="opacity-80" />
+                                        <span className="font-bold flex-1 min-w-0 break-words">{guerre.title}</span>
+                                        <span className={`badge badge-sm ${GUERRE_STATUTS[guerre.status]?.badge ?? "badge-ghost"}`}>{GUERRE_STATUTS[guerre.status]?.label ?? guerre.status}</span>
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+
+                    <LivresLiesSection type="alliance" id={alliance.id} />
+                    <LivresLiesSection type="alliance" id={alliance.id} support="journal" />
+                </div>
+                <aside className="flex flex-col gap-2 min-w-0 order-first lg:order-none">
+                    <div className="flex flex-col gap-2 mt-4 lg:mt-7">
+                        <div className="grid grid-cols-2 gap-2 bg-base-200 rounded-3xl p-2">
+                            <Stat icon="fa-solid fa-flag" label={membres.length > 1 ? "Civilisations" : "Civilisation"} value={membres.length} color={alliance.color || undefined} />
+                            <Stat icon="fa-solid fa-shield-halved" label={guerresEnCours.length > 1 ? "Guerres en cours" : "Guerre en cours"} value={guerresEnCours.length} color={alliance.color || undefined} />
+                        </div>
+                    </div>
+
+                    {invitations.length > 0 ? (
+                        <>
+                            <TitleH2 text="Invitations et demandes en attente" icon="fas fa-envelope-open-text" />
+                            <ul className="flex flex-col w-full">
+                                {invitations.map((invitation) => {
+                                    const civManaged = managedIds.has(invitation.civilisation.id);
+                                    const canAnswer = invitation.direction === "invitation" ? civManaged : isChef;
+                                    const canCancel = invitation.direction === "invitation" ? isChef : civManaged;
+                                    return (
+                                        <li key={invitation.id} className="flex flex-col sm:flex-row sm:items-center gap-2 ligne-fiche">
+                                            <span className="flex flex-row flex-wrap items-center gap-2 flex-1 min-w-0">
+                                                <FontAwesomeIcon icon={invitation.direction === "invitation" ? "fa-solid fa-envelope" : "fa-solid fa-hand"} className="opacity-70" />
+                                                <a href={`/civilisation/${invitation.civilisation.id}`} className="font-bold link link-hover">{invitation.civilisation.title}</a>
+                                                <span className="text-sm opacity-70">{invitation.direction === "invitation" ? "est invitée à rejoindre l'alliance" : "demande à rejoindre l'alliance"}</span>
+                                            </span>
+                                            <div className="flex flex-row flex-wrap gap-1">
+                                                {canAnswer ? (
+                                                    <>
+                                                        <button type="button" className="btn btn-xs btn-success" onClick={() => act(() => apiRequest("PUT", `/alliances/invitations/${invitation.id}/repondre`, { accepter: true }))}>Accepter</button>
+                                                        <button type="button" className="btn btn-xs btn-ghost bg-base-100" onClick={() => act(() => apiRequest("PUT", `/alliances/invitations/${invitation.id}/repondre`, { accepter: false }))}>Refuser</button>
+                                                    </>
+                                                ) : null}
+                                                {canCancel ? (
+                                                    <button type="button" className="btn btn-xs btn-ghost bg-base-100 text-error" onClick={() => act(() => apiRequest("DELETE", `/alliances/invitations/${invitation.id}`))}>Annuler</button>
+                                                ) : null}
+                                            </div>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        </>
+                    ) : null}
+                </aside>
+            </div>
         </>
     ) : null;
 

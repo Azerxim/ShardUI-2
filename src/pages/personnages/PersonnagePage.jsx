@@ -138,8 +138,9 @@ export default function PersonnagePage() {
             />
             <SommaireFiche />
 
-            {/* Histoire et skin à gauche ; chiffres clés et identité à droite (empilés sur téléphone) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-2 w-full">
+            {/* Corps en deux colonnes (charte « Chancellerie ») : le contenu à gauche, les chiffres clés et les informations
+                courtes à droite. Sur téléphone, la colonne de droite passe au-dessus du contenu. */}
+            <div className="fiche grid grid-cols-1 lg:grid-cols-3 gap-x-10 w-full items-start">
                 <div className="lg:col-span-2 flex flex-col gap-2 min-w-0">
                     <section className="flex flex-col gap-2">
                         <TitleH2 text="Histoire" icon="fas fa-pen-nib" />
@@ -161,12 +162,54 @@ export default function PersonnagePage() {
                             </div>
                         </section>
                     ) : null}
+
+                    <DescriptionLongue type="personnage" id={personnage.id} auth={canManage} />
+
+                    <FamilleSection key={personnage.id} personnage={personnage} canManage={canManage} />
+
+                    <TitleH2 text="Messages de journaux" icon="fas fa-feather" />
+                    {messages.length === 0 ? (
+                        <div role="note" className="flex flex-row items-start gap-3 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
+                            <FontAwesomeIcon icon="fa-solid fa-circle-info" className="text-info text-xl shrink-0 mt-0.5" />
+                            <p className="flex-1">
+                                {canManage
+                                    ? "Dans un journal, utilisez « Associer à un personnage » sous vos messages pour les signer du nom de ce personnage. Votre compte Discord doit être lié depuis votre profil."
+                                    : "Aucun message de journal n'est encore signé par ce personnage."}
+                            </p>
+                        </div>
+                    ) : (
+                        <ul className="flex flex-col w-full">
+                            {messages.map((message) => (
+                                <li key={message.id} className="flex flex-col gap-2 ligne-fiche">
+                                    <div className="flex flex-row flex-wrap items-center gap-x-3 gap-y-1">
+                                        {message.journal ? (
+                                            <a href={`/bibliotheque/journal/${message.journal.id}`} className="flex flex-row items-center gap-2 font-bold link link-hover min-w-0">
+                                                <FontAwesomeIcon icon="fa-solid fa-newspaper" className="opacity-70" />
+                                                <span className="break-words">{message.journal.title}</span>
+                                            </a>
+                                        ) : <span className="font-bold opacity-70">Journal supprimé</span>}
+                                        {message.message_timestamp ? <span className="text-sm opacity-60">{formatDate(message.message_timestamp)}</span> : null}
+                                        {canManage ? (
+                                            <button type="button" className="btn btn-xs btn-ghost bg-base-100 text-error ml-auto" onClick={() => unlink(message)}>Retirer</button>
+                                        ) : null}
+                                    </div>
+                                    {message.excerpt ? <p className="whitespace-pre-wrap break-words leading-relaxed">{message.excerpt}</p> : null}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+
+                    <LivresLiesSection type="personnage" id={personnage.id} />
+                    <LivresLiesSection type="personnage" id={personnage.id} support="journal" />
                 </div>
-                <div className="flex flex-col gap-2">
-                    <div className="grid grid-cols-2 gap-2 bg-base-200 rounded-3xl p-2 lg:mt-4">
-                        <Stat icon="fa-solid fa-feather" label={messages.length > 1 ? "Messages signés" : "Message signé"} value={messages.length} />
-                        <Stat icon="fa-solid fa-newspaper" label={journaux.size > 1 ? "Journaux" : "Journal"} value={journaux.size} />
+                <aside className="flex flex-col gap-2 min-w-0 order-first lg:order-none">
+                    <div className="flex flex-col gap-2 mt-4 lg:mt-7">
+                        <div className="grid grid-cols-2 gap-2 bg-base-200 rounded-3xl p-2">
+                            <Stat icon="fa-solid fa-feather" label={messages.length > 1 ? "Messages signés" : "Message signé"} value={messages.length} />
+                            <Stat icon="fa-solid fa-newspaper" label={journaux.size > 1 ? "Journaux" : "Journal"} value={journaux.size} />
+                        </div>
                     </div>
+
                     <TitleH2 text="Identité" icon="fas fa-id-card" />
                     <div className="flex flex-col gap-1 px-1">
                         <InfoLine icon="fa-solid fa-dna">
@@ -202,47 +245,8 @@ export default function PersonnagePage() {
                             {religion ? <>Foi : <a href={`/religion/${religion.id}`} className="link link-hover">{religion.title}</a></> : "Sans religion déclarée"}
                         </InfoLine>
                     </div>
-                </div>
+                </aside>
             </div>
-
-            <DescriptionLongue type="personnage" id={personnage.id} auth={canManage} />
-
-            <FamilleSection key={personnage.id} personnage={personnage} canManage={canManage} />
-
-            <TitleH2 text="Messages de journaux" icon="fas fa-feather" />
-            {messages.length === 0 ? (
-                <div role="note" className="flex flex-row items-start gap-3 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
-                    <FontAwesomeIcon icon="fa-solid fa-circle-info" className="text-info text-xl shrink-0 mt-0.5" />
-                    <p className="flex-1">
-                        {canManage
-                            ? "Dans un journal, utilisez « Associer à un personnage » sous vos messages pour les signer du nom de ce personnage. Votre compte Discord doit être lié depuis votre profil."
-                            : "Aucun message de journal n'est encore signé par ce personnage."}
-                    </p>
-                </div>
-            ) : (
-                <ul className="flex flex-col w-full">
-                    {messages.map((message) => (
-                        <li key={message.id} className="flex flex-col gap-2 ligne-fiche">
-                            <div className="flex flex-row flex-wrap items-center gap-x-3 gap-y-1">
-                                {message.journal ? (
-                                    <a href={`/bibliotheque/journal/${message.journal.id}`} className="flex flex-row items-center gap-2 font-bold link link-hover min-w-0">
-                                        <FontAwesomeIcon icon="fa-solid fa-newspaper" className="opacity-70" />
-                                        <span className="break-words">{message.journal.title}</span>
-                                    </a>
-                                ) : <span className="font-bold opacity-70">Journal supprimé</span>}
-                                {message.message_timestamp ? <span className="text-sm opacity-60">{formatDate(message.message_timestamp)}</span> : null}
-                                {canManage ? (
-                                    <button type="button" className="btn btn-xs btn-ghost bg-base-100 text-error ml-auto" onClick={() => unlink(message)}>Retirer</button>
-                                ) : null}
-                            </div>
-                            {message.excerpt ? <p className="whitespace-pre-wrap break-words leading-relaxed">{message.excerpt}</p> : null}
-                        </li>
-                    ))}
-                </ul>
-            )}
-
-            <LivresLiesSection type="personnage" id={personnage.id} />
-            <LivresLiesSection type="personnage" id={personnage.id} support="journal" />
         </>
     ) : null;
 

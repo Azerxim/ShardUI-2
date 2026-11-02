@@ -164,4 +164,12 @@
     border-top: 1px solid var(--color-base-300);
     padding-top: 0.75rem;
   }
+  /* Corps d'une fiche : titres de section sans icône, sections plus espacées, comme la maquette */
+  /* !important : la feuille de Font Awesome, injectée hors des couches, l'emporterait sinon */
+  .fiche .titre-icone {
+    display: none !important;
+  }
+  .fiche .titre-section {
+    margin-top: 1.75rem;
+  }
 }

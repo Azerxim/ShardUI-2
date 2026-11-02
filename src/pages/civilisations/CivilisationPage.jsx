@@ -58,18 +58,6 @@ const formatDate = (date) => date ? new Date(date).toLocaleDateString('fr-FR', {
 // Capitale d'abord, puis ordre alphabétique
 const sortVilles = (villes) => [...villes].sort((a, b) => Number(Boolean(b.is_capital)) - Number(Boolean(a.is_capital)) || a.title.localeCompare(b.title));
 
-function GouvernementTile({ icon, label, value }) {
-    return (
-        <div className="flex flex-row items-center gap-3 bg-base-200 rounded-2xl p-3">
-            <FontAwesomeIcon icon={icon} className="text-xl opacity-80" />
-            <div className="flex flex-col min-w-0">
-                <span className="text-sm opacity-70">{label}</span>
-                <span className="font-semibold break-words">{value || "—"}</span>
-            </div>
-        </div>
-    );
-}
-
 function VillesList({ villes, civilisationId, dimensions, auth = false }) {
     return (
         <div className="flex flex-col w-full">
@@ -289,115 +277,117 @@ export default function CivilisationPage() {
             />
             <SommaireFiche />
 
-            {/* Présentation à gauche, chiffres clés à droite (empilés sur téléphone) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-2 w-full">
-                <section className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+            {/* Corps en deux colonnes, comme la maquette : le contenu à gauche ; chiffres clés, gouvernement et diplomatie
+                à droite. Sur téléphone, la colonne de droite passe au-dessus du contenu. */}
+            <div className="fiche grid grid-cols-1 lg:grid-cols-3 gap-x-10 w-full items-start">
+                <div className="lg:col-span-2 flex flex-col gap-2 min-w-0">
                     <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
                     <MarkdownTextEditor value={civilisation.description || 'Aucune description'} />
-                </section>
-                <div className="grid grid-cols-2 gap-2 content-start bg-base-200 rounded-3xl p-2 lg:mt-4">
-                    <Stat icon="fa-solid fa-users" label={members.length > 1 ? "Membres" : "Membre"} value={members.length} />
-                    <Stat icon="fa-solid fa-city" label={villes.length > 1 ? "Villes" : "Ville"} value={villes.length} />
-                    <Stat icon="fa-solid fa-people-group" label="Population officielle" value={population.toLocaleString('fr-FR')} />
-                    {/* Codex, Art. II.5.1 : un soldat pour dix habitants de la population officielle. Infobulle sur grand écran
-                        seulement : sur téléphone, la bulle débordait de l'écran */}
-                    <a href="/codex#guerres-1" className="rounded-2xl hover:ring-2 hover:ring-primary lg:tooltip" data-tip={`Un soldat pour ${populationOfficielle?.habitants_par_soldat ?? 10} habitants (Codex, Art. II.5.1)`}>
-                        <Stat icon="fa-solid fa-chess-knight" label="Armée autorisée" value={`${(populationOfficielle?.armee ?? Math.floor(population / 10)).toLocaleString('fr-FR')} soldats`} />
-                    </a>
-                    <Stat icon="fa-solid fa-book" label={livres.length > 1 ? "Livres" : "Livre"} value={livres.length} />
-                </div>
-            </div>
 
-            <TitleH2 text={gouvernement?.title || "Gouvernement"} icon="fas fa-landmark" fonctions={gouvernement ? FctGouvernement : []} />
-            {gouvernement ? (
-                <div className="flex flex-col gap-3 w-full">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                        <GouvernementTile icon="fa-solid fa-scale-balanced" label="Régime" value={gouvernement.type} />
-                        <GouvernementTile icon="fa-solid fa-quote-left" label="Devise" value={gouvernement.devise} />
-                        <GouvernementTile icon="fa-solid fa-music" label="Hymne" value={gouvernement.hymne} />
-                    </div>
-                    {gouvernement.description ? <p className="px-1 break-words">{gouvernement.description}</p> : null}
-                    <PostesGouvernement entityType="civilisation" entityId={civilisation.id} civilisationId={civilisation.id} auth={auth} />
-                </div>
-            ) : (
-                <i className="w-full">Cette civilisation n'a pas de gouvernement.</i>
-            )}
-
-            <ElectionsSection entityType="civilisation" entityId={civilisation.id} peutOrganiser={auth} villes={villes} derniersClos={2} />
-
-            <DescriptionLongue type="civilisation" id={civilisation.id} auth={auth} />
-
-            <TitleH2 text="Membres" icon="fas fa-users" fonctions={FctMembers} />
-            <div className="flex flex-row flex-wrap gap-2 w-full">
-                {sortedMembers.length > 0 ? (
-                    sortedMembers.map((member) => (
-                        <MemberButton
-                            key={member.user_id}
-                            member={member}
-                            // Fondateur : transfert par lui-même ou un administrateur du site ; autres membres : Fondateur / Admin
-                            auth={member.role === "Fondateur" ? (member.user_id === user?.id || Boolean(user?.is_admin)) : auth}
-                            onDelete={handleMemberDelete}
-                            onModifyMember={handleMemberModify}
-                            onTransfer={() => showModalID(TRANSFER_MODAL_ID)}
-                        />
-                    ))
+                <TitleH2 text="Villes" icon="fas fa-city" fonctions={FctVilles} aide="ville" />
+                {villes.length === 0 ? (
+                    <EtatVide
+                        icon="fa-solid fa-city"
+                        texte="Cette civilisation n'a encore aucune ville."
+                        aide={auth ? "Fondez sa première ville pour la placer sur la carte." : "Seuls le fondateur et les administrateurs de la civilisation peuvent fonder une ville."}
+                        action={auth ? { label: "Fonder une ville", icon: "fa-solid fa-plus", onClick: () => showModal(villeModal, "add") } : null}
+                    />
                 ) : (
-                    <i>Aucun membre pour cette civilisation.</i>
+                    <VillesList villes={villes} civilisationId={civilisation.id} dimensions={dimensions} auth={auth} />
                 )}
-            </div>
-            <JoinHint members={members} entity="cette civilisation" />
 
-            <ConflictsSection entityType="civilisation" entityId={civilisation.id} />
+                {dirigees.length > 0 ? (
+                    <>
+                        <TitleH2 text="Civilisations dirigées" icon="fas fa-flag-checkered" />
+                        <div className="flex flex-col gap-4 w-full">
+                            {dirigees.map(({ civilisation: dirigee, villes: villesDirigee }) => (
+                                <div key={dirigee.id} className="flex flex-col gap-2 w-full">
+                                    <a href={`/civilisation/${dirigee.id}`} className="flex flex-row flex-wrap items-center gap-2 px-2 font-bold hover:underline">
+                                        <FontAwesomeIcon icon="fa-solid fa-flag" />
+                                        <span>{dirigee.title}</span>
+                                        <span className="font-normal text-sm opacity-70">· {plural(villesDirigee.length, "ville")}</span>
+                                    </a>
+                                    {villesDirigee.length === 0 ? (
+                                        <i className="px-2 text-sm opacity-70">Aucune ville.</i>
+                                    ) : (
+                                        <VillesList villes={villesDirigee} civilisationId={dirigee.id} dimensions={dimensions} />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                ) : null}
 
-            <MercenairesSection civilisationId={civilisation.id} />
+                    <ElectionsSection entityType="civilisation" entityId={civilisation.id} peutOrganiser={auth} villes={villes} derniersClos={2} />
 
-            <ResidentsSection type="civilisation" id={civilisation.id} creation />
+                    <DescriptionLongue type="civilisation" id={civilisation.id} auth={auth} />
 
-            <TitleH2 text="Villes" icon="fas fa-city" fonctions={FctVilles} aide="ville" />
-            {villes.length === 0 ? (
-                <EtatVide
-                    icon="fa-solid fa-city"
-                    texte="Cette civilisation n'a encore aucune ville."
-                    aide={auth ? "Fondez sa première ville pour la placer sur la carte." : "Seuls le fondateur et les administrateurs de la civilisation peuvent fonder une ville."}
-                    action={auth ? { label: "Fonder une ville", icon: "fa-solid fa-plus", onClick: () => showModal(villeModal, "add") } : null}
-                />
-            ) : (
-                <VillesList villes={villes} civilisationId={civilisation.id} dimensions={dimensions} auth={auth} />
-            )}
+                <TitleH2 text="Membres" icon="fas fa-users" fonctions={FctMembers} />
+                <div className="flex flex-row flex-wrap gap-2 w-full">
+                    {sortedMembers.length > 0 ? (
+                        sortedMembers.map((member) => (
+                            <MemberButton
+                                key={member.user_id}
+                                member={member}
+                                // Fondateur : transfert par lui-même ou un administrateur du site ; autres membres : Fondateur / Admin
+                                auth={member.role === "Fondateur" ? (member.user_id === user?.id || Boolean(user?.is_admin)) : auth}
+                                onDelete={handleMemberDelete}
+                                onModifyMember={handleMemberModify}
+                                onTransfer={() => showModalID(TRANSFER_MODAL_ID)}
+                            />
+                        ))
+                    ) : (
+                        <i>Aucun membre pour cette civilisation.</i>
+                    )}
+                </div>
+                <JoinHint members={members} entity="cette civilisation" />
 
-            {dirigees.length > 0 ? (
-                <>
-                    <TitleH2 text="Civilisations dirigées" icon="fas fa-flag-checkered" />
-                    <div className="flex flex-col gap-4 w-full">
-                        {dirigees.map(({ civilisation: dirigee, villes: villesDirigee }) => (
-                            <div key={dirigee.id} className="flex flex-col gap-2 w-full">
-                                <a href={`/civilisation/${dirigee.id}`} className="flex flex-row flex-wrap items-center gap-2 px-2 font-bold hover:underline">
-                                    <FontAwesomeIcon icon="fa-solid fa-flag" />
-                                    <span>{dirigee.title}</span>
-                                    <span className="font-normal text-sm opacity-70">· {plural(villesDirigee.length, "ville")}</span>
-                                </a>
-                                {villesDirigee.length === 0 ? (
-                                    <i className="px-2 text-sm opacity-70">Aucune ville.</i>
-                                ) : (
-                                    <VillesList villes={villesDirigee} civilisationId={dirigee.id} dimensions={dimensions} />
-                                )}
-                            </div>
-                        ))}
+                    <ResidentsSection type="civilisation" id={civilisation.id} creation />
+
+                    <MercenairesSection civilisationId={civilisation.id} />
+
+                <TitleH2 text="Livres" icon="fas fa-book" fonctions={FctLivres} aide="livre" />
+                {livres.length === 0 ? (
+                    <EtatVide
+                        icon="fa-solid fa-book"
+                        texte="Aucun livre n'a encore été écrit pour cette civilisation."
+                        aide={auth ? "Racontez son histoire, ses lois ou ses légendes en chapitres." : null}
+                        action={auth ? { label: "Écrire un livre", icon: "fa-solid fa-plus", onClick: () => showModal(livreModal, "add") } : null}
+                    />
+                ) : <EtagereLivres books={livres} text='livre(s)' />}
+
+                    <LivresLiesSection type="civilisation" id={civilisation.id} support="journal" />
+                </div>
+
+                <aside className="flex flex-col gap-2 min-w-0 order-first lg:order-none">
+                    <div className="grid grid-cols-2 gap-2 bg-base-200 rounded-3xl p-2 mt-4 lg:mt-7">
+                        <Stat icon="fa-solid fa-users" label={members.length > 1 ? "Membres" : "Membre"} value={members.length} />
+                        <Stat icon="fa-solid fa-city" label={villes.length > 1 ? "Villes" : "Ville"} value={villes.length} />
+                        <Stat icon="fa-solid fa-people-group" label="Population officielle" value={population.toLocaleString('fr-FR')} />
+                        {/* Codex, Art. II.5.1 : un soldat pour dix habitants de la population officielle. Infobulle sur grand écran
+                            seulement : sur téléphone, la bulle débordait de l'écran */}
+                        <a href="/codex#guerres-1" className="rounded-2xl hover:ring-2 hover:ring-primary lg:tooltip" data-tip={`Un soldat pour ${populationOfficielle?.habitants_par_soldat ?? 10} habitants (Codex, Art. II.5.1)`}>
+                            <Stat icon="fa-solid fa-chess-knight" label="Armée autorisée" value={`${(populationOfficielle?.armee ?? Math.floor(population / 10)).toLocaleString('fr-FR')} soldats`} />
+                        </a>
+                        <Stat icon="fa-solid fa-book" label={livres.length > 1 ? "Livres" : "Livre"} value={livres.length} />
                     </div>
-                </>
-            ) : null}
 
-            <TitleH2 text="Livres" icon="fas fa-book" fonctions={FctLivres} aide="livre" />
-            {livres.length === 0 ? (
-                <EtatVide
-                    icon="fa-solid fa-book"
-                    texte="Aucun livre n'a encore été écrit pour cette civilisation."
-                    aide={auth ? "Racontez son histoire, ses lois ou ses légendes en chapitres." : null}
-                    action={auth ? { label: "Écrire un livre", icon: "fa-solid fa-plus", onClick: () => showModal(livreModal, "add") } : null}
-                />
-            ) : <EtagereLivres books={livres} text='livre(s)' />}
+                    <TitleH2 text={gouvernement?.title || "Gouvernement"} icon="fas fa-landmark" fonctions={gouvernement ? FctGouvernement : []} />
+                    {gouvernement ? (
+                        <div className="flex flex-col gap-2 px-1">
+                            <InfoLine icon="fa-solid fa-scale-balanced">Régime : {gouvernement.type || "—"}</InfoLine>
+                            {gouvernement.devise ? <InfoLine icon="fa-solid fa-quote-left">Devise : « {gouvernement.devise} »</InfoLine> : null}
+                            {gouvernement.hymne ? <InfoLine icon="fa-solid fa-music">Hymne : {gouvernement.hymne}</InfoLine> : null}
+                            {gouvernement.description ? <p className="text-sm opacity-80 break-words">{gouvernement.description}</p> : null}
+                            <PostesGouvernement entityType="civilisation" entityId={civilisation.id} civilisationId={civilisation.id} auth={auth} compact />
+                        </div>
+                    ) : (
+                        <i className="px-1">Cette civilisation n'a pas de gouvernement.</i>
+                    )}
 
-            <LivresLiesSection type="civilisation" id={civilisation.id} support="journal" />
+                    <ConflictsSection entityType="civilisation" entityId={civilisation.id} />
+                </aside>
+            </div>
         </>
     ) : null;
 

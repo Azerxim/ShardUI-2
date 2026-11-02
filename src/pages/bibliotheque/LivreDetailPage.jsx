@@ -173,23 +173,26 @@ export default function LivreDetailPage() {
             />
             <SommaireFiche />
 
-            {/* Présentation à gauche ; chiffres clés et liens du livre à droite (empilés sur téléphone) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-2 w-full">
+            {/* Présentation à gauche ; chiffres clés et liens du livre à droite (au-dessus sur téléphone). Les chapitres, avec
+                leur propre sommaire, gardent toute la largeur en dessous. */}
+            <div className="fiche grid grid-cols-1 lg:grid-cols-3 gap-x-10 w-full items-start">
                 <section className="lg:col-span-2 flex flex-col gap-2 min-w-0">
                     <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
                     <MarkdownTextEditor value={livre.description || 'Aucune description'} />
                 </section>
-                <div className="flex flex-col gap-3 lg:mt-4">
+                <aside className="flex flex-col gap-3 min-w-0 mt-4 lg:mt-7 order-first lg:order-none">
                     <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2 bg-base-200 rounded-3xl p-2">
                         <Stat icon="fa-solid fa-bookmark" label={chapitres.length > 1 ? "Chapitres" : "Chapitre"} value={loadingChapitres ? "…" : chapitres.length} />
                         <Stat icon="fa-solid fa-font" label={words > 1 ? "Mots" : "Mot"} value={loadingChapitres ? "…" : words.toLocaleString('fr-FR')} />
                         <Stat icon="fa-solid fa-hourglass-half" label="Temps de lecture" value={loadingChapitres ? "…" : readingMinutes > 0 ? `~${readingMinutes} min` : "—"} />
                     </div>
                     <LivreLiensSection ecrit={livre} auth={auth} onLiens={droitsParLiens} />
-                </div>
+                </aside>
             </div>
 
-            <TitleH2 text="Chapitres" icon="fas fa-book-open" fonctions={FctChapitres} />
+            <div className="fiche w-full">
+                <TitleH2 text="Chapitres" icon="fas fa-book-open" fonctions={FctChapitres} />
+            </div>
             {loadingChapitres ? (
                 <div className="flex justify-center items-center py-12 w-full">
                     <div className="loading loading-spinner loading-lg"></div>

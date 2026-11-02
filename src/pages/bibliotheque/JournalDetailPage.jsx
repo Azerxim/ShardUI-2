@@ -453,91 +453,94 @@ export default function JournalDetailPage() {
       />
       <SommaireFiche />
 
-      {/* Présentation à gauche ; chiffres clés et liens du journal à droite (empilés sur téléphone) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-2 w-full">
-        <section className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+      {/* Corps en deux colonnes (charte « Chancellerie ») : le contenu à gauche, les chiffres clés et les informations
+          courtes à droite. Sur téléphone, la colonne de droite passe au-dessus du contenu. */}
+      <div className="fiche grid grid-cols-1 lg:grid-cols-3 gap-x-10 w-full items-start">
+        <div className="lg:col-span-2 flex flex-col gap-2 min-w-0">
           <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
           <MarkdownTextEditor value={journal.description || 'Aucune description'} />
-        </section>
-        <div className="flex flex-col gap-3 lg:mt-4">
-          <div className="grid grid-cols-2 gap-2 bg-base-200 rounded-3xl p-2">
-            <Stat icon="fa-solid fa-comments" label={messages.length > 1 ? "Messages" : "Message"} value={statValue(messages.length)} />
-            <Stat icon="fa-solid fa-user-pen" label={authorsCount > 1 ? "Auteurs" : "Auteur"} value={statValue(authorsCount)} />
-            <Stat icon="fa-solid fa-masks-theater" label={personnagesCount > 1 ? "Personnages" : "Personnage"} value={statValue(personnagesCount)} />
-            <Stat icon="fa-solid fa-clock-rotate-left" label="Dernier message" value={statValue(lastMessageDate || "—")} />
+
+          <div id="journal-messages" className="w-full scroll-mt-24">
+            <TitleH2 text="Messages" icon="fas fa-comments" fonctions={FctMessages} />
           </div>
-          <LivreLiensSection ecrit={journal} support="journal" auth={auth} />
-        </div>
-      </div>
 
-      <div id="journal-messages" className="w-full scroll-mt-24">
-        <TitleH2 text="Messages" icon="fas fa-comments" fonctions={FctMessages} />
-      </div>
-
-      {userId && platformsChecked && !myDiscordUid && messages.length > 0 ? (
-        <div role="note" className="flex flex-col sm:flex-row sm:items-center gap-3 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
-          <FontAwesomeIcon icon="fa-solid fa-masks-theater" className="text-info text-xl shrink-0" />
-          <p className="flex-1">Vous avez écrit dans ce journal ? Liez votre compte Discord pour signer vos messages du nom de vos personnages.</p>
-          <a href="/profil" className="btn btn-sm btn-primary self-start sm:self-auto">Lier mon compte Discord</a>
-        </div>
-      ) : null}
-
-      {content ? (
-        <div className="flex flex-row items-center gap-2 w-full px-2 text-sm opacity-70">
-          {fetching ? (
-            <>
-              <span className="loading loading-spinner loading-xs"></span>
-              <span>Actualisation des messages…</span>
-            </>
-          ) : updatedAt ? (
-            <span>Mis à jour le {formatDate(updatedAt)} à {formatTime(updatedAt)}</span>
-          ) : null}
-        </div>
-      ) : null}
-
-      {contentError ? (
-        <div role="alert" className="alert alert-warning alert-soft w-full">
-          <FontAwesomeIcon icon="fa-solid fa-triangle-exclamation" />
-          <span>{content ? `Actualisation impossible : ${contentError.replace(/\.?$/, '.')} Affichage des derniers messages enregistrés.` : contentError}</span>
-        </div>
-      ) : null}
-
-      {waitingFirstContent ? (
-        <div className="flex justify-center items-center py-12 w-full">
-          <div className="loading loading-spinner loading-lg"></div>
-        </div>
-      ) : !content ? null : groups.length === 0 ? (
-        <i className="w-full">Ce journal ne contient encore aucun message.</i>
-      ) : (
-        <>
-          {totalPages > 1 ? (
-            <div className="flex justify-center w-full">
-              <Pagination page={page} totalPages={totalPages} onChange={changePage} />
+          {userId && platformsChecked && !myDiscordUid && messages.length > 0 ? (
+            <div role="note" className="flex flex-col sm:flex-row sm:items-center gap-3 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
+              <FontAwesomeIcon icon="fa-solid fa-masks-theater" className="text-info text-xl shrink-0" />
+              <p className="flex-1">Vous avez écrit dans ce journal ? Liez votre compte Discord pour signer vos messages du nom de vos personnages.</p>
+              <a href="/profil" className="btn btn-sm btn-primary self-start sm:self-auto">Lier mon compte Discord</a>
             </div>
           ) : null}
 
-          <div className="flex flex-col w-full">
-            {pageGroups.map((group, index) => (
-              <Fragment key={group[0].id}>
-                {index === 0 || dayKey(group[0].timestamp) !== dayKey(pageGroups[index - 1][0].timestamp) ? (
-                  <div className="divider my-1 text-sm opacity-70 first-letter:uppercase">{formatDay(group[0].timestamp)}</div>
-                ) : null}
-                <MessageGroup group={group} links={linksByMessage} myDiscordUid={myDiscordUid} onLink={openLink} onUnlink={unlink} />
-              </Fragment>
-            ))}
-          </div>
+          {content ? (
+            <div className="flex flex-row items-center gap-2 w-full px-2 text-sm opacity-70">
+              {fetching ? (
+                <>
+                  <span className="loading loading-spinner loading-xs"></span>
+                  <span>Actualisation des messages…</span>
+                </>
+              ) : updatedAt ? (
+                <span>Mis à jour le {formatDate(updatedAt)} à {formatTime(updatedAt)}</span>
+              ) : null}
+            </div>
+          ) : null}
 
-          <div className="flex flex-row flex-wrap justify-center items-center gap-4 w-full mt-2">
-            <label className="flex flex-row items-center gap-2 whitespace-nowrap">
-              <span className="text-sm">Groupes par page</span>
-              <select value={perPage} onChange={(e) => changePerPage(Number(e.target.value))} className="select select-bordered select-sm bg-base-100 w-20">
-                {PER_PAGE_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
-              </select>
-            </label>
-            {totalPages > 1 ? <Pagination page={page} totalPages={totalPages} onChange={changePage} /> : null}
+          {contentError ? (
+            <div role="alert" className="alert alert-warning alert-soft w-full">
+              <FontAwesomeIcon icon="fa-solid fa-triangle-exclamation" />
+              <span>{content ? `Actualisation impossible : ${contentError.replace(/\.?$/, '.')} Affichage des derniers messages enregistrés.` : contentError}</span>
+            </div>
+          ) : null}
+
+          {waitingFirstContent ? (
+            <div className="flex justify-center items-center py-12 w-full">
+              <div className="loading loading-spinner loading-lg"></div>
+            </div>
+          ) : !content ? null : groups.length === 0 ? (
+            <i className="w-full">Ce journal ne contient encore aucun message.</i>
+          ) : (
+            <>
+              {totalPages > 1 ? (
+                <div className="flex justify-center w-full">
+                  <Pagination page={page} totalPages={totalPages} onChange={changePage} />
+                </div>
+              ) : null}
+
+              <div className="flex flex-col w-full">
+                {pageGroups.map((group, index) => (
+                  <Fragment key={group[0].id}>
+                    {index === 0 || dayKey(group[0].timestamp) !== dayKey(pageGroups[index - 1][0].timestamp) ? (
+                      <div className="divider my-1 text-sm opacity-70 first-letter:uppercase">{formatDay(group[0].timestamp)}</div>
+                    ) : null}
+                    <MessageGroup group={group} links={linksByMessage} myDiscordUid={myDiscordUid} onLink={openLink} onUnlink={unlink} />
+                  </Fragment>
+                ))}
+              </div>
+
+              <div className="flex flex-row flex-wrap justify-center items-center gap-4 w-full mt-2">
+                <label className="flex flex-row items-center gap-2 whitespace-nowrap">
+                  <span className="text-sm">Groupes par page</span>
+                  <select value={perPage} onChange={(e) => changePerPage(Number(e.target.value))} className="select select-bordered select-sm bg-base-100 w-20">
+                    {PER_PAGE_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
+                  </select>
+                </label>
+                {totalPages > 1 ? <Pagination page={page} totalPages={totalPages} onChange={changePage} /> : null}
+              </div>
+            </>
+          )}
+        </div>
+        <aside className="flex flex-col gap-2 min-w-0 order-first lg:order-none">
+          <div className="flex flex-col gap-2 mt-4 lg:mt-7">
+            <div className="grid grid-cols-2 gap-2 bg-base-200 rounded-3xl p-2">
+              <Stat icon="fa-solid fa-comments" label={messages.length > 1 ? "Messages" : "Message"} value={statValue(messages.length)} />
+              <Stat icon="fa-solid fa-user-pen" label={authorsCount > 1 ? "Auteurs" : "Auteur"} value={statValue(authorsCount)} />
+              <Stat icon="fa-solid fa-masks-theater" label={personnagesCount > 1 ? "Personnages" : "Personnage"} value={statValue(personnagesCount)} />
+              <Stat icon="fa-solid fa-clock-rotate-left" label="Dernier message" value={statValue(lastMessageDate || "—")} />
+            </div>
+            <LivreLiensSection ecrit={journal} support="journal" auth={auth} />
           </div>
-        </>
-      )}
+        </aside>
+      </div>
     </>
   ) : null;
 

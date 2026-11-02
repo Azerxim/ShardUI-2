@@ -433,8 +433,9 @@ export default function GuerrePage() {
                 </div>
             ) : null}
 
-            {/* Casus belli et description à gauche, chiffres des camps à droite (empilés sur téléphone) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-2 w-full">
+            {/* Corps en deux colonnes (charte « Chancellerie ») : le contenu à gauche, les chiffres clés et les informations
+                courtes à droite. Sur téléphone, la colonne de droite passe au-dessus du contenu. */}
+            <div className="fiche grid grid-cols-1 lg:grid-cols-3 gap-x-10 w-full items-start">
                 <div className="lg:col-span-2 flex flex-col gap-2 min-w-0">
                     {guerre.casus_belli ? (
                         <section className="flex flex-col gap-2">
@@ -448,111 +449,115 @@ export default function GuerrePage() {
                             <MarkdownTextEditor value={guerre.description} />
                         </section>
                     ) : null}
-                </div>
-                <div className="grid grid-cols-2 gap-2 content-start bg-base-200 rounded-3xl p-2 lg:mt-4">
-                    <Stat icon={CAMP_LABELS.attaquant.icon} label="Camp attaquant" value={camps.attaquant.filter((b) => b.status === "engage").length} />
-                    <Stat icon={CAMP_LABELS.defenseur.icon} label="Camp défenseur" value={camps.defenseur.filter((b) => b.status === "engage").length} />
-                </div>
-            </div>
 
-            <TitleH2 text="Camps en présence" icon="fas fa-people-group" aide="appel" />
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
-                {["attaquant", "defenseur"].map((camp) => (
-                    <section key={camp} aria-label={CAMP_LABELS[camp].title} className="flex flex-col gap-1">
-                        <div className="flex flex-row items-center gap-2">
-                            <FontAwesomeIcon icon={CAMP_LABELS[camp].icon} className={camp === "attaquant" ? "text-error" : "text-info"} />
-                            <h3 className="text-lg font-bold flex-1">{CAMP_LABELS[camp].title}</h3>
-                            {managesCamp(camp) && ouverte ? (
-                                <button type="button" className="btn btn-sm btn-ghost bg-base-200" onClick={() => showModalID(callModalId(camp))}>
-                                    <FontAwesomeIcon icon="fa-solid fa-bullhorn" />
-                                    Appeler un allié
-                                </button>
+                    <TitleH2 text="Chronologie" icon="fas fa-timeline" fonctions={FctChronologie} />
+                    {evenements.length === 0 ? (
+                        <i className="w-full">Aucun événement n'a encore été inscrit.</i>
+                    ) : (
+                        <ol aria-label="Chronologie" className="flex flex-col w-full border-l-2 border-base-300 ml-4 pl-5">
+                            {evenements.map((evenement) => {
+                                const kind = EVENEMENT_TYPES[evenement.type] ?? EVENEMENT_TYPES.autre;
+                                return (
+                                    <li key={evenement.id} className="relative flex flex-col gap-1 ligne-fiche">
+                                        <span className="absolute -left-9 top-3 flex items-center justify-center w-7 h-7 rounded-full bg-base-100 border-2 border-base-300 text-xs" aria-hidden="true">
+                                            <FontAwesomeIcon icon={kind.icon} />
+                                        </span>
+                                        <div className="flex flex-row flex-wrap items-center gap-2">
+                                            <span className="font-bold break-words flex-1 min-w-0">{evenement.title}</span>
+                                            <span className="badge badge-sm badge-ghost">{kind.label}</span>
+                                            {evenement.camp ? <span className={`badge badge-sm ${evenement.camp === "attaquant" ? "badge-error" : "badge-info"}`}>{CAMP_LABELS[evenement.camp]?.title}</span> : null}
+                                            {canRemoveEvenement(evenement) ? (
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-xs btn-ghost text-error"
+                                                    aria-label={`Retirer « ${evenement.title} »`}
+                                                    onClick={() => act(() => apiRequest("DELETE", `/guerres/${id}/evenements/${evenement.id}`), {
+                                                        confirm: { title: "Retirer cet événement ?", text: `« ${evenement.title} » disparaîtra de la chronologie.`, button: "Retirer" },
+                                                    })}
+                                                >
+                                                    <FontAwesomeIcon icon="fa-solid fa-trash" />
+                                                </button>
+                                            ) : null}
+                                        </div>
+                                        <span className="text-xs opacity-70">
+                                            {evenement.date_rp ? `${formatDate(evenement.date_rp)} (RP)` : formatDate(evenement.created_at)}
+                                            {evenement.auteur ? ` · ${evenement.auteur.full_name || evenement.auteur.username}` : ""}
+                                        </span>
+                                        {evenement.description ? <p className="whitespace-pre-wrap break-words">{evenement.description}</p> : null}
+                                    </li>
+                                );
+                            })}
+                        </ol>
+                    )}
+
+                    {publique ? (
+                        <>
+                            <TitleH2 text="Zones de conflit" icon="fas fa-map-location-dot" fonctions={FctZones} />
+                            {zones.length === 0 ? (
+                                <i className="w-full">
+                                    {canEditZones ? "Aucune zone n'est tracée : utilisez « Tracer » pour marquer les fronts et les territoires disputés." : "Aucune zone de conflit n'a été tracée."}
+                                </i>
                             ) : null}
-                        </div>
-                        <ul className="flex flex-col border-t border-base-300">{camps[camp].map(renderBelligerant)}</ul>
-                    </section>
-                ))}
-            </div>
+                            {carteZones.length > 0 || carteTroupes.length > 0 ? (
+                                <div className="flex flex-col gap-2 w-full">
+                                    <div className="w-full h-72 sm:h-96 rounded-2xl overflow-hidden">
+                                        <MapEmbed ref={carteRef} dimension={zoneDimension} embed="guerres" {...carteCentre} zoom={0} width="100%" height="100%" title={`Zones de conflit de ${guerre.title}`} />
+                                    </div>
+                                    <span className="text-sm opacity-70">
+                                        {[
+                                            zones.length ? plural(zones.length, "zone de conflit tracée", "zones de conflit tracées") : null,
+                                            carteTroupes.length ? `${plural(carteTroupes.length, "troupe", "troupes")} sur la carte (visibles de votre camp et des modérateurs RP)` : null,
+                                        ].filter(Boolean).join(" · ")}
+                                    </span>
+                                </div>
+                            ) : null}
+                        </>
+                    ) : null}
 
-            <TitleH2 text="Chronologie" icon="fas fa-timeline" fonctions={FctChronologie} />
-            {evenements.length === 0 ? (
-                <i className="w-full">Aucun événement n'a encore été inscrit.</i>
-            ) : (
-                <ol aria-label="Chronologie" className="flex flex-col w-full border-l-2 border-base-300 ml-4 pl-5">
-                    {evenements.map((evenement) => {
-                        const kind = EVENEMENT_TYPES[evenement.type] ?? EVENEMENT_TYPES.autre;
-                        return (
-                            <li key={evenement.id} className="relative flex flex-col gap-1 ligne-fiche">
-                                <span className="absolute -left-9 top-3 flex items-center justify-center w-7 h-7 rounded-full bg-base-100 border-2 border-base-300 text-xs" aria-hidden="true">
-                                    <FontAwesomeIcon icon={kind.icon} />
-                                </span>
-                                <div className="flex flex-row flex-wrap items-center gap-2">
-                                    <span className="font-bold break-words flex-1 min-w-0">{evenement.title}</span>
-                                    <span className="badge badge-sm badge-ghost">{kind.label}</span>
-                                    {evenement.camp ? <span className={`badge badge-sm ${evenement.camp === "attaquant" ? "badge-error" : "badge-info"}`}>{CAMP_LABELS[evenement.camp]?.title}</span> : null}
-                                    {canRemoveEvenement(evenement) ? (
-                                        <button
-                                            type="button"
-                                            className="btn btn-xs btn-ghost text-error"
-                                            aria-label={`Retirer « ${evenement.title} »`}
-                                            onClick={() => act(() => apiRequest("DELETE", `/guerres/${id}/evenements/${evenement.id}`), {
-                                                confirm: { title: "Retirer cet événement ?", text: `« ${evenement.title} » disparaîtra de la chronologie.`, button: "Retirer" },
-                                            })}
-                                        >
-                                            <FontAwesomeIcon icon="fa-solid fa-trash" />
+                    {publique ? <TroupesSection guerre={guerre} reloadKey={reloadKey} onChange={reload} onData={setTroupesData} /> : null}
+
+                    {publique ? <CiblesSection guerre={guerre} dimensions={dimensions} /> : null}
+
+                    {actions.length > 0 ? (
+                        <>
+                            <TitleH2 text="Actions secrètes révélées" icon="fas fa-user-secret" aide="action" />
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 w-full items-start">
+                                {actions.map((action) => <ActionCard key={action.id} action={action} />)}
+                            </div>
+                        </>
+                    ) : null}
+
+                    <LivresLiesSection type="guerre" id={guerre.id} />
+                    <LivresLiesSection type="guerre" id={guerre.id} support="journal" />
+                </div>
+                <aside className="flex flex-col gap-2 min-w-0 order-first lg:order-none">
+                    <div className="flex flex-col gap-2 mt-4 lg:mt-7">
+                        <div className="grid grid-cols-2 gap-2 bg-base-200 rounded-3xl p-2">
+                            <Stat icon={CAMP_LABELS.attaquant.icon} label="Camp attaquant" value={camps.attaquant.filter((b) => b.status === "engage").length} />
+                            <Stat icon={CAMP_LABELS.defenseur.icon} label="Camp défenseur" value={camps.defenseur.filter((b) => b.status === "engage").length} />
+                        </div>
+                    </div>
+
+                    <TitleH2 text="Camps en présence" icon="fas fa-people-group" aide="appel" />
+                    <div className="flex flex-col gap-4 w-full">
+                        {["attaquant", "defenseur"].map((camp) => (
+                            <section key={camp} aria-label={CAMP_LABELS[camp].title} className="flex flex-col gap-1">
+                                <div className="flex flex-row items-center gap-2">
+                                    <FontAwesomeIcon icon={CAMP_LABELS[camp].icon} className={camp === "attaquant" ? "text-error" : "text-info"} />
+                                    <h3 className="text-lg font-bold flex-1">{CAMP_LABELS[camp].title}</h3>
+                                    {managesCamp(camp) && ouverte ? (
+                                        <button type="button" className="btn btn-sm btn-ghost bg-base-200" onClick={() => showModalID(callModalId(camp))}>
+                                            <FontAwesomeIcon icon="fa-solid fa-bullhorn" />
+                                            Appeler un allié
                                         </button>
                                     ) : null}
                                 </div>
-                                <span className="text-xs opacity-70">
-                                    {evenement.date_rp ? `${formatDate(evenement.date_rp)} (RP)` : formatDate(evenement.created_at)}
-                                    {evenement.auteur ? ` · ${evenement.auteur.full_name || evenement.auteur.username}` : ""}
-                                </span>
-                                {evenement.description ? <p className="whitespace-pre-wrap break-words">{evenement.description}</p> : null}
-                            </li>
-                        );
-                    })}
-                </ol>
-            )}
-
-            {publique ? (
-                <>
-                    <TitleH2 text="Zones de conflit" icon="fas fa-map-location-dot" fonctions={FctZones} />
-                    {zones.length === 0 ? (
-                        <i className="w-full">
-                            {canEditZones ? "Aucune zone n'est tracée : utilisez « Tracer » pour marquer les fronts et les territoires disputés." : "Aucune zone de conflit n'a été tracée."}
-                        </i>
-                    ) : null}
-                    {carteZones.length > 0 || carteTroupes.length > 0 ? (
-                        <div className="flex flex-col gap-2 w-full">
-                            <div className="w-full h-72 sm:h-96 rounded-2xl overflow-hidden">
-                                <MapEmbed ref={carteRef} dimension={zoneDimension} embed="guerres" {...carteCentre} zoom={0} width="100%" height="100%" title={`Zones de conflit de ${guerre.title}`} />
-                            </div>
-                            <span className="text-sm opacity-70">
-                                {[
-                                    zones.length ? plural(zones.length, "zone de conflit tracée", "zones de conflit tracées") : null,
-                                    carteTroupes.length ? `${plural(carteTroupes.length, "troupe", "troupes")} sur la carte (visibles de votre camp et des modérateurs RP)` : null,
-                                ].filter(Boolean).join(" · ")}
-                            </span>
-                        </div>
-                    ) : null}
-                </>
-            ) : null}
-
-            {publique ? <TroupesSection guerre={guerre} reloadKey={reloadKey} onChange={reload} onData={setTroupesData} /> : null}
-
-            {publique ? <CiblesSection guerre={guerre} dimensions={dimensions} /> : null}
-
-            {actions.length > 0 ? (
-                <>
-                    <TitleH2 text="Actions secrètes révélées" icon="fas fa-user-secret" aide="action" />
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 w-full items-start">
-                        {actions.map((action) => <ActionCard key={action.id} action={action} />)}
+                                <ul className="flex flex-col border-t border-base-300">{camps[camp].map(renderBelligerant)}</ul>
+                            </section>
+                        ))}
                     </div>
-                </>
-            ) : null}
-
-            <LivresLiesSection type="guerre" id={guerre.id} />
-            <LivresLiesSection type="guerre" id={guerre.id} support="journal" />
+                </aside>
+            </div>
         </>
     ) : null;
 

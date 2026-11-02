@@ -249,95 +249,100 @@ export default function CommercePage() {
             />
             <SommaireFiche />
 
-            {/* Présentation à gauche, chiffres clés à droite (empilés sur téléphone) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-2 w-full">
-                <section className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+            {/* Corps en deux colonnes (charte « Chancellerie ») : le contenu à gauche, les chiffres clés et les informations
+                courtes à droite. Sur téléphone, la colonne de droite passe au-dessus du contenu. */}
+            <div className="fiche grid grid-cols-1 lg:grid-cols-3 gap-x-10 w-full items-start">
+                <div className="lg:col-span-2 flex flex-col gap-2 min-w-0">
                     <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
                     <MarkdownTextEditor value={commerce.description ? commerce.description : 'Aucune description'} />
-                </section>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 content-start bg-base-200 rounded-3xl p-2 lg:mt-4">
-                    <Stat icon="fa-solid fa-store" label={visibleMagasins.length > 1 ? "Magasins" : "Magasin"} value={visibleMagasins.length} />
-                    <Stat icon="fa-solid fa-building" label={villeSiege ? `Siège · ${villeSiege.title}` : "Siège"} value={siege ? siege.title : "—"} />
+
+                    <DescriptionLongue type="commerce" id={commerce.id} auth={auth} />
+
+                    <TitleH2 text="Magasins" icon="fas fa-store" fonctions={FctMagasins} aide="commerce" />
+                    {visibleMagasins.length === 0 ? (
+                        <div className="w-full">
+                            <i>Ce commerce n'a encore aucun magasin.</i>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col w-full">
+                            {visibleMagasins.map((magasin) => (
+                                <MagasinCard
+                                    key={magasin.id}
+                                    magasin={magasin}
+                                    dimension={dimensions.find((dimension) => dimension.id === magasin.dimension_id)}
+                                    ville={villes.find((ville) => ville.id === magasin.ville_id)}
+                                    auth={auth}
+                                />
+                            ))}
+                        </div>
+                    )}
+
+                    {visibleDiriges.length > 0 ? (
+                        <>
+                            <TitleH2 text="Commerces dirigés" icon="fas fa-crown" />
+                            <div className="flex flex-col gap-4 w-full">
+                                {visibleDiriges.map(({ commerce: dirige, fondateur: dirigeFondateur, members: dirigeMembers, magasins: dirigeMagasins }) => {
+                                    // Les droits sur ce commerce valent pour ses commerces dirigés
+                                    const dirigeAuth = auth || checkMemberAuth(dirigeMembers || []);
+                                    const dirigeVisibleMagasins = (dirigeMagasins || []).filter((magasin) => magasin.is_public || dirigeAuth);
+                                    return (
+                                        <div key={dirige.id} className="flex flex-col gap-2 w-full">
+                                            <a href={`/commerce/${dirige.id}`} className="flex flex-row flex-wrap items-center gap-2 px-2 font-bold hover:underline">
+                                                <FontAwesomeIcon icon="fa-solid fa-shop" />
+                                                <span>{dirige.title}</span>
+                                                {dirigeFondateur ? <span className="font-normal text-sm opacity-70">· {dirigeFondateur.full_name || dirigeFondateur.username}</span> : null}
+                                            </a>
+                                            {dirigeVisibleMagasins.length === 0 ? (
+                                                <i className="px-2 text-sm opacity-70">Aucun magasin.</i>
+                                            ) : dirigeVisibleMagasins.map((magasin) => (
+                                                <MagasinCard
+                                                    key={magasin.id}
+                                                    magasin={magasin}
+                                                    dimension={dimensions.find((dimension) => dimension.id === magasin.dimension_id)}
+                                                    ville={villes.find((ville) => ville.id === magasin.ville_id)}
+                                                    auth={auth}
+                                                />
+                                            ))}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </>
+                    ) : null}
+
+                    <LivresLiesSection type="commerce" id={commerce.id} />
+                    <LivresLiesSection type="commerce" id={commerce.id} support="journal" />
                 </div>
-            </div>
-
-            <DescriptionLongue type="commerce" id={commerce.id} auth={auth} />
-
-            <TitleH2 text="Membres" icon="fas fa-users" fonctions={FctMembers} />
-            <div className="flex flex-row flex-wrap gap-2 w-full">
-                {sortedMembers.length > 0 ? (
-                    sortedMembers.map((member) => (
-                        <MemberButton
-                            key={member.user_id}
-                            member={member}
-                            editConfig={commerceMemberEditModal}
-                            // Fondateur : transfert par lui-même ou un administrateur du site ; autres membres : Fondateur / Admin
-                            auth={member.role === "Fondateur" ? (member.user_id === user?.id || Boolean(user?.is_admin)) : auth}
-                            onDelete={handleMemberDelete}
-                            onModifyMember={handleMemberModify}
-                            onTransfer={() => showModalID(TRANSFER_MODAL_ID)}
-                        />
-                    ))
-                ) : (
-                    <i>Aucun membre pour ce commerce.</i>
-                )}
-            </div>
-            <JoinHint members={members} entity="ce commerce" />
-
-            <TitleH2 text="Magasins" icon="fas fa-store" fonctions={FctMagasins} aide="commerce" />
-            {visibleMagasins.length === 0 ? (
-                <div className="w-full">
-                    <i>Ce commerce n'a encore aucun magasin.</i>
-                </div>
-            ) : (
-                <div className="flex flex-col w-full">
-                    {visibleMagasins.map((magasin) => (
-                        <MagasinCard
-                            key={magasin.id}
-                            magasin={magasin}
-                            dimension={dimensions.find((dimension) => dimension.id === magasin.dimension_id)}
-                            ville={villes.find((ville) => ville.id === magasin.ville_id)}
-                            auth={auth}
-                        />
-                    ))}
-                </div>
-            )}
-
-            {visibleDiriges.length > 0 ? (
-                <>
-                    <TitleH2 text="Commerces dirigés" icon="fas fa-crown" />
-                    <div className="flex flex-col gap-4 w-full">
-                        {visibleDiriges.map(({ commerce: dirige, fondateur: dirigeFondateur, members: dirigeMembers, magasins: dirigeMagasins }) => {
-                            // Les droits sur ce commerce valent pour ses commerces dirigés
-                            const dirigeAuth = auth || checkMemberAuth(dirigeMembers || []);
-                            const dirigeVisibleMagasins = (dirigeMagasins || []).filter((magasin) => magasin.is_public || dirigeAuth);
-                            return (
-                                <div key={dirige.id} className="flex flex-col gap-2 w-full">
-                                    <a href={`/commerce/${dirige.id}`} className="flex flex-row flex-wrap items-center gap-2 px-2 font-bold hover:underline">
-                                        <FontAwesomeIcon icon="fa-solid fa-shop" />
-                                        <span>{dirige.title}</span>
-                                        {dirigeFondateur ? <span className="font-normal text-sm opacity-70">· {dirigeFondateur.full_name || dirigeFondateur.username}</span> : null}
-                                    </a>
-                                    {dirigeVisibleMagasins.length === 0 ? (
-                                        <i className="px-2 text-sm opacity-70">Aucun magasin.</i>
-                                    ) : dirigeVisibleMagasins.map((magasin) => (
-                                        <MagasinCard
-                                            key={magasin.id}
-                                            magasin={magasin}
-                                            dimension={dimensions.find((dimension) => dimension.id === magasin.dimension_id)}
-                                            ville={villes.find((ville) => ville.id === magasin.ville_id)}
-                                            auth={auth}
-                                        />
-                                    ))}
-                                </div>
-                            );
-                        })}
+                <aside className="flex flex-col gap-2 min-w-0 order-first lg:order-none">
+                    <div className="flex flex-col gap-2 mt-4 lg:mt-7">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 bg-base-200 rounded-3xl p-2">
+                            <Stat icon="fa-solid fa-store" label={visibleMagasins.length > 1 ? "Magasins" : "Magasin"} value={visibleMagasins.length} />
+                            <Stat icon="fa-solid fa-building" label={villeSiege ? `Siège · ${villeSiege.title}` : "Siège"} value={siege ? siege.title : "—"} />
+                        </div>
                     </div>
-                </>
-            ) : null}
 
-            <LivresLiesSection type="commerce" id={commerce.id} />
-            <LivresLiesSection type="commerce" id={commerce.id} support="journal" />
+                    <TitleH2 text="Membres" icon="fas fa-users" fonctions={FctMembers} />
+                    <div className="flex flex-row flex-wrap gap-2 w-full">
+                        {sortedMembers.length > 0 ? (
+                            sortedMembers.map((member) => (
+                                <MemberButton
+                                    key={member.user_id}
+                                    member={member}
+                                    editConfig={commerceMemberEditModal}
+                                    // Fondateur : transfert par lui-même ou un administrateur du site ; autres membres : Fondateur / Admin
+                                    auth={member.role === "Fondateur" ? (member.user_id === user?.id || Boolean(user?.is_admin)) : auth}
+                                    onDelete={handleMemberDelete}
+                                    onModifyMember={handleMemberModify}
+                                    onTransfer={() => showModalID(TRANSFER_MODAL_ID)}
+                                />
+                            ))
+                        ) : (
+                            <i>Aucun membre pour ce commerce.</i>
+                        )}
+                    </div>
+                    <JoinHint members={members} entity="ce commerce" />
+                </aside>
+            </div>
         </>
     ) : null;
 
