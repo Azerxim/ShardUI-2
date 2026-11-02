@@ -42,6 +42,8 @@ const IMAGE_EXTENSIONS = /\.(png|jpe?g|gif|webp|avif|bmp)$/i;
 const LINK_MODAL_ID = 'journal-personnage-modal';
 
 const formatDate = (date) => date ? new Date(date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) : null;
+// Date courte (« 1 nov. 2026 ») : tient dans un chiffre clé de la colonne étroite
+const formatDateCourte = (date) => date ? new Date(date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' }) : null;
 const formatDay = (timestamp) => new Date(timestamp).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 const formatTime = (timestamp) => new Date(timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 const dayKey = (timestamp) => new Date(timestamp).toDateString();
@@ -412,7 +414,7 @@ export default function JournalDetailPage() {
   const messageIds = new Set(messages.map((message) => String(message.id)));
   const personnagesCount = new Set(links.filter((link) => messageIds.has(String(link.message_id))).map((link) => link.personnage.id)).size;
   const lastGroup = groups[groups.length - 1];
-  const lastMessageDate = lastGroup ? formatDate(lastGroup[lastGroup.length - 1].timestamp) : null;
+  const lastMessageDate = lastGroup ? formatDateCourte(lastGroup[lastGroup.length - 1].timestamp) : null;
   const published = formatDate(journal?.published_date);
   // Un journal privé n'est visible que par son auteur et les administrateurs (auth)
   const hidden = journal?.is_public === false && !auth;
