@@ -7,6 +7,8 @@ import Swal from "sweetalert2";
 import Navbar from "@/components/layout/Navbar";
 import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
+import EnTeteFiche from "@/components/ui/EnTeteFiche";
+import Medaillon from "@/components/ui/Medaillon";
 import SommaireFiche from "@/components/ui/SommaireFiche";
 import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
@@ -21,6 +23,7 @@ import {
     allianceBody, allianceFormFields, formatDate, managedEntities, runAction, toOptions,
 } from "@/utils/conflits";
 import { getSessionUser } from "@/services/session";
+import { couleurFiche, metalSur } from "@/utils/couleurFiche";
 import { apiRequest, getAllianceById, getCivilisations } from "@/services/api";
 import LivresLiesSection from "@/components/bibliotheque/LivresLiesSection";
 import ElectionsSection from "@/components/elections/ElectionsSection";
@@ -107,45 +110,37 @@ export default function AlliancePage() {
         { id: 1, title: "Inviter", icon: "fas fa-envelope", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: isChef, tooltip: { text: "Inviter une civilisation", position: "bottom" }, function: () => showModalID(INVITE_MODAL_ID) }
     ];
 
+    const couleur = couleurFiche(alliance?.color, alliance?.id);
     const btnReturn = { text: "Retour aux alliances", icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: "/alliances" };
 
     const guerresEnCours = guerres.filter(({ guerre }) => guerre.status === "en_cours");
 
     const BodyHTML = alliance ? (
         <>
-            <TitleH1 text={alliance.title} icon={alliance.icon || type.icon} btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Alliances", href: "/alliances" }, { label: alliance.title }]} />
+            <EnTeteFiche
+                couleur={couleur}
+                embleme={<Medaillon fond={metalSur(couleur)} encre={couleur} icon={alliance.icon || type.icon} iconFallback={type.icon} titre={`Emblème de ${alliance.title}`} />}
+                surtitre={[type.label, alliance.is_public === false ? "privée, sur invitation" : null, alliance.date_founded ? `scellée le ${formatDate(alliance.date_founded)}` : null].filter(Boolean).join(" · ")}
+                titre={alliance.title}
+                infos={
+                    <InfoLine icon="fa-solid fa-crown">
+                        Chef de file : {chef ? <a href={`/civilisation/${chef.id}`} className="link link-hover">{chef.title}</a> : "aucun"}
+                    </InfoLine>
+                }
+                fonctions={FctModify}
+                ariane={[{ label: "Alliances", href: "/alliances" }, { label: alliance.title }]}
+            />
             <SommaireFiche />
 
-            <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4 border-l-8" style={{ borderLeftColor: alliance.color || undefined }}>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                    <span className="flex items-center justify-center w-16 h-16 rounded-full text-2xl shrink-0 shadow-md text-white" style={{ backgroundColor: alliance.color || "#6b7280" }}>
-                        <FontAwesomeIcon icon={alliance.icon || type.icon} />
-                    </span>
-                    <div className="flex flex-col gap-1 min-w-0">
-                        <InfoLine icon={type.icon}>{type.label}</InfoLine>
-                        <InfoLine icon="fa-solid fa-crown">
-                            Chef de file : {chef ? <a href={`/civilisation/${chef.id}`} className="link link-hover">{chef.title}</a> : "aucun"}
-                        </InfoLine>
-                        <InfoLine icon="fa-solid fa-calendar">
-                            {alliance.date_founded ? `Scellée le ${formatDate(alliance.date_founded)}` : "Date de fondation inconnue"}
-                        </InfoLine>
-                        <InfoLine icon={alliance.is_public === false ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"}>
-                            {alliance.is_public === false ? "Alliance privée (sur invitation)" : "Alliance publique"}
-                        </InfoLine>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
+            {/* Présentation à gauche, chiffres clés à droite (empilés sur téléphone) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-2 w-full">
+                <section className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+                    <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
+                    <MarkdownTextEditor value={alliance.description || "Aucune description"} />
+                </section>
+                <div className="grid grid-cols-2 gap-2 content-start bg-base-200 rounded-3xl p-2 lg:mt-4">
                     <Stat icon="fa-solid fa-flag" label={membres.length > 1 ? "Civilisations" : "Civilisation"} value={membres.length} color={alliance.color || undefined} />
                     <Stat icon="fa-solid fa-shield-halved" label={guerresEnCours.length > 1 ? "Guerres en cours" : "Guerre en cours"} value={guerresEnCours.length} color={alliance.color || undefined} />
-                </div>
-
-                <div className="flex flex-col gap-2">
-                    <span className="flex flex-row items-center gap-2 font-bold">
-                        <FontAwesomeIcon icon="fas fa-pen-nib" />
-                        <span>Description</span>
-                    </span>
-                    <MarkdownTextEditor value={alliance.description || "Aucune description"} />
                 </div>
             </div>
 

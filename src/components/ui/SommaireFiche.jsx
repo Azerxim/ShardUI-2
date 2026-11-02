@@ -134,10 +134,12 @@ export default function SommaireFiche() {
         <nav
             ref={barreRef}
             aria-label="Sommaire de la page"
-            className={`sticky z-40 w-full ${sections.length < 2 ? 'hidden' : 'flex'} flex-row items-center gap-1 bg-base-100/90 backdrop-blur rounded-3xl shadow-sm p-1`}
+            className={`sticky z-40 w-full ${sections.length < 2 ? 'hidden' : 'flex'} flex-row items-center gap-1 bg-base-100 border-b border-base-300 px-2`}
             style={{ top: `${NAVBAR_BAS}px` }}
         >
-            <div ref={listeRef} className="flex flex-row items-center gap-1 overflow-x-auto flex-1 min-w-0" style={{ scrollbarWidth: 'thin' }}>
+            {/* Charte « Chancellerie » : liens texte, la section en cours en gras et soulignée ; défilement horizontal
+                seulement (overflow-y hidden : pas de barre verticale), sans barre visible */}
+            <div ref={listeRef} className="flex flex-row items-center overflow-x-auto overflow-y-hidden flex-1 min-w-0" style={{ scrollbarWidth: 'none' }}>
                 {sections.map(({ id, titre }) => (
                     <button
                         key={id}
@@ -145,7 +147,7 @@ export default function SommaireFiche() {
                         data-cible={id}
                         onClick={() => choisir(id)}
                         aria-current={active === id ? 'location' : undefined}
-                        className={`btn btn-sm rounded-3xl shrink-0 font-normal ${active === id ? 'btn-primary' : 'btn-ghost'}`}
+                        className={`shrink-0 whitespace-nowrap px-3 py-2.5 cursor-pointer ${active === id ? 'font-bold shadow-[inset_0_-2px_0_currentColor]' : 'opacity-75 hover:opacity-100'}`}
                     >
                         {titre}
                     </button>

@@ -7,6 +7,8 @@ import Swal from "sweetalert2";
 import Navbar from "@/components/layout/Navbar";
 import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
+import EnTeteFiche from "@/components/ui/EnTeteFiche";
+import Blason from "@/components/ui/Blason";
 import SommaireFiche from "@/components/ui/SommaireFiche";
 import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
@@ -29,6 +31,8 @@ import {
     entityHref, formatDate, isModerateur, managedEntities, runAction,
 } from "@/utils/conflits";
 import { getSessionUser } from "@/services/session";
+import { ENCRE, encreSur, metalSur } from "@/utils/couleurFiche";
+import { useCouleurCivilisation } from "@/utils/useCouleurCivilisation";
 import { MAPS_ORIGIN } from "@/config/maps";
 import { apiRequest, getAlliances, getCivilisations, getDimensions, getGuerreById, getReligions, getActionsOfGuerre, getZonesOfGuerre } from "@/services/api";
 
@@ -65,6 +69,39 @@ const zoneCenter = (zone) => {
         return { x: 0, z: 0 };
     }
 };
+
+const GUEULES = "#b3263a";
+const AZUR = "#2e4fb0";
+
+// Un camp dans l'en-tête de la guerre : son chef aux couleurs de son blason (ou de sa religion), et le nombre d'alliés engagés
+function CampEnTete({ camp, belligerants, couleur }) {
+    const chef = belligerants.find((b) => b.is_leader)?.entite;
+    const allies = belligerants.filter((b) => !b.is_leader && b.status === "engage").length;
+    const encre = encreSur(couleur);
+    const contenu = (
+        <>
+            {chef?.type === "religion" ? (
+                <span className="flex items-center justify-center w-14 h-14 rounded-full shrink-0 border-[3px] border-[#17131f] text-2xl" style={{ background: metalSur(couleur), color: couleur }}>
+                    <DynamicIcon icon={religionIcon(chef)} fallback={DEFAULT_RELIGION_ICON} />
+                </span>
+            ) : (
+                <Blason champ={metalSur(couleur)} meuble={couleur} icon="fa-solid fa-flag" largeur={52} />
+            )}
+            <span className="flex flex-col min-w-0">
+                <span className="font-label text-sm opacity-85">{camp === "attaquant" ? "Attaquants" : "Défenseurs"}</span>
+                <span className="font-bold text-lg break-words">{chef?.title ?? "Camp vide"}</span>
+                {allies > 0 ? <span className="text-sm opacity-85">et {allies > 1 ? `${allies} alliés` : "1 allié"}</span> : null}
+            </span>
+        </>
+    );
+    const classes = "flex flex-row items-center gap-4 rounded-2xl px-4 py-3 min-w-0";
+    // Chef disparu : son nom reste, sans lien
+    return chef && !chef.deleted ? (
+        <a href={entityHref(chef)} className={`${classes} hover:brightness-110`} style={{ background: couleur, color: encre }}>{contenu}</a>
+    ) : (
+        <div className={classes} style={{ background: couleur, color: encre }}>{contenu}</div>
+    );
+}
 
 function EntityAvatar({ entite }) {
     if (entite.type === "religion") {
@@ -145,6 +182,14 @@ export default function GuerrePage() {
     const manages = (entite) => (entite?.type === "religion" ? managedReligionIds : managedCivIds).has(entite?.id);
     const moderateur = isModerateur(user);
     const leaderOf = (camp) => camps[camp].find((b) => b.is_leader);
+    const chefAttaquant = leaderOf("attaquant")?.entite;
+    const chefDefenseur = leaderOf("defenseur")?.entite;
+    const couleurCivAttaquant = useCouleurCivilisation(chefAttaquant?.type === "civilisation" ? chefAttaquant.id : null);
+    const couleurCivDefenseur = useCouleurCivilisation(chefDefenseur?.type === "civilisation" ? chefDefenseur.id : null);
+    // Un camp à l'encre se fondrait dans l'en-tête encre : il prend alors le gueules (attaque) ou l'azur (défense)
+    const lisible = (couleur, repli) => (couleur && couleur.toLowerCase() !== ENCRE ? couleur : repli);
+    const couleurAttaquant = lisible(chefAttaquant?.type === "religion" ? religionColor(chefAttaquant) : couleurCivAttaquant, GUEULES);
+    const couleurDefenseur = lisible(chefDefenseur?.type === "religion" ? religionColor(chefDefenseur) : couleurCivDefenseur, AZUR);
     const managesCamp = (camp) => Boolean(leaderOf(camp) && manages(leaderOf(camp).entite));
 
     const engagedCivIds = new Set([...camps.attaquant, ...camps.defenseur].filter((b) => b.entite.type === "civilisation").map((b) => b.entite.id));
@@ -324,7 +369,34 @@ export default function GuerrePage() {
 
     const BodyHTML = guerre ? (
         <>
-            <TitleH1 text={guerre.title} icon={type.icon} btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Guerres", href: "/guerres" }, { label: guerre.title }]} />
+            {/* En-tête encre : la guerre et ses deux camps, chacun aux couleurs de son chef de camp */}
+            <EnTeteFiche
+                couleur={ENCRE}
+                surtitre={`${type.label} · déclarée le ${formatDate(guerre.declared_at)}${data.declarant ? ` par ${data.declarant.full_name || data.declarant.username}` : ""}`}
+                titre={guerre.title}
+                infos={
+                    <>
+                        <span className={`badge ${statut.badge}`}>{statut.label}</span>
+                        {guerre.date_debut ? (
+                            <InfoLine icon="fa-solid fa-calendar">
+                                {guerre.status === "terminee" ? `Du ${formatDate(guerre.date_debut)} au ${formatDate(guerre.date_fin)}` : `Débutée le ${formatDate(guerre.date_debut)}`}
+                            </InfoLine>
+                        ) : null}
+                        {data.moderateur ? <InfoLine icon="fa-solid fa-gavel">Encadrée par {data.moderateur.full_name || data.moderateur.username}</InfoLine> : null}
+                        {guerre.status === "terminee" && guerre.issue ? (
+                            <InfoLine icon="fa-solid fa-flag-checkered"><strong>Issue : {guerre.issue}</strong></InfoLine>
+                        ) : null}
+                    </>
+                }
+                fonctions={FctModify}
+                ariane={[{ label: "Guerres", href: "/guerres" }, { label: guerre.title }]}
+            >
+                <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
+                    <CampEnTete camp="attaquant" belligerants={camps.attaquant} couleur={couleurAttaquant} />
+                    <span className="font-label text-lg opacity-85 text-center">contre</span>
+                    <CampEnTete camp="defenseur" belligerants={camps.defenseur} couleur={couleurDefenseur} />
+                </div>
+            </EnTeteFiche>
             <SommaireFiche />
 
             {moderateur && ouverte ? (
@@ -361,53 +433,26 @@ export default function GuerrePage() {
                 </div>
             ) : null}
 
-            <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                    <span className={`flex items-center justify-center w-16 h-16 rounded-full text-2xl shrink-0 shadow-md ${guerre.status === "en_cours" ? "bg-error text-error-content" : "bg-base-300"}`}>
-                        <FontAwesomeIcon icon={type.icon} />
-                    </span>
-                    <div className="flex flex-col gap-1 min-w-0">
-                        <InfoLine icon={type.icon}>
-                            {type.label} <span className={`badge badge-sm ml-1 align-middle ${statut.badge}`}>{statut.label}</span>
-                        </InfoLine>
-                        <InfoLine icon="fa-solid fa-scroll">
-                            Déclarée le {formatDate(guerre.declared_at)}{data.declarant ? ` par ${data.declarant.full_name || data.declarant.username}` : ""}
-                        </InfoLine>
-                        {guerre.date_debut ? (
-                            <InfoLine icon="fa-solid fa-calendar">
-                                {guerre.status === "terminee" ? `Du ${formatDate(guerre.date_debut)} au ${formatDate(guerre.date_fin)}` : `Débutée le ${formatDate(guerre.date_debut)}`}
-                            </InfoLine>
-                        ) : null}
-                        {data.moderateur ? <InfoLine icon="fa-solid fa-gavel">Encadrée par {data.moderateur.full_name || data.moderateur.username}</InfoLine> : null}
-                        {guerre.status === "terminee" && guerre.issue ? (
-                            <InfoLine icon="fa-solid fa-flag-checkered"><strong>Issue : {guerre.issue}</strong></InfoLine>
-                        ) : null}
-                    </div>
+            {/* Casus belli et description à gauche, chiffres des camps à droite (empilés sur téléphone) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-2 w-full">
+                <div className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+                    {guerre.casus_belli ? (
+                        <section className="flex flex-col gap-2">
+                            <TitleH2 text="Casus belli" icon="fa-solid fa-fire" />
+                            <MarkdownTextEditor value={guerre.casus_belli} />
+                        </section>
+                    ) : null}
+                    {guerre.description ? (
+                        <section className="flex flex-col gap-2">
+                            <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
+                            <MarkdownTextEditor value={guerre.description} />
+                        </section>
+                    ) : null}
                 </div>
-
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2 content-start bg-base-200 rounded-3xl p-2 lg:mt-4">
                     <Stat icon={CAMP_LABELS.attaquant.icon} label="Camp attaquant" value={camps.attaquant.filter((b) => b.status === "engage").length} />
                     <Stat icon={CAMP_LABELS.defenseur.icon} label="Camp défenseur" value={camps.defenseur.filter((b) => b.status === "engage").length} />
                 </div>
-
-                {guerre.casus_belli ? (
-                    <div className="flex flex-col gap-2">
-                        <span className="flex flex-row items-center gap-2 font-bold">
-                            <FontAwesomeIcon icon="fa-solid fa-fire" />
-                            <span>Casus belli</span>
-                        </span>
-                        <MarkdownTextEditor value={guerre.casus_belli} />
-                    </div>
-                ) : null}
-                {guerre.description ? (
-                    <div className="flex flex-col gap-2">
-                        <span className="flex flex-row items-center gap-2 font-bold">
-                            <FontAwesomeIcon icon="fas fa-pen-nib" />
-                            <span>Description</span>
-                        </span>
-                        <MarkdownTextEditor value={guerre.description} />
-                    </div>
-                ) : null}
             </div>
 
             <TitleH2 text="Camps en présence" icon="fas fa-people-group" aide="appel" />

@@ -7,6 +7,9 @@ import Swal from 'sweetalert2';
 import Navbar from '@/components/layout/Navbar';
 import Skeleton from '@/components/ui/Skeleton';
 import TitleH1 from '@/components/ui/TitleH1';
+import EnTeteFiche from '@/components/ui/EnTeteFiche';
+import Medaillon from '@/components/ui/Medaillon';
+import SommaireFiche from '@/components/ui/SommaireFiche';
 import TitleH2 from '@/components/ui/TitleH2';
 import Stat from '@/components/ui/Stat';
 import InfoLine from '@/components/ui/InfoLine';
@@ -15,13 +18,13 @@ import DynamicModal from '@/components/modals/DynamicModal';
 import FormModal from '@/components/modals/FormModal';
 import LinkifiedText from '@/components/ui/LinkifiedText';
 import PersonnageAvatar from '@/components/personnages/PersonnageAvatar';
-import DynamicIcon from '@/components/ui/DynamicIcon';
 import LivreLiensSection from '@/components/bibliotheque/LivreLiensSection';
 
 import { checkUserID } from "@/services/authorisation";
 import { getSessionUser } from "@/services/session";
 import { showModal, showModalID } from '@/utils/showModal';
 import { runAction } from '@/utils/conflits';
+import { couleurFiche, metalSur } from '@/utils/couleurFiche';
 import { journalModal } from '@/config/modals/journal';
 import {
   apiRequest,
@@ -414,6 +417,7 @@ export default function JournalDetailPage() {
   // Un journal privé n'est visible que par son auteur et les administrateurs (auth)
   const hidden = journal?.is_public === false && !auth;
 
+  const couleur = couleurFiche(journal?.cover_color, journal?.id);
   const btnReturn = { text: 'Retour à la bibliothèque', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/bibliotheque' };
 
   const FctModify = [
@@ -430,43 +434,39 @@ export default function JournalDetailPage() {
 
   const BodyHTML = journal ? (
     <>
-      <TitleH1 text={journal.title} icon="fas fa-newspaper" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Bibliothèque", href: "/bibliotheque" }, { label: journal.title }]} />
-
-      {/* En-tête : informations, chiffres clés et description */}
-      <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <span className="flex items-center justify-center w-16 h-16 rounded-full text-2xl shrink-0 bg-base-300 shadow-md">
-            <DynamicIcon icon={journal.cover_icon || "fa-solid fa-newspaper"} fallback="fa-solid fa-newspaper" />
-          </span>
-          <div className="flex flex-col gap-1 min-w-0">
+      {/* En-tête dans la couleur de la couverture du journal, avec son icône */}
+      <EnTeteFiche
+        couleur={couleur}
+        embleme={<Medaillon forme="carre" fond={metalSur(couleur)} encre={couleur} icon={journal.cover_icon || "fa-solid fa-newspaper"} iconFallback="fa-solid fa-newspaper" titre={`Emblème de ${journal.title}`} />}
+        surtitre={[journal.is_public === false ? "Journal privé" : "Journal public", published ? `publié le ${published}` : null].filter(Boolean).join(" · ")}
+        titre={journal.title}
+        infos={
+          <>
             <InfoLine icon="fa-solid fa-feather">
               {journal.author ? <>Rédigé par <strong>{journal.author}</strong></> : "Auteur inconnu"}
             </InfoLine>
-            <InfoLine icon="fa-solid fa-calendar">
-              {published ? `Publié le ${published}` : "Date de publication inconnue"}
-            </InfoLine>
             {journal.uid ? <InfoLine icon="fa-brands fa-discord">Alimenté par un salon Discord</InfoLine> : null}
-            <InfoLine icon={journal.is_public === false ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"}>
-              {journal.is_public === false ? "Journal privé" : "Journal public"}
-            </InfoLine>
-          </div>
-        </div>
+          </>
+        }
+        fonctions={FctModify}
+        ariane={[{ label: "Bibliothèque", href: "/bibliotheque" }, { label: journal.title }]}
+      />
+      <SommaireFiche />
 
-        <LivreLiensSection ecrit={journal} support="journal" auth={auth} />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
-          <Stat icon="fa-solid fa-comments" label={messages.length > 1 ? "Messages" : "Message"} value={statValue(messages.length)} />
-          <Stat icon="fa-solid fa-user-pen" label={authorsCount > 1 ? "Auteurs" : "Auteur"} value={statValue(authorsCount)} />
-          <Stat icon="fa-solid fa-masks-theater" label={personnagesCount > 1 ? "Personnages" : "Personnage"} value={statValue(personnagesCount)} />
-          <Stat icon="fa-solid fa-clock-rotate-left" label="Dernier message" value={statValue(lastMessageDate || "—")} />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <span className="flex flex-row items-center gap-2 font-bold">
-            <FontAwesomeIcon icon="fas fa-pen-nib" />
-            <span>Description</span>
-          </span>
+      {/* Présentation à gauche ; chiffres clés et liens du journal à droite (empilés sur téléphone) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-2 w-full">
+        <section className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+          <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
           <MarkdownTextEditor value={journal.description || 'Aucune description'} />
+        </section>
+        <div className="flex flex-col gap-3 lg:mt-4">
+          <div className="grid grid-cols-2 gap-2 bg-base-200 rounded-3xl p-2">
+            <Stat icon="fa-solid fa-comments" label={messages.length > 1 ? "Messages" : "Message"} value={statValue(messages.length)} />
+            <Stat icon="fa-solid fa-user-pen" label={authorsCount > 1 ? "Auteurs" : "Auteur"} value={statValue(authorsCount)} />
+            <Stat icon="fa-solid fa-masks-theater" label={personnagesCount > 1 ? "Personnages" : "Personnage"} value={statValue(personnagesCount)} />
+            <Stat icon="fa-solid fa-clock-rotate-left" label="Dernier message" value={statValue(lastMessageDate || "—")} />
+          </div>
+          <LivreLiensSection ecrit={journal} support="journal" auth={auth} />
         </div>
       </div>
 

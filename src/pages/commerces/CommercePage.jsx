@@ -6,6 +6,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Navbar from "@/components/layout/Navbar";
 import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
+import EnTeteFiche from "@/components/ui/EnTeteFiche";
+import InfoLine from "@/components/ui/InfoLine";
+import Stat from "@/components/ui/Stat";
 import SommaireFiche from "@/components/ui/SommaireFiche";
 import TitleH2 from "@/components/ui/TitleH2";
 import DynamicModal from "@/components/modals/DynamicModal";
@@ -25,6 +28,7 @@ import JoinHint from "@/components/membres/JoinHint";
 import { getCommerceById, getDimensions, getVilles, deleteMemberCommerce } from "@/services/api";
 import Swal from "sweetalert2";
 import { alerteErreur } from "@/utils/alerteErreur";
+import { couleurFiche, metalSur } from "@/utils/couleurFiche";
 import LivresLiesSection from "@/components/bibliotheque/LivresLiesSection";
 
 const ROLE_ORDER = { Fondateur: 0, Admin: 1 };
@@ -99,6 +103,19 @@ function MagasinCard({ magasin, dimension, ville, auth }) {
                 </div>
             ) : null}
         </div>
+    );
+}
+
+// Enseigne d'un commerce pour l'en-tête de sa fiche : un panneau de métal suspendu à une potence de bois
+function Enseigne({ couleur, titre }) {
+    return (
+        <span role="img" aria-label={titre} className="flex flex-col items-center shrink-0 w-28">
+            <span className="w-28 h-2 rounded-full bg-[#7a5230] border-2 border-[#17131f]"></span>
+            <span className="w-20 h-4 border-x-2 border-[#17131f]"></span>
+            <span className="flex items-center justify-center w-28 h-20 rounded-2xl border-[3px] border-[#17131f] text-4xl" style={{ background: metalSur(couleur), color: couleur }}>
+                <FontAwesomeIcon icon="fa-solid fa-shop" />
+            </span>
+        </span>
     );
 }
 
@@ -206,6 +223,7 @@ export default function CommercePage() {
         { id: 1, title: "Ajouter", icon: "fas fa-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: auth, function: () => showModal(magasinModal, "add") }
     ];
 
+    const couleur = couleurFiche(null, commerce?.id);
     const btnReturn = { text: 'Retour aux commerces', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/commerces' };
 
     // Les magasins privés ne sont visibles que par le Fondateur, les Admins et les administrateurs du site
@@ -216,57 +234,30 @@ export default function CommercePage() {
 
     const BodyHTML = commerce ? (
         <>
-            <TitleH1 text={commerce.title} icon="fas fa-shop" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Commerces", href: "/commerces" }, dirigeant && { label: dirigeant.title, href: `/commerce/${dirigeant.id}` }, { label: commerce.title }]} />
+            <EnTeteFiche
+                couleur={couleur}
+                embleme={<Enseigne couleur={couleur} titre={`Enseigne de ${commerce.title}`} />}
+                surtitre={[commerce.is_public ? "Commerce public" : "Commerce privé", commerce.date_founded ? `fondé le ${formatDate(commerce.date_founded)}` : null].filter(Boolean).join(" · ")}
+                titre={commerce.title}
+                infos={dirigeant ? (
+                    <InfoLine icon="fa-solid fa-crown">
+                        Dirigé par <a href={`/commerce/${dirigeant.id}`} className="link link-hover">{dirigeant.title}</a>
+                    </InfoLine>
+                ) : null}
+                fonctions={FctModify}
+                ariane={[{ label: "Commerces", href: "/commerces" }, dirigeant && { label: dirigeant.title, href: `/commerce/${dirigeant.id}` }, { label: commerce.title }]}
+            />
             <SommaireFiche />
 
-            <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                    <span className="flex items-center justify-center w-16 h-16 rounded-full text-2xl shrink-0 bg-base-300 shadow-md">
-                        <FontAwesomeIcon icon="fa-solid fa-shop" />
-                    </span>
-                    <div className="flex flex-col gap-1 min-w-0">
-                        {dirigeant ? (
-                            <span className="flex flex-row items-center gap-2">
-                                <FontAwesomeIcon icon="fa-solid fa-crown" className="opacity-70 w-4" />
-                                <span>Dirigé par <a href={`/commerce/${dirigeant.id}`} className="link link-hover">{dirigeant.title}</a></span>
-                            </span>
-                        ) : null}
-                        {commerce.date_founded ? (
-                            <span className="flex flex-row items-center gap-2">
-                                <FontAwesomeIcon icon="fa-solid fa-calendar" className="opacity-70 w-4" />
-                                <span>Fondé le {formatDate(commerce.date_founded)}</span>
-                            </span>
-                        ) : null}
-                        <span className="flex flex-row items-center gap-2">
-                            <FontAwesomeIcon icon={commerce.is_public ? "fa-solid fa-eye" : "fa-solid fa-eye-slash"} className="opacity-70 w-4" />
-                            <span>{commerce.is_public ? "Commerce public" : "Commerce privé"}</span>
-                        </span>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <div className="flex flex-row items-center gap-3 bg-base-100 rounded-2xl p-3">
-                        <FontAwesomeIcon icon="fa-solid fa-store" className="text-xl" />
-                        <div className="flex flex-col min-w-0">
-                            <span className="text-xl font-bold tabular-nums">{visibleMagasins.length}</span>
-                            <span className="text-sm opacity-70">{visibleMagasins.length > 1 ? "Magasins" : "Magasin"}</span>
-                        </div>
-                    </div>
-                    <div className="flex flex-row items-center gap-3 bg-base-100 rounded-2xl p-3">
-                        <FontAwesomeIcon icon="fa-solid fa-building" className="text-xl" />
-                        <div className="flex flex-col min-w-0">
-                            <span className="text-xl font-bold truncate">{siege ? siege.title : "—"}</span>
-                            <span className="text-sm opacity-70 truncate">{villeSiege ? `Siège · ${villeSiege.title}` : "Siège"}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                    <span className="flex flex-row items-center gap-2 font-bold">
-                        <FontAwesomeIcon icon="fas fa-pen-nib" />
-                        <span>Description</span>
-                    </span>
+            {/* Présentation à gauche, chiffres clés à droite (empilés sur téléphone) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-2 w-full">
+                <section className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+                    <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
                     <MarkdownTextEditor value={commerce.description ? commerce.description : 'Aucune description'} />
+                </section>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 content-start bg-base-200 rounded-3xl p-2 lg:mt-4">
+                    <Stat icon="fa-solid fa-store" label={visibleMagasins.length > 1 ? "Magasins" : "Magasin"} value={visibleMagasins.length} />
+                    <Stat icon="fa-solid fa-building" label={villeSiege ? `Siège · ${villeSiege.title}` : "Siège"} value={siege ? siege.title : "—"} />
                 </div>
             </div>
 

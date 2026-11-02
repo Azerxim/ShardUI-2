@@ -6,6 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Navbar from '@/components/layout/Navbar';
 import Skeleton from '@/components/ui/Skeleton';
 import TitleH1 from '@/components/ui/TitleH1';
+import EnTeteFiche from '@/components/ui/EnTeteFiche';
+import SommaireFiche from '@/components/ui/SommaireFiche';
 import TitleH2 from '@/components/ui/TitleH2';
 import Stat from '@/components/ui/Stat';
 import InfoLine from '@/components/ui/InfoLine';
@@ -17,6 +19,7 @@ import DynamicModal from '@/components/modals/DynamicModal';
 import { checkUserID, checkMemberAuth } from "@/services/authorisation";
 import { showModal } from '@/utils/showModal';
 import { getContrastTextColor } from '@/utils/contrastColor';
+import { couleurValide } from '@/utils/couleurFiche';
 import { livreModal } from '@/config/modals/livre';
 import LivreLiensSection from '@/components/bibliotheque/LivreLiensSection';
 import { livreContentModal } from '@/config/modals/livre-content';
@@ -137,6 +140,7 @@ export default function LivreDetailPage() {
         setChapitres((prev) => prev.filter((item) => item.id !== chapitre.id));
     };
 
+    const couleurCouverture = couleurValide(livre?.cover_color) ?? DEFAULT_COVER_COLOR;
     const btnReturn = { text: 'Retour à la bibliothèque', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/bibliotheque' };
 
     const FctModify = [
@@ -153,39 +157,35 @@ export default function LivreDetailPage() {
 
     const BodyHTML = livre ? (
         <>
-            <TitleH1 text={livre.title} icon="fas fa-book" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Bibliothèque", href: "/bibliotheque" }, { label: livre.title }]} />
+            {/* En-tête dans la couleur de la couverture ; la couverture, cernée d'encre, s'en détache */}
+            <EnTeteFiche
+                couleur={couleurCouverture}
+                embleme={<span className="block rounded-r-lg rounded-l-sm ring-[3px] ring-[#17131f] self-start sm:self-auto"><BookCover livre={livre} /></span>}
+                surtitre={["Livre", livre.language, published ? `publié le ${published}` : null].filter(Boolean).join(" · ")}
+                titre={livre.title}
+                infos={
+                    <InfoLine icon="fa-solid fa-feather">
+                        {livre.author ? <>Écrit par <strong>{livre.author}</strong></> : "Auteur inconnu"}
+                    </InfoLine>
+                }
+                fonctions={FctModify}
+                ariane={[{ label: "Bibliothèque", href: "/bibliotheque" }, { label: livre.title }]}
+            />
+            <SommaireFiche />
 
-            {/* En-tête : couverture, informations, chiffres clés et description */}
-            <div className="flex flex-col sm:flex-row gap-4 w-full bg-base-200 rounded-3xl p-4">
-                <div className="flex justify-center sm:block">
-                    <BookCover livre={livre} />
-                </div>
-                <div className="flex flex-col gap-4 flex-1 min-w-0">
-                    <div className="flex flex-col gap-1">
-                        <InfoLine icon="fa-solid fa-feather">
-                            {livre.author ? <>Écrit par <strong>{livre.author}</strong></> : "Auteur inconnu"}
-                        </InfoLine>
-                        <InfoLine icon="fa-solid fa-calendar">
-                            {published ? `Publié le ${published}` : "Date de publication inconnue"}
-                        </InfoLine>
-                        {livre.language ? <InfoLine icon="fa-solid fa-language">{livre.language}</InfoLine> : null}
-                    </div>
-
-                    <LivreLiensSection ecrit={livre} auth={auth} onLiens={droitsParLiens} />
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {/* Présentation à gauche ; chiffres clés et liens du livre à droite (empilés sur téléphone) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-2 w-full">
+                <section className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+                    <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
+                    <MarkdownTextEditor value={livre.description || 'Aucune description'} />
+                </section>
+                <div className="flex flex-col gap-3 lg:mt-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2 bg-base-200 rounded-3xl p-2">
                         <Stat icon="fa-solid fa-bookmark" label={chapitres.length > 1 ? "Chapitres" : "Chapitre"} value={loadingChapitres ? "…" : chapitres.length} />
                         <Stat icon="fa-solid fa-font" label={words > 1 ? "Mots" : "Mot"} value={loadingChapitres ? "…" : words.toLocaleString('fr-FR')} />
                         <Stat icon="fa-solid fa-hourglass-half" label="Temps de lecture" value={loadingChapitres ? "…" : readingMinutes > 0 ? `~${readingMinutes} min` : "—"} />
                     </div>
-
-                    <div className="flex flex-col gap-2">
-                        <span className="flex flex-row items-center gap-2 font-bold">
-                            <FontAwesomeIcon icon="fas fa-pen-nib" />
-                            <span>Description</span>
-                        </span>
-                        <MarkdownTextEditor value={livre.description || 'Aucune description'} />
-                    </div>
+                    <LivreLiensSection ecrit={livre} auth={auth} onLiens={droitsParLiens} />
                 </div>
             </div>
 

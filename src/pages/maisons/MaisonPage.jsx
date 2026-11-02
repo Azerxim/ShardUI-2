@@ -8,8 +8,10 @@ import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
 import TitleH2 from "@/components/ui/TitleH2";
 import InfoLine from "@/components/ui/InfoLine";
+import EnTeteFiche from "@/components/ui/EnTeteFiche";
+import Blason from "@/components/ui/Blason";
+import SommaireFiche from "@/components/ui/SommaireFiche";
 import FormModal from "@/components/modals/FormModal";
-import BlasonMaison from "@/components/personnages/BlasonMaison";
 import PersonnageAvatar from "@/components/personnages/PersonnageAvatar";
 import ArbreMaison from "@/components/lignees/ArbreMaison";
 
@@ -18,7 +20,8 @@ import { showModalID } from "@/utils/showModal";
 import { isModerateur, runAction } from "@/utils/conflits";
 import { plural } from "@/utils/plural";
 import { getSessionUser } from "@/services/session";
-import { dateRp, vieRp } from "@/config/lignees";
+import { dateRp, vieRp, MAISON_COULEUR_DEFAUT, MAISON_ICON_DEFAUT } from "@/config/lignees";
+import { couleurValide, encreSur, metalSur } from "@/utils/couleurFiche";
 import { deleteMaison, getCivilisations, getMaison, rejoindreMaison, retirerMembreMaison, updateMaison } from "@/services/api";
 import { libellePersonnage, personnagesChoisissables } from "@/utils/personnages";
 import { maisonChamps, maisonCorps, maisonValeurs } from "@/pages/maisons/maisonForm";
@@ -113,6 +116,7 @@ export default function MaisonPage() {
         { id: 1, title: "Faire entrer", icon: "fas fa-user-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: true, tooltip: { text: "Faire entrer un de vos personnages", position: "left" }, function: faireEntrer },
     ];
     const btnReturn = { text: "Retour aux maisons", icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: "/maisons" };
+    const couleur = couleurValide(maison?.couleur) ?? MAISON_COULEUR_DEFAUT;
 
     return (
         <>
@@ -128,24 +132,36 @@ export default function MaisonPage() {
                         </>
                     ) : (
                         <>
-                            <TitleH1 text={`Maison ${maison.title}`} icon="fas fa-chess-king" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Maisons", href: "/maisons" }, { label: maison.title }]} />
-
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full bg-base-200 rounded-3xl p-4">
-                                <BlasonMaison maison={maison} size="xl" />
-                                <div className="flex flex-col gap-1 min-w-0">
-                                    {maison.devise && <p className="italic text-lg break-words">« {maison.devise} »</p>}
-                                    <InfoLine icon="fa-solid fa-crown">
-                                        {maison.chef ? <>Chef : <a href={`/personnage/${maison.chef.id}`} className="link link-hover font-semibold">{maison.chef.name}</a></> : "Pas de chef désigné"}
-                                    </InfoLine>
-                                    {maison.civilisation && (
-                                        <InfoLine icon="fa-solid fa-flag">
-                                            <a href={`/civilisation/${maison.civilisation.id}`} className="link link-hover">{maison.civilisation.title}</a>
+                            {/* En-tête aux couleurs de la maison : son blason (meuble sur sa couleur), cerné d'or pour se détacher de l'aplat */}
+                            <EnTeteFiche
+                                couleur={couleur}
+                                embleme={<Blason champ={couleur} meuble={encreSur(couleur)} contour={metalSur(couleur)} icon={maison.icon || MAISON_ICON_DEFAUT} iconFallback={MAISON_ICON_DEFAUT} titre={`Blason de la maison ${maison.title}`} />}
+                                surtitre={["Maison", maison.civilisation?.title, maison.date_fondation ? `fondée le ${dateRp(maison.date_fondation)}` : null].filter(Boolean).join(" · ")}
+                                titre={`Maison ${maison.title}`}
+                                devise={maison.devise}
+                                infos={
+                                    <>
+                                        <InfoLine icon="fa-solid fa-crown">
+                                            {maison.chef ? <>Chef : <a href={`/personnage/${maison.chef.id}`} className="link link-hover font-semibold">{maison.chef.name}</a></> : "Pas de chef désigné"}
                                         </InfoLine>
-                                    )}
-                                    {maison.date_fondation && <InfoLine icon="fa-solid fa-hourglass-start">Fondée le {dateRp(maison.date_fondation)}</InfoLine>}
-                                    {maison.description && <p className="text-sm opacity-80 whitespace-pre-line break-words mt-1">{maison.description}</p>}
-                                </div>
-                            </div>
+                                        {maison.civilisation && (
+                                            <InfoLine icon="fa-solid fa-flag">
+                                                <a href={`/civilisation/${maison.civilisation.id}`} className="link link-hover">{maison.civilisation.title}</a>
+                                            </InfoLine>
+                                        )}
+                                    </>
+                                }
+                                fonctions={FctModify}
+                                ariane={[{ label: "Maisons", href: "/maisons" }, { label: maison.title }]}
+                            />
+                            <SommaireFiche />
+
+                            {maison.description && (
+                                <>
+                                    <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
+                                    <p className="w-full px-1 whitespace-pre-line break-words">{maison.description}</p>
+                                </>
+                            )}
 
                             <TitleH2 text="Arbre de la lignée" icon="fas fa-sitemap" />
                             <div className="w-full bg-base-200 rounded-3xl p-4 overflow-x-auto">

@@ -7,6 +7,8 @@ import Swal from "sweetalert2";
 import Navbar from "@/components/layout/Navbar";
 import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
+import EnTeteFiche from "@/components/ui/EnTeteFiche";
+import Blason from "@/components/ui/Blason";
 import SommaireFiche from "@/components/ui/SommaireFiche";
 import PostesGouvernement from "@/components/elections/PostesGouvernement";
 import ElectionsSection from "@/components/elections/ElectionsSection";
@@ -44,6 +46,8 @@ import {
 } from "@/services/api"
 import { openMapEditor } from "@/services/mapEditor";
 import { alerteErreur } from "@/utils/alerteErreur";
+import { metalSur } from "@/utils/couleurFiche";
+import { useCouleurCivilisation } from "@/utils/useCouleurCivilisation";
 import EtatVide from '@/components/ui/EtatVide';
 
 const ROLE_ORDER = { Fondateur: 0, Admin: 1 };
@@ -94,6 +98,8 @@ export default function CivilisationPage() {
     const [auth, setAuth] = useState(false);
     // Population officielle (somme des villes : mesure + ajustements acceptés) et armée autorisée par le Codex
     const [populationOfficielle, setPopulationOfficielle] = useState(null);
+    // Couleur des frontières sur la carte : l'en-tête de la fiche prend la même
+    const couleur = useCouleurCivilisation(id);
 
     usePageTitle(civilisation?.title);
 
@@ -258,53 +264,47 @@ export default function CivilisationPage() {
 
     const BodyHTML = civilisation ? (
         <>
-            <TitleH1 text={civilisation.title} icon="fas fa-flag" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Civilisations", href: "/civilisations" }, { label: civilisation.title }]} />
-            <SommaireFiche />
-
-            {/* En-tête : identité, chiffres clés et description */}
-            <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                    <span className="flex items-center justify-center w-16 h-16 rounded-full text-2xl shrink-0 bg-base-300 shadow-md">
-                        <FontAwesomeIcon icon="fa-solid fa-flag" />
-                    </span>
-                    <div className="flex flex-col gap-1 min-w-0">
-                        <InfoLine icon="fa-solid fa-calendar">
-                            {dateFounded ? `Fondée le ${dateFounded}` : "Date de fondation inconnue"}
-                        </InfoLine>
-                        {dirigeanteId && dirigeante ? (
-                            <InfoLine icon="fa-solid fa-crown">
-                                Dirigée par <a href={`/civilisation/${dirigeante.id}`} className="link link-hover">{dirigeante.title}</a>
-                            </InfoLine>
-                        ) : null}
+            <EnTeteFiche
+                couleur={couleur}
+                embleme={<Blason champ={metalSur(couleur)} meuble={couleur} icon="fa-solid fa-flag" titre={`Blason de ${civilisation.title}`} />}
+                surtitre={[civilisation.is_public ? "Civilisation publique" : "Civilisation privée", dateFounded ? `fondée le ${dateFounded}` : null].filter(Boolean).join(" · ")}
+                titre={civilisation.title}
+                devise={gouvernement?.devise}
+                infos={
+                    <>
                         {capitale ? (
                             <InfoLine icon="fa-solid fa-archway">
                                 Capitale : <a href={`/civilisation/${civilisation.id}/ville/${capitale.id}`} className="link link-hover">{capitale.title}</a>
                             </InfoLine>
                         ) : null}
-                        <InfoLine icon={civilisation.is_public ? "fa-solid fa-eye" : "fa-solid fa-eye-slash"}>
-                            {civilisation.is_public ? "Civilisation publique" : "Civilisation privée"}
-                        </InfoLine>
-                    </div>
-                </div>
+                        {dirigeanteId && dirigeante ? (
+                            <InfoLine icon="fa-solid fa-crown">
+                                Dirigée par <a href={`/civilisation/${dirigeante.id}`} className="link link-hover">{dirigeante.title}</a>
+                            </InfoLine>
+                        ) : null}
+                    </>
+                }
+                fonctions={FctModify}
+                ariane={[{ label: "Civilisations", href: "/civilisations" }, { label: civilisation.title }]}
+            />
+            <SommaireFiche />
 
-                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2">
+            {/* Présentation à gauche, chiffres clés à droite (empilés sur téléphone) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-2 w-full">
+                <section className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+                    <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
+                    <MarkdownTextEditor value={civilisation.description || 'Aucune description'} />
+                </section>
+                <div className="grid grid-cols-2 gap-2 content-start bg-base-200 rounded-3xl p-2 lg:mt-4">
                     <Stat icon="fa-solid fa-users" label={members.length > 1 ? "Membres" : "Membre"} value={members.length} />
                     <Stat icon="fa-solid fa-city" label={villes.length > 1 ? "Villes" : "Ville"} value={villes.length} />
                     <Stat icon="fa-solid fa-people-group" label="Population officielle" value={population.toLocaleString('fr-FR')} />
                     {/* Codex, Art. II.5.1 : un soldat pour dix habitants de la population officielle. Infobulle sur grand écran
-                        seulement : sur téléphone, la carte est dans la colonne de droite et la bulle débordait de l'écran */}
+                        seulement : sur téléphone, la bulle débordait de l'écran */}
                     <a href="/codex#guerres-1" className="rounded-2xl hover:ring-2 hover:ring-primary lg:tooltip" data-tip={`Un soldat pour ${populationOfficielle?.habitants_par_soldat ?? 10} habitants (Codex, Art. II.5.1)`}>
                         <Stat icon="fa-solid fa-chess-knight" label="Armée autorisée" value={`${(populationOfficielle?.armee ?? Math.floor(population / 10)).toLocaleString('fr-FR')} soldats`} />
                     </a>
                     <Stat icon="fa-solid fa-book" label={livres.length > 1 ? "Livres" : "Livre"} value={livres.length} />
-                </div>
-
-                <div className="flex flex-col gap-2">
-                    <span className="flex flex-row items-center gap-2 font-bold">
-                        <FontAwesomeIcon icon="fas fa-pen-nib" />
-                        <span>Description</span>
-                    </span>
-                    <MarkdownTextEditor value={civilisation.description || 'Aucune description'} />
                 </div>
             </div>
 

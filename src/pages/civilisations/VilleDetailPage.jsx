@@ -8,6 +8,9 @@ import Navbar from "@/components/layout/Navbar";
 import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
 import TitleH2 from "@/components/ui/TitleH2";
+import EnTeteFiche from "@/components/ui/EnTeteFiche";
+import Blason from "@/components/ui/Blason";
+import SommaireFiche from "@/components/ui/SommaireFiche";
 import Stat from "@/components/ui/Stat";
 import InfoLine from "@/components/ui/InfoLine";
 import VilleReligions from "@/components/civilisations/VilleReligions";
@@ -29,6 +32,8 @@ import {
     getQuartiersByVille
 } from "@/services/api"
 import { openMapEditor } from "@/services/mapEditor";
+import { metalSur } from "@/utils/couleurFiche";
+import { useCouleurCivilisation } from "@/utils/useCouleurCivilisation";
 import EtatVide from '@/components/ui/EtatVide';
 import DestructiblesSection from '@/components/civilisations/DestructiblesSection';
 import ZonesCommercialesSection from '@/components/civilisations/ZonesCommercialesSection';
@@ -134,6 +139,8 @@ export default function VilleDetailPage() {
     const [loading, setLoading] = useState(true);
     // Mesure du relevé + ajustements acceptés (PopulationSection)
     const [populationOfficielle, setPopulationOfficielle] = useState(null);
+    // Couleur des frontières de la civilisation sur la carte : l'en-tête de la fiche prend la même
+    const couleur = useCouleurCivilisation(civ_id);
 
     // La ville et ses religions viennent de la fiche de sa civilisation
     usePageTitle(ville?.title);
@@ -233,33 +240,34 @@ export default function VilleDetailPage() {
 
     const BodyHTML = ville ? (
         <>
-            <TitleH1 text={ville.title} icon={villeIcon(ville)} btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Civilisations", href: "/civilisations" }, { label: civilisation?.title || "Civilisation", href: `/civilisation/${civ_id}` }, { label: ville.title }]} />
+            <EnTeteFiche
+                couleur={couleur}
+                embleme={<Blason champ={metalSur(couleur)} meuble={couleur} icon={villeIcon(ville)} iconFallback="fa-solid fa-city" titre={`Armes de ${ville.title}`} />}
+                surtitre={[ville.is_capital ? "Capitale" : "Ville", ville.is_public === false ? "privée" : null, founded ? `fondée le ${founded}` : null].filter(Boolean).join(" · ")}
+                titre={ville.title}
+                infos={
+                    <>
+                        <InfoLine icon="fa-solid fa-flag">
+                            {civilisation ? <a href={`/civilisation/${civilisation.id}`} className="link link-hover">{civilisation.title}</a> : "Civilisation inconnue"}
+                        </InfoLine>
+                        <InfoLine icon="fa-solid fa-location-dot">
+                            <span className="tabular-nums">{dimension ? `${dimension.title} · ` : ""}X {ville.x ?? 0} · Z {ville.z ?? 0}</span>
+                        </InfoLine>
+                    </>
+                }
+                fonctions={FctModify}
+                ariane={[{ label: "Civilisations", href: "/civilisations" }, { label: civilisation?.title || "Civilisation", href: `/civilisation/${civ_id}` }, { label: ville.title }]}
+            />
+            <SommaireFiche />
 
-            {/* En-tête : identité, chiffres clés, description et carte */}
-            <div className="flex flex-col lg:flex-row gap-4 w-full bg-base-200 rounded-3xl p-4">
-                <div className="flex flex-col gap-4 flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                        <span className="flex items-center justify-center w-16 h-16 rounded-full text-2xl shrink-0 bg-base-300 shadow-md">
-                            <FontAwesomeIcon icon={villeIcon(ville)} />
-                        </span>
-                        <div className="flex flex-col gap-1 min-w-0">
-                            <InfoLine icon="fa-solid fa-flag">
-                                Civilisation : {civilisation ? <a href={`/civilisation/${civilisation.id}`} className="link link-hover">{civilisation.title}</a> : "inconnue"}
-                                {ville.is_capital ? <span className="badge badge-sm badge-primary ml-2 align-middle">Capitale</span> : null}
-                            </InfoLine>
-                            <InfoLine icon="fa-solid fa-calendar">
-                                {founded ? `Fondée le ${founded}` : "Date de fondation inconnue"}
-                            </InfoLine>
-                            <InfoLine icon="fa-solid fa-location-dot">
-                                <span className="tabular-nums">{dimension ? `${dimension.title} · ` : ""}X {ville.x ?? 0} · Z {ville.z ?? 0}</span>
-                            </InfoLine>
-                            <InfoLine icon={ville.is_public === false ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"}>
-                                {ville.is_public === false ? "Ville privée" : "Ville publique"}
-                            </InfoLine>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
+            {/* Présentation à gauche ; chiffres clés et carte à droite (empilés sur téléphone) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-2 w-full">
+                <section className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+                    <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
+                    <MarkdownTextEditor value={ville.description || 'Aucune description'} />
+                </section>
+                <div className="flex flex-col gap-2 lg:mt-4">
+                    <div className="grid grid-cols-2 gap-2 bg-base-200 rounded-3xl p-2">
                         <a href="#population" className="rounded-2xl hover:ring-2 hover:ring-primary">
                             <Stat icon="fa-solid fa-people-group" label="Population officielle" value={formatPopulation(populationOfficielle ?? ville.population)} />
                         </a>
@@ -267,31 +275,21 @@ export default function VilleDetailPage() {
                         <Stat icon="fa-solid fa-map-location-dot" label={visibleQuartiers.length > 1 ? "Quartiers" : "Quartier"} value={visibleQuartiers.length} />
                         <Stat icon="fa-solid fa-store" label={visibleMagasins.length > 1 ? "Magasins" : "Magasin"} value={visibleMagasins.length} />
                     </div>
-
-                    <div className="flex flex-col gap-2">
-                        <span className="flex flex-row items-center gap-2 font-bold">
-                            <FontAwesomeIcon icon="fas fa-pen-nib" />
-                            <span>Description</span>
-                        </span>
-                        <MarkdownTextEditor value={ville.description || 'Aucune description'} />
-                    </div>
+                    {dimension ? (
+                        <div className="w-full h-64 sm:h-72 rounded-3xl overflow-hidden">
+                            <MapEmbed
+                                dimension={dimension}
+                                width="100%"
+                                height="100%"
+                                embed="civilisations"
+                                x={ville.x}
+                                z={ville.z}
+                                zoom={0}
+                                title={`Carte de ${ville.title}`}
+                            />
+                        </div>
+                    ) : null}
                 </div>
-
-                {dimension ? (
-                    // Pleine largeur sous les informations sur mobile, colonne à droite sur grand écran
-                    <div className="w-full h-64 sm:h-80 lg:w-[400px] lg:h-auto lg:min-h-80 shrink-0 rounded-2xl overflow-hidden">
-                        <MapEmbed
-                            dimension={dimension}
-                            width="100%"
-                            height="100%"
-                            embed="civilisations"
-                            x={ville.x}
-                            z={ville.z}
-                            zoom={0}
-                            title={`Carte de ${ville.title}`}
-                        />
-                    </div>
-                ) : null}
             </div>
 
             <PopulationSection ville={ville} auth={auth} onCharge={setPopulationOfficielle} />

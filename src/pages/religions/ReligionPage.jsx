@@ -7,6 +7,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Navbar from "@/components/layout/Navbar";
 import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
+import EnTeteFiche from "@/components/ui/EnTeteFiche";
+import Medaillon from "@/components/ui/Medaillon";
 import SommaireFiche from "@/components/ui/SommaireFiche";
 import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
@@ -21,7 +23,6 @@ import VilleReligions from "@/components/civilisations/VilleReligions";
 
 import { showModal, showModalID } from '@/utils/showModal';
 import { DEFAULT_RELIGION_ICON, religionColor, religionIcon, formatInfluence } from '@/utils/religionColor';
-import DynamicIcon from "@/components/ui/DynamicIcon";
 import { religionModal } from '@/config/modals/religion';
 import { religionMemberModal, religionMemberEditModal } from '@/config/modals/member';
 import {
@@ -32,6 +33,7 @@ import {
 } from "@/services/api"
 import Swal from "sweetalert2";
 import { alerteErreur } from "@/utils/alerteErreur";
+import { metalSur } from "@/utils/couleurFiche";
 import LivresLiesSection from "@/components/bibliotheque/LivresLiesSection";
 import ElectionsSection from "@/components/elections/ElectionsSection";
 
@@ -184,42 +186,27 @@ export default function ReligionPage() {
 
     const BodyHTML = (
         <>
-            <TitleH1 text={religion ? religion.title : "Religion inconnue"} icon={icon} iconFallback={DEFAULT_RELIGION_ICON} btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Religions", href: "/religions" }, { label: religion ? religion.title : "Religion inconnue" }]} />
+            <EnTeteFiche
+                couleur={color}
+                embleme={<Medaillon fond={metalSur(color)} encre={color} icon={icon} iconFallback={DEFAULT_RELIGION_ICON} titre={`Symbole de ${religion ? religion.title : "la religion"}`} />}
+                surtitre={[religion?.is_public ? "Religion publique" : "Religion privée", dateFounded ? `fondée le ${dateFounded}` : null].filter(Boolean).join(" · ")}
+                titre={religion ? religion.title : "Religion inconnue"}
+                fonctions={FctModify}
+                ariane={[{ label: "Religions", href: "/religions" }, { label: religion ? religion.title : "Religion inconnue" }]}
+            />
             <SommaireFiche />
 
-            {/* En-tête : identité, chiffres clés, description et carte */}
-            <div className="flex flex-col lg:flex-row gap-4 w-full bg-base-200 rounded-3xl p-4 border-l-8" style={{ borderLeftColor: color }}>
-                <div className="flex flex-col gap-4 flex-1 min-w-0">
-                    <div className="flex flex-row items-center gap-4">
-                        <span className="flex items-center justify-center w-16 h-16 rounded-full text-white text-2xl shrink-0 shadow-md" style={{ backgroundColor: color }}>
-                            <DynamicIcon icon={icon} fallback={DEFAULT_RELIGION_ICON} />
-                        </span>
-                        <div className="flex flex-col gap-1">
-                            <span className="flex flex-row items-center gap-2">
-                                <FontAwesomeIcon icon="fa-solid fa-calendar" className="opacity-70" />
-                                <span>{dateFounded ? `Fondée le ${dateFounded}` : "Date de fondation inconnue"}</span>
-                            </span>
-                            <span className="flex flex-row items-center gap-2">
-                                <FontAwesomeIcon icon={religion?.is_public ? "fa-solid fa-eye" : "fa-solid fa-eye-slash"} className="opacity-70" />
-                                <span>{religion?.is_public ? "Religion publique" : "Religion privée"}</span>
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
-                        <Stat icon="fa-solid fa-users" label={members.length > 1 ? "Membres" : "Membre"} value={members.length} color={color} />
-                        <Stat icon="fa-solid fa-city" label={villes.length > 1 ? "Villes" : "Ville"} value={villes.length} color={color} />
-                        <Stat icon="fa-solid fa-crown" label="Majoritaire" value={`${dominantCount} ville${dominantCount > 1 ? "s" : ""}`} color={color} />
-                        <Stat icon="fa-solid fa-hands-praying" label="Influence moyenne" value={averageInfluence == null ? "—" : formatInfluence(averageInfluence)} color={color} />
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <span className="flex flex-row items-center gap-2 font-bold">
-                            <FontAwesomeIcon icon="fas fa-pen-nib" />
-                            <span>Description</span>
-                        </span>
-                        <MarkdownTextEditor value={religion?.description ? religion.description : 'Aucune description'} />
-                    </div>
+            {/* Présentation à gauche, chiffres clés à droite (empilés sur téléphone) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-2 w-full">
+                <section className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+                    <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
+                    <MarkdownTextEditor value={religion?.description ? religion.description : 'Aucune description'} />
+                </section>
+                <div className="grid grid-cols-2 gap-2 content-start bg-base-200 rounded-3xl p-2 lg:mt-4">
+                    <Stat icon="fa-solid fa-users" label={members.length > 1 ? "Membres" : "Membre"} value={members.length} color={color} />
+                    <Stat icon="fa-solid fa-city" label={villes.length > 1 ? "Villes" : "Ville"} value={villes.length} color={color} />
+                    <Stat icon="fa-solid fa-crown" label="Majoritaire" value={`${dominantCount} ville${dominantCount > 1 ? "s" : ""}`} color={color} />
+                    <Stat icon="fa-solid fa-hands-praying" label="Influence moyenne" value={averageInfluence == null ? "—" : formatInfluence(averageInfluence)} color={color} />
                 </div>
             </div>
 
