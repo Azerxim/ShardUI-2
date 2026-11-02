@@ -323,7 +323,7 @@ export default function CivilisationPage() {
                     <DescriptionLongue type="civilisation" id={civilisation.id} auth={auth} />
 
                 <TitleH2 text="Membres" icon="fas fa-users" fonctions={FctMembers} />
-                <div className="flex flex-row flex-wrap gap-2 w-full">
+                <div className="flex flex-col w-full">
                     {sortedMembers.length > 0 ? (
                         sortedMembers.map((member) => (
                             <MemberButton

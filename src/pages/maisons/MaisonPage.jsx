@@ -23,7 +23,7 @@ import { getSessionUser } from "@/services/session";
 import { dateRp, vieRp, MAISON_COULEUR_DEFAUT, MAISON_ICON_DEFAUT } from "@/config/lignees";
 import { couleurValide, encreSur, metalSur } from "@/utils/couleurFiche";
 import { deleteMaison, getCivilisations, getMaison, rejoindreMaison, retirerMembreMaison, updateMaison } from "@/services/api";
-import { libellePersonnage, personnagesChoisissables } from "@/utils/personnages";
+import { PERSONNAGE_STATUTS, libellePersonnage, personnagesChoisissables } from "@/utils/personnages";
 import { maisonChamps, maisonCorps, maisonValeurs } from "@/pages/maisons/maisonForm";
 
 // ===== Fiche d'une maison noble =====
@@ -178,21 +178,31 @@ export default function MaisonPage() {
                                     </div>
 
                                     <TitleH2 text={`Membres (${membres.length})`} icon="fas fa-users" fonctions={FctMembres} />
-                                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                                        {membres.map((membre) => (
-                                            <li key={membre.id} className="flex flex-row items-center gap-2 bg-base-200 rounded-2xl p-2 min-w-0">
-                                                <PersonnageAvatar personnage={membre} size="md" />
-                                                <span className="flex flex-col min-w-0 flex-1">
-                                                    <a href={`/personnage/${membre.id}`} className="link link-hover font-semibold truncate">{membre.name}</a>
-                                                    <span className="text-xs opacity-60">{[membre.id === maison.chef_id ? "Chef" : null, vieRp(membre)].filter(Boolean).join(" · ")}</span>
-                                                </span>
-                                                {membre.id !== maison.chef_id && (canManage || membre.user_id === user?.id) && (
-                                                    <button type="button" className="btn btn-xs btn-ghost text-error" onClick={() => retirer(membre)}>
-                                                        {membre.user_id === user?.id ? "Quitter" : "Exclure"}
-                                                    </button>
-                                                )}
-                                            </li>
-                                        ))}
+                                    {/* Une ligne par membre, comme la maquette : portrait et nom, rôle dans la maison, statut */}
+                                    <ul className="flex flex-col w-full">
+                                        {membres.map((membre) => {
+                                            const statut = PERSONNAGE_STATUTS[membre.status] ?? PERSONNAGE_STATUTS.vivant;
+                                            return (
+                                                <li key={membre.id} className="grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[minmax(0,1fr)_minmax(0,9rem)_auto] items-center gap-x-4 gap-y-1 ligne-fiche">
+                                                    <span className="flex flex-row items-center gap-3 min-w-0">
+                                                        <PersonnageAvatar personnage={membre} size="md" />
+                                                        <span className="flex flex-col min-w-0 leading-tight">
+                                                            <a href={`/personnage/${membre.id}`} className="link link-hover font-bold truncate">{membre.name}</a>
+                                                            {vieRp(membre) ? <span className="text-sm opacity-70 truncate">{vieRp(membre)}</span> : null}
+                                                        </span>
+                                                    </span>
+                                                    <span className="hidden sm:inline text-sm opacity-70 truncate">{membre.id === maison.chef_id ? "Chef de maison" : "Membre"}</span>
+                                                    <span className="flex flex-row items-center justify-end gap-2">
+                                                        <span className={`badge badge-sm ${statut.badge}`}>{statut.label}</span>
+                                                        {membre.id !== maison.chef_id && (canManage || membre.user_id === user?.id) && (
+                                                            <button type="button" className="btn btn-xs btn-ghost text-error" onClick={() => retirer(membre)}>
+                                                                {membre.user_id === user?.id ? "Quitter" : "Exclure"}
+                                                            </button>
+                                                        )}
+                                                    </span>
+                                                </li>
+                                            );
+                                        })}
                                     </ul>
                                 </div>
                                 <aside className="flex flex-col gap-2 min-w-0 order-first lg:order-none">

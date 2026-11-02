@@ -24,6 +24,8 @@ import {
 } from "@/utils/conflits";
 import { getSessionUser } from "@/services/session";
 import { couleurFiche, metalSur } from "@/utils/couleurFiche";
+import { useCouleurCivilisation } from "@/utils/useCouleurCivilisation";
+import Blason from "@/components/ui/Blason";
 import { apiRequest, getAllianceById, getCivilisations } from "@/services/api";
 import LivresLiesSection from "@/components/bibliotheque/LivresLiesSection";
 import ElectionsSection from "@/components/elections/ElectionsSection";
@@ -31,6 +33,12 @@ import ElectionsSection from "@/components/elections/ElectionsSection";
 const EDIT_MODAL_ID = "alliance-edit-modal";
 const INVITE_MODAL_ID = "alliance-invite-modal";
 const JOIN_MODAL_ID = "alliance-join-modal";
+
+// Petit blason d'une civilisation membre, à ses couleurs (celles de ses frontières sur la carte)
+function BlasonCivilisation({ civilisation }) {
+    const couleur = useCouleurCivilisation(civilisation.id);
+    return <Blason champ={metalSur(couleur)} meuble={couleur} icon="fa-solid fa-flag" largeur={28} />;
+}
 
 export default function AlliancePage() {
     const { id } = useParams();
@@ -148,26 +156,27 @@ export default function AlliancePage() {
                             return (
                                 <li key={civilisation.id} className="flex flex-col sm:flex-row sm:items-center gap-2 ligne-fiche">
                                     <a href={`/civilisation/${civilisation.id}`} className="flex flex-row items-center gap-3 flex-1 min-w-0 link link-hover">
-                                        <FontAwesomeIcon icon={role === "Chef de file" ? "fa-solid fa-crown" : "fa-solid fa-flag"} className="opacity-80" />
+                                        <BlasonCivilisation civilisation={civilisation} />
                                         <span className="font-bold break-words">{civilisation.title}</span>
+                                        {role === "Chef de file" ? <FontAwesomeIcon icon="fa-solid fa-crown" className="opacity-80" aria-hidden="true" /> : null}
                                         <span className={`badge badge-sm ${ALLIANCE_ROLE_BADGES[role] ?? "badge-ghost"}`}>{role}</span>
                                     </a>
                                     <div className="flex flex-row flex-wrap gap-1">
                                         {isChef && role !== "Chef de file" ? (
                                             <>
-                                                <button type="button" className="btn btn-xs btn-ghost bg-base-100" onClick={() => act(() => apiRequest("PUT", `/alliances/${id}/membres/${civilisation.id}`, { role: role === "Observateur" ? "Membre" : "Observateur" }))}>
+                                                <button type="button" className="btn btn-xs btn-ghost bg-base-200" onClick={() => act(() => apiRequest("PUT", `/alliances/${id}/membres/${civilisation.id}`, { role: role === "Observateur" ? "Membre" : "Observateur" }))}>
                                                     {role === "Observateur" ? "Passer membre" : "Passer observateur"}
                                                 </button>
-                                                <button type="button" className="btn btn-xs btn-ghost bg-base-100" onClick={() => act(() => apiRequest("PUT", `/alliances/${id}/transfert`, { civilisation_id: civilisation.id }), { confirm: { title: "Transférer la direction ?", text: `${civilisation.title} deviendra chef de file et gérera l'alliance.`, button: "Transférer" } })}>
+                                                <button type="button" className="btn btn-xs btn-ghost bg-base-200" onClick={() => act(() => apiRequest("PUT", `/alliances/${id}/transfert`, { civilisation_id: civilisation.id }), { confirm: { title: "Transférer la direction ?", text: `${civilisation.title} deviendra chef de file et gérera l'alliance.`, button: "Transférer" } })}>
                                                     Nommer chef de file
                                                 </button>
-                                                <button type="button" className="btn btn-xs btn-ghost bg-base-100 text-error" onClick={() => act(() => apiRequest("DELETE", `/alliances/${id}/membres/${civilisation.id}`), { confirm: { title: "Exclure cette civilisation ?", text: `${civilisation.title} quittera l'alliance.`, button: "Exclure" } })}>
+                                                <button type="button" className="btn btn-xs btn-ghost bg-base-200 text-error" onClick={() => act(() => apiRequest("DELETE", `/alliances/${id}/membres/${civilisation.id}`), { confirm: { title: "Exclure cette civilisation ?", text: `${civilisation.title} quittera l'alliance.`, button: "Exclure" } })}>
                                                     Exclure
                                                 </button>
                                             </>
                                         ) : null}
                                         {canLeave && !isChef ? (
-                                            <button type="button" className="btn btn-xs btn-ghost bg-base-100 text-error" onClick={() => act(() => apiRequest("DELETE", `/alliances/${id}/membres/${civilisation.id}`), { confirm: { title: "Quitter l'alliance ?", text: `${civilisation.title} ne fera plus partie de ${alliance.title}.`, button: "Quitter" } })}>
+                                            <button type="button" className="btn btn-xs btn-ghost bg-base-200 text-error" onClick={() => act(() => apiRequest("DELETE", `/alliances/${id}/membres/${civilisation.id}`), { confirm: { title: "Quitter l'alliance ?", text: `${civilisation.title} ne fera plus partie de ${alliance.title}.`, button: "Quitter" } })}>
                                                 Quitter l'alliance
                                             </button>
                                         ) : null}
@@ -243,11 +252,11 @@ export default function AlliancePage() {
                                                 {canAnswer ? (
                                                     <>
                                                         <button type="button" className="btn btn-xs btn-success" onClick={() => act(() => apiRequest("PUT", `/alliances/invitations/${invitation.id}/repondre`, { accepter: true }))}>Accepter</button>
-                                                        <button type="button" className="btn btn-xs btn-ghost bg-base-100" onClick={() => act(() => apiRequest("PUT", `/alliances/invitations/${invitation.id}/repondre`, { accepter: false }))}>Refuser</button>
+                                                        <button type="button" className="btn btn-xs btn-ghost bg-base-200" onClick={() => act(() => apiRequest("PUT", `/alliances/invitations/${invitation.id}/repondre`, { accepter: false }))}>Refuser</button>
                                                     </>
                                                 ) : null}
                                                 {canCancel ? (
-                                                    <button type="button" className="btn btn-xs btn-ghost bg-base-100 text-error" onClick={() => act(() => apiRequest("DELETE", `/alliances/invitations/${invitation.id}`))}>Annuler</button>
+                                                    <button type="button" className="btn btn-xs btn-ghost bg-base-200 text-error" onClick={() => act(() => apiRequest("DELETE", `/alliances/invitations/${invitation.id}`))}>Annuler</button>
                                                 ) : null}
                                             </div>
                                         </li>

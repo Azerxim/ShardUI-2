@@ -7,11 +7,15 @@ import { civilisationMemberEditModal } from '@/config/modals/civilisation-member
 import DynamicModal from '@/components/modals/DynamicModal';
 import { showModal } from '@/utils/showModal';
 
-// Membre d'une civilisation ou d'une religion : utilisateur + rôle en badge.
+// Membre d'une civilisation, d'une religion ou d'un commerce : une ligne avec portrait, nom et rôle (badge pour le fondateur).
 // Les actions (modifier / supprimer / transférer) restent dans le menu, ouvert par
 // le bouton visible ou par clic droit.
 // editConfig : config DynamicModal d'édition du membre ; null = pas de modification ni suppression
 // (ex. religions, sans routes dédiées).
+// Couleur stable par utilisateur et initiale du nom, pour le portrait sans image
+const couleurDe = (id) => `hsl(${((Number(id) || 0) * 137) % 360} 45% 40%)`;
+const initiale = (nom) => (nom || "?").trim().charAt(0).toUpperCase();
+
 export default function MemberButton({ member, auth = false, bgColor = "", textColor = "", roleColor = "", editConfig = civilisationMemberEditModal, onDelete = () => { }, onModifyMember = () => { }, onTransfer = () => { } }) {
     const [username, setUsername] = useState("Utilisateur inconnu");
     const [imageUrl, setImageUrl] = useState("");
@@ -64,35 +68,29 @@ export default function MemberButton({ member, auth = false, bgColor = "", textC
     const hasActions = auth && (isFondateur || Boolean(editConfig));
 
     return (
-        <div className="relative flex flex-row items-center gap-2 bg-base-200 rounded-3xl pr-3" ref={menuRef} onContextMenu={handleContextMenu}>
-            <a href={linkUrl} className='w-min'>
-                <div className={`btn ${bgColor} ${textColor} rounded-3xl shadow-md p-2 h-10 w-min`}>
-                    <div className="flex items-center space-x-2 flex-nowrap">
-                        <div className="avatar">
-                            <div className="mask mask-circle w-6 px-1">
-                                {imageUrl != "" && imageUrl != null ? (<img src={imageUrl} />) : (<FontAwesomeIcon icon="fa-solid fa-user" />)}
-                            </div>
-                        </div>
-                        <span className='whitespace-nowrap mr-2'>{username}</span>
-                    </div>
-                </div>
+        // Charte « Chancellerie » : une ligne par membre (portrait, nom, rôle), comme la maquette des fiches
+        <div className="relative flex flex-row items-center gap-3 w-full ligne-fiche" ref={menuRef} onContextMenu={handleContextMenu}>
+            <a href={linkUrl || undefined} className="flex flex-row items-center gap-3 flex-1 min-w-0 group">
+                <span className={`flex items-center justify-center w-9 h-9 rounded-full overflow-hidden shrink-0 font-bold text-sm ${bgColor} ${textColor}`} style={bgColor ? undefined : { backgroundColor: couleurDe(member.user_id), color: "#ffffff" }} aria-hidden="true">
+                    {imageUrl ? <img src={imageUrl} alt="" className="w-full h-full object-cover" /> : initiale(username)}
+                </span>
+                <span className="flex flex-col min-w-0 leading-tight">
+                    <span className="font-bold truncate group-hover:underline">{username}</span>
+                    {member.role && !isFondateur ? <span className="text-sm opacity-70 truncate">{member.role}</span> : null}
+                </span>
             </a>
 
-            {member.role ? (
-                isFondateur ? (
-                    <span className={`badge badge-sm gap-1 border-0 ${roleColor ? "text-white" : "badge-primary"}`} style={{ backgroundColor: roleColor || undefined }}>
-                        <FontAwesomeIcon icon="fa-solid fa-crown" />
-                        {member.role}
-                    </span>
-                ) : (
-                    <span className="badge badge-sm badge-ghost">{member.role}</span>
-                )
+            {isFondateur ? (
+                <span className={`badge badge-sm gap-1 border-0 shrink-0 ${roleColor ? "text-white" : "badge-primary"}`} style={{ backgroundColor: roleColor || undefined }}>
+                    <FontAwesomeIcon icon="fa-solid fa-crown" />
+                    {member.role}
+                </span>
             ) : null}
 
             {hasActions ? (
                 <button
                     type="button"
-                    className="btn btn-xs btn-ghost btn-circle -mr-1"
+                    className="btn btn-sm btn-ghost btn-circle shrink-0"
                     aria-label={`Actions pour ${username}`}
                     onClick={() => setMenuOpen((open) => !open)}
                 >
@@ -101,7 +99,7 @@ export default function MemberButton({ member, auth = false, bgColor = "", textC
             ) : null}
 
             {auth && menuOpen && !isFondateur && editConfig && (
-                <ul className="menu absolute left-0 top-full z-50 mt-1 w-40 rounded-box bg-base-100 shadow-md">
+                <ul className="menu absolute right-0 top-full z-50 mt-1 w-40 rounded-box bg-base-100 shadow-md">
                     <li>
                         <button
                             type="button"
@@ -131,7 +129,7 @@ export default function MemberButton({ member, auth = false, bgColor = "", textC
             )}
 
             {auth && menuOpen && isFondateur && (
-                <ul className="menu absolute left-0 top-full z-50 mt-1 w-40 rounded-box bg-base-100 shadow-md">
+                <ul className="menu absolute right-0 top-full z-50 mt-1 w-40 rounded-box bg-base-100 shadow-md">
                     <li>
                         <button
                             type="button"
