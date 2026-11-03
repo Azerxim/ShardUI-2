@@ -31,6 +31,7 @@ import { definition as fasBinoculars } from "@fortawesome/free-solid-svg-icons/f
 import { definition as fasBold } from "@fortawesome/free-solid-svg-icons/faBold";
 import { definition as fasBook } from "@fortawesome/free-solid-svg-icons/faBook";
 import { definition as fasBookOpen } from "@fortawesome/free-solid-svg-icons/faBookOpen";
+import { definition as fasBookOpenReader } from "@fortawesome/free-solid-svg-icons/faBookOpenReader";
 import { definition as fasBookSkull } from "@fortawesome/free-solid-svg-icons/faBookSkull";
 import { definition as fasBookmark } from "@fortawesome/free-solid-svg-icons/faBookmark";
 import { definition as fasBoxArchive } from "@fortawesome/free-solid-svg-icons/faBoxArchive";
@@ -104,6 +105,7 @@ import { definition as fasGamepad } from "@fortawesome/free-solid-svg-icons/faGa
 import { definition as fasGavel } from "@fortawesome/free-solid-svg-icons/faGavel";
 import { definition as fasGears } from "@fortawesome/free-solid-svg-icons/faGears";
 import { definition as fasGem } from "@fortawesome/free-solid-svg-icons/faGem";
+import { definition as fasGlobe } from "@fortawesome/free-solid-svg-icons/faGlobe";
 import { definition as fasHammer } from "@fortawesome/free-solid-svg-icons/faHammer";
 import { definition as fasHand } from "@fortawesome/free-solid-svg-icons/faHand";
 import { definition as fasHandHoldingHeart } from "@fortawesome/free-solid-svg-icons/faHandHoldingHeart";
@@ -119,6 +121,7 @@ import { definition as fasHouse } from "@fortawesome/free-solid-svg-icons/faHous
 import { definition as fasHouseChimney } from "@fortawesome/free-solid-svg-icons/faHouseChimney";
 import { definition as fasHouseCrack } from "@fortawesome/free-solid-svg-icons/faHouseCrack";
 import { definition as fasHouseFlag } from "@fortawesome/free-solid-svg-icons/faHouseFlag";
+import { definition as fasIdCard } from "@fortawesome/free-solid-svg-icons/faIdCard";
 import { definition as fasImage } from "@fortawesome/free-solid-svg-icons/faImage";
 import { definition as fasInbox } from "@fortawesome/free-solid-svg-icons/faInbox";
 import { definition as fasItalic } from "@fortawesome/free-solid-svg-icons/faItalic";
@@ -247,6 +250,7 @@ export default [
     fasBold,
     fasBook,
     fasBookOpen,
+    fasBookOpenReader,
     fasBookSkull,
     fasBookmark,
     fasBoxArchive,
@@ -320,6 +324,7 @@ export default [
     fasGavel,
     fasGears,
     fasGem,
+    fasGlobe,
     fasHammer,
     fasHand,
     fasHandHoldingHeart,
@@ -335,6 +340,7 @@ export default [
     fasHouseChimney,
     fasHouseCrack,
     fasHouseFlag,
+    fasIdCard,
     fasImage,
     fasInbox,
     fasItalic,

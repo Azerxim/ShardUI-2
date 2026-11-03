@@ -25,7 +25,7 @@ const MODAL_ID = "lien-parente-modal";
 function Proche({ personnage, detail, retirer }) {
     const vie = vieRp(personnage);
     return (
-        <li className="flex flex-row items-center gap-2 bg-base-100 rounded-2xl pl-1 pr-2 py-1 min-w-0">
+        <li className="flex flex-row items-center gap-2 bg-base-200 rounded-2xl pl-1 pr-2 py-1 min-w-0">
             <PersonnageAvatar personnage={personnage} size="sm" />
             <span className="flex flex-col min-w-0">
                 <a href={`/personnage/${personnage.id}`} className="link link-hover font-semibold truncate">{personnage.name}</a>
@@ -178,7 +178,7 @@ export default function FamilleSection({ personnage, canManage }) {
                 icon="fas fa-sitemap"
                 fonctions={[{ id: 1, title: "Lier", icon: "fas fa-link", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: gerer, tooltip: { text: "Ajouter un parent, un enfant, un conjoint ou un héritier", position: "left" }, function: ouvrirLien }]}
             />
-            <div id="famille" className="flex flex-col gap-3 w-full bg-base-200 rounded-3xl p-4 scroll-mt-24">
+            <div id="famille" className="flex flex-col gap-3 w-full px-1 scroll-mt-24">
                 {canManage && <DemandesParente demandes={demandes} reload={reload} personnageId={personnage.id} />}
                 {famille === null ? (
                     <span className="loading loading-spinner"></span>

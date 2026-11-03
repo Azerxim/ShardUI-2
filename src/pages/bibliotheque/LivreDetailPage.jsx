@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { usePageTitle } from "@/utils/pageTitle";
 import { useParams, useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Navbar from '@/components/layout/Navbar';
 import Skeleton from '@/components/ui/Skeleton';
 import TitleH1 from '@/components/ui/TitleH1';
+import EnTeteFiche from '@/components/ui/EnTeteFiche';
+import SommaireFiche from '@/components/ui/SommaireFiche';
 import TitleH2 from '@/components/ui/TitleH2';
 import Stat from '@/components/ui/Stat';
 import InfoLine from '@/components/ui/InfoLine';
@@ -17,6 +18,7 @@ import DynamicModal from '@/components/modals/DynamicModal';
 import { checkUserID, checkMemberAuth } from "@/services/authorisation";
 import { showModal } from '@/utils/showModal';
 import { getContrastTextColor } from '@/utils/contrastColor';
+import { couleurValide } from '@/utils/couleurFiche';
 import { livreModal } from '@/config/modals/livre';
 import LivreLiensSection from '@/components/bibliotheque/LivreLiensSection';
 import { livreContentModal } from '@/config/modals/livre-content';
@@ -52,31 +54,39 @@ function BookCover({ livre }) {
     );
 }
 
-function Sommaire({ chapitres }) {
+// Chiffres romains des numéros de chapitre (I, II, III…)
+const ROMAINS = [[1000, "M"], [900, "CM"], [500, "D"], [400, "CD"], [100, "C"], [90, "XC"], [50, "L"], [40, "XL"], [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]];
+const romain = (n) => ROMAINS.reduce((texte, [valeur, lettres]) => {
+    while (n >= valeur) { texte += lettres; n -= valeur; }
+    return texte;
+}, "");
+
+// Table des chapitres (charte « Chancellerie ») : une ligne par chapitre, qui mène à son texte dans la lecture
+function TableChapitres({ chapitres }) {
     return (
-        <nav className="flex flex-col gap-2 w-full lg:w-72 shrink-0 lg:sticky lg:top-24 lg:max-h-[calc(100dvh-8rem)] overflow-y-auto bg-base-200 rounded-3xl p-4">
-            <span className="flex flex-row items-center gap-2 font-bold">
-                <FontAwesomeIcon icon="fa-solid fa-list-ol" />
-                <span>Sommaire</span>
-            </span>
-            <ol className="flex flex-col gap-1">
-                {chapitres.map((chapitre, index) => (
+        <ol className="flex flex-col w-full">
+            {chapitres.map((chapitre, index) => {
+                const mots = countWords(chapitre.content);
+                const ancre = `chapitre-${chapitre.id ?? index}`;
+                return (
                     <li key={chapitre.id ?? index}>
                         <a
-                            href={`#chapitre-${chapitre.id ?? index}`}
-                            className="flex flex-row gap-2 rounded-xl px-2 py-1 hover:bg-base-300 transition-colors"
+                            href={`#${ancre}`}
+                            className="grid grid-cols-[3rem_minmax(0,1fr)_auto] sm:grid-cols-[3rem_minmax(0,1fr)_7rem_5rem] items-center gap-x-4 ligne-fiche"
                             onClick={(e) => {
                                 e.preventDefault();
-                                document.getElementById(`chapitre-${chapitre.id ?? index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                document.getElementById(ancre)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                             }}
                         >
-                            <span className="opacity-60 tabular-nums">{index + 1}.</span>
-                            <span className="min-w-0 break-words">{chapitre.chapitre}</span>
+                            <span className="font-display text-xl opacity-70 text-center">{romain(index + 1)}</span>
+                            <span className="font-bold break-words">{chapitre.chapitre}</span>
+                            <span className="hidden sm:inline text-sm opacity-70 tabular-nums">{mots.toLocaleString('fr-FR')} mot{mots > 1 ? 's' : ''}</span>
+                            <span className="text-sm opacity-70 tabular-nums text-right sm:text-left">{Math.max(1, Math.round(mots / WORDS_PER_MINUTE))} min</span>
                         </a>
                     </li>
-                ))}
-            </ol>
-        </nav>
+                );
+            })}
+        </ol>
     );
 }
 
@@ -137,6 +147,7 @@ export default function LivreDetailPage() {
         setChapitres((prev) => prev.filter((item) => item.id !== chapitre.id));
     };
 
+    const couleurCouverture = couleurValide(livre?.cover_color) ?? DEFAULT_COVER_COLOR;
     const btnReturn = { text: 'Retour à la bibliothèque', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/bibliotheque' };
 
     const FctModify = [
@@ -153,71 +164,76 @@ export default function LivreDetailPage() {
 
     const BodyHTML = livre ? (
         <>
-            <TitleH1 text={livre.title} icon="fas fa-book" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Bibliothèque", href: "/bibliotheque" }, { label: livre.title }]} />
+            {/* En-tête dans la couleur de la couverture ; la couverture, cernée d'encre, s'en détache */}
+            <EnTeteFiche
+                couleur={couleurCouverture}
+                embleme={<span className="block rounded-r-lg rounded-l-sm ring-[3px] ring-[#17131f] self-start sm:self-auto"><BookCover livre={livre} /></span>}
+                surtitre={["Livre", livre.author ? `par ${livre.author}` : null, livre.language].filter(Boolean).join(" · ")}
+                titre={livre.title}
+                fonctions={FctModify}
+                ariane={[{ label: "Bibliothèque", href: "/bibliotheque" }, { label: livre.title }]}
+            />
+            <SommaireFiche />
 
-            {/* En-tête : couverture, informations, chiffres clés et description */}
-            <div className="flex flex-col sm:flex-row gap-4 w-full bg-base-200 rounded-3xl p-4">
-                <div className="flex justify-center sm:block">
-                    <BookCover livre={livre} />
+            {/* Corps en deux colonnes, comme la maquette : présentation et table des chapitres à gauche ; chiffres clés et
+                « À propos » à droite (au-dessus sur téléphone). La lecture suit, sur toute la largeur. */}
+            <div className="fiche grid grid-cols-1 lg:grid-cols-3 gap-x-10 w-full items-start">
+                <div className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+                    <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
+                    <MarkdownTextEditor value={livre.description || 'Aucune description'} />
+
+                    <TitleH2 text="Chapitres" icon="fas fa-book-open" fonctions={FctChapitres} />
+                    {loadingChapitres ? (
+                        <div className="flex justify-center items-center py-12 w-full">
+                            <div className="loading loading-spinner loading-lg"></div>
+                        </div>
+                    ) : chapitres.length === 0 ? (
+                        <EtatVide
+                            icon="fa-solid fa-feather-pointed"
+                            texte="Ce livre n'a encore aucun chapitre."
+                            aide={auth ? "Écrivez le premier chapitre pour ouvrir le livre à ses lecteurs." : null}
+                            action={auth ? { label: "Écrire le premier chapitre", icon: "fa-solid fa-plus", onClick: () => showModal(livreContentModal, "add") } : null}
+                        />
+                    ) : (
+                        <TableChapitres chapitres={chapitres} />
+                    )}
                 </div>
-                <div className="flex flex-col gap-4 flex-1 min-w-0">
-                    <div className="flex flex-col gap-1">
-                        <InfoLine icon="fa-solid fa-feather">
-                            {livre.author ? <>Écrit par <strong>{livre.author}</strong></> : "Auteur inconnu"}
-                        </InfoLine>
-                        <InfoLine icon="fa-solid fa-calendar">
-                            {published ? `Publié le ${published}` : "Date de publication inconnue"}
-                        </InfoLine>
-                        {livre.language ? <InfoLine icon="fa-solid fa-language">{livre.language}</InfoLine> : null}
-                    </div>
 
-                    <LivreLiensSection ecrit={livre} auth={auth} onLiens={droitsParLiens} />
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <aside className="flex flex-col gap-2 min-w-0 order-first lg:order-none">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2 bg-base-200 rounded-3xl p-2 mt-4 lg:mt-7">
                         <Stat icon="fa-solid fa-bookmark" label={chapitres.length > 1 ? "Chapitres" : "Chapitre"} value={loadingChapitres ? "…" : chapitres.length} />
                         <Stat icon="fa-solid fa-font" label={words > 1 ? "Mots" : "Mot"} value={loadingChapitres ? "…" : words.toLocaleString('fr-FR')} />
                         <Stat icon="fa-solid fa-hourglass-half" label="Temps de lecture" value={loadingChapitres ? "…" : readingMinutes > 0 ? `~${readingMinutes} min` : "—"} />
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                        <span className="flex flex-row items-center gap-2 font-bold">
-                            <FontAwesomeIcon icon="fas fa-pen-nib" />
-                            <span>Description</span>
-                        </span>
-                        <MarkdownTextEditor value={livre.description || 'Aucune description'} />
+                    <TitleH2 text="À propos du livre" icon="fas fa-circle-info" />
+                    <div className="flex flex-col gap-2 px-1">
+                        <InfoLine icon="fa-solid fa-feather">
+                            {livre.author ? <>Écrit par <strong>{livre.author}</strong></> : "Auteur inconnu"}
+                        </InfoLine>
+                        <InfoLine icon="fa-solid fa-calendar">{published ? `Publié le ${published}` : "Date de publication inconnue"}</InfoLine>
+                        {livre.language ? <InfoLine icon="fa-solid fa-language">{livre.language}</InfoLine> : null}
+                        <LivreLiensSection ecrit={livre} auth={auth} onLiens={droitsParLiens} />
                     </div>
-                </div>
+                </aside>
             </div>
 
-            <TitleH2 text="Chapitres" icon="fas fa-book-open" fonctions={FctChapitres} />
-            {loadingChapitres ? (
-                <div className="flex justify-center items-center py-12 w-full">
-                    <div className="loading loading-spinner loading-lg"></div>
+            {/* Lecture : le texte des chapitres, sur toute la largeur */}
+            {!loadingChapitres && chapitres.length > 0 ? (
+                <div className="fiche flex flex-col gap-4 w-full">
+                    <TitleH2 text="Lecture" icon="fas fa-book-open-reader" />
+                    {chapitres.map((chapitre, index) => (
+                        <LivreChapitre
+                            key={chapitre.id ?? index}
+                            index={index}
+                            content={chapitre}
+                            authorisation={auth}
+                            updateLivreContent={updateChapitre}
+                            deleteLivreContent={deleteChapitre}
+                        />
+                    ))}
                 </div>
-            ) : chapitres.length === 0 ? (
-                <EtatVide
-                    icon="fa-solid fa-feather-pointed"
-                    texte="Ce livre n'a encore aucun chapitre."
-                    aide={auth ? "Écrivez le premier chapitre pour ouvrir le livre à ses lecteurs." : null}
-                    action={auth ? { label: "Écrire le premier chapitre", icon: "fa-solid fa-plus", onClick: () => showModal(livreContentModal, "add") } : null}
-                />
-            ) : (
-                <div className="flex flex-col lg:flex-row gap-4 w-full items-start">
-                    {chapitres.length > 1 ? <Sommaire chapitres={chapitres} /> : null}
-                    <div className="flex flex-col gap-4 flex-1 min-w-0 w-full">
-                        {chapitres.map((chapitre, index) => (
-                            <LivreChapitre
-                                key={chapitre.id ?? index}
-                                index={index}
-                                content={chapitre}
-                                authorisation={auth}
-                                updateLivreContent={updateChapitre}
-                                deleteLivreContent={deleteChapitre}
-                            />
-                        ))}
-                    </div>
-                </div>
-            )}
+            ) : null}
         </>
     ) : null;
 

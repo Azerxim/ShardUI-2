@@ -20,7 +20,7 @@ const nom = (user) => user?.full_name || user?.username || 'compte supprimé';
 
 function Ajustement({ ajustement, actions = null }) {
     return (
-        <li className="flex flex-col sm:flex-row sm:items-center gap-2 bg-base-100 rounded-xl p-3">
+        <li className="flex flex-col sm:flex-row sm:items-center gap-2 ligne-fiche">
             <span className={`badge badge-lg font-bold tabular-nums shrink-0 ${ajustement.ecart > 0 ? 'badge-success' : 'badge-error'} badge-soft`}>{ecartTexte(ajustement.ecart)}</span>
             <span className="flex-1 min-w-0">
                 <span className="block break-words">{ajustement.motif}</span>
@@ -132,7 +132,7 @@ export default function PopulationSection({ ville, auth, onCharge = () => { } })
             {population === null ? (
                 <div className="flex justify-center py-6 w-full"><span className="loading loading-spinner"></span></div>
             ) : (
-                <div className="flex flex-col gap-3 bg-base-200 rounded-2xl p-4">
+                <div className="flex flex-col gap-3 px-1">
                     <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
                         <span className="text-3xl font-bold tabular-nums">{nombre(population.officielle)}</span>
                         <span className="opacity-80">
@@ -150,7 +150,7 @@ export default function PopulationSection({ ville, auth, onCharge = () => { } })
                     </p>
 
                     {population.ajustements.length > 0 && (
-                        <ul className="flex flex-col gap-2">
+                        <ul className="flex flex-col">
                             {population.ajustements.map((ajustement) => (
                                 <Ajustement
                                     key={ajustement.id}
@@ -167,7 +167,7 @@ export default function PopulationSection({ ville, auth, onCharge = () => { } })
                                 <FontAwesomeIcon icon="fa-solid fa-hourglass-half" className="text-warning" />
                                 En attente de validation par un modérateur RP
                             </p>
-                            <ul className="flex flex-col gap-2">
+                            <ul className="flex flex-col">
                                 {population.en_attente.map((ajustement) => {
                                     const mienne = ajustement.demande_par?.id === user?.id;
                                     return (

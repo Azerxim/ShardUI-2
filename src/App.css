@@ -139,3 +139,37 @@
     font-weight: 700;
   }
 }
+
+@layer components {
+  /* Charte « Chancellerie » : le corps des fiches pose ses listes sur la page, sous le filet du titre de section.
+     Ligne d'une liste (ville, magasin, guerre, membre d'alliance…) : séparée par un filet, surlignée au survol
+     quand elle est un lien ou dans un lien. Remplace les cartes grises arrondies. */
+  .ligne-fiche {
+    border-bottom: 1px solid var(--color-base-300);
+    padding: 0.75rem 0.5rem;
+  }
+  a.ligne-fiche,
+  a > .ligne-fiche {
+    transition: background-color 0.15s;
+  }
+  a.ligne-fiche:hover,
+  a:hover > .ligne-fiche {
+    background-color: var(--color-base-200);
+  }
+  /* Groupe titré à l'intérieur d'une section (un camp, la levée d'une civilisation…) : sans boîte, un filet au-dessus */
+  .groupe-fiche {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-top: 1px solid var(--color-base-300);
+    padding-top: 0.75rem;
+  }
+  /* Corps d'une fiche : titres de section sans icône, sections plus espacées, comme la maquette */
+  /* !important : la feuille de Font Awesome, injectée hors des couches, l'emporterait sinon */
+  .fiche .titre-icone {
+    display: none !important;
+  }
+  .fiche .titre-section {
+    margin-top: 1.75rem;
+  }
+}

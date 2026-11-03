@@ -9,22 +9,25 @@ export default function JoinHint({ members = [], entity = "cette civilisation" }
 
     const founder = members.find((member) => member.role === "Fondateur");
 
+    // Mise en ligne selon la largeur de l'encart (requête de conteneur) : empilé dans la colonne étroite d'une fiche
     return (
-        <div role="note" className="flex flex-col sm:flex-row sm:items-center gap-3 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
-            <FontAwesomeIcon icon="fa-solid fa-circle-info" className="text-info text-xl shrink-0" />
-            {user ? (
-                <p className="flex-1">
-                    Pour rejoindre {entity}, contactez {founder?.username ? <>son fondateur <strong>{founder.username}</strong></> : "son fondateur"} ou l'un de ses admins : ce sont eux qui ajoutent les nouveaux membres.
-                </p>
-            ) : (
-                <>
-                    <p className="flex-1">Connectez-vous pour rejoindre {entity} ou demander à en faire partie.</p>
-                    <div className="flex flex-row flex-wrap gap-2">
-                        <a href="/login" className="btn btn-sm btn-primary">Se connecter</a>
-                        <a href="/register" className="btn btn-sm btn-ghost bg-base-100">Créer un compte</a>
-                    </div>
-                </>
-            )}
+        <div className="@container w-full">
+            <div role="note" className="flex flex-col @lg:flex-row @lg:items-center gap-3 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
+                <FontAwesomeIcon icon="fa-solid fa-circle-info" className="text-info text-xl shrink-0" />
+                {user ? (
+                    <p className="flex-1">
+                        Pour rejoindre {entity}, contactez {founder?.username ? <>son fondateur <strong>{founder.username}</strong></> : "son fondateur"} ou l'un de ses admins : ce sont eux qui ajoutent les nouveaux membres.
+                    </p>
+                ) : (
+                    <>
+                        <p className="flex-1">Connectez-vous pour rejoindre {entity} ou demander à en faire partie.</p>
+                        <div className="flex flex-row flex-wrap gap-2">
+                            <a href="/login" className="btn btn-sm btn-primary">Se connecter</a>
+                            <a href="/register" className="btn btn-sm btn-ghost bg-base-100">Créer un compte</a>
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
     );
 }

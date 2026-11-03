@@ -629,6 +629,9 @@ export const getDestructiblesOfVille = (villeId) => publicGet(`/cartographie/ent
 // Marchés et quartiers marchands d'une ville (polygones nommés) ; leurs boutiques sont les magasins situés à l'intérieur
 export const getZonesCommercialesOfVille = (villeId) => publicGet(`/cartographie/entity/commerciale/${villeId}`);
 
+// Frontières d'une civilisation : cartographies de type "civilisation" ; leur couleur colore aussi l'en-tête de sa fiche
+export const getZonesOfCivilisation = (civilisationId) => publicGet(`/cartographie/entity/civilisation/${civilisationId}`);
+
 // Toutes les formes de cartographie, filtrées par type côté site (ex. zones commerciales de la page des commerces)
 export const getCartographies = () => publicGet("/cartographie/list?limit=10000");
 

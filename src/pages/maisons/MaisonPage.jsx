@@ -8,19 +8,22 @@ import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
 import TitleH2 from "@/components/ui/TitleH2";
 import InfoLine from "@/components/ui/InfoLine";
+import Stat from "@/components/ui/Stat";
+import EnTeteFiche from "@/components/ui/EnTeteFiche";
+import Blason from "@/components/ui/Blason";
+import SommaireFiche from "@/components/ui/SommaireFiche";
 import FormModal from "@/components/modals/FormModal";
-import BlasonMaison from "@/components/personnages/BlasonMaison";
 import PersonnageAvatar from "@/components/personnages/PersonnageAvatar";
 import ArbreMaison from "@/components/lignees/ArbreMaison";
 
 import { usePageTitle } from "@/utils/pageTitle";
 import { showModalID } from "@/utils/showModal";
 import { isModerateur, runAction } from "@/utils/conflits";
-import { plural } from "@/utils/plural";
 import { getSessionUser } from "@/services/session";
-import { dateRp, vieRp } from "@/config/lignees";
+import { dateRp, vieRp, MAISON_COULEUR_DEFAUT, MAISON_ICON_DEFAUT } from "@/config/lignees";
+import { couleurValide, encreSur, metalSur } from "@/utils/couleurFiche";
 import { deleteMaison, getCivilisations, getMaison, rejoindreMaison, retirerMembreMaison, updateMaison } from "@/services/api";
-import { libellePersonnage, personnagesChoisissables } from "@/utils/personnages";
+import { PERSONNAGE_STATUTS, libellePersonnage, personnagesChoisissables } from "@/utils/personnages";
 import { maisonChamps, maisonCorps, maisonValeurs } from "@/pages/maisons/maisonForm";
 
 // ===== Fiche d'une maison noble =====
@@ -113,6 +116,7 @@ export default function MaisonPage() {
         { id: 1, title: "Faire entrer", icon: "fas fa-user-plus", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: true, tooltip: { text: "Faire entrer un de vos personnages", position: "left" }, function: faireEntrer },
     ];
     const btnReturn = { text: "Retour aux maisons", icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: "/maisons" };
+    const couleur = couleurValide(maison?.couleur) ?? MAISON_COULEUR_DEFAUT;
 
     return (
         <>
@@ -128,53 +132,86 @@ export default function MaisonPage() {
                         </>
                     ) : (
                         <>
-                            <TitleH1 text={`Maison ${maison.title}`} icon="fas fa-chess-king" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Maisons", href: "/maisons" }, { label: maison.title }]} />
-
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full bg-base-200 rounded-3xl p-4">
-                                <BlasonMaison maison={maison} size="xl" />
-                                <div className="flex flex-col gap-1 min-w-0">
-                                    {maison.devise && <p className="italic text-lg break-words">« {maison.devise} »</p>}
-                                    <InfoLine icon="fa-solid fa-crown">
-                                        {maison.chef ? <>Chef : <a href={`/personnage/${maison.chef.id}`} className="link link-hover font-semibold">{maison.chef.name}</a></> : "Pas de chef désigné"}
-                                    </InfoLine>
-                                    {maison.civilisation && (
-                                        <InfoLine icon="fa-solid fa-flag">
-                                            <a href={`/civilisation/${maison.civilisation.id}`} className="link link-hover">{maison.civilisation.title}</a>
+                            {/* En-tête aux couleurs de la maison : son blason (meuble sur sa couleur), cerné d'or pour se détacher de l'aplat */}
+                            <EnTeteFiche
+                                couleur={couleur}
+                                embleme={<Blason champ={couleur} meuble={encreSur(couleur)} contour={metalSur(couleur)} icon={maison.icon || MAISON_ICON_DEFAUT} iconFallback={MAISON_ICON_DEFAUT} titre={`Blason de la maison ${maison.title}`} />}
+                                surtitre={["Maison", maison.civilisation?.title, maison.date_fondation ? `fondée le ${dateRp(maison.date_fondation)}` : null].filter(Boolean).join(" · ")}
+                                titre={`Maison ${maison.title}`}
+                                devise={maison.devise}
+                                infos={
+                                    <>
+                                        <InfoLine icon="fa-solid fa-crown">
+                                            {maison.chef ? <>Chef : <a href={`/personnage/${maison.chef.id}`} className="link link-hover font-semibold">{maison.chef.name}</a></> : "Pas de chef désigné"}
                                         </InfoLine>
-                                    )}
-                                    {maison.date_fondation && <InfoLine icon="fa-solid fa-hourglass-start">Fondée le {dateRp(maison.date_fondation)}</InfoLine>}
-                                    {maison.description && <p className="text-sm opacity-80 whitespace-pre-line break-words mt-1">{maison.description}</p>}
-                                </div>
-                            </div>
-
-                            <TitleH2 text="Arbre de la lignée" icon="fas fa-sitemap" />
-                            <div className="w-full bg-base-200 rounded-3xl p-4 overflow-x-auto">
-                                {membres.length === 0 ? (
-                                    <p className="opacity-70">La maison n'a encore aucun membre.</p>
-                                ) : (
-                                    <ArbreMaison membres={membres} allies={data.allies} liens={data.liens} chefId={maison.chef_id} />
-                                )}
-                                <p className="text-xs opacity-60 mt-3">Les liens de parenté s'ajoutent sur la fiche de chaque personnage, section « Famille ». En pointillés : les conjoints venus d'autres maisons.</p>
-                            </div>
-
-                            <TitleH2 text={`Membres (${membres.length})`} icon="fas fa-users" fonctions={FctMembres} />
-                            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 w-full">
-                                {membres.map((membre) => (
-                                    <li key={membre.id} className="flex flex-row items-center gap-2 bg-base-200 rounded-2xl p-2 min-w-0">
-                                        <PersonnageAvatar personnage={membre} size="md" />
-                                        <span className="flex flex-col min-w-0 flex-1">
-                                            <a href={`/personnage/${membre.id}`} className="link link-hover font-semibold truncate">{membre.name}</a>
-                                            <span className="text-xs opacity-60">{[membre.id === maison.chef_id ? "Chef" : null, vieRp(membre)].filter(Boolean).join(" · ")}</span>
-                                        </span>
-                                        {membre.id !== maison.chef_id && (canManage || membre.user_id === user?.id) && (
-                                            <button type="button" className="btn btn-xs btn-ghost text-error" onClick={() => retirer(membre)}>
-                                                {membre.user_id === user?.id ? "Quitter" : "Exclure"}
-                                            </button>
+                                        {maison.civilisation && (
+                                            <InfoLine icon="fa-solid fa-flag">
+                                                <a href={`/civilisation/${maison.civilisation.id}`} className="link link-hover">{maison.civilisation.title}</a>
+                                            </InfoLine>
                                         )}
-                                    </li>
-                                ))}
-                            </ul>
-                            <p className="text-sm opacity-70 w-full px-1">{plural(data.allies.length, "allié")} par mariage.</p>
+                                    </>
+                                }
+                                fonctions={FctModify}
+                                ariane={[{ label: "Maisons", href: "/maisons" }, { label: maison.title }]}
+                            />
+                            <SommaireFiche />
+
+                            {/* Corps en deux colonnes (charte « Chancellerie ») : le contenu à gauche, les chiffres clés et les informations
+                                courtes à droite. Sur téléphone, la colonne de droite passe au-dessus du contenu. */}
+                            <div className="fiche grid grid-cols-1 lg:grid-cols-3 gap-x-10 w-full items-start">
+                                <div className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+                                    {maison.description && (
+                                        <>
+                                            <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
+                                            <p className="w-full px-1 whitespace-pre-line break-words">{maison.description}</p>
+                                        </>
+                                    )}
+
+                                    <TitleH2 text="Arbre de la lignée" icon="fas fa-sitemap" />
+                                    <div className="w-full px-1 overflow-x-auto">
+                                        {membres.length === 0 ? (
+                                            <p className="opacity-70">La maison n'a encore aucun membre.</p>
+                                        ) : (
+                                            <ArbreMaison membres={membres} allies={data.allies} liens={data.liens} chefId={maison.chef_id} />
+                                        )}
+                                        <p className="text-xs opacity-60 mt-3">Les liens de parenté s'ajoutent sur la fiche de chaque personnage, section « Famille ». En pointillés : les conjoints venus d'autres maisons.</p>
+                                    </div>
+
+                                    <TitleH2 text={`Membres (${membres.length})`} icon="fas fa-users" fonctions={FctMembres} />
+                                    {/* Une ligne par membre, comme la maquette : portrait et nom, rôle dans la maison, statut */}
+                                    <ul className="flex flex-col w-full">
+                                        {membres.map((membre) => {
+                                            const statut = PERSONNAGE_STATUTS[membre.status] ?? PERSONNAGE_STATUTS.vivant;
+                                            return (
+                                                <li key={membre.id} className="grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[minmax(0,1fr)_minmax(0,9rem)_auto] items-center gap-x-4 gap-y-1 ligne-fiche">
+                                                    <span className="flex flex-row items-center gap-3 min-w-0">
+                                                        <PersonnageAvatar personnage={membre} size="md" />
+                                                        <span className="flex flex-col min-w-0 leading-tight">
+                                                            <a href={`/personnage/${membre.id}`} className="link link-hover font-bold truncate">{membre.name}</a>
+                                                            {vieRp(membre) ? <span className="text-sm opacity-70 truncate">{vieRp(membre)}</span> : null}
+                                                        </span>
+                                                    </span>
+                                                    <span className="hidden sm:inline text-sm opacity-70 truncate">{membre.id === maison.chef_id ? "Chef de maison" : "Membre"}</span>
+                                                    <span className="flex flex-row items-center justify-end gap-2">
+                                                        <span className={`badge badge-sm ${statut.badge}`}>{statut.label}</span>
+                                                        {membre.id !== maison.chef_id && (canManage || membre.user_id === user?.id) && (
+                                                            <button type="button" className="btn btn-xs btn-ghost text-error" onClick={() => retirer(membre)}>
+                                                                {membre.user_id === user?.id ? "Quitter" : "Exclure"}
+                                                            </button>
+                                                        )}
+                                                    </span>
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </div>
+                                <aside className="flex flex-col gap-2 min-w-0 order-first lg:order-none">
+                                    <div className="grid grid-cols-2 gap-2 bg-base-200 rounded-3xl p-2 mt-4 lg:mt-7">
+                                        <Stat icon="fa-solid fa-users" label={membres.length > 1 ? "Membres" : "Membre"} value={membres.length} />
+                                        <Stat icon="fa-solid fa-ring" label="Alliés par mariage" value={data.allies.length} />
+                                    </div>
+                                </aside>
+                            </div>
                         </>
                     )}
 

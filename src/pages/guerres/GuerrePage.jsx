@@ -7,6 +7,8 @@ import Swal from "sweetalert2";
 import Navbar from "@/components/layout/Navbar";
 import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
+import EnTeteFiche from "@/components/ui/EnTeteFiche";
+import Blason from "@/components/ui/Blason";
 import SommaireFiche from "@/components/ui/SommaireFiche";
 import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
@@ -29,6 +31,8 @@ import {
     entityHref, formatDate, isModerateur, managedEntities, runAction,
 } from "@/utils/conflits";
 import { getSessionUser } from "@/services/session";
+import { ENCRE, encreSur, metalSur } from "@/utils/couleurFiche";
+import { useCouleurCivilisation } from "@/utils/useCouleurCivilisation";
 import { MAPS_ORIGIN } from "@/config/maps";
 import { apiRequest, getAlliances, getCivilisations, getDimensions, getGuerreById, getReligions, getActionsOfGuerre, getZonesOfGuerre } from "@/services/api";
 
@@ -65,6 +69,39 @@ const zoneCenter = (zone) => {
         return { x: 0, z: 0 };
     }
 };
+
+const GUEULES = "#b3263a";
+const AZUR = "#2e4fb0";
+
+// Un camp dans l'en-tête de la guerre : son chef aux couleurs de son blason (ou de sa religion), et le nombre d'alliés engagés
+function CampEnTete({ camp, belligerants, couleur }) {
+    const chef = belligerants.find((b) => b.is_leader)?.entite;
+    const allies = belligerants.filter((b) => !b.is_leader && b.status === "engage").length;
+    const encre = encreSur(couleur);
+    const contenu = (
+        <>
+            {chef?.type === "religion" ? (
+                <span className="flex items-center justify-center w-14 h-14 rounded-full shrink-0 border-[3px] border-[#17131f] text-2xl" style={{ background: metalSur(couleur), color: couleur }}>
+                    <DynamicIcon icon={religionIcon(chef)} fallback={DEFAULT_RELIGION_ICON} />
+                </span>
+            ) : (
+                <Blason champ={metalSur(couleur)} meuble={couleur} icon="fa-solid fa-flag" largeur={52} />
+            )}
+            <span className="flex flex-col min-w-0">
+                <span className="font-label text-sm opacity-85">{camp === "attaquant" ? "Attaquants" : "Défenseurs"}</span>
+                <span className="font-bold text-lg break-words">{chef?.title ?? "Camp vide"}</span>
+                {allies > 0 ? <span className="text-sm opacity-85">et {allies > 1 ? `${allies} alliés` : "1 allié"}</span> : null}
+            </span>
+        </>
+    );
+    const classes = "flex flex-row items-center gap-4 rounded-2xl px-4 py-3 min-w-0";
+    // Chef disparu : son nom reste, sans lien
+    return chef && !chef.deleted ? (
+        <a href={entityHref(chef)} className={`${classes} hover:brightness-110`} style={{ background: couleur, color: encre }}>{contenu}</a>
+    ) : (
+        <div className={classes} style={{ background: couleur, color: encre }}>{contenu}</div>
+    );
+}
 
 function EntityAvatar({ entite }) {
     if (entite.type === "religion") {
@@ -145,6 +182,14 @@ export default function GuerrePage() {
     const manages = (entite) => (entite?.type === "religion" ? managedReligionIds : managedCivIds).has(entite?.id);
     const moderateur = isModerateur(user);
     const leaderOf = (camp) => camps[camp].find((b) => b.is_leader);
+    const chefAttaquant = leaderOf("attaquant")?.entite;
+    const chefDefenseur = leaderOf("defenseur")?.entite;
+    const couleurCivAttaquant = useCouleurCivilisation(chefAttaquant?.type === "civilisation" ? chefAttaquant.id : null);
+    const couleurCivDefenseur = useCouleurCivilisation(chefDefenseur?.type === "civilisation" ? chefDefenseur.id : null);
+    // Un camp à l'encre se fondrait dans l'en-tête encre : il prend alors le gueules (attaque) ou l'azur (défense)
+    const lisible = (couleur, repli) => (couleur && couleur.toLowerCase() !== ENCRE ? couleur : repli);
+    const couleurAttaquant = lisible(chefAttaquant?.type === "religion" ? religionColor(chefAttaquant) : couleurCivAttaquant, GUEULES);
+    const couleurDefenseur = lisible(chefDefenseur?.type === "religion" ? religionColor(chefDefenseur) : couleurCivDefenseur, AZUR);
     const managesCamp = (camp) => Boolean(leaderOf(camp) && manages(leaderOf(camp).entite));
 
     const engagedCivIds = new Set([...camps.attaquant, ...camps.defenseur].filter((b) => b.entite.type === "civilisation").map((b) => b.entite.id));
@@ -280,7 +325,7 @@ export default function GuerrePage() {
         const canAnswer = b.status === "appele" && managed && ouverte;
         const canRemove = !b.is_leader && guerre.status !== "terminee" && (managed || managesCamp(b.camp));
         return (
-            <li key={b.id} className="flex flex-col sm:flex-row sm:items-center gap-2 bg-base-100 rounded-2xl p-3">
+            <li key={b.id} className="flex flex-col sm:flex-row sm:items-center gap-2 ligne-fiche">
                 {/* Entité supprimée : son nom reste dans les archives, sans lien */}
                 <EntityLink entite={b.entite}>
                     <EntityAvatar entite={b.entite} />
@@ -324,7 +369,34 @@ export default function GuerrePage() {
 
     const BodyHTML = guerre ? (
         <>
-            <TitleH1 text={guerre.title} icon={type.icon} btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Guerres", href: "/guerres" }, { label: guerre.title }]} />
+            {/* En-tête encre : la guerre et ses deux camps, chacun aux couleurs de son chef de camp */}
+            <EnTeteFiche
+                couleur={ENCRE}
+                surtitre={`${type.label} · déclarée le ${formatDate(guerre.declared_at)}${data.declarant ? ` par ${data.declarant.full_name || data.declarant.username}` : ""}`}
+                titre={guerre.title}
+                infos={
+                    <>
+                        <span className={`badge ${statut.badge}`}>{statut.label}</span>
+                        {guerre.date_debut ? (
+                            <InfoLine icon="fa-solid fa-calendar">
+                                {guerre.status === "terminee" ? `Du ${formatDate(guerre.date_debut)} au ${formatDate(guerre.date_fin)}` : `Débutée le ${formatDate(guerre.date_debut)}`}
+                            </InfoLine>
+                        ) : null}
+                        {data.moderateur ? <InfoLine icon="fa-solid fa-gavel">Encadrée par {data.moderateur.full_name || data.moderateur.username}</InfoLine> : null}
+                        {guerre.status === "terminee" && guerre.issue ? (
+                            <InfoLine icon="fa-solid fa-flag-checkered"><strong>Issue : {guerre.issue}</strong></InfoLine>
+                        ) : null}
+                    </>
+                }
+                fonctions={FctModify}
+                ariane={[{ label: "Guerres", href: "/guerres" }, { label: guerre.title }]}
+            >
+                <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
+                    <CampEnTete camp="attaquant" belligerants={camps.attaquant} couleur={couleurAttaquant} />
+                    <span className="font-label text-lg opacity-85 text-center">contre</span>
+                    <CampEnTete camp="defenseur" belligerants={camps.defenseur} couleur={couleurDefenseur} />
+                </div>
+            </EnTeteFiche>
             <SommaireFiche />
 
             {moderateur && ouverte ? (
@@ -361,153 +433,131 @@ export default function GuerrePage() {
                 </div>
             ) : null}
 
-            <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                    <span className={`flex items-center justify-center w-16 h-16 rounded-full text-2xl shrink-0 shadow-md ${guerre.status === "en_cours" ? "bg-error text-error-content" : "bg-base-300"}`}>
-                        <FontAwesomeIcon icon={type.icon} />
-                    </span>
-                    <div className="flex flex-col gap-1 min-w-0">
-                        <InfoLine icon={type.icon}>
-                            {type.label} <span className={`badge badge-sm ml-1 align-middle ${statut.badge}`}>{statut.label}</span>
-                        </InfoLine>
-                        <InfoLine icon="fa-solid fa-scroll">
-                            Déclarée le {formatDate(guerre.declared_at)}{data.declarant ? ` par ${data.declarant.full_name || data.declarant.username}` : ""}
-                        </InfoLine>
-                        {guerre.date_debut ? (
-                            <InfoLine icon="fa-solid fa-calendar">
-                                {guerre.status === "terminee" ? `Du ${formatDate(guerre.date_debut)} au ${formatDate(guerre.date_fin)}` : `Débutée le ${formatDate(guerre.date_debut)}`}
-                            </InfoLine>
-                        ) : null}
-                        {data.moderateur ? <InfoLine icon="fa-solid fa-gavel">Encadrée par {data.moderateur.full_name || data.moderateur.username}</InfoLine> : null}
-                        {guerre.status === "terminee" && guerre.issue ? (
-                            <InfoLine icon="fa-solid fa-flag-checkered"><strong>Issue : {guerre.issue}</strong></InfoLine>
-                        ) : null}
-                    </div>
-                </div>
+            {/* Corps en deux colonnes (charte « Chancellerie ») : le contenu à gauche, les chiffres clés et les informations
+                courtes à droite. Sur téléphone, la colonne de droite passe au-dessus du contenu. */}
+            <div className="fiche grid grid-cols-1 lg:grid-cols-3 gap-x-10 w-full items-start">
+                <div className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+                    {guerre.casus_belli ? (
+                        <section className="flex flex-col gap-2">
+                            <TitleH2 text="Casus belli" icon="fa-solid fa-fire" />
+                            <MarkdownTextEditor value={guerre.casus_belli} />
+                        </section>
+                    ) : null}
+                    {guerre.description ? (
+                        <section className="flex flex-col gap-2">
+                            <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
+                            <MarkdownTextEditor value={guerre.description} />
+                        </section>
+                    ) : null}
 
-                <div className="grid grid-cols-2 gap-2">
-                    <Stat icon={CAMP_LABELS.attaquant.icon} label="Camp attaquant" value={camps.attaquant.filter((b) => b.status === "engage").length} />
-                    <Stat icon={CAMP_LABELS.defenseur.icon} label="Camp défenseur" value={camps.defenseur.filter((b) => b.status === "engage").length} />
-                </div>
+                    <TitleH2 text="Chronologie" icon="fas fa-timeline" fonctions={FctChronologie} />
+                    {evenements.length === 0 ? (
+                        <i className="w-full">Aucun événement n'a encore été inscrit.</i>
+                    ) : (
+                        <ol aria-label="Chronologie" className="flex flex-col w-full border-l-2 border-base-300 ml-4 pl-5">
+                            {evenements.map((evenement) => {
+                                const kind = EVENEMENT_TYPES[evenement.type] ?? EVENEMENT_TYPES.autre;
+                                return (
+                                    <li key={evenement.id} className="relative flex flex-col gap-1 ligne-fiche">
+                                        <span className="absolute -left-9 top-3 flex items-center justify-center w-7 h-7 rounded-full bg-base-100 border-2 border-base-300 text-xs" aria-hidden="true">
+                                            <FontAwesomeIcon icon={kind.icon} />
+                                        </span>
+                                        <div className="flex flex-row flex-wrap items-center gap-2">
+                                            <span className="font-bold break-words flex-1 min-w-0">{evenement.title}</span>
+                                            <span className="badge badge-sm badge-ghost">{kind.label}</span>
+                                            {evenement.camp ? <span className={`badge badge-sm ${evenement.camp === "attaquant" ? "badge-error" : "badge-info"}`}>{CAMP_LABELS[evenement.camp]?.title}</span> : null}
+                                            {canRemoveEvenement(evenement) ? (
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-xs btn-ghost text-error"
+                                                    aria-label={`Retirer « ${evenement.title} »`}
+                                                    onClick={() => act(() => apiRequest("DELETE", `/guerres/${id}/evenements/${evenement.id}`), {
+                                                        confirm: { title: "Retirer cet événement ?", text: `« ${evenement.title} » disparaîtra de la chronologie.`, button: "Retirer" },
+                                                    })}
+                                                >
+                                                    <FontAwesomeIcon icon="fa-solid fa-trash" />
+                                                </button>
+                                            ) : null}
+                                        </div>
+                                        <span className="text-xs opacity-70">
+                                            {evenement.date_rp ? `${formatDate(evenement.date_rp)} (RP)` : formatDate(evenement.created_at)}
+                                            {evenement.auteur ? ` · ${evenement.auteur.full_name || evenement.auteur.username}` : ""}
+                                        </span>
+                                        {evenement.description ? <p className="whitespace-pre-wrap break-words">{evenement.description}</p> : null}
+                                    </li>
+                                );
+                            })}
+                        </ol>
+                    )}
 
-                {guerre.casus_belli ? (
-                    <div className="flex flex-col gap-2">
-                        <span className="flex flex-row items-center gap-2 font-bold">
-                            <FontAwesomeIcon icon="fa-solid fa-fire" />
-                            <span>Casus belli</span>
-                        </span>
-                        <MarkdownTextEditor value={guerre.casus_belli} />
-                    </div>
-                ) : null}
-                {guerre.description ? (
-                    <div className="flex flex-col gap-2">
-                        <span className="flex flex-row items-center gap-2 font-bold">
-                            <FontAwesomeIcon icon="fas fa-pen-nib" />
-                            <span>Description</span>
-                        </span>
-                        <MarkdownTextEditor value={guerre.description} />
-                    </div>
-                ) : null}
-            </div>
-
-            <TitleH2 text="Camps en présence" icon="fas fa-people-group" aide="appel" />
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
-                {["attaquant", "defenseur"].map((camp) => (
-                    <section key={camp} aria-label={CAMP_LABELS[camp].title} className="flex flex-col gap-3 bg-base-200 rounded-3xl p-4">
-                        <div className="flex flex-row items-center gap-2">
-                            <FontAwesomeIcon icon={CAMP_LABELS[camp].icon} className={camp === "attaquant" ? "text-error" : "text-info"} />
-                            <h2 className="text-xl font-bold flex-1">{CAMP_LABELS[camp].title}</h2>
-                            {managesCamp(camp) && ouverte ? (
-                                <button type="button" className="btn btn-sm btn-ghost bg-base-100" onClick={() => showModalID(callModalId(camp))}>
-                                    <FontAwesomeIcon icon="fa-solid fa-bullhorn" />
-                                    Appeler un allié
-                                </button>
+                    {publique ? (
+                        <>
+                            <TitleH2 text="Zones de conflit" icon="fas fa-map-location-dot" fonctions={FctZones} />
+                            {zones.length === 0 ? (
+                                <i className="w-full">
+                                    {canEditZones ? "Aucune zone n'est tracée : utilisez « Tracer » pour marquer les fronts et les territoires disputés." : "Aucune zone de conflit n'a été tracée."}
+                                </i>
                             ) : null}
-                        </div>
-                        <ul className="flex flex-col gap-2">{camps[camp].map(renderBelligerant)}</ul>
-                    </section>
-                ))}
-            </div>
+                            {carteZones.length > 0 || carteTroupes.length > 0 ? (
+                                <div className="flex flex-col gap-2 w-full">
+                                    <div className="w-full h-72 sm:h-96 rounded-2xl overflow-hidden">
+                                        <MapEmbed ref={carteRef} dimension={zoneDimension} embed="guerres" {...carteCentre} zoom={0} width="100%" height="100%" title={`Zones de conflit de ${guerre.title}`} />
+                                    </div>
+                                    <span className="text-sm opacity-70">
+                                        {[
+                                            zones.length ? plural(zones.length, "zone de conflit tracée", "zones de conflit tracées") : null,
+                                            carteTroupes.length ? `${plural(carteTroupes.length, "troupe", "troupes")} sur la carte (visibles de votre camp et des modérateurs RP)` : null,
+                                        ].filter(Boolean).join(" · ")}
+                                    </span>
+                                </div>
+                            ) : null}
+                        </>
+                    ) : null}
 
-            <TitleH2 text="Chronologie" icon="fas fa-timeline" fonctions={FctChronologie} />
-            {evenements.length === 0 ? (
-                <i className="w-full">Aucun événement n'a encore été inscrit.</i>
-            ) : (
-                <ol aria-label="Chronologie" className="flex flex-col gap-3 w-full border-l-2 border-base-300 ml-4 pl-5">
-                    {evenements.map((evenement) => {
-                        const kind = EVENEMENT_TYPES[evenement.type] ?? EVENEMENT_TYPES.autre;
-                        return (
-                            <li key={evenement.id} className="relative flex flex-col gap-1 bg-base-200 rounded-2xl p-3">
-                                <span className="absolute -left-9 top-3 flex items-center justify-center w-7 h-7 rounded-full bg-base-100 border-2 border-base-300 text-xs" aria-hidden="true">
-                                    <FontAwesomeIcon icon={kind.icon} />
-                                </span>
-                                <div className="flex flex-row flex-wrap items-center gap-2">
-                                    <span className="font-bold break-words flex-1 min-w-0">{evenement.title}</span>
-                                    <span className="badge badge-sm badge-ghost">{kind.label}</span>
-                                    {evenement.camp ? <span className={`badge badge-sm ${evenement.camp === "attaquant" ? "badge-error" : "badge-info"}`}>{CAMP_LABELS[evenement.camp]?.title}</span> : null}
-                                    {canRemoveEvenement(evenement) ? (
-                                        <button
-                                            type="button"
-                                            className="btn btn-xs btn-ghost text-error"
-                                            aria-label={`Retirer « ${evenement.title} »`}
-                                            onClick={() => act(() => apiRequest("DELETE", `/guerres/${id}/evenements/${evenement.id}`), {
-                                                confirm: { title: "Retirer cet événement ?", text: `« ${evenement.title} » disparaîtra de la chronologie.`, button: "Retirer" },
-                                            })}
-                                        >
-                                            <FontAwesomeIcon icon="fa-solid fa-trash" />
+                    {publique ? <TroupesSection guerre={guerre} reloadKey={reloadKey} onChange={reload} onData={setTroupesData} /> : null}
+
+                    {publique ? <CiblesSection guerre={guerre} dimensions={dimensions} /> : null}
+
+                    {actions.length > 0 ? (
+                        <>
+                            <TitleH2 text="Actions secrètes révélées" icon="fas fa-user-secret" aide="action" />
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 w-full items-start">
+                                {actions.map((action) => <ActionCard key={action.id} action={action} />)}
+                            </div>
+                        </>
+                    ) : null}
+
+                    <LivresLiesSection type="guerre" id={guerre.id} />
+                    <LivresLiesSection type="guerre" id={guerre.id} support="journal" />
+                </div>
+                <aside className="flex flex-col gap-2 min-w-0 order-first lg:order-none">
+                    <div className="flex flex-col gap-2 mt-4 lg:mt-7">
+                        <div className="grid grid-cols-2 gap-2 bg-base-200 rounded-3xl p-2">
+                            <Stat icon={CAMP_LABELS.attaquant.icon} label="Camp attaquant" value={camps.attaquant.filter((b) => b.status === "engage").length} />
+                            <Stat icon={CAMP_LABELS.defenseur.icon} label="Camp défenseur" value={camps.defenseur.filter((b) => b.status === "engage").length} />
+                        </div>
+                    </div>
+
+                    <TitleH2 text="Camps en présence" icon="fas fa-people-group" aide="appel" />
+                    <div className="flex flex-col gap-4 w-full">
+                        {["attaquant", "defenseur"].map((camp) => (
+                            <section key={camp} aria-label={CAMP_LABELS[camp].title} className="flex flex-col gap-1">
+                                <div className="flex flex-row items-center gap-2">
+                                    <FontAwesomeIcon icon={CAMP_LABELS[camp].icon} className={camp === "attaquant" ? "text-error" : "text-info"} />
+                                    <h3 className="text-lg font-bold flex-1">{CAMP_LABELS[camp].title}</h3>
+                                    {managesCamp(camp) && ouverte ? (
+                                        <button type="button" className="btn btn-sm btn-ghost bg-base-200" onClick={() => showModalID(callModalId(camp))}>
+                                            <FontAwesomeIcon icon="fa-solid fa-bullhorn" />
+                                            Appeler un allié
                                         </button>
                                     ) : null}
                                 </div>
-                                <span className="text-xs opacity-70">
-                                    {evenement.date_rp ? `${formatDate(evenement.date_rp)} (RP)` : formatDate(evenement.created_at)}
-                                    {evenement.auteur ? ` · ${evenement.auteur.full_name || evenement.auteur.username}` : ""}
-                                </span>
-                                {evenement.description ? <p className="whitespace-pre-wrap break-words">{evenement.description}</p> : null}
-                            </li>
-                        );
-                    })}
-                </ol>
-            )}
-
-            {publique ? (
-                <>
-                    <TitleH2 text="Zones de conflit" icon="fas fa-map-location-dot" fonctions={FctZones} />
-                    {zones.length === 0 ? (
-                        <i className="w-full">
-                            {canEditZones ? "Aucune zone n'est tracée : utilisez « Tracer » pour marquer les fronts et les territoires disputés." : "Aucune zone de conflit n'a été tracée."}
-                        </i>
-                    ) : null}
-                    {carteZones.length > 0 || carteTroupes.length > 0 ? (
-                        <div className="flex flex-col gap-2 w-full">
-                            <div className="w-full h-72 sm:h-96 rounded-2xl overflow-hidden">
-                                <MapEmbed ref={carteRef} dimension={zoneDimension} embed="guerres" {...carteCentre} zoom={0} width="100%" height="100%" title={`Zones de conflit de ${guerre.title}`} />
-                            </div>
-                            <span className="text-sm opacity-70">
-                                {[
-                                    zones.length ? plural(zones.length, "zone de conflit tracée", "zones de conflit tracées") : null,
-                                    carteTroupes.length ? `${plural(carteTroupes.length, "troupe", "troupes")} sur la carte (visibles de votre camp et des modérateurs RP)` : null,
-                                ].filter(Boolean).join(" · ")}
-                            </span>
-                        </div>
-                    ) : null}
-                </>
-            ) : null}
-
-            {publique ? <TroupesSection guerre={guerre} reloadKey={reloadKey} onChange={reload} onData={setTroupesData} /> : null}
-
-            {publique ? <CiblesSection guerre={guerre} dimensions={dimensions} /> : null}
-
-            {actions.length > 0 ? (
-                <>
-                    <TitleH2 text="Actions secrètes révélées" icon="fas fa-user-secret" aide="action" />
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 w-full items-start">
-                        {actions.map((action) => <ActionCard key={action.id} action={action} />)}
+                                <ul className="flex flex-col border-t border-base-300">{camps[camp].map(renderBelligerant)}</ul>
+                            </section>
+                        ))}
                     </div>
-                </>
-            ) : null}
-
-            <LivresLiesSection type="guerre" id={guerre.id} />
-            <LivresLiesSection type="guerre" id={guerre.id} support="journal" />
+                </aside>
+            </div>
         </>
     ) : null;
 

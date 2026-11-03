@@ -7,6 +7,8 @@ import Swal from "sweetalert2";
 import Navbar from "@/components/layout/Navbar";
 import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
+import EnTeteFiche from "@/components/ui/EnTeteFiche";
+import BlasonMaison from "@/components/personnages/BlasonMaison";
 import SommaireFiche from "@/components/ui/SommaireFiche";
 import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
@@ -20,6 +22,7 @@ import { showModalID } from "@/utils/showModal";
 import { formatDate, runAction } from "@/utils/conflits";
 import { EMPTY_LIEUX, EMPTY_REFERENTIEL, PERSONNAGE_STATUTS, enregistrerPersonnage, loadLieux, loadReferentiel, minecraftBody, personnageFormFields, personnageInitialValues, skinFichierUrl, villeHref } from "@/utils/personnages";
 import { getSessionUser } from "@/services/session";
+import { couleurFiche } from "@/utils/couleurFiche";
 import { apiRequest, getPersonnageById, getPostesPersonnage } from "@/services/api";
 import LivresLiesSection from "@/components/bibliotheque/LivresLiesSection";
 import FamilleSection from "@/components/personnages/FamilleSection";
@@ -69,7 +72,8 @@ export default function PersonnagePage() {
     const messages = data?.messages ?? [];
     const journaux = new Set(messages.map((message) => message.journal?.id).filter(Boolean));
     const statut = PERSONNAGE_STATUTS[personnage?.status] ?? PERSONNAGE_STATUTS.vivant;
-    const { joueur, civilisation, ville, quartier, espece, classe, religion } = data ?? {};
+    const { joueur, civilisation, ville, quartier, espece, classe, religion, maison } = data ?? {};
+    const couleur = couleurFiche(maison?.couleur, personnage?.id);
 
     const FctModify = [
         { id: 1, title: "Modifier", icon: "fas fa-pen", class: "bg-base-200 hover:bg-base-300", connected: true, authorisation: canManage, function: () => showModalID(EDIT_MODAL_ID) },
@@ -105,22 +109,111 @@ export default function PersonnagePage() {
 
     const BodyHTML = personnage ? (
         <>
-            <TitleH1 text={personnage.name} icon="fas fa-masks-theater" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Personnages", href: "/personnages" }, { label: personnage.name }]} />
-            <SommaireFiche />
-
-            <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                    <PersonnageAvatar personnage={personnage} size="xl" />
-                    <div className="flex flex-col gap-1 min-w-0">
-                        <InfoLine icon={statut.icon}>
-                            <span className={`badge badge-sm ${statut.badge}`}>{statut.label}</span>
-                        </InfoLine>
+            {/* En-tête aux couleurs de sa maison : le portrait, et le blason de la maison accroché dessous */}
+            <EnTeteFiche
+                couleur={couleur}
+                embleme={
+                    <span className="relative shrink-0">
+                        <span className="block rounded-full border-[3px] border-[#17131f]"><PersonnageAvatar personnage={personnage} size="xl" /></span>
+                        {maison ? (
+                            <a href={`/maison/${maison.id}`} aria-label={`Maison ${maison.title}`} className="absolute -right-4 -bottom-2">
+                                <BlasonMaison maison={maison} size="md" />
+                            </a>
+                        ) : null}
+                    </span>
+                }
+                surtitre={["Personnage", maison ? `maison ${maison.title}` : null, civilisation?.title].filter(Boolean).join(" · ")}
+                titre={personnage.name}
+                infos={
+                    <>
+                        <span className={`badge ${statut.badge}`}>{statut.label}</span>
                         {personnage.grade ? <InfoLine icon="fa-solid fa-medal"><span className="font-semibold">{personnage.grade}</span></InfoLine> : null}
-                        <InfoLine icon="fa-solid fa-dna">
-                            Espèce : {espece?.title ?? "non précisée"} · Classe : {classe?.title ?? "non précisée"}
-                        </InfoLine>
                         <InfoLine icon="fa-solid fa-user">
                             {joueur ? <>Joué par <a href={`/profil/${joueur.id}`} className="link link-hover font-semibold">{joueur.full_name || joueur.username}</a></> : "Joueur inconnu"}
+                        </InfoLine>
+                    </>
+                }
+                fonctions={FctModify}
+                ariane={[{ label: "Personnages", href: "/personnages" }, { label: personnage.name }]}
+            />
+            <SommaireFiche />
+
+            {/* Corps en deux colonnes (charte « Chancellerie ») : le contenu à gauche, les chiffres clés et les informations
+                courtes à droite. Sur téléphone, la colonne de droite passe au-dessus du contenu. */}
+            <div className="fiche grid grid-cols-1 lg:grid-cols-3 gap-x-10 w-full items-start">
+                <div className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+                    <section className="flex flex-col gap-2">
+                        <TitleH2 text="Histoire" icon="fas fa-pen-nib" />
+                        <MarkdownTextEditor value={personnage.description || "Aucune histoire n'a encore été écrite."} />
+                    </section>
+                    {personnage.minecraft_uuid || skinFichierUrl(personnage) ? (
+                        <section className="flex flex-col gap-2">
+                            <TitleH2 text="Skin" icon="fas fa-shirt" />
+                            <div className="flex flex-row flex-wrap items-end gap-4">
+                                {personnage.minecraft_uuid ? (
+                                    <img src={minecraftBody(personnage.minecraft_uuid, 120)} alt={`Skin Minecraft de ${personnage.name}`} loading="lazy" className="h-48 w-auto" style={{ imageRendering: "pixelated" }} />
+                                ) : null}
+                                {skinFichierUrl(personnage) ? (
+                                    <a href={skinFichierUrl(personnage)} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 link link-hover">
+                                        <img src={skinFichierUrl(personnage)} alt={`Fichier de skin de ${personnage.name}`} loading="lazy" className="w-32 h-32 bg-base-100 rounded-xl object-contain" style={{ imageRendering: "pixelated" }} />
+                                        <span className="text-sm">Ouvrir le fichier de skin</span>
+                                    </a>
+                                ) : null}
+                            </div>
+                        </section>
+                    ) : null}
+
+                    <DescriptionLongue type="personnage" id={personnage.id} auth={canManage} />
+
+                    <FamilleSection key={personnage.id} personnage={personnage} canManage={canManage} />
+
+                    <TitleH2 text="Messages de journaux" icon="fas fa-feather" />
+                    {messages.length === 0 ? (
+                        <div role="note" className="flex flex-row items-start gap-3 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
+                            <FontAwesomeIcon icon="fa-solid fa-circle-info" className="text-info text-xl shrink-0 mt-0.5" />
+                            <p className="flex-1">
+                                {canManage
+                                    ? "Dans un journal, utilisez « Associer à un personnage » sous vos messages pour les signer du nom de ce personnage. Votre compte Discord doit être lié depuis votre profil."
+                                    : "Aucun message de journal n'est encore signé par ce personnage."}
+                            </p>
+                        </div>
+                    ) : (
+                        <ul className="flex flex-col w-full">
+                            {messages.map((message) => (
+                                <li key={message.id} className="flex flex-col gap-2 ligne-fiche">
+                                    <div className="flex flex-row flex-wrap items-center gap-x-3 gap-y-1">
+                                        {message.journal ? (
+                                            <a href={`/bibliotheque/journal/${message.journal.id}`} className="flex flex-row items-center gap-2 font-bold link link-hover min-w-0">
+                                                <FontAwesomeIcon icon="fa-solid fa-newspaper" className="opacity-70" />
+                                                <span className="break-words">{message.journal.title}</span>
+                                            </a>
+                                        ) : <span className="font-bold opacity-70">Journal supprimé</span>}
+                                        {message.message_timestamp ? <span className="text-sm opacity-60">{formatDate(message.message_timestamp)}</span> : null}
+                                        {canManage ? (
+                                            <button type="button" className="btn btn-xs btn-ghost bg-base-100 text-error ml-auto" onClick={() => unlink(message)}>Retirer</button>
+                                        ) : null}
+                                    </div>
+                                    {message.excerpt ? <p className="whitespace-pre-wrap break-words leading-relaxed">{message.excerpt}</p> : null}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+
+                    <LivresLiesSection type="personnage" id={personnage.id} />
+                    <LivresLiesSection type="personnage" id={personnage.id} support="journal" />
+                </div>
+                <aside className="flex flex-col gap-2 min-w-0 order-first lg:order-none">
+                    <div className="flex flex-col gap-2 mt-4 lg:mt-7">
+                        <div className="grid grid-cols-2 gap-2 bg-base-200 rounded-3xl p-2">
+                            <Stat icon="fa-solid fa-feather" label={messages.length > 1 ? "Messages signés" : "Message signé"} value={messages.length} />
+                            <Stat icon="fa-solid fa-newspaper" label={journaux.size > 1 ? "Journaux" : "Journal"} value={journaux.size} />
+                        </div>
+                    </div>
+
+                    <TitleH2 text="Identité" icon="fas fa-id-card" />
+                    <div className="flex flex-col gap-1 px-1">
+                        <InfoLine icon="fa-solid fa-dna">
+                            Espèce : {espece?.title ?? "non précisée"} · Classe : {classe?.title ?? "non précisée"}
                         </InfoLine>
                         <InfoLine icon="fa-solid fa-cake-candles">
                             {naissance ? `Né le ${naissance}` : "Date de naissance inconnue"}
@@ -152,80 +245,8 @@ export default function PersonnagePage() {
                             {religion ? <>Foi : <a href={`/religion/${religion.id}`} className="link link-hover">{religion.title}</a></> : "Sans religion déclarée"}
                         </InfoLine>
                     </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                    <Stat icon="fa-solid fa-feather" label={messages.length > 1 ? "Messages signés" : "Message signé"} value={messages.length} />
-                    <Stat icon="fa-solid fa-newspaper" label={journaux.size > 1 ? "Journaux" : "Journal"} value={journaux.size} />
-                </div>
-
-                <div className="flex flex-col gap-2">
-                    <span className="flex flex-row items-center gap-2 font-bold">
-                        <FontAwesomeIcon icon="fas fa-pen-nib" />
-                        <span>Histoire</span>
-                    </span>
-                    <MarkdownTextEditor value={personnage.description || "Aucune histoire n'a encore été écrite."} />
-                </div>
-
-                {personnage.minecraft_uuid || skinFichierUrl(personnage) ? (
-                    <div className="flex flex-col gap-2">
-                        <span className="flex flex-row items-center gap-2 font-bold">
-                            <FontAwesomeIcon icon="fas fa-shirt" />
-                            <span>Skin</span>
-                        </span>
-                        <div className="flex flex-row flex-wrap items-end gap-4">
-                            {personnage.minecraft_uuid ? (
-                                <img src={minecraftBody(personnage.minecraft_uuid, 120)} alt={`Skin Minecraft de ${personnage.name}`} loading="lazy" className="h-48 w-auto" style={{ imageRendering: "pixelated" }} />
-                            ) : null}
-                            {skinFichierUrl(personnage) ? (
-                                <a href={skinFichierUrl(personnage)} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 link link-hover">
-                                    <img src={skinFichierUrl(personnage)} alt={`Fichier de skin de ${personnage.name}`} loading="lazy" className="w-32 h-32 bg-base-100 rounded-xl object-contain" style={{ imageRendering: "pixelated" }} />
-                                    <span className="text-sm">Ouvrir le fichier de skin</span>
-                                </a>
-                            ) : null}
-                        </div>
-                    </div>
-                ) : null}
+                </aside>
             </div>
-
-            <DescriptionLongue type="personnage" id={personnage.id} auth={canManage} />
-
-            <FamilleSection key={personnage.id} personnage={personnage} canManage={canManage} />
-
-            <TitleH2 text="Messages de journaux" icon="fas fa-feather" />
-            {messages.length === 0 ? (
-                <div role="note" className="flex flex-row items-start gap-3 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
-                    <FontAwesomeIcon icon="fa-solid fa-circle-info" className="text-info text-xl shrink-0 mt-0.5" />
-                    <p className="flex-1">
-                        {canManage
-                            ? "Dans un journal, utilisez « Associer à un personnage » sous vos messages pour les signer du nom de ce personnage. Votre compte Discord doit être lié depuis votre profil."
-                            : "Aucun message de journal n'est encore signé par ce personnage."}
-                    </p>
-                </div>
-            ) : (
-                <ul className="flex flex-col gap-2 w-full">
-                    {messages.map((message) => (
-                        <li key={message.id} className="flex flex-col gap-2 bg-base-200 rounded-2xl p-3 sm:p-4">
-                            <div className="flex flex-row flex-wrap items-center gap-x-3 gap-y-1">
-                                {message.journal ? (
-                                    <a href={`/bibliotheque/journal/${message.journal.id}`} className="flex flex-row items-center gap-2 font-bold link link-hover min-w-0">
-                                        <FontAwesomeIcon icon="fa-solid fa-newspaper" className="opacity-70" />
-                                        <span className="break-words">{message.journal.title}</span>
-                                    </a>
-                                ) : <span className="font-bold opacity-70">Journal supprimé</span>}
-                                {message.message_timestamp ? <span className="text-sm opacity-60">{formatDate(message.message_timestamp)}</span> : null}
-                                {canManage ? (
-                                    <button type="button" className="btn btn-xs btn-ghost bg-base-100 text-error ml-auto" onClick={() => unlink(message)}>Retirer</button>
-                                ) : null}
-                            </div>
-                            {message.excerpt ? <p className="whitespace-pre-wrap break-words leading-relaxed">{message.excerpt}</p> : null}
-                        </li>
-                    ))}
-                </ul>
-            )}
-
-            <LivresLiesSection type="personnage" id={personnage.id} />
-            <LivresLiesSection type="personnage" id={personnage.id} support="journal" />
         </>
     ) : null;
 

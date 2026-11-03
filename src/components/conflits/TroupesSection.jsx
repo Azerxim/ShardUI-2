@@ -63,7 +63,7 @@ function PositionTroupe({ troupe }) {
 function TroupeCard({ troupe, onDeplacer, onModifier, onDemobiliser }) {
     const mobilisee = troupe.status === 'mobilisee';
     return (
-        <li aria-label={troupe.title} className={`flex flex-col gap-2 bg-base-100 rounded-xl p-3 ${mobilisee ? '' : 'opacity-70'}`}>
+        <li aria-label={troupe.title} className={`flex flex-col gap-2 bg-base-200 rounded-xl p-3 ${mobilisee ? '' : 'opacity-70'}`}>
             <div className="flex flex-row flex-wrap items-center gap-2">
                 <FontAwesomeIcon icon="fa-solid fa-people-group" className="opacity-70" />
                 <span className="font-bold break-words flex-1 min-w-0">{troupe.title}</span>
@@ -146,16 +146,16 @@ export default function TroupesSection({ guerre, reloadKey = 0, onChange = () =>
             </p>
 
             {enCours && data.levees.map(({ camp, civilisation, villes }) => (
-                <div key={civilisation.id} role="region" aria-label={`Levée de ${civilisation.title}`} className="flex flex-col gap-2 w-full bg-base-200 rounded-2xl p-3">
+                <div key={civilisation.id} role="region" aria-label={`Levée de ${civilisation.title}`} className="groupe-fiche w-full">
                     <h3 className="flex flex-row flex-wrap items-center gap-2 font-bold">
                         <FontAwesomeIcon icon="fa-solid fa-bullhorn" />
                         Lever des troupes · {civilisation.title}
                         <span className="font-normal text-sm opacity-70">({camp === 'attaquant' ? 'camp attaquant' : 'camp défenseur'})</span>
                     </h3>
                     {villes.length === 0 ? <i className="text-sm opacity-70">Cette civilisation n'a aucune ville où lever des troupes.</i> : (
-                        <ul className="flex flex-col gap-2">
+                        <ul className="flex flex-col">
                             {villes.map((ville) => (
-                                <li key={ville.id} className="flex flex-row flex-wrap items-center gap-2 bg-base-100 rounded-xl px-3 py-2">
+                                <li key={ville.id} className="flex flex-row flex-wrap items-center gap-2 ligne-fiche">
                                     <FontAwesomeIcon icon="fa-solid fa-city" className="opacity-70" />
                                     <span className="font-semibold flex-1 min-w-0 truncate">{ville.title}</span>
                                     <span className="text-sm opacity-70 tabular-nums">
@@ -178,7 +178,7 @@ export default function TroupesSection({ guerre, reloadKey = 0, onChange = () =>
             ))}
 
             {enCours && data.employeurs?.length ? (
-                <div role="region" aria-label="Engager des mercenaires" className="flex flex-col gap-2 w-full bg-base-200 rounded-2xl p-3">
+                <div role="region" aria-label="Engager des mercenaires" className="groupe-fiche w-full">
                     <h3 className="flex flex-row flex-wrap items-center gap-2 font-bold">
                         <FontAwesomeIcon icon="fa-solid fa-coins" />
                         Engager des mercenaires
@@ -206,7 +206,7 @@ export default function TroupesSection({ guerre, reloadKey = 0, onChange = () =>
                     const mobilisees = (troupes || []).filter((troupe) => troupe.status === 'mobilisee');
                     const total = mobilisees.reduce((somme, troupe) => somme + troupe.effectif, 0);
                     return (
-                        <div key={cle} role="region" aria-label={`Troupes du ${titre.toLowerCase()}`} className="flex flex-col gap-3 bg-base-200 rounded-2xl p-3">
+                        <div key={cle} role="region" aria-label={`Troupes du ${titre.toLowerCase()}`} className="groupe-fiche">
                             <h3 className="flex flex-row items-center gap-2 font-bold">
                                 <FontAwesomeIcon icon={icon} />
                                 {titre}

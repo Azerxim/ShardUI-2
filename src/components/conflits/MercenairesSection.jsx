@@ -25,7 +25,7 @@ const STATUTS = {
 export function CompagnieCard({ compagnie, avecCivilisation = false, children = null }) {
     const statut = STATUTS[compagnie.status] ?? { label: compagnie.status, badge: 'badge-ghost' };
     return (
-        <li aria-label={compagnie.title} className="flex flex-col gap-2 bg-base-100 rounded-xl p-3">
+        <li aria-label={compagnie.title} className="flex flex-col gap-2 bg-base-200 rounded-xl p-3">
             <div className="flex flex-row flex-wrap items-center gap-2">
                 <FontAwesomeIcon icon="fa-solid fa-coins" className="opacity-70" />
                 <span className="font-bold break-words flex-1 min-w-0">{compagnie.title}</span>

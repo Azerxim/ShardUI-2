@@ -35,7 +35,8 @@ const posteFields = (residents, entityType, user) => [
     },
 ];
 
-export default function PostesGouvernement({ entityType, entityId, civilisationId, auth = false }) {
+// compact : un poste par ligne (colonne étroite d'une fiche) au lieu de la grille
+export default function PostesGouvernement({ entityType, entityId, civilisationId, auth = false, compact = false }) {
     const [postes, setPostes] = useState(null);
     const [residents, setResidents] = useState([]);
     const [version, setVersion] = useState(0);
@@ -82,11 +83,11 @@ export default function PostesGouvernement({ entityType, entityId, civilisationI
             {postes.length === 0 ? (
                 <i className="px-1 text-sm opacity-80">Aucun poste : ajoutez-en pour désigner qui gouverne, et qui représente {entityType === 'ville' ? 'la ville' : 'la civilisation'}.</i>
             ) : (
-                <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+                <ul className={compact ? "flex flex-col gap-2" : "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2"}>
                     {postes.map((poste) => (
-                        <li key={poste.id} aria-label={poste.title} className="flex flex-row items-center gap-3 bg-base-100 rounded-2xl p-2 pr-3 min-w-0">
+                        <li key={poste.id} aria-label={poste.title} className="flex flex-row items-center gap-3 bg-base-200 rounded-2xl p-2 pr-3 min-w-0">
                             {poste.personnage ? <PersonnageAvatar personnage={poste.personnage} /> : (
-                                <span className="flex items-center justify-center w-10 h-10 shrink-0 rounded-full bg-base-200 opacity-60"><FontAwesomeIcon icon="fa-solid fa-chair" /></span>
+                                <span className="flex items-center justify-center w-10 h-10 shrink-0 rounded-full bg-base-300 opacity-60"><FontAwesomeIcon icon="fa-solid fa-chair" /></span>
                             )}
                             <span className="flex flex-col min-w-0 flex-1">
                                 <span className="flex flex-row flex-wrap items-center gap-2">

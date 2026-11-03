@@ -52,13 +52,13 @@ export default function ConflictsSection({ entityType, entityId }) {
             {sortedGuerres.length === 0 ? (
                 <i className="w-full">{entityType === "religion" ? "Cette religion n'a mené aucune guerre." : "Cette civilisation n'a pris part à aucune guerre."}</i>
             ) : (
-                <ul className="flex flex-col gap-2 w-full">
+                <ul className="flex flex-col w-full">
                     {sortedGuerres.map(({ guerre, camps }) => {
                         const statut = GUERRE_STATUTS[guerre.status] ?? { label: guerre.status, badge: "badge-ghost" };
                         const camp = ["attaquant", "defenseur"].find((key) => (camps?.[key] ?? []).some((b) => b.entite.type === entityType && b.entite.id === entityId));
                         return (
                             <li key={guerre.id}>
-                                <a href={`/guerre/${guerre.id}`} className="flex flex-row flex-wrap items-center gap-2 bg-base-200 hover:bg-base-300 transition-colors rounded-2xl p-3">
+                                <a href={`/guerre/${guerre.id}`} className="flex flex-row flex-wrap items-center gap-2 ligne-fiche">
                                     <FontAwesomeIcon icon={(GUERRE_TYPES[guerre.type] ?? GUERRE_TYPES.Militaire).icon} className="opacity-80" />
                                     <span className="font-bold flex-1 min-w-0 break-words">{guerre.title}</span>
                                     {camp ? <span className="badge badge-sm badge-ghost">{camp === "attaquant" ? "Attaquant" : "Défenseur"}</span> : null}

@@ -8,6 +8,9 @@ import Navbar from "@/components/layout/Navbar";
 import Skeleton from "@/components/ui/Skeleton";
 import TitleH1 from "@/components/ui/TitleH1";
 import TitleH2 from "@/components/ui/TitleH2";
+import EnTeteFiche from "@/components/ui/EnTeteFiche";
+import Blason from "@/components/ui/Blason";
+import SommaireFiche from "@/components/ui/SommaireFiche";
 import Stat from "@/components/ui/Stat";
 import InfoLine from "@/components/ui/InfoLine";
 import VilleReligions from "@/components/civilisations/VilleReligions";
@@ -29,6 +32,8 @@ import {
     getQuartiersByVille
 } from "@/services/api"
 import { openMapEditor } from "@/services/mapEditor";
+import { metalSur } from "@/utils/couleurFiche";
+import { useCouleurCivilisation } from "@/utils/useCouleurCivilisation";
 import EtatVide from '@/components/ui/EtatVide';
 import DestructiblesSection from '@/components/civilisations/DestructiblesSection';
 import ZonesCommercialesSection from '@/components/civilisations/ZonesCommercialesSection';
@@ -53,7 +58,7 @@ function QuartierCard({ quartier, ville, dimension }) {
     const href = `/quartier/${quartier.id}`;
 
     return (
-        <div className="flex flex-col lg:flex-row gap-4 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
+        <div className="flex flex-col lg:flex-row gap-4 w-full ligne-fiche">
             <div className="flex flex-col gap-2 flex-1 min-w-0">
                 <a href={href} className="flex flex-row flex-wrap items-center gap-2 font-bold text-lg link link-hover">
                     <FontAwesomeIcon icon="fa-solid fa-map-location-dot" className="opacity-80" />
@@ -102,8 +107,8 @@ function QuartierCard({ quartier, ville, dimension }) {
 
 function MagasinLink({ magasin, commerce }) {
     return (
-        <a href={`/commerce/${commerce.id}`} className="flex flex-row items-center gap-3 w-full bg-base-200 hover:bg-base-300 transition-colors rounded-2xl p-3">
-            <span className="flex items-center justify-center w-10 h-10 rounded-full bg-base-100 shrink-0">
+        <a href={`/commerce/${commerce.id}`} className="flex flex-row items-center gap-3 w-full ligne-fiche">
+            <span className="flex items-center justify-center w-10 h-10 rounded-full bg-base-200 shrink-0">
                 <FontAwesomeIcon icon={magasin.is_siege ? "fa-solid fa-building" : "fa-solid fa-store"} />
             </span>
             <span className="flex flex-col flex-1 min-w-0">
@@ -134,6 +139,8 @@ export default function VilleDetailPage() {
     const [loading, setLoading] = useState(true);
     // Mesure du relevé + ajustements acceptés (PopulationSection)
     const [populationOfficielle, setPopulationOfficielle] = useState(null);
+    // Couleur des frontières de la civilisation sur la carte : l'en-tête de la fiche prend la même
+    const couleur = useCouleurCivilisation(civ_id);
 
     // La ville et ses religions viennent de la fiche de sa civilisation
     usePageTitle(ville?.title);
@@ -233,133 +240,129 @@ export default function VilleDetailPage() {
 
     const BodyHTML = ville ? (
         <>
-            <TitleH1 text={ville.title} icon={villeIcon(ville)} btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Civilisations", href: "/civilisations" }, { label: civilisation?.title || "Civilisation", href: `/civilisation/${civ_id}` }, { label: ville.title }]} />
-
-            {/* En-tête : identité, chiffres clés, description et carte */}
-            <div className="flex flex-col lg:flex-row gap-4 w-full bg-base-200 rounded-3xl p-4">
-                <div className="flex flex-col gap-4 flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                        <span className="flex items-center justify-center w-16 h-16 rounded-full text-2xl shrink-0 bg-base-300 shadow-md">
-                            <FontAwesomeIcon icon={villeIcon(ville)} />
-                        </span>
-                        <div className="flex flex-col gap-1 min-w-0">
-                            <InfoLine icon="fa-solid fa-flag">
-                                Civilisation : {civilisation ? <a href={`/civilisation/${civilisation.id}`} className="link link-hover">{civilisation.title}</a> : "inconnue"}
-                                {ville.is_capital ? <span className="badge badge-sm badge-primary ml-2 align-middle">Capitale</span> : null}
-                            </InfoLine>
-                            <InfoLine icon="fa-solid fa-calendar">
-                                {founded ? `Fondée le ${founded}` : "Date de fondation inconnue"}
-                            </InfoLine>
-                            <InfoLine icon="fa-solid fa-location-dot">
-                                <span className="tabular-nums">{dimension ? `${dimension.title} · ` : ""}X {ville.x ?? 0} · Z {ville.z ?? 0}</span>
-                            </InfoLine>
-                            <InfoLine icon={ville.is_public === false ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"}>
-                                {ville.is_public === false ? "Ville privée" : "Ville publique"}
-                            </InfoLine>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
-                        <a href="#population" className="rounded-2xl hover:ring-2 hover:ring-primary">
-                            <Stat icon="fa-solid fa-people-group" label="Population officielle" value={formatPopulation(populationOfficielle ?? ville.population)} />
-                        </a>
-                        <Stat icon="fa-solid fa-hands-praying" label={religions.length > 1 ? "Religions" : "Religion"} value={religions.length} />
-                        <Stat icon="fa-solid fa-map-location-dot" label={visibleQuartiers.length > 1 ? "Quartiers" : "Quartier"} value={visibleQuartiers.length} />
-                        <Stat icon="fa-solid fa-store" label={visibleMagasins.length > 1 ? "Magasins" : "Magasin"} value={visibleMagasins.length} />
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <span className="flex flex-row items-center gap-2 font-bold">
-                            <FontAwesomeIcon icon="fas fa-pen-nib" />
-                            <span>Description</span>
-                        </span>
-                        <MarkdownTextEditor value={ville.description || 'Aucune description'} />
-                    </div>
-                </div>
-
-                {dimension ? (
-                    // Pleine largeur sous les informations sur mobile, colonne à droite sur grand écran
-                    <div className="w-full h-64 sm:h-80 lg:w-[400px] lg:h-auto lg:min-h-80 shrink-0 rounded-2xl overflow-hidden">
-                        <MapEmbed
-                            dimension={dimension}
-                            width="100%"
-                            height="100%"
-                            embed="civilisations"
-                            x={ville.x}
-                            z={ville.z}
-                            zoom={0}
-                            title={`Carte de ${ville.title}`}
-                        />
-                    </div>
-                ) : null}
-            </div>
-
-            <PopulationSection ville={ville} auth={auth} onCharge={setPopulationOfficielle} />
-
-            <ResidentsSection type="ville" id={ville.id} />
-
-            {/* Dirigeants de la ville : le représentant vote en son nom aux élections des religions */}
-            <TitleH2 text="Gouvernement de la ville" icon="fas fa-landmark" />
-            <div className="w-full bg-base-200 rounded-3xl p-4">
-                <PostesGouvernement entityType="ville" entityId={ville.id} civilisationId={ville.civilisation_id} auth={auth} />
-            </div>
-
-            <TitleH2 text="Religions" icon="fas fa-hands-praying" fonctions={FctReligions} aide="religion" />
-            <VilleReligions
-                religions={religions}
-                ville={ville}
-                auth={auth}
-                onModify={updateReligion}
-                onDelete={deleteReligion}
+            <EnTeteFiche
+                couleur={couleur}
+                embleme={<Blason champ={metalSur(couleur)} meuble={couleur} icon={villeIcon(ville)} iconFallback="fa-solid fa-city" titre={`Armes de ${ville.title}`} />}
+                surtitre={["Ville", ville.is_public === false ? "privée" : null, founded ? `fondée le ${founded}` : null].filter(Boolean).join(" · ")}
+                titre={ville.title}
+                infos={
+                    <>
+                        {ville.is_capital ? <span className="badge badge-primary">Capitale</span> : null}
+                        <InfoLine icon="fa-solid fa-flag">
+                            {civilisation ? <a href={`/civilisation/${civilisation.id}`} className="link link-hover">{civilisation.title}</a> : "Civilisation inconnue"}
+                        </InfoLine>
+                        <InfoLine icon="fa-solid fa-location-dot">
+                            <span className="tabular-nums">{dimension ? `${dimension.title} · ` : ""}X {ville.x ?? 0} · Z {ville.z ?? 0}</span>
+                        </InfoLine>
+                    </>
+                }
+                fonctions={FctModify}
+                ariane={[{ label: "Civilisations", href: "/civilisations" }, { label: civilisation?.title || "Civilisation", href: `/civilisation/${civ_id}` }, { label: ville.title }]}
             />
+            <SommaireFiche />
 
-            <TitleH2 text="Quartiers" icon="fas fa-map-location-dot" fonctions={FctQuartiers} aide="quartier" />
-            {visibleQuartiers.length === 0 ? (
-                <EtatVide
-                    icon="fa-solid fa-map-location-dot"
-                    texte="Cette ville n'a pas encore de quartier."
-                    aide={auth ? "Découpez la ville en quartiers pour y loger personnages, religions et magasins." : "Seuls les dirigeants de la civilisation peuvent ajouter un quartier."}
-                    action={auth ? { label: "Ajouter un quartier", icon: "fa-solid fa-plus", onClick: () => showModal(quartierModal, "add") } : null}
-                />
-            ) : (
-                <div className="flex flex-col gap-2 w-full">
-                    {visibleQuartiers.map((quartier) => <QuartierCard key={quartier.id} quartier={quartier} ville={ville} dimension={dimension} />)}
-                </div>
-            )}
+            {/* Corps en deux colonnes (charte « Chancellerie ») : le contenu à gauche, les chiffres clés et les informations
+                courtes à droite. Sur téléphone, la colonne de droite passe au-dessus du contenu. */}
+            <div className="fiche grid grid-cols-1 lg:grid-cols-3 gap-x-10 w-full items-start">
+                <div className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+                    <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
+                    <MarkdownTextEditor value={ville.description || 'Aucune description'} />
 
-            <DestructiblesSection ville={ville} dimension={dimension} auth={auth} />
+                    <PopulationSection ville={ville} auth={auth} onCharge={setPopulationOfficielle} />
 
-            <TitleH2 text="Commerces" icon="fas fa-shop" aide="commerce" />
-            {visibleMagasins.length === 0 ? (
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
-                    <i className="flex-1">Aucun commerce n'est encore implanté dans cette ville.</i>
-                    <a href="/commerces" className="btn btn-sm btn-ghost bg-base-200 self-start sm:self-auto">
-                        <FontAwesomeIcon icon="fa-solid fa-shop" />
-                        Découvrir les commerces
-                    </a>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
-                    {visibleMagasins.map(({ magasin, commerce }) => <MagasinLink key={magasin.id} magasin={magasin} commerce={commerce} />)}
-                </div>
-            )}
+                    <ResidentsSection type="ville" id={ville.id} />
 
-            <ZonesCommercialesSection ville={ville} dimension={dimension} auth={auth} magasins={visibleMagasins} />
+                    <TitleH2 text="Quartiers" icon="fas fa-map-location-dot" fonctions={FctQuartiers} aide="quartier" />
+                    {visibleQuartiers.length === 0 ? (
+                        <EtatVide
+                            icon="fa-solid fa-map-location-dot"
+                            texte="Cette ville n'a pas encore de quartier."
+                            aide={auth ? "Découpez la ville en quartiers pour y loger personnages, religions et magasins." : "Seuls les dirigeants de la civilisation peuvent ajouter un quartier."}
+                            action={auth ? { label: "Ajouter un quartier", icon: "fa-solid fa-plus", onClick: () => showModal(quartierModal, "add") } : null}
+                        />
+                    ) : (
+                        <div className="flex flex-col w-full">
+                            {visibleQuartiers.map((quartier) => <QuartierCard key={quartier.id} quartier={quartier} ville={ville} dimension={dimension} />)}
+                        </div>
+                    )}
 
-            {autresVilles.length > 0 ? (
-                <>
-                    <TitleH2 text="Autres villes de la civilisation" icon="fas fa-city" />
-                    <div className="flex flex-row flex-wrap gap-2 w-full">
-                        {autresVilles.map((item) => (
-                            <a key={item.id} href={`/civilisation/${civ_id}/ville/${item.id}`} className="flex flex-row items-center gap-2 bg-base-200 hover:bg-base-300 transition-colors rounded-full px-3 py-1.5">
-                                <FontAwesomeIcon icon={villeIcon(item)} className="opacity-70" />
-                                <span>{item.title}</span>
-                                {item.is_capital ? <span className="badge badge-sm badge-ghost">Capitale</span> : null}
+                    <DestructiblesSection ville={ville} dimension={dimension} auth={auth} />
+
+                    <TitleH2 text="Commerces" icon="fas fa-shop" aide="commerce" />
+                    {visibleMagasins.length === 0 ? (
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
+                            <i className="flex-1">Aucun commerce n'est encore implanté dans cette ville.</i>
+                            <a href="/commerces" className="btn btn-sm btn-ghost bg-base-200 self-start sm:self-auto">
+                                <FontAwesomeIcon icon="fa-solid fa-shop" />
+                                Découvrir les commerces
                             </a>
-                        ))}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 w-full">
+                            {visibleMagasins.map(({ magasin, commerce }) => <MagasinLink key={magasin.id} magasin={magasin} commerce={commerce} />)}
+                        </div>
+                    )}
+
+                    <ZonesCommercialesSection ville={ville} dimension={dimension} auth={auth} magasins={visibleMagasins} />
+                </div>
+                <aside className="flex flex-col gap-2 min-w-0 order-first lg:order-none">
+                    <div className="flex flex-col gap-2 mt-4 lg:mt-7">
+                        <div className="grid grid-cols-2 gap-2 bg-base-200 rounded-3xl p-2">
+                            <a href="#population" className="rounded-2xl hover:ring-2 hover:ring-primary">
+                                <Stat icon="fa-solid fa-people-group" label="Population officielle" value={formatPopulation(populationOfficielle ?? ville.population)} />
+                            </a>
+                            <Stat icon="fa-solid fa-hands-praying" label={religions.length > 1 ? "Religions" : "Religion"} value={religions.length} />
+                            <Stat icon="fa-solid fa-map-location-dot" label={visibleQuartiers.length > 1 ? "Quartiers" : "Quartier"} value={visibleQuartiers.length} />
+                            <Stat icon="fa-solid fa-store" label={visibleMagasins.length > 1 ? "Magasins" : "Magasin"} value={visibleMagasins.length} />
+                        </div>
+
+                        {dimension ? (
+                            <div className="w-full h-64 sm:h-72 rounded-3xl overflow-hidden">
+                                <MapEmbed
+                                    dimension={dimension}
+                                    width="100%"
+                                    height="100%"
+                                    embed="civilisations"
+                                    x={ville.x}
+                                    z={ville.z}
+                                    zoom={0}
+                                    title={`Carte de ${ville.title}`}
+                                />
+                            </div>
+                        ) : null}
                     </div>
-                </>
-            ) : null}
+
+                    {/* Dirigeants de la ville : le représentant vote en son nom aux élections des religions */}
+                    <TitleH2 text="Gouvernement de la ville" icon="fas fa-landmark" />
+                    <div className="w-full">
+                        <PostesGouvernement entityType="ville" entityId={ville.id} civilisationId={ville.civilisation_id} auth={auth} compact />
+                    </div>
+
+                    <TitleH2 text="Religions" icon="fas fa-hands-praying" fonctions={FctReligions} aide="religion" />
+                    <VilleReligions
+                        religions={religions}
+                        ville={ville}
+                        auth={auth}
+                        onModify={updateReligion}
+                        onDelete={deleteReligion}
+                    />
+
+                    {autresVilles.length > 0 ? (
+                        <>
+                            <TitleH2 text="Autres villes de la civilisation" icon="fas fa-city" />
+                            <div className="flex flex-row flex-wrap gap-2 w-full">
+                                {autresVilles.map((item) => (
+                                    <a key={item.id} href={`/civilisation/${civ_id}/ville/${item.id}`} className="flex flex-row items-center gap-2 bg-base-200 hover:bg-base-300 transition-colors rounded-full px-3 py-1.5">
+                                        <FontAwesomeIcon icon={villeIcon(item)} className="opacity-70" />
+                                        <span>{item.title}</span>
+                                        {item.is_capital ? <span className="badge badge-sm badge-ghost">Capitale</span> : null}
+                                    </a>
+                                ))}
+                            </div>
+                        </>
+                    ) : null}
+                </aside>
+            </div>
         </>
     ) : null;
 

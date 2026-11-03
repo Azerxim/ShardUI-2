@@ -7,6 +7,9 @@ import Swal from 'sweetalert2';
 import Navbar from '@/components/layout/Navbar';
 import Skeleton from '@/components/ui/Skeleton';
 import TitleH1 from '@/components/ui/TitleH1';
+import EnTeteFiche from '@/components/ui/EnTeteFiche';
+import Medaillon from '@/components/ui/Medaillon';
+import SommaireFiche from '@/components/ui/SommaireFiche';
 import TitleH2 from '@/components/ui/TitleH2';
 import Stat from '@/components/ui/Stat';
 import InfoLine from '@/components/ui/InfoLine';
@@ -15,13 +18,13 @@ import DynamicModal from '@/components/modals/DynamicModal';
 import FormModal from '@/components/modals/FormModal';
 import LinkifiedText from '@/components/ui/LinkifiedText';
 import PersonnageAvatar from '@/components/personnages/PersonnageAvatar';
-import DynamicIcon from '@/components/ui/DynamicIcon';
 import LivreLiensSection from '@/components/bibliotheque/LivreLiensSection';
 
 import { checkUserID } from "@/services/authorisation";
 import { getSessionUser } from "@/services/session";
 import { showModal, showModalID } from '@/utils/showModal';
 import { runAction } from '@/utils/conflits';
+import { couleurFiche, metalSur } from '@/utils/couleurFiche';
 import { journalModal } from '@/config/modals/journal';
 import {
   apiRequest,
@@ -39,6 +42,8 @@ const IMAGE_EXTENSIONS = /\.(png|jpe?g|gif|webp|avif|bmp)$/i;
 const LINK_MODAL_ID = 'journal-personnage-modal';
 
 const formatDate = (date) => date ? new Date(date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }) : null;
+// Date courte (« 1 nov. 2026 ») : tient dans un chiffre clé de la colonne étroite
+const formatDateCourte = (date) => date ? new Date(date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' }) : null;
 const formatDay = (timestamp) => new Date(timestamp).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 const formatTime = (timestamp) => new Date(timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 const dayKey = (timestamp) => new Date(timestamp).toDateString();
@@ -117,7 +122,7 @@ function Attachment({ attachment }) {
     );
   }
   return (
-    <a href={attachment.url} target="_blank" rel="noopener noreferrer" className="flex flex-row items-center gap-2 w-fit max-w-full bg-base-100 hover:bg-base-300 transition-colors rounded-xl px-3 py-2">
+    <a href={attachment.url} target="_blank" rel="noopener noreferrer" className="flex flex-row items-center gap-2 w-fit max-w-full bg-base-200 hover:bg-base-300 transition-colors rounded-xl px-3 py-2">
       <FontAwesomeIcon icon="fa-solid fa-paperclip" className="opacity-70" />
       <span className="truncate">{attachment.filename}</span>
       <span className="text-xs opacity-60 shrink-0">{formatSize(attachment.size)}</span>
@@ -142,7 +147,7 @@ function Message({ message, link, canLink, onLink, onUnlink }) {
       {reactions.length > 0 ? (
         <div className="flex flex-wrap gap-2">
           {reactions.map(([emoji, count]) => (
-            <span key={emoji} className="inline-flex items-center gap-1 bg-base-100 rounded-full px-2.5 py-0.5 text-sm">
+            <span key={emoji} className="inline-flex items-center gap-1 bg-base-200 rounded-full px-2.5 py-0.5 text-sm">
               <span>{emoji}</span>
               <span className="tabular-nums">{count}</span>
             </span>
@@ -151,12 +156,12 @@ function Message({ message, link, canLink, onLink, onUnlink }) {
       ) : null}
       {canLink ? (
         <div className="flex flex-row flex-wrap gap-1">
-          <button type="button" className="btn btn-xs btn-ghost bg-base-100 gap-1" onClick={() => onLink(message, link)}>
+          <button type="button" className="btn btn-xs btn-ghost bg-base-200 gap-1" onClick={() => onLink(message, link)}>
             <FontAwesomeIcon icon="fa-solid fa-masks-theater" />
             {link ? "Changer de personnage" : "Associer à un personnage"}
           </button>
           {link ? (
-            <button type="button" className="btn btn-xs btn-ghost bg-base-100 text-error" onClick={() => onUnlink(link)}>Dissocier</button>
+            <button type="button" className="btn btn-xs btn-ghost bg-base-200 text-error" onClick={() => onUnlink(link)}>Dissocier</button>
           ) : null}
         </div>
       ) : null}
@@ -170,7 +175,7 @@ function MessageGroup({ group, links, myDiscordUid, onLink, onUnlink }) {
   const color = authorColor(author.id);
   const canLink = Boolean(myDiscordUid) && String(author.id) === String(myDiscordUid);
   return (
-    <div className="flex flex-row gap-3 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
+    <div className="flex flex-row gap-3 w-full ligne-fiche">
       {personnage ? (
         <a href={`/personnage/${personnage.id}`} className="shrink-0 h-fit" aria-label={`Fiche de ${personnage.name}`}>
           <PersonnageAvatar personnage={personnage} />
@@ -185,13 +190,13 @@ function MessageGroup({ group, links, myDiscordUid, onLink, onUnlink }) {
           {personnage ? (
             <>
               <a href={`/personnage/${personnage.id}`} className="font-bold break-words link link-hover">{personnage.name}</a>
-              <span className="text-xs opacity-60 break-words">joué par {author.name || "auteur inconnu"}</span>
+              <span className="text-sm opacity-70 break-words">joué par {author.name || "auteur inconnu"}</span>
             </>
           ) : (
-            <span className="font-bold break-words" style={{ color }}>{author.name || "Auteur inconnu"}</span>
+            <span className="font-bold break-words">{author.name || "Auteur inconnu"}</span>
           )}
           {author.is_bot ? <span className="badge badge-xs badge-info">BOT</span> : null}
-          <span className="text-xs opacity-60">{formatTime(group[0].timestamp)}</span>
+          <span className="text-sm opacity-70">{formatTime(group[0].timestamp)}</span>
         </div>
         {group.map((message) => (
           <Message key={message.id} message={message} link={links.get(String(message.id))} canLink={canLink} onLink={onLink} onUnlink={onUnlink} />
@@ -409,11 +414,12 @@ export default function JournalDetailPage() {
   const messageIds = new Set(messages.map((message) => String(message.id)));
   const personnagesCount = new Set(links.filter((link) => messageIds.has(String(link.message_id))).map((link) => link.personnage.id)).size;
   const lastGroup = groups[groups.length - 1];
-  const lastMessageDate = lastGroup ? formatDate(lastGroup[lastGroup.length - 1].timestamp) : null;
+  const lastMessageDate = lastGroup ? formatDateCourte(lastGroup[lastGroup.length - 1].timestamp) : null;
   const published = formatDate(journal?.published_date);
   // Un journal privé n'est visible que par son auteur et les administrateurs (auth)
   const hidden = journal?.is_public === false && !auth;
 
+  const couleur = couleurFiche(journal?.cover_color, journal?.id);
   const btnReturn = { text: 'Retour à la bibliothèque', icon: "fas fa-arrow-left", class: "btn-ghost bg-base-200 hover:bg-base-300", link: '/bibliotheque' };
 
   const FctModify = [
@@ -430,114 +436,119 @@ export default function JournalDetailPage() {
 
   const BodyHTML = journal ? (
     <>
-      <TitleH1 text={journal.title} icon="fas fa-newspaper" btn={btnReturn} fonctions={FctModify} ariane={[{ label: "Bibliothèque", href: "/bibliotheque" }, { label: journal.title }]} />
-
-      {/* En-tête : informations, chiffres clés et description */}
-      <div className="flex flex-col gap-4 w-full bg-base-200 rounded-3xl p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <span className="flex items-center justify-center w-16 h-16 rounded-full text-2xl shrink-0 bg-base-300 shadow-md">
-            <DynamicIcon icon={journal.cover_icon || "fa-solid fa-newspaper"} fallback="fa-solid fa-newspaper" />
-          </span>
-          <div className="flex flex-col gap-1 min-w-0">
+      {/* En-tête dans la couleur de la couverture du journal, avec son icône */}
+      <EnTeteFiche
+        couleur={couleur}
+        embleme={<Medaillon forme="carre" fond={metalSur(couleur)} encre={couleur} icon={journal.cover_icon || "fa-solid fa-newspaper"} iconFallback="fa-solid fa-newspaper" titre={`Emblème de ${journal.title}`} />}
+        surtitre={[journal.is_public === false ? "Journal privé" : "Journal public", published ? `publié le ${published}` : null].filter(Boolean).join(" · ")}
+        titre={journal.title}
+        infos={
+          <>
             <InfoLine icon="fa-solid fa-feather">
               {journal.author ? <>Rédigé par <strong>{journal.author}</strong></> : "Auteur inconnu"}
             </InfoLine>
-            <InfoLine icon="fa-solid fa-calendar">
-              {published ? `Publié le ${published}` : "Date de publication inconnue"}
-            </InfoLine>
-            {journal.uid ? <InfoLine icon="fa-brands fa-discord">Alimenté par un salon Discord</InfoLine> : null}
-            <InfoLine icon={journal.is_public === false ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"}>
-              {journal.is_public === false ? "Journal privé" : "Journal public"}
-            </InfoLine>
+          </>
+        }
+        fonctions={FctModify}
+        ariane={[{ label: "Bibliothèque", href: "/bibliotheque" }, { label: journal.title }]}
+      />
+      <SommaireFiche />
+
+      {/* Corps en deux colonnes (charte « Chancellerie ») : le contenu à gauche, les chiffres clés et les informations
+          courtes à droite. Sur téléphone, la colonne de droite passe au-dessus du contenu. */}
+      <div className="fiche grid grid-cols-1 lg:grid-cols-3 gap-x-10 w-full items-start">
+        <div className="lg:col-span-2 flex flex-col gap-2 min-w-0">
+          <div id="journal-messages" className="w-full scroll-mt-24">
+            <TitleH2 text="Messages" icon="fas fa-comments" fonctions={FctMessages} />
           </div>
-        </div>
 
-        <LivreLiensSection ecrit={journal} support="journal" auth={auth} />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
-          <Stat icon="fa-solid fa-comments" label={messages.length > 1 ? "Messages" : "Message"} value={statValue(messages.length)} />
-          <Stat icon="fa-solid fa-user-pen" label={authorsCount > 1 ? "Auteurs" : "Auteur"} value={statValue(authorsCount)} />
-          <Stat icon="fa-solid fa-masks-theater" label={personnagesCount > 1 ? "Personnages" : "Personnage"} value={statValue(personnagesCount)} />
-          <Stat icon="fa-solid fa-clock-rotate-left" label="Dernier message" value={statValue(lastMessageDate || "—")} />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <span className="flex flex-row items-center gap-2 font-bold">
-            <FontAwesomeIcon icon="fas fa-pen-nib" />
-            <span>Description</span>
-          </span>
-          <MarkdownTextEditor value={journal.description || 'Aucune description'} />
-        </div>
-      </div>
-
-      <div id="journal-messages" className="w-full scroll-mt-24">
-        <TitleH2 text="Messages" icon="fas fa-comments" fonctions={FctMessages} />
-      </div>
-
-      {userId && platformsChecked && !myDiscordUid && messages.length > 0 ? (
-        <div role="note" className="flex flex-col sm:flex-row sm:items-center gap-3 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
-          <FontAwesomeIcon icon="fa-solid fa-masks-theater" className="text-info text-xl shrink-0" />
-          <p className="flex-1">Vous avez écrit dans ce journal ? Liez votre compte Discord pour signer vos messages du nom de vos personnages.</p>
-          <a href="/profil" className="btn btn-sm btn-primary self-start sm:self-auto">Lier mon compte Discord</a>
-        </div>
-      ) : null}
-
-      {content ? (
-        <div className="flex flex-row items-center gap-2 w-full px-2 text-sm opacity-70">
-          {fetching ? (
-            <>
-              <span className="loading loading-spinner loading-xs"></span>
-              <span>Actualisation des messages…</span>
-            </>
-          ) : updatedAt ? (
-            <span>Mis à jour le {formatDate(updatedAt)} à {formatTime(updatedAt)}</span>
-          ) : null}
-        </div>
-      ) : null}
-
-      {contentError ? (
-        <div role="alert" className="alert alert-warning alert-soft w-full">
-          <FontAwesomeIcon icon="fa-solid fa-triangle-exclamation" />
-          <span>{content ? `Actualisation impossible : ${contentError.replace(/\.?$/, '.')} Affichage des derniers messages enregistrés.` : contentError}</span>
-        </div>
-      ) : null}
-
-      {waitingFirstContent ? (
-        <div className="flex justify-center items-center py-12 w-full">
-          <div className="loading loading-spinner loading-lg"></div>
-        </div>
-      ) : !content ? null : groups.length === 0 ? (
-        <i className="w-full">Ce journal ne contient encore aucun message.</i>
-      ) : (
-        <>
-          {totalPages > 1 ? (
-            <div className="flex justify-center w-full">
-              <Pagination page={page} totalPages={totalPages} onChange={changePage} />
+          {userId && platformsChecked && !myDiscordUid && messages.length > 0 ? (
+            <div role="note" className="flex flex-col sm:flex-row sm:items-center gap-3 w-full bg-base-200 rounded-2xl p-3 sm:p-4">
+              <FontAwesomeIcon icon="fa-solid fa-masks-theater" className="text-info text-xl shrink-0" />
+              <p className="flex-1">Vous avez écrit dans ce journal ? Liez votre compte Discord pour signer vos messages du nom de vos personnages.</p>
+              <a href="/profil" className="btn btn-sm btn-primary self-start sm:self-auto">Lier mon compte Discord</a>
             </div>
           ) : null}
 
-          <div className="flex flex-col gap-2 w-full">
-            {pageGroups.map((group, index) => (
-              <Fragment key={group[0].id}>
-                {index === 0 || dayKey(group[0].timestamp) !== dayKey(pageGroups[index - 1][0].timestamp) ? (
-                  <div className="divider my-1 text-sm opacity-70 first-letter:uppercase">{formatDay(group[0].timestamp)}</div>
-                ) : null}
-                <MessageGroup group={group} links={linksByMessage} myDiscordUid={myDiscordUid} onLink={openLink} onUnlink={unlink} />
-              </Fragment>
-            ))}
+          {content ? (
+            <div className="flex flex-row items-center gap-2 w-full px-2 text-sm opacity-70">
+              {fetching ? (
+                <>
+                  <span className="loading loading-spinner loading-xs"></span>
+                  <span>Actualisation des messages…</span>
+                </>
+              ) : updatedAt ? (
+                <span>Mis à jour le {formatDate(updatedAt)} à {formatTime(updatedAt)}</span>
+              ) : null}
+            </div>
+          ) : null}
+
+          {contentError ? (
+            <div role="alert" className="alert alert-warning alert-soft w-full">
+              <FontAwesomeIcon icon="fa-solid fa-triangle-exclamation" />
+              <span>{content ? `Actualisation impossible : ${contentError.replace(/\.?$/, '.')} Affichage des derniers messages enregistrés.` : contentError}</span>
+            </div>
+          ) : null}
+
+          {waitingFirstContent ? (
+            <div className="flex justify-center items-center py-12 w-full">
+              <div className="loading loading-spinner loading-lg"></div>
+            </div>
+          ) : !content ? null : groups.length === 0 ? (
+            <i className="w-full">Ce journal ne contient encore aucun message.</i>
+          ) : (
+            <>
+              {totalPages > 1 ? (
+                <div className="flex justify-center w-full">
+                  <Pagination page={page} totalPages={totalPages} onChange={changePage} />
+                </div>
+              ) : null}
+
+              <div className="flex flex-col w-full">
+                {pageGroups.map((group, index) => (
+                  <Fragment key={group[0].id}>
+                    {index === 0 || dayKey(group[0].timestamp) !== dayKey(pageGroups[index - 1][0].timestamp) ? (
+                      <div className="divider my-1 text-sm opacity-70 first-letter:uppercase">{formatDay(group[0].timestamp)}</div>
+                    ) : null}
+                    <MessageGroup group={group} links={linksByMessage} myDiscordUid={myDiscordUid} onLink={openLink} onUnlink={unlink} />
+                  </Fragment>
+                ))}
+              </div>
+
+              <div className="flex flex-row flex-wrap justify-center items-center gap-4 w-full mt-2">
+                <label className="flex flex-row items-center gap-2 whitespace-nowrap">
+                  <span className="text-sm">Groupes par page</span>
+                  <select value={perPage} onChange={(e) => changePerPage(Number(e.target.value))} className="select select-bordered select-sm bg-base-100 w-20">
+                    {PER_PAGE_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
+                  </select>
+                </label>
+                {totalPages > 1 ? <Pagination page={page} totalPages={totalPages} onChange={changePage} /> : null}
+              </div>
+            </>
+          )}
+        </div>
+        <aside className="flex flex-col gap-2 min-w-0 order-first lg:order-none">
+          <div className="flex flex-col gap-2 mt-4 lg:mt-7">
+            <div className="grid grid-cols-2 gap-2 bg-base-200 rounded-3xl p-2">
+              <Stat icon="fa-solid fa-comments" label={messages.length > 1 ? "Messages" : "Message"} value={statValue(messages.length)} />
+              <Stat icon="fa-solid fa-user-pen" label={authorsCount > 1 ? "Auteurs" : "Auteur"} value={statValue(authorsCount)} />
+              <Stat icon="fa-solid fa-masks-theater" label={personnagesCount > 1 ? "Personnages" : "Personnage"} value={statValue(personnagesCount)} />
+              <Stat icon="fa-solid fa-clock-rotate-left" label="Dernier message" value={statValue(lastMessageDate || "—")} />
+            </div>
           </div>
 
-          <div className="flex flex-row flex-wrap justify-center items-center gap-4 w-full mt-2">
-            <label className="flex flex-row items-center gap-2 whitespace-nowrap">
-              <span className="text-sm">Groupes par page</span>
-              <select value={perPage} onChange={(e) => changePerPage(Number(e.target.value))} className="select select-bordered select-sm bg-base-100 w-20">
-                {PER_PAGE_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
-              </select>
-            </label>
-            {totalPages > 1 ? <Pagination page={page} totalPages={totalPages} onChange={changePage} /> : null}
+          <TitleH2 text="À propos" icon="fas fa-circle-info" />
+          <div className="flex flex-col gap-2 px-1">
+            <MarkdownTextEditor value={journal.description || 'Aucune description'} />
+            <InfoLine icon="fa-solid fa-feather">
+              {journal.author ? <>Rédigé par <strong>{journal.author}</strong></> : "Auteur inconnu"}
+            </InfoLine>
+            {published ? <InfoLine icon="fa-solid fa-calendar">Publié le {published}</InfoLine> : null}
+            {journal.uid ? <InfoLine icon="fa-brands fa-discord">Alimenté par un salon Discord</InfoLine> : null}
+            <LivreLiensSection ecrit={journal} support="journal" auth={auth} />
           </div>
-        </>
-      )}
+        </aside>
+      </div>
     </>
   ) : null;
 
