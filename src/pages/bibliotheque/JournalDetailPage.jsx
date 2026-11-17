@@ -16,7 +16,7 @@ import InfoLine from '@/components/ui/InfoLine';
 import MarkdownTextEditor from '@/components/ui/MarkdownTextEditor';
 import DynamicModal from '@/components/modals/DynamicModal';
 import FormModal from '@/components/modals/FormModal';
-import LinkifiedText from '@/components/ui/LinkifiedText';
+import DiscordMarkdown from '@/components/bibliotheque/DiscordMarkdown';
 import PersonnageAvatar from '@/components/personnages/PersonnageAvatar';
 import LivreLiensSection from '@/components/bibliotheque/LivreLiensSection';
 
@@ -136,10 +136,10 @@ function Message({ message, link, canLink, onLink, onUnlink }) {
   return (
     <div className="flex flex-col gap-2">
       {message.content ? (
-        <p className="whitespace-pre-wrap break-words leading-relaxed">
-          <LinkifiedText text={message.content} />
-          {message.edited_at ? <span className="text-xs opacity-50 ml-1">(modifié)</span> : null}
-        </p>
+        <div>
+          <DiscordMarkdown texte={message.content} />
+          {message.edited_at ? <span className="text-xs opacity-50">(modifié)</span> : null}
+        </div>
       ) : null}
       {(message.attachments || []).map((attachment, index) => (
         <Attachment key={`${message.id}-${index}`} attachment={attachment} />

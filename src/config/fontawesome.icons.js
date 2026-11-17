@@ -47,6 +47,7 @@ import { definition as fasCalendarXmark } from "@fortawesome/free-solid-svg-icon
 import { definition as fasCamera } from "@fortawesome/free-solid-svg-icons/faCamera";
 import { definition as fasChair } from "@fortawesome/free-solid-svg-icons/faChair";
 import { definition as fasChampagneGlasses } from "@fortawesome/free-solid-svg-icons/faChampagneGlasses";
+import { definition as fasChartLine } from "@fortawesome/free-solid-svg-icons/faChartLine";
 import { definition as fasChartSimple } from "@fortawesome/free-solid-svg-icons/faChartSimple";
 import { definition as fasCheck } from "@fortawesome/free-solid-svg-icons/faCheck";
 import { definition as fasCheckDouble } from "@fortawesome/free-solid-svg-icons/faCheckDouble";
@@ -92,6 +93,7 @@ import { definition as fasEye } from "@fortawesome/free-solid-svg-icons/faEye";
 import { definition as fasEyeSlash } from "@fortawesome/free-solid-svg-icons/faEyeSlash";
 import { definition as fasFeather } from "@fortawesome/free-solid-svg-icons/faFeather";
 import { definition as fasFeatherPointed } from "@fortawesome/free-solid-svg-icons/faFeatherPointed";
+import { definition as fasFileCircleExclamation } from "@fortawesome/free-solid-svg-icons/faFileCircleExclamation";
 import { definition as fasFileCode } from "@fortawesome/free-solid-svg-icons/faFileCode";
 import { definition as fasFileSignature } from "@fortawesome/free-solid-svg-icons/faFileSignature";
 import { definition as fasFingerprint } from "@fortawesome/free-solid-svg-icons/faFingerprint";
@@ -155,10 +157,12 @@ import { definition as fasNetworkWired } from "@fortawesome/free-solid-svg-icons
 import { definition as fasNewspaper } from "@fortawesome/free-solid-svg-icons/faNewspaper";
 import { definition as fasPalette } from "@fortawesome/free-solid-svg-icons/faPalette";
 import { definition as fasPaperclip } from "@fortawesome/free-solid-svg-icons/faPaperclip";
+import { definition as fasPaw } from "@fortawesome/free-solid-svg-icons/faPaw";
 import { definition as fasPen } from "@fortawesome/free-solid-svg-icons/faPen";
 import { definition as fasPenNib } from "@fortawesome/free-solid-svg-icons/faPenNib";
 import { definition as fasPeopleArrows } from "@fortawesome/free-solid-svg-icons/faPeopleArrows";
 import { definition as fasPeopleGroup } from "@fortawesome/free-solid-svg-icons/faPeopleGroup";
+import { definition as fasPeopleRoof } from "@fortawesome/free-solid-svg-icons/faPeopleRoof";
 import { definition as fasPersonBreastfeeding } from "@fortawesome/free-solid-svg-icons/faPersonBreastfeeding";
 import { definition as fasPersonDigging } from "@fortawesome/free-solid-svg-icons/faPersonDigging";
 import { definition as fasPersonHiking } from "@fortawesome/free-solid-svg-icons/faPersonHiking";
@@ -187,6 +191,9 @@ import { definition as fasSignInAlt } from "@fortawesome/free-solid-svg-icons/fa
 import { definition as fasSignsPost } from "@fortawesome/free-solid-svg-icons/faSignsPost";
 import { definition as fasSitemap } from "@fortawesome/free-solid-svg-icons/faSitemap";
 import { definition as fasSkull } from "@fortawesome/free-solid-svg-icons/faSkull";
+import { definition as fasSort } from "@fortawesome/free-solid-svg-icons/faSort";
+import { definition as fasSortDown } from "@fortawesome/free-solid-svg-icons/faSortDown";
+import { definition as fasSortUp } from "@fortawesome/free-solid-svg-icons/faSortUp";
 import { definition as fasSquareCheck } from "@fortawesome/free-solid-svg-icons/faSquareCheck";
 import { definition as fasStamp } from "@fortawesome/free-solid-svg-icons/faStamp";
 import { definition as fasStar } from "@fortawesome/free-solid-svg-icons/faStar";
@@ -266,6 +273,7 @@ export default [
     fasCamera,
     fasChair,
     fasChampagneGlasses,
+    fasChartLine,
     fasChartSimple,
     fasCheck,
     fasCheckDouble,
@@ -311,6 +319,7 @@ export default [
     fasEyeSlash,
     fasFeather,
     fasFeatherPointed,
+    fasFileCircleExclamation,
     fasFileCode,
     fasFileSignature,
     fasFingerprint,
@@ -374,10 +383,12 @@ export default [
     fasNewspaper,
     fasPalette,
     fasPaperclip,
+    fasPaw,
     fasPen,
     fasPenNib,
     fasPeopleArrows,
     fasPeopleGroup,
+    fasPeopleRoof,
     fasPersonBreastfeeding,
     fasPersonDigging,
     fasPersonHiking,
@@ -406,6 +417,9 @@ export default [
     fasSignsPost,
     fasSitemap,
     fasSkull,
+    fasSort,
+    fasSortDown,
+    fasSortUp,
     fasSquareCheck,
     fasStamp,
     fasStar,

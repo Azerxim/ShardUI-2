@@ -39,8 +39,8 @@ export function linkPlatform(userId, platform, uid) {
 export const linkDiscordAccount = (userId, discordUid) => linkPlatform(userId, "discord", discordUid);
 
 // Journal relié à un salon Discord, inséré directement en base (créer un journal par l'API créerait un vrai salon)
-export function createDiscordJournal({ title, uid, userId }) {
-  return Number(runPython("import sqlite3, sys, datetime; db = sqlite3.connect(sys.argv[1]); cur = db.execute('insert into journaux (user_id, author, title, uid, created_at) values (?, ?, ?, ?, ?)', (int(sys.argv[4]), 'Testeur', sys.argv[2], sys.argv[3], str(datetime.datetime.now()))); db.commit(); print(cur.lastrowid)", [title, uid, userId]));
+export function createDiscordJournal({ title, uid, userId, coverIcon = null }) {
+  return Number(runPython("import sqlite3, sys, datetime; db = sqlite3.connect(sys.argv[1]); cur = db.execute('insert into journaux (user_id, author, title, uid, cover_icon, created_at) values (?, ?, ?, ?, ?, ?)', (int(sys.argv[4]), 'Testeur', sys.argv[2], sys.argv[3], sys.argv[5] or None, str(datetime.datetime.now()))); db.commit(); print(cur.lastrowid)", [title, uid, userId, coverIcon ?? ""]));
 }
 
 // Messages renvoyés par l'API de test pour un salon (voir SHARD_FAKE_JOURNAL_MESSAGES dans playwright.config.js)

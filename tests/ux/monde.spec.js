@@ -29,17 +29,16 @@ function releve({ heures = 5760, population = 42, actif = true } = {}) {
     world_name: `Monde ${suffix}`,
     world_version: "1.21.4",
     duration_seconds: 70.8,
-    seuil_heures_lit: 10,
     seuil_jours_actif: 30,
     seuil_heures_actif: 1,
     taille_tuile: 256,
     dimensions: [{ source: "", title: "Tetrago", chunks: 280964, chunks_actifs: 5000, heures_presence: 210747, lits: 3887, lits_actifs: 527, villageois: 2419, entites: 65158 }],
-    lieux: [{ entity_type: "ville", entity_id: ville, title: `Eterstone ${suffix}`, source: "", methode: "rayon", rayon: 128, population, lits: 48, lits_actifs: population, heures_presence: heures, villageois: 71, joueurs_presents: 5, joueurs_residents: 2 }],
+    lieux: [{ entity_type: "ville", entity_id: ville, title: `Eterstone ${suffix}`, source: "", methode: "rayon", rayon: 128, population, lits: population, lits_actifs: 30, superficie: 51472, heures_presence: heures, villageois: 71, joueurs_presents: 5, joueurs_residents: 2, joueurs_residents_actifs: 1 }],
     zones: [{ source: "", x: 1024, z: 0, taille: 256, heures_presence: 41932, lits: 11, villageois: 28, joueurs: 3, lieu_type: "ville", lieu_id: ville, lieu_title: `Eterstone ${suffix}`, lieu_distance: 707 }],
     joueurs: [
       {
         uuid: uuidMinecraft, heures_jeu: 988.55, morts: 116, monstres_tues: 8663, distance_km: 11901.35,
-        niveau: 63, is_actif: actif, derniere_activite: new Date().toISOString(),
+        niveau: 63, mode_jeu: "survie", echanges_villageois: 214, is_actif: actif, derniere_activite: new Date().toISOString(),
         lieu_type: "ville", lieu_id: ville, lieu_title: `Eterstone ${suffix}`,
       },
       { uuid: uuidInconnu, heures_jeu: 120.5, is_actif: true, derniere_activite: new Date().toISOString() },
@@ -79,6 +78,8 @@ test("le générateur de cartes envoie un relevé, refusé sans la clé", async 
   expect(enregistre.lits).toBe(3887);
   expect(enregistre.joueurs).toBe(3);
   expect(enregistre.joueurs_actifs).toBe(2);
+  // Population du monde : somme des villes
+  expect(enregistre.population).toBe(42);
 
   // La population mesurée remplace celle de la ville (12 à la création)
   expect(populations).toEqual({ villes: 1, quartiers: 0 });
@@ -116,6 +117,16 @@ test("la page d'administration présente le monde, les lieux, les zones et les j
   await expect(ligneVille).toContainText("12");  // population du site avant le relevé
 
   await expect(ligneVille.locator(".badge", { hasText: "rayon" })).toBeVisible();
+  await expect(ligneVille).toContainText("5,1 ha");
+  // Lieu mesuré au rayon : signalé parmi les points à vérifier
+  await expect(main.getByRole("status")).toContainText("sans frontières tracées");
+
+  // Recherche dans les lieux
+  const recherche = main.getByPlaceholder("Chercher un lieu");
+  await recherche.fill("introuvable-zzz");
+  await expect(main.getByText("Aucun lieu ne correspond.")).toBeVisible();
+  await recherche.fill(`Eterstone ${suffix}`);
+  await expect(ligneVille).toBeVisible();
 
   // Zone fréquentée loin de la ville la plus proche
   const ligneZone = main.locator("tr", { hasText: "1024, 0" });
@@ -134,6 +145,7 @@ test("la page d'administration présente le monde, les lieux, les zones et les j
   // Joueur actif, relié à son compte du site par l'UUID Minecraft
   const ligneJoueur = main.locator("tr", { hasText: joueur.account.full_name });
   await expect(ligneJoueur).toContainText("989 h");
+  await expect(ligneJoueur).toContainText("214");
   await expect(ligneJoueur.locator(".badge", { hasText: "actif" })).toBeVisible();
   await expect(ligneJoueur.getByRole("link", { name: joueur.account.full_name })).toBeVisible();
   await context.close();
@@ -151,7 +163,14 @@ test("un nouveau relevé s'ajoute à l'historique, avec son évolution", async (
   const main = page.locator("main.container");
 
   await expect(main.getByText("Depuis le relevé du")).toBeVisible();
-  await expect(main.locator("tr", { hasText: `Eterstone ${suffix}` }).first()).toContainText("45");
+  // Population de la ville et écart avec le relevé précédent
+  const ligneVille = main.locator("tr", { hasText: `Eterstone ${suffix}` }).first();
+  await expect(ligneVille).toContainText("45");
+  await expect(ligneVille).toContainText("+3");
+  // Courbe d'évolution, relevé après relevé
+  await expect(main.getByRole("heading", { name: "Évolution" })).toBeVisible();
+  await main.getByRole("tab", { name: "Présence" }).click();
+  await expect(main.getByRole("img", { name: /Présence/ })).toBeVisible();
   expect((await apiGet(`/civilisations/villes/id/${ville}`)).ville.population).toBe(45);
 
   // Le relevé précédent reste consultable (la base de test peut en contenir d'autres, plus anciens)
