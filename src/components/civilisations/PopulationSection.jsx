@@ -144,7 +144,7 @@ export default function PopulationSection({ ville, auth, onCharge = () => { } })
                         <FontAwesomeIcon icon={mesure?.methode === 'rayon' ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-bed'} className={`mt-0.5 ${mesure?.methode === 'rayon' ? 'text-warning' : ''}`} />
                         <span>
                             {mesure
-                                ? `Lits habités comptés au relevé du ${dateCourte(mesure.releve_at)}, ${mesure.methode === 'rayon' ? `dans un rayon de ${mesure.rayon ?? '?'} blocs autour de la ville : chiffre approximatif tant que ses frontières ne sont pas tracées.` : 'à l\'intérieur des frontières de la ville.'}`
+                                ? `Lits posés comptés au relevé du ${dateCourte(mesure.releve_at)}, ${mesure.methode === 'rayon' ? `dans un rayon de ${mesure.rayon ?? '?'} blocs autour de la ville : chiffre approximatif tant que ses frontières ne sont pas tracées.` : 'à l\'intérieur des frontières de la ville.'}`
                                 : "Cette ville n'a pas encore été mesurée par un relevé du monde."}
                         </span>
                     </p>

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { allIconsLoaded, isIconRegistered, loadAllIcons } from "@/utils/fontawesomeFull";
+import { allIconsLoaded, isIconRegistered, loadAllIcons, resolveIcon } from "@/utils/fontawesomeFull";
 
 // Icône dont le nom peut venir des données (religion, couverture de livre…). Si elle ne fait pas partie des icônes
-// du code, les packs complets sont chargés puis elle s'affiche ; introuvable même là, l'icône de repli la remplace.
+// du code, les packs complets sont chargés puis elle s'affiche ; un préfixe erroné est corrigé (même nom dans un autre
+// style) ; introuvable même là, l'icône de repli la remplace.
 export default function DynamicIcon({ icon, fallback = "fa-solid fa-circle-question", ...props }) {
     const [, setLoadedCount] = useState(0);
     const registered = isIconRegistered(icon);
@@ -21,6 +22,9 @@ export default function DynamicIcon({ icon, fallback = "fa-solid fa-circle-quest
     }, [icon, registered]);
 
     if (registered) return <FontAwesomeIcon icon={icon} {...props} />;
+    // Packs complets chargés : le nom est cherché dans les trois styles
+    const resolved = allIconsLoaded() ? resolveIcon(icon) : null;
+    if (resolved) return <FontAwesomeIcon icon={resolved} {...props} />;
     if (!icon || allIconsLoaded()) return <FontAwesomeIcon icon={fallback} {...props} />;
     // Packs en cours de chargement : emplacement invisible de la même taille
     return <FontAwesomeIcon icon={fallback} {...props} style={{ ...props.style, visibility: "hidden" }} />;

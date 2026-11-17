@@ -31,6 +31,18 @@ export function parseIcon(value) {
     return { prefix: PREFIXES[tokens.find((token) => PREFIXES[token])] ?? "fas", iconName: name.slice(3) };
 }
 
+// Icône à afficher, sous forme [préfixe, nom] : celle demandée si elle est dans la bibliothèque, sinon le même nom
+// dans un autre style. Une valeur saisie avec le mauvais préfixe (« fab fa-beer-mug-empty », icône du style solid)
+// s'affiche ainsi quand même. null si l'icône est introuvable (pour l'instant : les packs complets peuvent manquer).
+export function resolveIcon(value) {
+    const icon = parseIcon(value);
+    if (!icon) return null;
+    for (const prefix of [icon.prefix, "fas", "far", "fab"]) {
+        if (findIconDefinition({ prefix, iconName: icon.iconName })) return [prefix, icon.iconName];
+    }
+    return null;
+}
+
 // L'icône est-elle déjà dans la bibliothèque (icônes du code, ou packs complets une fois chargés) ?
 export function isIconRegistered(value) {
     const icon = parseIcon(value);

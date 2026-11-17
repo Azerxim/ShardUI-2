@@ -195,7 +195,7 @@ Les routes sont déclarées dans `src/App.jsx`. Le titre de l'onglet vient de `p
 | `/admin` | Redirige vers `/admin/dimensions` | — |
 | `/admin/dimensions` | Dimensions de la carte | Administrateur |
 | `/admin/personnages` | Espèces et classes | Administrateur ou modérateur RP |
-| `/admin/monde` | Statistiques du monde : chiffres clés, évolution, lieux, zones, joueurs, dimensions | Administrateur |
+| `/admin/monde` | Statistiques du monde : points à vérifier, chiffres clés, courbe d'évolution, lieux (recherche, filtre, tri), zones, joueurs (recherche, actifs, tri), dimensions | Administrateur |
 | `*` | Page 404 | — |
 
 Les routes au singulier sans identifiant (`/civilisation`, `/religion`, `/commerce`, `/alliance`, `/guerre`,
