@@ -30,3 +30,4 @@ dist-ssr
 tests/ux/.env-api
 tests/ux/.results
 playwright-report
+package-lock.json
