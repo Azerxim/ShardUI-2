@@ -36,9 +36,9 @@ test.beforeAll(async () => {
     });
     return civilisationId;
   };
-  const nord = await civ(attaquant, "Nord", 100);
-  const sud = await civ(defenseur, "Sud", 100);
-  civilisationLoueur = await civ(loueur, "Condottieri", 150);
+  const nord = await civ(attaquant, "Nord", 50);
+  const sud = await civ(defenseur, "Sud", 50);
+  civilisationLoueur = await civ(loueur, "Condottieri", 75);
   guerreId = (await apiPost("/guerres/declarer", attaquant.token, { title: `Guerre des lames ${suffixe}`, attaquant_id: nord, defenseur_id: sud })).guerre.id;
   await apiPut(`/guerres/${guerreId}/valider`, moderateur.token);
 });

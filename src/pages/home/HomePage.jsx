@@ -25,15 +25,21 @@ const books = [
   { icon: "fa-brands fa-discord", title: "Discord", description: "Rejoignez la communauté.", link: DISCORD_INVITE, color: "var(--color-neutral)", tilt: "-2deg", target: "_blank" },
 ];
 
-// Étapes du parcours, dans l'ordre de utils/parcours.js : la prochaine à faire devient le bouton principal du héros
+// Textes des étapes du parcours (ordre, numéros et chemins : utils/parcours.js) ; la prochaine à faire devient le bouton principal du héros
 const steps = {
   codex: { icon: "fa-solid fa-scroll", title: "Lisez le Codex", description: "Les règles du serveur et du rôle-play, à parcourir avant toute chose.", link: "/codex", action: "Lire le Codex" },
+  discord: { icon: "fa-brands fa-discord", title: "Candidatez sur le Discord", description: "Rejoignez le Discord et déposez votre candidature pour être ajouté à la whitelist du serveur.", link: DISCORD_INVITE, externe: true, action: "Candidater sur le Discord", complement: { icon: "fa-solid fa-file-signature", label: "Préparer ma candidature", link: "/aides#candidature" } },
+  serveur: { icon: "fa-solid fa-network-wired", title: "Rejoignez le serveur", description: <>Ajoutez l'adresse <b className="text-primary">{serverURL}</b> dans Minecraft Java.</>, action: "Copier l'IP du serveur" },
   compte: { icon: "fa-solid fa-user-plus", title: "Créez votre compte", description: "Inscrivez-vous en quelques secondes pour entrer dans l'histoire.", link: "/register", action: "Créer un compte" },
-  civilisation: { icon: "fa-solid fa-flag", title: "Fondez une civilisation ou rejoignez-en une", description: "Choisissez le peuple sous la bannière duquel vous jouerez.", link: "/civilisations", action: "Fonder ou rejoindre une civilisation" },
+  civilisation: { icon: "fa-solid fa-flag", title: "Fondez une civilisation ou rejoignez-en une", description: "Fondez la vôtre, ou demandez à rejoindre une civilisation existante depuis sa page.", link: "/civilisations", action: "Fonder ou rejoindre une civilisation" },
   personnage: { icon: "fa-solid fa-masks-theater", title: "Créez votre personnage", description: "Son nom, son espèce, sa ville : c'est lui qui signera vos récits.", link: "/personnages?nouveau=1", action: "Créer mon personnage" },
-  discord: { icon: "fa-brands fa-discord", title: "Candidatez sur le Discord", description: "Rejoignez le Discord et déposez votre candidature pour être ajouté à la whitelist du serveur.", link: DISCORD_INVITE, externe: true, action: "Candidater sur le Discord" },
-  serveur: { icon: "fa-solid fa-network-wired", title: "Rejoignez le serveur", description: <>Une fois sur la whitelist, ajoutez l'adresse <b className="text-primary">{serverURL}</b> dans Minecraft Java.</>, action: "Copier l'IP du serveur" },
 };
+
+// Les deux chemins du parcours après la candidature (branche des étapes dans utils/parcours.js)
+const BRANCHES = [
+  { id: "a", icon: "fa-solid fa-cube", titre: "En jeu", classe: "" },
+  { id: "b", icon: "fa-solid fa-globe", titre: "Sur le site", classe: "md:col-span-2" },
+];
 
 // Boutons secondaires du héros : discrets, pour ne pas concurrencer l'étape à faire
 const secondaryClass = "btn btn-ghost flex items-center gap-2 border border-neutral-content/40 text-neutral-content hover:bg-neutral-content/10";
@@ -47,7 +53,7 @@ export default function HomePage() {
 
 function AccueilSaison() {
   // Lu une fois au montage : la page est rechargée après connexion ou déconnexion
-  const { user, etapes, prochaine, chargement, copierIp, ouvrirDiscord } = useParcours();
+  const { user, etapes, aFaire, prochaine, chargement, copierIp, ouvrirDiscord } = useParcours();
   const faites = etapes.filter((etape) => etape.fait).length;
 
   return (
@@ -84,6 +90,12 @@ function AccueilSaison() {
                   Mon profil
                 </a>
               )}
+              {prochaine === "discord" && (
+                <a className={secondaryClass} href={steps.discord.complement.link}>
+                  <FontAwesomeIcon icon={steps.discord.complement.icon} />
+                  {steps.discord.complement.label}
+                </a>
+              )}
               {prochaine !== "codex" && (
                 <a className={secondaryClass} href="/codex">
                   <FontAwesomeIcon icon="fa-solid fa-scroll" />
@@ -107,37 +119,34 @@ function AccueilSaison() {
           {/* Appels aux armes et déclarations en attente du joueur connecté */}
           <ActionsEnAttente className="mb-12 -mt-6" />
 
-          {/* Parcours : étapes faites cochées, prochaine étape mise en avant */}
+          {/* Parcours : étapes faites cochées, étapes à faire mises en avant */}
           <section id="parcours" className="mb-12 scroll-mt-24">
             <h2 className="text-2xl font-bold mb-2 text-center">Votre parcours</h2>
             <p className="text-center opacity-70 mb-6">
               {prochaine === "termine"
                 ? "Parcours terminé : le monde vous attend. Bonne aventure !"
-                : `${faites} étape${faites > 1 ? "s" : ""} sur ${etapes.length}${prochaine ? ` · Prochaine étape : ${steps[prochaine].title}` : ""}`}
+                : `${faites} étape${faites > 1 ? "s" : ""} sur ${etapes.length}${aFaire.length ? ` · ${aFaire.length > 1 ? "Prochaines étapes" : "Prochaine étape"} : ${aFaire.map((id) => steps[id].title).join(" · ")}` : ""}`}
             </p>
-            <ul className="steps steps-vertical md:steps-horizontal w-full">
-              {etapes.map(({ id, fait }) => {
-                const step = steps[id];
-                const active = id === prochaine;
-                const Wrapper = step.link ? 'a' : 'div';
-                return (
-                  <li key={id} className={`step ${fait ? 'step-success' : active ? 'step-primary' : ''}`} data-content={fait ? '✓' : undefined}>
-                    <Wrapper
-                      {...(step.link ? { href: step.link } : {})}
-                      {...(step.externe ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                      {...(id === "discord" ? { onClick: ouvrirDiscord } : {})}
-                      className={`flex flex-col items-center gap-2 py-4 md:self-start ${step.link ? 'hover:opacity-80 transition-opacity' : ''} ${fait ? 'opacity-60' : ''}`}
-                    >
-                      {/* Pastille au-dessus de l'icône ; espace réservé sur les autres étapes pour garder les icônes alignées */}
-                      <span className={`badge badge-primary badge-sm ${active ? '' : 'invisible'}`} aria-hidden={!active}>À faire</span>
-                      <FontAwesomeIcon icon={step.icon} size="lg" className={fait ? 'text-success' : 'text-primary'} />
-                      <span className="font-semibold text-center">{step.title}</span>
-                      <span className="text-sm opacity-70 max-w-48 text-center">{step.description}</span>
-                    </Wrapper>
-                  </li>
-                );
-              })}
-            </ul>
+
+            <ListeEtapes etapes={etapes.filter((etape) => !etape.branche)} aFaire={aFaire} ouvrirDiscord={ouvrirDiscord} className="grid max-w-2xl mx-auto" />
+
+            <div className="divider my-6 text-sm font-semibold">
+              <FontAwesomeIcon icon="fa-solid fa-circle-check" className="text-success" />
+              Après la validation de votre candidature
+            </div>
+            <p className="text-center text-sm opacity-70 -mt-2 mb-6">Deux chemins à suivre en parallèle, dans l'ordre que vous voulez.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {BRANCHES.map((branche) => (
+                <div key={branche.id} className={`flex flex-col gap-1 bg-base-200 rounded-3xl p-4 ${branche.classe}`}>
+                  <h3 className="flex items-center justify-center gap-2 font-bold">
+                    <FontAwesomeIcon icon={branche.icon} className="text-secondary" />
+                    {branche.titre}
+                  </h3>
+                  <ListeEtapes etapes={etapes.filter((etape) => etape.branche === branche.id)} aFaire={aFaire} ouvrirDiscord={ouvrirDiscord} />
+                </div>
+              ))}
+            </div>
           </section>
 
           {/* Étagère interactive */}
@@ -164,6 +173,44 @@ function AccueilSaison() {
       </div>
     </>
   )
+}
+
+// Une rangée d'étapes : la pastille porte l'icône de l'étape, puis ✓ une fois faite
+function ListeEtapes({ etapes, aFaire, ouvrirDiscord, className = "" }) {
+  return (
+    <ul className={`steps steps-vertical md:steps-horizontal w-full ${className}`}>
+      {etapes.map(({ id, fait }) => {
+        const step = steps[id];
+        const active = aFaire.includes(id);
+        const Wrapper = step.link ? 'a' : 'div';
+        return (
+          <li key={id} className={`step ${fait ? 'step-success' : active ? 'step-primary' : ''}`} data-content={fait ? '✓' : undefined}>
+            {!fait ? <span className="step-icon"><FontAwesomeIcon icon={step.icon} /></span> : null}
+            {/* Le lien de l'étape, puis son éventuel lien complémentaire (deux liens côte à côte, jamais imbriqués) */}
+            <div className="flex flex-col items-center gap-2 py-4 md:self-start">
+              <Wrapper
+                {...(step.link ? { href: step.link } : {})}
+                {...(step.externe ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                {...(id === "discord" ? { onClick: ouvrirDiscord } : {})}
+                className={`flex flex-col items-center gap-2 ${step.link ? 'hover:opacity-80 transition-opacity' : ''} ${fait ? 'opacity-60' : ''}`}
+              >
+                {/* Pastille « À faire » ; espace réservé sur les autres étapes pour garder les titres alignés */}
+                <span className={`badge badge-primary badge-sm ${active ? '' : 'invisible'}`} aria-hidden={!active}>À faire</span>
+                <span className="font-semibold text-center">{step.title}</span>
+                <span className="text-sm opacity-70 max-w-48 text-center">{step.description}</span>
+              </Wrapper>
+              {step.complement ? (
+                <a href={step.complement.link} className="btn btn-xs btn-outline btn-primary">
+                  <FontAwesomeIcon icon={step.complement.icon} />
+                  {step.complement.label}
+                </a>
+              ) : null}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
 }
 
 // Bouton principal du héros : la prochaine étape du parcours, ou le profil une fois tout fait

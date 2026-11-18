@@ -41,6 +41,8 @@ test.beforeAll(async () => {
   dimensionId = dimension?.id ?? 1;
   ({ civilisationId, villeId } = await civilisationAvecVille(fondateur, "Royaume"));
   aldric = (await apiPost("/personnages/create", fondateur.token, { name: `Aldric ${suffixe}`, civilisation_id: civilisationId })).personnage;
+  // Seul un membre installe un personnage dans une civilisation
+  await apiPost(`/civilisations/members/${civilisationId}/add`, fondateur.token, { user_id: electeur.user.id, role: "Membre" });
   brune = (await apiPost("/personnages/create", electeur.token, { name: `Brune ${suffixe}`, civilisation_id: civilisationId })).personnage;
 });
 
@@ -145,6 +147,7 @@ test("au dépouillement, l'élu prend le poste et le résultat entre dans les ch
 
 test("sans majorité absolue, un second tour départage les deux premiers ; le vote public publie les bulletins", async () => {
   const tiers = await createSession("tiers");
+  await apiPost(`/civilisations/members/${civilisationId}/add`, fondateur.token, { user_id: tiers.user.id, role: "Membre" });
   const clovis = (await apiPost("/personnages/create", tiers.token, { name: `Clovis ${suffixe}`, civilisation_id: civilisationId })).personnage;
   const { scrutin } = await apiPost("/elections", fondateur.token, { title: `Conseil ${suffixe}`, entity_type: "civilisation", entity_id: civilisationId, mode: "public", deux_tours: true, vote_debut: iso(60), vote_fin: iso(120) });
   for (const [session, personnage] of [[fondateur, aldric], [electeur, brune], [tiers, clovis]]) {

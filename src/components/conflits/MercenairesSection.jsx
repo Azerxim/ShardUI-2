@@ -62,7 +62,7 @@ const compagnieFields = (villes = null) => [
         name: 'ville_id', label: 'Ville de recrutement', type: 'select', required: true,
         options: villes.map((ville) => ({ value: ville.id, label: `${ville.title} (${plural(ville.disponibles, 'soldat disponible', 'soldats disponibles')})` })),
         empty: 'Cette civilisation n\'a aucune ville où recruter.',
-        help: 'Ses soldats sont pris sur l\'armée autorisée de la ville (un pour dix habitants), comme les troupes levées en guerre.',
+        help: 'Ses soldats sont pris sur l\'armée autorisée de la ville (un pour cinq habitants), comme les troupes levées en guerre.',
     }] : []),
     { name: 'title', label: 'Nom de la compagnie', type: 'text', required: true, placeholder: 'Les Lames grises, compagnie du Corbeau…' },
     { name: 'effectif', label: 'Effectif', type: 'number', required: true },

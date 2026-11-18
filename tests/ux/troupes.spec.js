@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { API_URL, apiGet, apiPost, blockExternalRequests, createSession, makeModerateur, readAlert, signIn, uniqueSuffix } from "./helpers.js";
 
-// Troupes d'une guerre : levées ville par ville (un soldat pour dix habitants, toutes guerres en cours confondues),
+// Troupes d'une guerre : levées ville par ville (un soldat pour cinq habitants, toutes guerres en cours confondues),
 // toujours sur un champ de bataille (zone de conflit de la guerre) ou en mouvement ; chaque camp ne voit que les siennes.
 test.describe.configure({ mode: "serial" });
 
@@ -34,7 +34,7 @@ test.beforeAll(async () => {
   const camp = async (session, nom, x) => {
     const civilisationId = (await apiPost("/civilisations/create", session.token, { title: `${nom} ${suffixe}`, is_public: true })).civilisation.id;
     const ville = await apiPost("/civilisations/villes/create", session.token, {
-      title: `Bourg de ${nom} ${suffixe}`, civilisation_id: civilisationId, dimension_id: dimensionId, x, z: 0, population: 125, is_capital: true, is_public: true,
+      title: `Bourg de ${nom} ${suffixe}`, civilisation_id: civilisationId, dimension_id: dimensionId, x, z: 0, population: 62, // 62 // 5 = 12 soldats is_capital: true, is_public: true,
     });
     return { civilisationId, ville };
   };

@@ -63,6 +63,7 @@ import { definition as fasChild } from "@fortawesome/free-solid-svg-icons/faChil
 import { definition as fasCircleCheck } from "@fortawesome/free-solid-svg-icons/faCircleCheck";
 import { definition as fasCircleInfo } from "@fortawesome/free-solid-svg-icons/faCircleInfo";
 import { definition as fasCircleQuestion } from "@fortawesome/free-solid-svg-icons/faCircleQuestion";
+import { definition as fasCircleXmark } from "@fortawesome/free-solid-svg-icons/faCircleXmark";
 import { definition as fasCity } from "@fortawesome/free-solid-svg-icons/faCity";
 import { definition as fasClock } from "@fortawesome/free-solid-svg-icons/faClock";
 import { definition as fasClockRotateLeft } from "@fortawesome/free-solid-svg-icons/faClockRotateLeft";
@@ -76,9 +77,11 @@ import { definition as fasCow } from "@fortawesome/free-solid-svg-icons/faCow";
 import { definition as fasCross } from "@fortawesome/free-solid-svg-icons/faCross";
 import { definition as fasCrosshairs } from "@fortawesome/free-solid-svg-icons/faCrosshairs";
 import { definition as fasCrown } from "@fortawesome/free-solid-svg-icons/faCrown";
+import { definition as fasCube } from "@fortawesome/free-solid-svg-icons/faCube";
 import { definition as fasCubes } from "@fortawesome/free-solid-svg-icons/faCubes";
 import { definition as fasDna } from "@fortawesome/free-solid-svg-icons/faDna";
 import { definition as fasDove } from "@fortawesome/free-solid-svg-icons/faDove";
+import { definition as fasDownload } from "@fortawesome/free-solid-svg-icons/faDownload";
 import { definition as fasDragon } from "@fortawesome/free-solid-svg-icons/faDragon";
 import { definition as fasDrawPolygon } from "@fortawesome/free-solid-svg-icons/faDrawPolygon";
 import { definition as fasDungeon } from "@fortawesome/free-solid-svg-icons/faDungeon";
@@ -88,6 +91,7 @@ import { definition as fasEllipsisVertical } from "@fortawesome/free-solid-svg-i
 import { definition as fasEnvelope } from "@fortawesome/free-solid-svg-icons/faEnvelope";
 import { definition as fasEnvelopeCircleCheck } from "@fortawesome/free-solid-svg-icons/faEnvelopeCircleCheck";
 import { definition as fasEnvelopeOpenText } from "@fortawesome/free-solid-svg-icons/faEnvelopeOpenText";
+import { definition as fasEraser } from "@fortawesome/free-solid-svg-icons/faEraser";
 import { definition as fasExpand } from "@fortawesome/free-solid-svg-icons/faExpand";
 import { definition as fasEye } from "@fortawesome/free-solid-svg-icons/faEye";
 import { definition as fasEyeSlash } from "@fortawesome/free-solid-svg-icons/faEyeSlash";
@@ -125,6 +129,7 @@ import { definition as fasHouseCrack } from "@fortawesome/free-solid-svg-icons/f
 import { definition as fasHouseFlag } from "@fortawesome/free-solid-svg-icons/faHouseFlag";
 import { definition as fasIdCard } from "@fortawesome/free-solid-svg-icons/faIdCard";
 import { definition as fasImage } from "@fortawesome/free-solid-svg-icons/faImage";
+import { definition as fasImages } from "@fortawesome/free-solid-svg-icons/faImages";
 import { definition as fasInbox } from "@fortawesome/free-solid-svg-icons/faInbox";
 import { definition as fasItalic } from "@fortawesome/free-solid-svg-icons/faItalic";
 import { definition as fasKey } from "@fortawesome/free-solid-svg-icons/faKey";
@@ -134,6 +139,7 @@ import { definition as fasLandmarkFlag } from "@fortawesome/free-solid-svg-icons
 import { definition as fasLanguage } from "@fortawesome/free-solid-svg-icons/faLanguage";
 import { definition as fasLayerGroup } from "@fortawesome/free-solid-svg-icons/faLayerGroup";
 import { definition as fasLifeRing } from "@fortawesome/free-solid-svg-icons/faLifeRing";
+import { definition as fasLightbulb } from "@fortawesome/free-solid-svg-icons/faLightbulb";
 import { definition as fasLink } from "@fortawesome/free-solid-svg-icons/faLink";
 import { definition as fasLinkSlash } from "@fortawesome/free-solid-svg-icons/faLinkSlash";
 import { definition as fasList } from "@fortawesome/free-solid-svg-icons/faList";
@@ -156,7 +162,9 @@ import { definition as fasMusic } from "@fortawesome/free-solid-svg-icons/faMusi
 import { definition as fasNetworkWired } from "@fortawesome/free-solid-svg-icons/faNetworkWired";
 import { definition as fasNewspaper } from "@fortawesome/free-solid-svg-icons/faNewspaper";
 import { definition as fasPalette } from "@fortawesome/free-solid-svg-icons/faPalette";
+import { definition as fasPaperPlane } from "@fortawesome/free-solid-svg-icons/faPaperPlane";
 import { definition as fasPaperclip } from "@fortawesome/free-solid-svg-icons/faPaperclip";
+import { definition as fasPause } from "@fortawesome/free-solid-svg-icons/faPause";
 import { definition as fasPaw } from "@fortawesome/free-solid-svg-icons/faPaw";
 import { definition as fasPen } from "@fortawesome/free-solid-svg-icons/faPen";
 import { definition as fasPenNib } from "@fortawesome/free-solid-svg-icons/faPenNib";
@@ -170,6 +178,7 @@ import { definition as fasPersonRunning } from "@fortawesome/free-solid-svg-icon
 import { definition as fasPersonWalking } from "@fortawesome/free-solid-svg-icons/faPersonWalking";
 import { definition as fasPersonWalkingArrowRight } from "@fortawesome/free-solid-svg-icons/faPersonWalkingArrowRight";
 import { definition as fasPlaceOfWorship } from "@fortawesome/free-solid-svg-icons/faPlaceOfWorship";
+import { definition as fasPlay } from "@fortawesome/free-solid-svg-icons/faPlay";
 import { definition as fasPlus } from "@fortawesome/free-solid-svg-icons/faPlus";
 import { definition as fasQuestion } from "@fortawesome/free-solid-svg-icons/faQuestion";
 import { definition as fasQuoteLeft } from "@fortawesome/free-solid-svg-icons/faQuoteLeft";
@@ -201,6 +210,7 @@ import { definition as fasStore } from "@fortawesome/free-solid-svg-icons/faStor
 import { definition as fasStrikethrough } from "@fortawesome/free-solid-svg-icons/faStrikethrough";
 import { definition as fasSun } from "@fortawesome/free-solid-svg-icons/faSun";
 import { definition as fasTable } from "@fortawesome/free-solid-svg-icons/faTable";
+import { definition as fasTableCellsLarge } from "@fortawesome/free-solid-svg-icons/faTableCellsLarge";
 import { definition as fasTableColumns } from "@fortawesome/free-solid-svg-icons/faTableColumns";
 import { definition as fasTags } from "@fortawesome/free-solid-svg-icons/faTags";
 import { definition as fasTents } from "@fortawesome/free-solid-svg-icons/faTents";
@@ -289,6 +299,7 @@ export default [
     fasCircleCheck,
     fasCircleInfo,
     fasCircleQuestion,
+    fasCircleXmark,
     fasCity,
     fasClock,
     fasClockRotateLeft,
@@ -302,9 +313,11 @@ export default [
     fasCross,
     fasCrosshairs,
     fasCrown,
+    fasCube,
     fasCubes,
     fasDna,
     fasDove,
+    fasDownload,
     fasDragon,
     fasDrawPolygon,
     fasDungeon,
@@ -314,6 +327,7 @@ export default [
     fasEnvelope,
     fasEnvelopeCircleCheck,
     fasEnvelopeOpenText,
+    fasEraser,
     fasExpand,
     fasEye,
     fasEyeSlash,
@@ -351,6 +365,7 @@ export default [
     fasHouseFlag,
     fasIdCard,
     fasImage,
+    fasImages,
     fasInbox,
     fasItalic,
     fasKey,
@@ -360,6 +375,7 @@ export default [
     fasLanguage,
     fasLayerGroup,
     fasLifeRing,
+    fasLightbulb,
     fasLink,
     fasLinkSlash,
     fasList,
@@ -382,7 +398,9 @@ export default [
     fasNetworkWired,
     fasNewspaper,
     fasPalette,
+    fasPaperPlane,
     fasPaperclip,
+    fasPause,
     fasPaw,
     fasPen,
     fasPenNib,
@@ -396,6 +414,7 @@ export default [
     fasPersonWalking,
     fasPersonWalkingArrowRight,
     fasPlaceOfWorship,
+    fasPlay,
     fasPlus,
     fasQuestion,
     fasQuoteLeft,
@@ -427,6 +446,7 @@ export default [
     fasStrikethrough,
     fasSun,
     fasTable,
+    fasTableCellsLarge,
     fasTableColumns,
     fasTags,
     fasTents,

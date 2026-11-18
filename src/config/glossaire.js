@@ -35,7 +35,7 @@ export const GLOSSAIRE = {
     },
     population: {
         terme: "Population officielle",
-        definition: "Lits habités comptés dans la ville au dernier relevé du monde, plus les écarts motivés (réfugiés, épidémie…) acceptés par un modérateur RP. La civilisation additionne ses villes, et lève au plus un soldat pour dix habitants.",
+        definition: "Lits habités comptés dans la ville au dernier relevé du monde, plus les écarts motivés (réfugiés, épidémie…) acceptés par un modérateur RP. La civilisation additionne ses villes, et lève au plus un soldat pour cinq habitants.",
     },
     commerciale: {
         terme: "Zone commerciale",
@@ -55,7 +55,7 @@ export const GLOSSAIRE = {
     },
     troupe: {
         terme: "Troupe",
-        definition: "Soldats levés dans une ville par une civilisation engagée dans une guerre, au plus un pour dix habitants de la ville, toutes guerres confondues. Une troupe est toujours sur un champ de bataille (une zone de conflit de la guerre) ou en mouvement. Seuls son camp et les modérateurs RP la voient avant la fin de la guerre.",
+        definition: "Soldats levés dans une ville par une civilisation engagée dans une guerre, au plus un pour cinq habitants de la ville, toutes guerres confondues. Une troupe est toujours sur un champ de bataille (une zone de conflit de la guerre) ou en mouvement. Seuls son camp et les modérateurs RP la voient avant la fin de la guerre.",
     },
     mercenaire: {
         terme: "Compagnie de mercenaires",

@@ -78,6 +78,8 @@ test("l'administrateur inscrit n'importe quel personnage, un joueur seulement le
 test("l'administrateur choisit parmi tous les personnages pour une action, une candidature ou un poste", async () => {
   const fondateur = await createSession("baron");
   const civilisation = (await apiPost("/civilisations/create", fondateur.token, { title: `Baronnie ${suffixe}`, is_public: true })).civilisation;
+  // Seul un membre installe un personnage dans une civilisation
+  await apiPost(`/civilisations/members/${civilisation.id}/add`, fondateur.token, { user_id: joueur.user.id, role: "Membre" });
   const resident = (await apiPost("/personnages/create", joueur.token, { name: `Résidente ${suffixe}`, civilisation_id: civilisation.id })).personnage;
 
   // Action secrète au nom du personnage d'un autre joueur

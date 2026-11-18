@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { apiGet, apiPost, blockExternalRequests, createSession, signIn, uniqueSuffix } from "./helpers.js";
 
-// Aides et utilitaires : guides, commandes et outils (Nether, tetras, distance entre villes, fiche Discord).
+// Aides et utilitaires : guides, commandes et outils (accueil des outils, candidature, Nether, tetras, distance
+// entre villes, fiche Discord).
 test.describe.configure({ mode: "serial" });
 
 let joueur;
@@ -36,12 +37,12 @@ test("la page range guides, commandes et outils en onglets, et se trouve depuis 
   await expect(page).toHaveURL(/\/aides#commandes$/);
   // Flèches du clavier d'un onglet à l'autre
   await page.keyboard.press("ArrowRight");
-  await expect(main(page).getByRole("tab", { name: "Outils" })).toBeFocused();
-  await expect(main(page).getByRole("tab", { name: "Outils" })).toHaveAttribute("aria-selected", "true");
+  await expect(main(page).getByRole("tab", { name: "Outils", exact: true })).toBeFocused();
+  await expect(main(page).getByRole("tab", { name: "Outils", exact: true })).toHaveAttribute("aria-selected", "true");
 
   // Sans ancre dans l'adresse, la page revient au dernier onglet ouvert
   await page.goto("/aides");
-  await expect(main(page).getByRole("tab", { name: "Outils" })).toHaveAttribute("aria-selected", "true");
+  await expect(main(page).getByRole("tab", { name: "Outils", exact: true })).toHaveAttribute("aria-selected", "true");
 
   // Une ancre intérieure ouvre son onglet : le lien du guide vers la fiche Discord
   await main(page).getByRole("tab", { name: "Guides" }).click();
@@ -50,9 +51,84 @@ test("la page range guides, commandes et outils en onglets, et se trouve depuis 
   await expect(page.locator(".navbar").getByRole("link", { name: "Aides et utilitaires" })).toHaveAttribute("aria-current", "page");
 });
 
-test("les coordonnées passent de la surface au Nether, et inversement", async ({ page }) => {
+test("l'onglet Outils présente chaque outil, puis l'ouvre dans son propre onglet", async ({ page }) => {
   await blockExternalRequests(page);
   await page.goto("/aides#outils");
+  const accueil = main(page).getByRole("tabpanel", { name: "Tous les outils" });
+  for (const titre of ["Aide à la candidature", "Coordonnées du Nether", "Tetras, diamants et blocs", "Distance et temps de trajet", "Fiche de personnage pour Discord", "Cabine photo"]) {
+    await expect(accueil.getByRole("link", { name: new RegExp(titre) })).toBeVisible();
+  }
+  // La carte ouvre l'outil, seul dans son onglet, et l'adresse suit
+  await accueil.getByRole("link", { name: /Coordonnées du Nether/ }).click();
+  await expect(page).toHaveURL(/\/aides#nether$/);
+  await expect(main(page).getByRole("tab", { name: "Nether" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.locator("#nether")).toBeVisible();
+  await expect(page.locator("#tetras")).toBeHidden();
+  await expect(accueil).toBeHidden();
+  // Flèches du clavier d'un outil à l'autre
+  await main(page).getByRole("tab", { name: "Nether" }).focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(main(page).getByRole("tab", { name: "Trajets" })).toBeFocused();
+  await expect(page.locator("#distance")).toBeVisible();
+  await expect(page).toHaveURL(/\/aides#distance$/);
+  // Retour à l'accueil des outils
+  await main(page).getByRole("tab", { name: "Tous les outils" }).click();
+  await expect(page).toHaveURL(/\/aides#outils$/);
+  await expect(accueil).toBeVisible();
+});
+
+test("l'aide à la candidature, ouverte depuis l'accueil, prépare des réponses à copier et garde le brouillon", async ({ page, context }) => {
+  await blockExternalRequests(page);
+  // playerdb.co : un compte Java trouvé pour « heraut », aucun pour les autres pseudos
+  await page.route(/playerdb\.co\/api\/player\/minecraft\//, (route) => (/\/heraut$/i.test(route.request().url())
+    ? route.fulfill({ json: { code: "player.found", data: { player: { username: "Heraut", id: "069a79f4-44e9-4726-a5be-fca90e38aaf5" } } } })
+    : route.fulfill({ status: 400, json: { code: "minecraft.invalid_username" } })));
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+
+  // Le parcours de l'accueil y mène depuis l'étape « Candidatez sur le Discord »
+  await page.goto("/");
+  await expect(page.locator("#parcours").getByRole("link", { name: "Préparer ma candidature" })).toHaveAttribute("href", "/aides#candidature");
+  await page.goto("/aides#candidature");
+  const outil = page.locator("#candidature");
+  await expect(outil).toBeVisible();
+
+  // Pseudo vérifié, avec l'écriture exacte du compte proposée
+  await outil.getByLabel("Pseudo Minecraft (Java)").fill("inconnu_42");
+  await outil.getByRole("button", { name: "Vérifier" }).click();
+  await expect(outil).toContainText("Aucun compte Minecraft Java à ce nom");
+  await outil.getByLabel("Pseudo Minecraft (Java)").fill("heraut");
+  await outil.getByRole("button", { name: "Vérifier" }).click();
+  await expect(outil).toContainText("Compte Java trouvé : Heraut");
+  await outil.getByRole("button", { name: "Reprendre cette écriture" }).click();
+  await expect(outil.getByLabel("Pseudo Minecraft (Java)")).toHaveValue("Heraut");
+
+  await outil.getByRole("radio", { name: "Oui" }).click();
+  await expect(outil.getByRole("radio", { name: "Oui" })).toHaveAttribute("aria-checked", "true");
+
+  // Expérience, projet et personnage forment une seule réponse ; expérience et projet d'abord
+  const projet = outil.locator("article", { hasText: "Votre expérience du RP, ce que vous voulez faire" });
+  await projet.getByRole("button", { name: "Commerce" }).click();
+  await projet.getByLabel("Précisez votre projet").fill("ouvrir une forge");
+  await expect(projet).toContainText("Complétez d'abord votre expérience et votre projet");
+  await projet.getByLabel("Votre expérience du RP").fill("Deux ans sur un serveur médiéval.");
+  await expect(projet).not.toContainText("Complétez d'abord");
+  // Une trame laissée vide ne compte pas dans la réponse
+  await projet.getByRole("button", { name: "Partir d'une trame" }).click();
+  await projet.getByRole("button", { name: "Copier" }).click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("Expérience du RP : Deux ans sur un serveur médiéval.\n\nSur Tetrago : Commerce : ouvrir une forge");
+  await expect(outil).toContainText("3 réponses sur 4");
+
+  // Le brouillon survit au rechargement
+  await page.reload();
+  await expect(outil.getByLabel("Pseudo Minecraft (Java)")).toHaveValue("Heraut");
+  await expect(projet.getByRole("button", { name: "Commerce" })).toHaveAttribute("aria-pressed", "true");
+  await expect(outil.getByRole("radio", { name: "Oui" })).toHaveAttribute("aria-checked", "true");
+  await expect(outil.getByRole("link", { name: "Postuler sur le Discord" })).toHaveAttribute("href", /^https:\/\/discord\.gg\//);
+});
+
+test("les coordonnées passent de la surface au Nether, et inversement", async ({ page }) => {
+  await blockExternalRequests(page);
+  await page.goto("/aides#nether");
   const outil = page.locator("#nether");
   const surface = outil.getByRole("group", { name: "Surface" });
   const nether = outil.getByRole("group", { name: "Nether" });
@@ -66,7 +142,7 @@ test("les coordonnées passent de la surface au Nether, et inversement", async (
 
 test("un montant en tetras se répartit en blocs et diamants", async ({ page }) => {
   await blockExternalRequests(page);
-  await page.goto("/aides#outils");
+  await page.goto("/aides#tetras");
   const outil = page.locator("#tetras");
   await outil.getByLabel("Montant en tetras").fill("100");
   await expect(outil.getByLabel("Blocs de diamant")).toHaveValue("11");
@@ -78,7 +154,7 @@ test("un montant en tetras se répartit en blocs et diamants", async ({ page }) 
 
 test("la distance entre deux villes publiques donne les temps de trajet", async ({ page }) => {
   await blockExternalRequests(page);
-  await page.goto("/aides#outils");
+  await page.goto("/aides#distance");
   const outil = page.locator("#distance");
   const depart = outil.getByRole("combobox", { name: "Départ" });
   await expect(depart.locator("option", { hasText: `Aval ${suffixe}` })).toHaveCount(1);

@@ -107,6 +107,7 @@ test("le personnage prend le skin du compte Minecraft lié", async ({ browser })
   linkPlatform(joueur.user.id, "microsoft", `mc${suffix}`);
   await page.reload();
   expect(await modifier()).toMatch(/mis à jour/);
+  // Requêtes externes bloquées : la texture du rendu 3D (SkinViewer3D) ne se charge pas, la fiche montre le rendu 2D
   await expect(main(page).getByRole("img", { name: `Skin Minecraft de ${nom}` })).toHaveAttribute("src", new RegExp(`mc-heads\\.net/body/mc${suffix}`));
   await context.close();
 });

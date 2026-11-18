@@ -598,6 +598,14 @@ export const getAlliancesOfCivilisation = (civilisationId) => publicGet(`/allian
 
 export const getMesInvitationsAlliances = () => apiRequest("GET", "/alliances/invitations/mine");
 
+// Demandes d'adhésion à une civilisation (Shard-API crud_adhesions) : le joueur demande, les dirigeants répondent
+// [{ id, civilisation_id, civilisation, user_id, username, message, status, created_at }]
+export const getMesDemandesAdhesion = () => apiRequest("GET", "/civilisations/demandes/mine");
+export const getDemandesAdhesion = (civilisationId) => apiRequest("GET", `/civilisations/demandes/${civilisationId}/list`);
+export const demanderAdhesion = (civilisationId, message) => apiRequest("POST", `/civilisations/demandes/${civilisationId}`, { message: message || null });
+export const repondreDemandeAdhesion = (demandeId, accepter) => apiRequest("PUT", `/civilisations/demandes/${demandeId}/repondre`, { accepter });
+export const retirerDemandeAdhesion = (demandeId) => apiRequest("DELETE", `/civilisations/demandes/${demandeId}`);
+
 // [{ guerre, camps: { attaquant, defenseur }, declarant, moderateur }] — guerres validées uniquement
 export const getGuerres = () => publicGet("/guerres/list");
 

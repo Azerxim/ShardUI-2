@@ -16,6 +16,7 @@ import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
 import InfoLine from "@/components/ui/InfoLine";
 import JoinHint from "@/components/membres/JoinHint";
+import DemandesAdhesion from "@/components/membres/DemandesAdhesion";
 import ConflictsSection from "@/components/conflits/ConflictsSection";
 import MercenairesSection from "@/components/conflits/MercenairesSection";
 import ResidentsSection from "@/components/civilisations/ResidentsSection";
@@ -284,6 +285,9 @@ export default function CivilisationPage() {
                     <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
                     <MarkdownTextEditor value={civilisation.description || 'Aucune description'} />
 
+                    <TitleH2 text="Histoire" icon="fas fa-book" />
+                    <DescriptionLongue type="civilisation" id={civilisation.id} auth={auth} />
+
                 <TitleH2 text="Villes" icon="fas fa-city" fonctions={FctVilles} aide="ville" />
                 {villes.length === 0 ? (
                     <EtatVide
@@ -320,8 +324,6 @@ export default function CivilisationPage() {
 
                     <ElectionsSection entityType="civilisation" entityId={civilisation.id} peutOrganiser={auth} villes={villes} derniersClos={2} />
 
-                    <DescriptionLongue type="civilisation" id={civilisation.id} auth={auth} />
-
                 <TitleH2 text="Membres" icon="fas fa-users" fonctions={FctMembers} />
                 <div className="flex flex-col w-full">
                     {sortedMembers.length > 0 ? (
@@ -340,9 +342,17 @@ export default function CivilisationPage() {
                         <i>Aucun membre pour cette civilisation.</i>
                     )}
                 </div>
-                <JoinHint members={members} entity="cette civilisation" />
+                <JoinHint members={members} entity="cette civilisation" civilisationId={civilisation.id} />
+                {auth ? (
+                    // Accepter une demande ajoute un Membre : la liste des membres est relue
+                    <DemandesAdhesion
+                        civilisationId={civilisation.id}
+                        onAccepte={() => getCivilisationById(id).then((data) => updateMembers(data.members ?? [])).catch(() => { })}
+                    />
+                ) : null}
 
-                    <ResidentsSection type="civilisation" id={civilisation.id} creation />
+                    {/* Seuls ses membres (et les administrateurs) installent un personnage dans la civilisation */}
+                    <ResidentsSection type="civilisation" id={civilisation.id} creation={Boolean(user?.is_admin || members.some((member) => member.user_id === user?.id))} />
 
                     <MercenairesSection civilisationId={civilisation.id} />
 
@@ -364,10 +374,10 @@ export default function CivilisationPage() {
                         <Stat icon="fa-solid fa-users" label={members.length > 1 ? "Membres" : "Membre"} value={members.length} />
                         <Stat icon="fa-solid fa-city" label={villes.length > 1 ? "Villes" : "Ville"} value={villes.length} />
                         <Stat icon="fa-solid fa-people-group" label="Population officielle" value={population.toLocaleString('fr-FR')} />
-                        {/* Codex, Art. II.5.1 : un soldat pour dix habitants de la population officielle. Infobulle sur grand écran
+                        {/* Codex, Art. II.5.1 : un soldat pour cinq habitants de la population officielle. Infobulle sur grand écran
                             seulement : sur téléphone, la bulle débordait de l'écran */}
-                        <a href="/codex#guerres-1" className="rounded-2xl hover:ring-2 hover:ring-primary lg:tooltip" data-tip={`Un soldat pour ${populationOfficielle?.habitants_par_soldat ?? 10} habitants (Codex, Art. II.5.1)`}>
-                            <Stat icon="fa-solid fa-chess-knight" label="Armée autorisée" value={`${(populationOfficielle?.armee ?? Math.floor(population / 10)).toLocaleString('fr-FR')} soldats`} />
+                        <a href="/codex#guerres-1" className="rounded-2xl hover:ring-2 hover:ring-primary lg:tooltip" data-tip={`Un soldat pour ${populationOfficielle?.habitants_par_soldat ?? 5} habitants (Codex, Art. II.5.1)`}>
+                            <Stat icon="fa-solid fa-chess-knight" label="Armée autorisée" value={`${(populationOfficielle?.armee ?? Math.floor(population / 5)).toLocaleString('fr-FR')} soldats`} />
                         </a>
                         <Stat icon="fa-solid fa-book" label={livres.length > 1 ? "Livres" : "Livre"} value={livres.length} />
                     </div>

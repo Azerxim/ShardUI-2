@@ -1,4 +1,5 @@
 import { DISCORD_INVITE } from "@/utils/parcours";
+import { MONNAIE } from "@/config/monnaie";
 
 // ===== Aides et utilitaires =====
 // Contenu de la page /aides (pages/aides/AidesPage.jsx) : guides pas à pas, rappel des commandes du serveur,
@@ -11,6 +12,7 @@ export const GUIDES = [
         titre: "Rejoindre le serveur",
         icon: "fa-brands fa-discord",
         etapes: [
+            { texte: "Préparez votre candidature : les questions du formulaire, des conseils et vos réponses prêtes à copier.", lien: "/aides#candidature", libelle: "Aide à la candidature" },
             { texte: "Rejoignez le Discord et déposez votre candidature : elle seule ouvre la whitelist.", lien: DISCORD_INVITE, libelle: "Discord" },
             { texte: "Lisez le Codex : la loi du serveur et les règles du rôle-play.", lien: "/codex", libelle: "Codex" },
             { texte: "Une fois accepté, connectez-vous au site avec Discord et liez votre compte Minecraft depuis votre profil.", lien: "/profil", libelle: "Profil" },
@@ -108,3 +110,102 @@ export const TAILLE_PILE = 64;
 
 // Longueur maximale d'un message Discord
 export const LIMITE_DISCORD = 2000;
+
+// ===== Outils =====
+// Accueil de l'onglet « Outils » (pages/aides/AidesPage.jsx) : les outils rangés par usage, chacun expliqué.
+// L'id est l'ancre de l'outil (/aides#nether) et celle de sa section (components/aides/).
+export const OUTILS = [
+    {
+        id: "candidature", onglet: "Candidature", icon: "fa-solid fa-file-signature", titre: "Aide à la candidature",
+        resume: "Préparez à tête reposée les réponses du formulaire « Postuler pour rejoindre » du Discord, puis copiez-les une à une.",
+        details: ["Les questions du formulaire, avec ce que l'équipe y regarde", "Vérification de votre pseudo Minecraft Java", "Brouillon gardé dans ce navigateur"],
+    },
+    {
+        id: "cabine-photo", onglet: "Cabine photo", icon: "fa-solid fa-camera", titre: "Cabine photo",
+        resume: "Le portrait 3D d'un skin Minecraft, tête et corps entier, à faire pivoter puis à enregistrer en PNG.",
+        details: ["D'après un UUID, un pseudo ou un fichier de skin", "Fond transparent ou coloré, jusqu'à 2048 pixels"],
+    },
+    {
+        id: "nether", onglet: "Nether", icon: "fa-solid fa-dungeon", titre: "Coordonnées du Nether",
+        resume: "Où construire le portail de l'autre côté : saisissez les coordonnées d'un côté, l'autre se remplit.",
+        details: [`Un bloc du Nether vaut ${RAPPORT_NETHER} blocs de la surface`, "Dans les deux sens, en X comme en Z"],
+    },
+    {
+        id: "distance", onglet: "Trajets", icon: "fa-solid fa-route", titre: "Distance et temps de trajet",
+        resume: "La distance entre deux villes de la carte, ou deux points saisis, et le temps pour s'y rendre.",
+        details: ["À pied, à cheval, en bateau ou par le Nether", "En temps réel et en temps RP"],
+    },
+    {
+        id: "tetras", onglet: "Tetras", icon: MONNAIE.icon, titre: "Tetras, diamants et blocs",
+        resume: "Combien sortir du coffre pour payer un montant, ou ce que vaut votre bourse.",
+        details: [MONNAIE.valeur, MONNAIE.equivalence],
+    },
+    {
+        id: "fiche-discord", onglet: "Fiche Discord", icon: "fa-brands fa-discord", titre: "Fiche de personnage pour Discord",
+        resume: "La fiche d'un de vos personnages mise en forme pour un message Discord, avec le lien vers sa page.",
+        details: ["Nécessite d'être connecté et d'avoir un personnage"],
+    },
+];
+
+export const GROUPES_OUTILS = [
+    { id: "demarrer", titre: "Pour bien démarrer", icon: "fa-solid fa-signs-post", outils: ["candidature"] },
+    { id: "jeu", titre: "En jeu", icon: "fa-solid fa-cube", outils: ["nether", "distance", "tetras"] },
+    { id: "personnages", titre: "Pour vos personnages", icon: "fa-solid fa-masks-theater", outils: ["fiche-discord", "cabine-photo"] },
+];
+
+// ===== Candidature =====
+// Le formulaire « Postuler pour rejoindre » du Discord (STRUCTURE_DISCORD.md, § 1) : ses règles et ses questions,
+// à tenir à jour si le formulaire change. `conseil` reprend ce que l'équipe regarde (critères de 📝|candidatures) ;
+// `conseille` est une longueur indicative en caractères, pas une limite de Discord.
+export const REGLES_CANDIDATURE = [
+    "Le RP prime : on joue son personnage en jeu, les échanges HRP restent dans les salons HRP.",
+    "Les combats sont mis en scène, pas subis ; les grands événements sont validés par l'équipe Lore.",
+    "On respecte les constructions des autres : pas de grief ni de vol hors cadre RP validé.",
+    "Pas de triche ; les mods cosmétiques sont tolérés sur demande.",
+    "Respect entre joueurs, en RP comme en HRP.",
+];
+
+export const PROJETS_CANDIDATURE = [
+    "Fonder une civilisation", "Rejoindre une civilisation", "Commerce", "Religion", "Construction", "Exploration", "Politique et diplomatie", "Guerre",
+];
+
+export const ORIGINES_CANDIDATURE = ["Un ami", "Une liste de serveurs", "YouTube", "TikTok", "Reddit", "Une ancienne saison de Tetrago"];
+
+export const QUESTIONS_CANDIDATURE = [
+    {
+        id: "pseudo", type: "pseudo", question: "Pseudo Minecraft (Java)",
+        conseil: "Exactement celui du jeu : c'est lui qui sera ajouté à la whitelist. Une faute, et la connexion sera refusée.",
+    },
+    {
+        id: "age", type: "ouinon", question: "Avez-vous plus de 15 ans ?",
+        conseil: "Répondez honnêtement : l'équipe vérifie que l'âge est conforme à la règle du serveur.",
+    },
+    {
+        // Une seule question du formulaire, en trois parties : l'équipe lit d'abord l'expérience et le projet
+        id: "projet", type: "parcours", question: "Votre expérience du RP, ce que vous voulez faire sur Tetrago, et une idée de personnage", conseille: 250,
+        conseil: "La réponse la plus lue. L'équipe y cherche d'abord votre expérience du RP et un projet réel sur le serveur, même modeste ; l'idée de personnage est un plus.",
+        parties: [
+            {
+                id: "experience", titre: "Votre expérience du RP", essentiel: true, intitule: "Expérience du RP",
+                aide: "Serveurs, forums, jeux de rôle sur table… Débuter n'est pas un défaut : dites-le, et ce qui vous attire dans le RP.",
+                placeholder: "Ex. : deux ans sur un serveur médiéval, où je tenais une auberge…",
+            },
+            {
+                id: "envies", titre: "Ce que vous voulez faire sur Tetrago", essentiel: true, intitule: "Sur Tetrago", choix: true,
+                aide: "Cochez ce qui vous tente, puis précisez en une ou deux phrases.",
+                placeholder: "Ex. : ouvrir une forge dans une ville marchande, puis peut-être fonder une guilde.",
+            },
+            {
+                id: "personnage", titre: "Une idée de personnage", essentiel: false, intitule: "Idée de personnage",
+                aide: "Quelques lignes suffisent : qui il est, d'où il vient, ce qu'il cherche.",
+                placeholder: "Qui est-il, d'où vient-il, que cherche-t-il ?",
+                modele: "Nom : \nOrigine : \nMétier ou rôle : \nCe qu'il cherche : ",
+            },
+        ],
+    },
+    {
+        id: "origine", type: "origine", question: "Comment avez-vous connu le serveur ?",
+        conseil: "Une réponse courte suffit ; si un joueur vous a invité, donnez son pseudo.",
+        placeholder: "Ex. : un ami, Pseudo123",
+    },
+];

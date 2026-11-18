@@ -1,4 +1,5 @@
 import { toOptions } from "@/utils/conflits";
+import { getSessionUser } from "@/services/session";
 import { apiRequest, envoyerPortraitPersonnage, envoyerSkinPersonnage, fichierPersonnageUrl, retirerPortraitPersonnage, getCivilisations, getPersonnageReferentiel, getPersonnages, getPersonnagesOfUser, getQuartiers, getReligions, getVilles } from "@/services/api";
 
 // Libellés et formulaire partagés par les pages personnages, le profil et le journal
@@ -25,6 +26,8 @@ export const skinFichierUrl = (personnage) => (personnage?.skin_fichier ? fichie
 // Rendus du skin Minecraft (UUID du compte lié), servis par mc-heads.net
 export const minecraftHead = (uuid, size = 64) => `https://mc-heads.net/avatar/${uuid}/${size}`;
 export const minecraftBody = (uuid, size = 120) => `https://mc-heads.net/body/${uuid}/${size}`;
+// Texture brute (PNG 64 × 64), servie avec CORS ouvert : c'est elle que charge le rendu 3D
+export const minecraftSkin = (uuid) => `https://mc-heads.net/skin/${uuid}`;
 
 export const villeHref = (ville) => `/civilisation/${ville.civilisation_id}/ville/${ville.id}`;
 
@@ -57,7 +60,8 @@ export const loadLieux = () => Promise.all([
     getQuartiers().catch(() => []),
     getReligions().catch(() => []),
 ]).then(([civilisations, villes, quartiers, religions]) => ({
-    civilisations: asList(civilisations).map((item) => item.civilisation).filter(Boolean),
+    // membres : ids des joueurs membres, pour ne proposer que les civilisations où le joueur peut résider
+    civilisations: asList(civilisations).filter((item) => item.civilisation).map((item) => ({ ...item.civilisation, membres: (item.members || []).map((membre) => membre.user_id) })),
     villes: asList(villes),
     quartiers: asList(quartiers),
     religions: asList(religions).map((item) => item.religion ?? item).filter((religion) => religion?.id && religion.is_public !== false),
@@ -72,8 +76,23 @@ export const loadReferentiel = () => getPersonnageReferentiel()
 
 export const EMPTY_REFERENTIEL = { especes: [], classes: [] };
 
+// Résidence ouverte au joueur : les civilisations dont il est membre (toutes pour un administrateur), plus celle où
+// réside déjà le personnage modifié (il y reste même si son joueur l'a quittée). Même règle que Shard-API.
+export function lieuxAutorises(lieux, personnage = null, user = getSessionUser()) {
+    const joueur = personnage?.user_id ?? user?.id;
+    const civilisations = user?.is_admin ? lieux.civilisations : lieux.civilisations.filter((civilisation) => (
+        (civilisation.membres || []).includes(joueur) || String(civilisation.id) === String(personnage?.civilisation_id)
+    ));
+    const ids = new Set(civilisations.map((civilisation) => String(civilisation.id)));
+    const villes = lieux.villes.filter((ville) => ids.has(String(ville.civilisation_id)));
+    const idsVilles = new Set(villes.map((ville) => String(ville.id)));
+    return { ...lieux, civilisations, villes, quartiers: lieux.quartiers.filter((quartier) => idsVilles.has(String(quartier.ville_id))) };
+}
+
 // personnage : fiche en cours de modification (fichiers déjà envoyés), absente à la création
-export const personnageFormFields = (lieux, referentiel = EMPTY_REFERENTIEL, personnage = null) => [
+export const personnageFormFields = (tousLieux, referentiel = EMPTY_REFERENTIEL, personnage = null) => {
+    const lieux = lieuxAutorises(tousLieux, personnage);
+    return [
     { name: "name", label: "Nom", type: "text", required: true, placeholder: "Nom du personnage" },
     {
         name: "status", label: "Statut", type: "radio", required: true,
@@ -113,7 +132,9 @@ export const personnageFormFields = (lieux, referentiel = EMPTY_REFERENTIEL, per
     { name: "date_deces", label: "Date de décès dans le RP", type: "date", help: "Ignorée tant que le personnage est vivant." },
     {
         name: "civilisation_id", label: "Civilisation", type: "select", placeholder: "Aucune", resets: ["ville_id", "quartier_id"],
-        options: toOptions(lieux.civilisations), empty: "Aucune civilisation n'existe encore.",
+        options: toOptions(lieux.civilisations),
+        empty: tousLieux.civilisations.length ? "Vous n'êtes membre d'aucune civilisation : demandez à en rejoindre une depuis sa page." : "Aucune civilisation n'existe encore.",
+        help: "Celles dont vous êtes membre. Pour une autre, demandez d'abord à la rejoindre depuis sa page.",
     },
     {
         name: "ville_id", label: "Ville de résidence", type: "select", placeholder: "Aucune", resets: ["quartier_id"],
@@ -130,7 +151,8 @@ export const personnageFormFields = (lieux, referentiel = EMPTY_REFERENTIEL, per
         options: toOptions(lieux.religions || []), empty: "Aucune religion n'existe encore.",
         help: "Ses fidèles votent aux élections de leur religion.",
     },
-];
+    ];
+};
 
 export const PERSONNAGE_INITIAL = { status: "vivant", portrait_source: "aucun", skin_source: "aucun" };
 

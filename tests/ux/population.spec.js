@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { API_URL, apiGet, apiPost, blockExternalRequests, createSession, makeModerateur, readAlert, signIn, uniqueSuffix } from "./helpers.js";
 
 // Population officielle : mesure + écarts motivés demandés par les dirigeants et validés par un modérateur RP
-// (jamais sa propre demande) ; la civilisation additionne ses villes et affiche son armée autorisée (1 pour 10).
+// (jamais sa propre demande) ; la civilisation additionne ses villes et affiche son armée autorisée (1 pour 5).
 test.describe.configure({ mode: "serial" });
 
 let fondateur;
@@ -68,10 +68,10 @@ test("un modérateur ne valide jamais sa propre demande ; un refus ne change rie
 });
 
 test("la civilisation additionne ses villes et affiche son armée autorisée", async ({ page }) => {
-  expect(await apiGet(`/population/civilisation/${civilisationId}`)).toMatchObject({ officielle: 290, armee: 29, habitants_par_soldat: 10 });
+  expect(await apiGet(`/population/civilisation/${civilisationId}`)).toMatchObject({ officielle: 290, armee: 58, habitants_par_soldat: 5 });
   await blockExternalRequests(page);
   await page.goto(`/civilisation/${civilisationId}`);
   await expect(main(page).getByText("290", { exact: true })).toBeVisible();
-  await expect(main(page).getByText("29 soldats")).toBeVisible();
+  await expect(main(page).getByText("58 soldats")).toBeVisible();
   await expect(main(page).getByRole("link", { name: /Armée autorisée/ })).toHaveAttribute("href", "/codex#guerres-1");
 });

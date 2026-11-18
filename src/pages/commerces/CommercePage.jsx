@@ -262,6 +262,7 @@ export default function CommercePage() {
                     <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
                     <MarkdownTextEditor value={commerce.description ? commerce.description : 'Aucune description'} />
 
+                    <TitleH2 text="Histoire" icon="fas fa-book" />
                     <DescriptionLongue type="commerce" id={commerce.id} auth={auth} />
 
                     <TitleH2 text="Magasins" icon="fas fa-store" fonctions={FctMagasins} aide="commerce" />

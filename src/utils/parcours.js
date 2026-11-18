@@ -31,6 +31,8 @@ function retenir(cle) {
 
 export const marquerCodexLu = () => retenir(CLE_CODEX);
 export const marquerIpCopiee = () => retenir(CLE_IP);
+// Discord ouvert depuis un autre lien que l'accueil (aide à la candidature) : l'étape du parcours est cochée
+export const marquerDiscordOuvert = () => retenir(CLE_DISCORD);
 
 // Étapes vérifiables par l'API pour un joueur connecté : personnage créé, membre d'une civilisation, Discord lié
 const aUnPersonnage = (userId) => getPersonnagesOfUser(userId)
@@ -58,17 +60,24 @@ export function useParcours() {
     return () => { annule = true; };
   }, [user]);
 
+  // Un tronc commun (Codex puis candidature), puis, une fois la candidature validée, deux chemins à mener en
+  // parallèle : « a » en jeu (le serveur), « b » sur le site (compte, civilisation, personnage).
   const etapes = [
-    { id: "codex", fait: codexLu },
-    { id: "compte", fait: Boolean(user) },
-    { id: "civilisation", fait: api ? api.civilisation : null },
-    { id: "personnage", fait: api ? api.personnage : null },
+    { id: "codex", branche: null, fait: codexLu },
     // Candidature : on ne sait pas si elle est acceptée, on retient que le Discord a été ouvert (ou est lié au compte)
-    { id: "discord", fait: discordOuvert || (api ? api.discord : null) },
-    { id: "serveur", fait: ipCopiee },
+    { id: "discord", branche: null, fait: discordOuvert || (api ? api.discord : null) },
+    { id: "serveur", branche: "a", fait: ipCopiee },
+    { id: "compte", branche: "b", fait: Boolean(user) },
+    { id: "civilisation", branche: "b", fait: api ? api.civilisation : null },
+    { id: "personnage", branche: "b", fait: api ? api.personnage : null },
   ];
   const chargement = etapes.some((etape) => etape.fait === null);
-  const prochaine = chargement ? null : etapes.find((etape) => !etape.fait)?.id ?? "termine";
+
+  // Étapes à faire maintenant : la première non faite du tronc commun ; une fois le tronc fini, la première
+  // non faite de chaque chemin (deux à la fois au plus). La première d'entre elles devient le bouton du héros.
+  const premiere = (branche) => etapes.find((etape) => etape.branche === branche && !etape.fait)?.id;
+  const aFaire = chargement ? [] : [premiere(null) ?? [premiere("a"), premiere("b")]].flat().filter(Boolean);
+  const prochaine = chargement ? null : aFaire[0] ?? "termine";
 
   const copierIp = () => {
     marquerIpCopiee();
@@ -80,5 +89,5 @@ export function useParcours() {
     setDiscordOuvert(true);
   };
 
-  return { user, etapes, prochaine, chargement, copierIp, ouvrirDiscord };
+  return { user, etapes, aFaire, prochaine, chargement, copierIp, ouvrirDiscord };
 }

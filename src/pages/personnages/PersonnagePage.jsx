@@ -16,11 +16,12 @@ import InfoLine from "@/components/ui/InfoLine";
 import MarkdownTextEditor from "@/components/ui/MarkdownTextEditor";
 import DescriptionLongue from "@/components/ui/DescriptionLongue";
 import PersonnageAvatar from "@/components/personnages/PersonnageAvatar";
+import SkinViewer3D from "@/components/personnages/SkinViewer3D";
 import FormModal from "@/components/modals/FormModal";
 
 import { showModalID } from "@/utils/showModal";
 import { formatDate, runAction } from "@/utils/conflits";
-import { EMPTY_LIEUX, EMPTY_REFERENTIEL, PERSONNAGE_STATUTS, enregistrerPersonnage, loadLieux, loadReferentiel, minecraftBody, personnageFormFields, personnageInitialValues, skinFichierUrl, villeHref } from "@/utils/personnages";
+import { EMPTY_LIEUX, EMPTY_REFERENTIEL, PERSONNAGE_STATUTS, enregistrerPersonnage, loadLieux, loadReferentiel, minecraftBody, minecraftSkin, personnageFormFields, personnageInitialValues, skinFichierUrl, villeHref } from "@/utils/personnages";
 import { getSessionUser } from "@/services/session";
 import { couleurFiche } from "@/utils/couleurFiche";
 import { apiRequest, getPersonnageById, getPostesPersonnage } from "@/services/api";
@@ -143,16 +144,26 @@ export default function PersonnagePage() {
             <div className="fiche grid grid-cols-1 lg:grid-cols-3 gap-x-10 w-full items-start">
                 <div className="lg:col-span-2 flex flex-col gap-2 min-w-0">
                     <section className="flex flex-col gap-2">
-                        <TitleH2 text="Histoire" icon="fas fa-pen-nib" />
+                        <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
                         <MarkdownTextEditor value={personnage.description || "Aucune histoire n'a encore été écrite."} />
                     </section>
+                    
+                    <TitleH2 text="Histoire" icon="fas fa-book" />
+                    <DescriptionLongue type="personnage" id={personnage.id} auth={canManage} />
+
                     {personnage.minecraft_uuid || skinFichierUrl(personnage) ? (
                         <section className="flex flex-col gap-2">
                             <TitleH2 text="Skin" icon="fas fa-shirt" />
                             <div className="flex flex-row flex-wrap items-end gap-4">
-                                {personnage.minecraft_uuid ? (
-                                    <img src={minecraftBody(personnage.minecraft_uuid, 120)} alt={`Skin Minecraft de ${personnage.name}`} loading="lazy" className="h-48 w-auto" style={{ imageRendering: "pixelated" }} />
-                                ) : null}
+                                {/* Rendu 3D ; sans WebGL ou si la texture refuse de se charger, l'ancien rendu 2D */}
+                                <SkinViewer3D
+                                    key={personnage.minecraft_uuid || skinFichierUrl(personnage)}
+                                    skinUrl={personnage.minecraft_uuid ? minecraftSkin(personnage.minecraft_uuid) : skinFichierUrl(personnage)}
+                                    nom={personnage.name}
+                                    repli={personnage.minecraft_uuid ? (
+                                        <img src={minecraftBody(personnage.minecraft_uuid, 120)} alt={`Skin Minecraft de ${personnage.name}`} loading="lazy" className="h-48 w-auto" style={{ imageRendering: "pixelated" }} />
+                                    ) : null}
+                                />
                                 {skinFichierUrl(personnage) ? (
                                     <a href={skinFichierUrl(personnage)} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-1 link link-hover">
                                         <img src={skinFichierUrl(personnage)} alt={`Fichier de skin de ${personnage.name}`} loading="lazy" className="w-32 h-32 bg-base-100 rounded-xl object-contain" style={{ imageRendering: "pixelated" }} />
@@ -162,8 +173,6 @@ export default function PersonnagePage() {
                             </div>
                         </section>
                     ) : null}
-
-                    <DescriptionLongue type="personnage" id={personnage.id} auth={canManage} />
 
                     <FamilleSection key={personnage.id} personnage={personnage} canManage={canManage} />
 

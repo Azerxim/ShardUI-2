@@ -11,7 +11,7 @@ import { runAction } from '@/utils/conflits';
 import { demobiliserTroupe, deplacerTroupe, engagerMercenaires, getTroupesGuerre, leverTroupe, modifierTroupe } from '@/services/api';
 
 // ===== Troupes d'une guerre =====
-// Levées ville par ville par les civilisations engagées (Shard-API crud_troupes) : au plus un soldat pour dix habitants
+// Levées ville par ville par les civilisations engagées (Shard-API crud_troupes) : au plus un soldat pour cinq habitants
 // de la ville, toutes guerres en cours confondues. Une troupe mobilisée est toujours sur un champ de bataille (zone de
 // conflit de la guerre) ou en mouvement. Chaque camp ne voit que ses troupes ; les modérateurs RP voient tout, et tout
 // le monde une fois la guerre terminée. Un belligérant y engage aussi des compagnies de mercenaires (MercenairesSection) :
@@ -141,7 +141,7 @@ export default function TroupesSection({ guerre, reloadKey = 0, onChange = () =>
         <section id="troupes" className="flex flex-col gap-2 w-full scroll-mt-24">
             <TitleH2 text="Troupes" icon="fas fa-people-group" aide="troupe" />
             <p className="text-sm opacity-70 px-1">
-                Chaque ville fournit au plus un soldat pour dix habitants, toutes guerres en cours confondues. Une troupe est toujours sur un champ de bataille ou en mouvement ;
+                Chaque ville fournit au plus un soldat pour cinq habitants, toutes guerres en cours confondues. Une troupe est toujours sur un champ de bataille ou en mouvement ;
                 seuls son camp et les modérateurs RP la voient jusqu'à la fin de la guerre.
             </p>
 

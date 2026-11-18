@@ -203,6 +203,7 @@ export default function ReligionPage() {
                     <TitleH2 text="Présentation" icon="fas fa-pen-nib" />
                     <MarkdownTextEditor value={religion?.description ? religion.description : 'Aucune description'} />
 
+                    <TitleH2 text="Histoire" icon="fas fa-book" />
                     {religion ? <DescriptionLongue type="religion" id={religion.id} auth={auth} /> : null}
 
                     <ElectionsSection entityType="religion" entityId={parseInt(id)} peutOrganiser={auth} />
