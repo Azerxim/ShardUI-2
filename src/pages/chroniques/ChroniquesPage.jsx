@@ -4,6 +4,8 @@ import Swal from "sweetalert2";
 
 import Navbar from "@/components/layout/Navbar";
 import GrimoireHero from "@/components/layout/GrimoireHero";
+import DateRpDuJour from "@/components/temps/DateRpDuJour";
+import { instantRp } from "@/config/temporalite";
 import EtatVide from "@/components/ui/EtatVide";
 import FormModal from "@/components/modals/FormModal";
 
@@ -118,6 +120,9 @@ export default function ChroniquesPage() {
     const comptes = Object.fromEntries(Object.keys(CATEGORIES_CHRONIQUES).map((categorie) => [categorie, (entrees ?? []).filter((e) => e.categorie === categorie).length]));
     const visibles = (entrees ?? []).filter((entree) => filtres.has(entree.categorie));
 
+    // Année RP du jour, signalée dans la frise
+    const anneeEnCours = instantRp()?.an ?? null;
+
     return (
         <>
             <Navbar active="chroniques" />
@@ -134,6 +139,8 @@ export default function ChroniquesPage() {
                             </button>
                         ) : null}
                     />
+
+                    <DateRpDuJour />
 
                     <div role="group" aria-label="Catégories affichées" className="flex flex-row flex-wrap gap-2 w-full">
                         {Object.entries(CATEGORIES_CHRONIQUES).map(([categorie, config]) => (
@@ -163,7 +170,10 @@ export default function ChroniquesPage() {
                         <div className="flex flex-col gap-6 w-full">
                             {parAnnee(visibles).map((groupe) => (
                                 <section key={groupe.cle} aria-label={groupe.titre} className="flex flex-col gap-3">
-                                    <h2 className="text-lg font-semibold bg-base-200 rounded-2xl px-4 py-2">{groupe.titre}</h2>
+                                    <h2 className="flex items-center gap-2 text-lg font-semibold bg-base-200 rounded-2xl px-4 py-2">
+                                        {groupe.titre}
+                                        {groupe.cle === anneeEnCours ? <span className="badge badge-secondary badge-sm">Année en cours</span> : null}
+                                    </h2>
                                     <ol className="flex flex-col gap-4 border-l-2 border-base-300 ml-5 pl-6">
                                         {groupe.entrees.map((entree) => <Entree key={entree.id} entree={entree} actions={actionsFait(entree)} />)}
                                     </ol>

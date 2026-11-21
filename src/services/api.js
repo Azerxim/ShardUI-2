@@ -1065,3 +1065,7 @@ export const getDescriptionLongue = (type, id) => publicGet(`/descriptions/${typ
 
 // Gestionnaires de la fiche (dirigeants, chef de file, joueur du personnage) ; texte vide : description effacée
 export const updateDescriptionLongue = (type, id, texte) => apiRequest("PUT", `/descriptions/${type}/${id}`, { description_longue: texte });
+
+// Génération de la carte à la demande (administrateurs) : état (en cours, dernière carte, journal) et lancement
+export const getGenerationCarte = () => apiRequest("GET", "/monde/generation");
+export const lancerGenerationCarte = () => apiRequest("POST", "/monde/generation");

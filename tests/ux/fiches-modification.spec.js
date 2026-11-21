@@ -76,9 +76,17 @@ test("la date de fondation d'une ville s'enregistre et s'affiche sur sa fiche et
   // Une date saisie, même plus lointaine que la date du jour RP, reste valable
   await expect(date).not.toHaveAttribute("max");
   await expect(dialog.getByText(/Aujourd'hui dans le RP/)).toHaveCount(0);
+  await expect(dialog.getByText("Dans le RP : 15 mars de l'an 42")).toBeVisible();
   await dialog.locator('button[type="submit"]').click();
   expect(await readAlert(page)).toMatch(/succès/i);
   await expect(main(page).getByText(/fondée le 15 mars 42/i)).toBeVisible();
+
+  // Rouverte, la fenêtre de modification reprend la date et l'affiche en date RP
+  await main(page).getByRole("button", { name: "Modifier", exact: true }).click();
+  const rouverte = page.locator("dialog[open]");
+  await expect(rouverte.locator('input[name="founded_date"]')).toHaveValue("0042-03-15");
+  await expect(rouverte.getByText("Dans le RP : 15 mars de l'an 42")).toBeVisible();
+  await rouverte.getByRole("button", { name: /fermer|annuler/i }).first().click();
 
   await page.goto(`/civilisation/${civilisation.id}`);
   const ligne = main(page).locator(`a[href="/civilisation/${civilisation.id}/ville/${ville.id}"]`);

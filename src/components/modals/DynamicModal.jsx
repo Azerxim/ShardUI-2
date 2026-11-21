@@ -149,6 +149,7 @@ export default function DynamicModal({
             <button
               className="btn btn-md btn-circle btn-ghost absolute right-4 top-4"
               type="button"
+              aria-label="Fermer"
               onClick={() => document.getElementById(config.id[mode].replace("$local-id", local.id)).close()}
             >
               <FontAwesomeIcon icon="fas fa-xmark" size="xl" />
@@ -175,6 +176,7 @@ export default function DynamicModal({
                 <div className="tooltip" data-tip="Annuler">
                   <button
                     type="button"
+                    aria-label="Annuler"
                     className="btn btn-md rounded-3xl"
                     onClick={() =>
                       document.getElementById(config.id[mode].replace("$local-id", local.id)).close()

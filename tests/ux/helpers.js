@@ -58,6 +58,13 @@ export function readAnnouncements() {
   return fs.readFileSync(file, "utf-8").split("\n").filter(Boolean).map((line) => JSON.parse(line));
 }
 
+// Générations de la carte demandées depuis la page des statistiques du monde : [{ auteur, date }] (SHARD_FAKE_MAP_GENERATION)
+export function readMapGenerations() {
+  const file = path.join(here, ".env-api", "fake-map-generation.jsonl");
+  if (!fs.existsSync(file)) return [];
+  return fs.readFileSync(file, "utf-8").split("\n").filter(Boolean).map((line) => JSON.parse(line));
+}
+
 // Événements programmés Discord du calendrier : [{ action: create | edit | delete, evenement_id, name, … }] (SHARD_FAKE_DISCORD_EVENTS)
 export function readDiscordEvents() {
   const file = path.join(here, ".env-api", "fake-discord-events.jsonl");

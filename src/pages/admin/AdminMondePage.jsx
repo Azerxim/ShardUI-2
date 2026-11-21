@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Swal from "sweetalert2";
@@ -8,6 +8,7 @@ import TitleH1 from "@/components/ui/TitleH1";
 import TitleH2 from "@/components/ui/TitleH2";
 import Stat from "@/components/ui/Stat";
 import CourbeEvolution from "@/components/monde/CourbeEvolution";
+import GenerationCarte from "@/components/monde/GenerationCarte";
 import { getMondeResume, getDimensions, deleteMondeReleve, resoudreMondePseudos } from "@/services/api";
 import { MAPS_BASE_URL } from "@/config/maps";
 import { alerteErreur } from "@/utils/alerteErreur";
@@ -580,6 +581,17 @@ export default function AdminMondePage() {
             .finally(() => setLoading(false));
     }, [isAdmin, releveId]);
 
+    // Après une génération lancée depuis la page : le nouveau relevé (le plus récent) est affiché
+    const rechargerDernierReleve = useCallback(() => {
+        setReleveId(null);
+        getMondeResume()
+            .then((data) => {
+                setResume(data);
+                setError(null);
+            })
+            .catch((err) => setError(err));
+    }, []);
+
     useEffect(() => {
         if (!isAdmin) return;
         getDimensions()
@@ -673,7 +685,7 @@ export default function AdminMondePage() {
             <div className={`alert ${aucun ? "alert-info" : "alert-error"}`}>
                 <span>
                     {aucun
-                        ? "Aucun relevé enregistré. Lancez la génération des cartes (scripts/map-generator/run.sh) : le monde est lu puis envoyé ici."
+                        ? "Aucun relevé enregistré. Lancez la génération de la carte ci-dessus : le monde est lu puis envoyé ici."
                         : "Impossible de récupérer les statistiques du monde."}
                 </span>
             </div>
@@ -761,6 +773,7 @@ export default function AdminMondePage() {
                         Relevés dans la sauvegarde du serveur à chaque génération des cartes : population des villes,
                         temps passé par les joueurs, zones les plus vécues et activité de chaque joueur.
                     </p>
+                    <GenerationCarte onTermine={rechargerDernierReleve} />
                     {content}
                 </div>
             </main>

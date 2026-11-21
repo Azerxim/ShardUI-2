@@ -188,6 +188,7 @@ import { definition as fasQuoteLeft } from "@fortawesome/free-solid-svg-icons/fa
 import { definition as fasRightFromBracket } from "@fortawesome/free-solid-svg-icons/faRightFromBracket";
 import { definition as fasRightToBracket } from "@fortawesome/free-solid-svg-icons/faRightToBracket";
 import { definition as fasRing } from "@fortawesome/free-solid-svg-icons/faRing";
+import { definition as fasRotate } from "@fortawesome/free-solid-svg-icons/faRotate";
 import { definition as fasRotateLeft } from "@fortawesome/free-solid-svg-icons/faRotateLeft";
 import { definition as fasRotateRight } from "@fortawesome/free-solid-svg-icons/faRotateRight";
 import { definition as fasRoute } from "@fortawesome/free-solid-svg-icons/faRoute";
@@ -430,6 +431,7 @@ export default [
     fasRightFromBracket,
     fasRightToBracket,
     fasRing,
+    fasRotate,
     fasRotateLeft,
     fasRotateRight,
     fasRoute,

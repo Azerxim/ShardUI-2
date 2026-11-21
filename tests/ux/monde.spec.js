@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { API_URL, apiGet, apiPost, blockExternalRequests, createSession, linkPlatform, makeAdmin, readAlert, signIn, uniqueSuffix } from "./helpers.js";
+import { API_URL, apiGet, apiPost, blockExternalRequests, createSession, linkPlatform, makeAdmin, readAlert, readMapGenerations, signIn, uniqueSuffix } from "./helpers.js";
 
 // Statistiques du monde : envoi d'un relevé par le générateur de cartes, puis page d'administration
 test.describe.configure({ mode: "serial" });
@@ -178,5 +178,27 @@ test("un nouveau relevé s'ajoute à l'historique, avec son évolution", async (
   await expect(releves.locator("option").first()).toBeAttached();
   await releves.selectOption({ index: 1 });
   await expect(main.locator("tr", { hasText: `Eterstone ${suffix}` }).first()).toContainText("42");
+  await context.close();
+});
+
+test("un administrateur lance la génération de la carte depuis la page", async ({ browser }) => {
+  // Réservée aux administrateurs, côté API aussi
+  const refus = await fetch(`${API_URL}/monde/generation`, { method: "POST", headers: { Authorization: `Bearer ${joueur.token}` } });
+  expect(refus.status).toBe(403);
+
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await blockExternalRequests(page);
+  await signIn(context, admin);
+  await page.goto("/admin/monde");
+  const bloc = page.locator("#generation");
+  await expect(bloc.getByRole("heading", { name: "Génération de la carte" })).toBeVisible();
+  const avant = readMapGenerations().length;
+  await bloc.getByRole("button", { name: "Générer la carte" }).click();
+  await expect(page.locator(".swal2-popup")).toContainText("Générer la carte maintenant ?");
+  await page.locator(".swal2-confirm").click();
+  // Lancement simulé par l'API de test (SHARD_FAKE_MAP_GENERATION) : rien n'est exécuté
+  await expect.poll(() => readMapGenerations().length).toBe(avant + 1);
+  expect(readMapGenerations().at(-1).auteur).toBe(admin.account.username);
   await context.close();
 });

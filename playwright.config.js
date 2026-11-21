@@ -51,6 +51,8 @@ export default defineConfig({
         SHARD_FAKE_DISCORD_ANNOUNCEMENTS: "fake-discord-announcements.jsonl",
         // Événements programmés du serveur Discord (calendrier) : opérations écrites dans ce fichier
         SHARD_FAKE_DISCORD_EVENTS: "fake-discord-events.jsonl",
+        // Génération de la carte à la demande (page des statistiques du monde) : lancements écrits ici, jamais exécutés
+        SHARD_FAKE_MAP_GENERATION: "fake-map-generation.jsonl",
         // Clé du générateur de cartes pour l'envoi des relevés du monde (platforms.monde.key en production)
         SHARD_MONDE_KEY: "cle-du-generateur-de-test",
         // Pseudos Minecraft : playerdb.co simulé par le même faux serveur

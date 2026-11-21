@@ -33,3 +33,12 @@ test("le dernier jour d'une année est le 31 décembre", async ({ page }) => {
   await expect(bloc).toContainText("Nous sommes le 31 décembre de l'an 1");
   await expect(bloc).toContainText("dans 5 min.");
 });
+
+test("les chroniques affichent la date du jour dans le RP", async ({ page }) => {
+  await blockExternalRequests(page);
+  await page.clock.setFixedTime(new Date("2026-11-21T19:00:00+01:00"));
+  await page.goto("/chroniques");
+  const bandeau = page.getByRole("status", { name: "Date du jour dans le RP" });
+  await expect(bandeau).toContainText("Aujourd'hui, nous sommes le 22 janvier de l'an 3");
+  await expect(bandeau).toContainText("L'an 4 commence dans 3 j 7 h");
+});
