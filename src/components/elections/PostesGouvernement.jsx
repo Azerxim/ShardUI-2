@@ -6,13 +6,13 @@ import FormModal from '@/components/modals/FormModal';
 import PersonnageAvatar from '@/components/personnages/PersonnageAvatar';
 import { showModalID } from '@/utils/showModal';
 import { runAction } from '@/utils/conflits';
-import { createPoste, deletePoste, getPersonnagesOfResidence, getPostes, updatePoste } from '@/services/api';
+import { createPoste, deletePoste, getPostes, getTitulairesPossibles, updatePoste } from '@/services/api';
 import { getSessionUser } from '@/services/session';
 import { libellePersonnage, personnagesChoisissables } from '@/utils/personnages';
 
 // ===== Postes du gouvernement =====
 // D'une civilisation ou de l'une de ses villes (Shard-API crud_elections) : « Roi », « Bourgmestre »…, chacun occupé
-// par un personnage résident de la civilisation. Le représentant vote au nom de la civilisation dans ses alliances, ou
+// par un personnage résident de la civilisation ou d'une civilisation qu'elle dirige. Le représentant vote au nom de la civilisation dans ses alliances, ou
 // de la ville dans les élections de religion. Une élection peut mettre un poste en jeu : l'élu l'occupe à la clôture.
 // auth : fondateur ou admin de la civilisation (vérifié par l'API). Un administrateur du site nomme n'importe quel personnage.
 
@@ -23,8 +23,8 @@ const posteFields = (residents, entityType, user) => [
     {
         name: 'personnage_id', label: 'Titulaire', type: 'select', placeholder: 'Vacant',
         options: residents.map((fiche) => ({ value: fiche.personnage.id, label: libellePersonnage(fiche, user) })),
-        empty: 'Aucun personnage ne réside dans la civilisation : le poste restera vacant.',
-        help: user?.is_admin ? 'Administrateur : tous les personnages du site vous sont proposés.' : 'Un personnage qui réside dans la civilisation.',
+        empty: 'Aucun personnage ne réside dans la civilisation ni dans celles qu\'elle dirige : le poste restera vacant.',
+        help: user?.is_admin ? 'Administrateur : tous les personnages du site vous sont proposés.' : 'Un personnage qui réside dans la civilisation ou dans une civilisation qu\'elle dirige.',
     },
     {
         name: 'is_representant', label: 'Représentant', type: 'radio', required: true,
@@ -53,7 +53,7 @@ export default function PostesGouvernement({ entityType, entityId, civilisationI
     useEffect(() => {
         if (!auth || !civilisationId) return;
         const user = getSessionUser();
-        (user?.is_admin ? personnagesChoisissables(user) : getPersonnagesOfResidence('civilisation', civilisationId))
+        (user?.is_admin ? personnagesChoisissables(user) : getTitulairesPossibles(civilisationId))
             .then((liste) => setResidents((Array.isArray(liste) ? liste : []).filter((fiche) => fiche.personnage.status === 'vivant')))
             .catch(() => setResidents([]));
     }, [auth, civilisationId]);

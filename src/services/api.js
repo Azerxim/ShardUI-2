@@ -1021,6 +1021,9 @@ export const getPostes = (entityType, entityId) => publicGet(`/elections/postes/
 // Rôles d'un personnage : [{ id, title, is_representant, lieu: { type, id, title, lien } }]
 export const getPostesPersonnage = (personnageId) => publicGet(`/elections/postes/personnage/${personnageId}`);
 
+// Titulaires possibles d'un poste : résidents de la civilisation et des civilisations qu'elle dirige (fiches)
+export const getTitulairesPossibles = (civilisationId) => publicGet(`/elections/postes/titulaires/${civilisationId}`);
+
 // { entity_type: civilisation | ville, entity_id, title, personnage_id?, is_representant? }
 export const createPoste = (poste) => apiRequest("POST", "/elections/postes", poste);
 

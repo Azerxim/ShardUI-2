@@ -20,7 +20,7 @@ export const CORPS = {
 
 // Corps électoral imposé par le type d'entité (religion : au choix de l'organisateur)
 export const CORPS_PAR_ENTITE = {
-    civilisation: { corps: "personnages", texte: "Les personnages qui résident dans la civilisation votent, chacun une fois." },
+    civilisation: { corps: "personnages", texte: "Les personnages qui résident dans la civilisation votent, chacun une fois, et chaque civilisation qu'elle dirige a une voix, donnée par son représentant. Tous les résidents des civilisations dirigées peuvent se présenter." },
     alliance: { corps: "civilisations", texte: "Chaque civilisation membre (hors observateurs) a une voix, donnée par le personnage qui la représente dans son gouvernement." },
 };
 

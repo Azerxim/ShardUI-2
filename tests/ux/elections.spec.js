@@ -251,3 +251,35 @@ test("la page des élections liste les scrutins publics, et le joueur voit ceux 
   await page.goto("/profil");
   await expect(page.getByRole("region", { name: "À traiter" })).toContainText(`Concile ${suffixe}`);
 });
+
+test("tous les résidents d'une civilisation dirigée se présentent, seul son représentant vote, et l'élu prend le poste", async () => {
+  const vassal = await createSession("vassal");
+  const comte = (await apiPost("/civilisations/create", vassal.token, { title: `Comté ${suffixe}`, is_public: true, is_civilisation_dirigeante: false, dirigeante_civilisation_id: civilisationId })).civilisation;
+  const gauvain = (await apiPost("/personnages/create", vassal.token, { name: `Gauvain ${suffixe}`, civilisation_id: comte.id })).personnage;
+  const yseult = (await apiPost("/personnages/create", vassal.token, { name: `Yseult ${suffixe}`, civilisation_id: comte.id })).personnage;
+  // Gauvain représente le comté ; Yseult n'a pas de poste
+  await apiPost("/elections/postes", vassal.token, { entity_type: "civilisation", entity_id: comte.id, title: "Comte", personnage_id: gauvain.id, is_representant: true });
+  // Ils peuvent occuper un poste du royaume : le gouvernement les propose
+  expect((await apiGet(`/elections/postes/titulaires/${civilisationId}`)).map((fiche) => fiche.personnage.id)).toEqual(expect.arrayContaining([gauvain.id, yseult.id]));
+  const { poste } = await apiPost("/elections/postes", fondateur.token, { entity_type: "civilisation", entity_id: civilisationId, title: "Chancelier" });
+  const { scrutin } = await apiPost("/elections", fondateur.token, { title: `Chancellerie ${suffixe}`, entity_type: "civilisation", entity_id: civilisationId, poste_id: poste.id, vote_debut: iso(60), vote_fin: iso(120) });
+
+  expect((await lire(scrutin.id, vassal)).mes_candidats_possibles.map((p) => p.id).sort()).toEqual([gauvain.id, yseult.id].sort());
+  await apiPost(`/elections/${scrutin.id}/candidatures`, vassal.token, { personnage_id: yseult.id });
+  deplacerScrutin(scrutin.id, { vote_debut: -1 });
+  const lu = await lire(scrutin.id, vassal);
+  // Une seule voix pour le comté, donnée par son représentant ; ses résidents ne votent pas en personne
+  expect(lu.mes_voix).toEqual([expect.objectContaining({ type: "civilisation", id: comte.id, a_vote: false })]);
+  const [candidat] = lu.candidats;
+  for (const personnage of [gauvain, yseult]) {
+    expect((await api("POST", `/elections/${scrutin.id}/votes`, vassal.token, { votant_type: "personnage", votant_id: personnage.id, candidat_id: candidat.id })).status).toBe(400);
+  }
+  await apiPost(`/elections/${scrutin.id}/votes`, vassal.token, { votant_type: "civilisation", votant_id: comte.id, candidat_id: candidat.id });
+  expect((await api("POST", `/elections/${scrutin.id}/votes`, vassal.token, { votant_type: "civilisation", votant_id: comte.id, candidat_id: candidat.id })).status).toBe(400);
+  deplacerScrutin(scrutin.id, { vote_fin: -1 });
+  const clos = await lire(scrutin.id, fondateur);
+  expect(clos.resultat).toBe("elu");
+  expect(clos.candidats[0].voix).toBe(1);
+  const chancelier = (await apiGet(`/elections/postes/civilisation/${civilisationId}`)).find((p) => p.id === poste.id);
+  expect(chancelier.personnage?.id).toBe(yseult.id);
+});
