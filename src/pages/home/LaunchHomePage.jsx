@@ -82,9 +82,6 @@ function CompteARebours({ cible }) {
 }
 
 export default function LaunchHomePage() {
-    // Lu une fois au montage : la page est rechargée après connexion ou déconnexion
-    const [isLoggedIn] = useState(() => Boolean(localStorage.getItem("user")));
-
     return (
         <>
             <NavbarLaunch active="home" />

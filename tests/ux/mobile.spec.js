@@ -33,7 +33,7 @@ test.describe("Mobile", () => {
     expect(bas).toBeLessThanOrEqual(0);
     expect(defile).toBe(true);
     // Le dernier lien du menu reste atteignable en faisant défiler le menu
-    const dernier = menu.getByRole("link", { name: "Fermes" });
+    const dernier = menu.getByRole("link", { name: "Feuille de route" });
     await dernier.scrollIntoViewIfNeeded();
     await expect(dernier).toBeInViewport();
   });

@@ -5,3 +5,7 @@ export const MAPS_BASE_URL = import.meta.env.VITE_MAPS_BASE_URL || "https://map.
 
 // Origine seule, pour vérifier la provenance des messages de l'éditeur
 export const MAPS_ORIGIN = new URL(MAPS_BASE_URL).origin;
+
+// Monde téléchargeable publié par le générateur de la carte (scripts/map-generator) : archive et sa description
+export const MONDE_TELECHARGEMENT_DIR = `${MAPS_BASE_URL}/assets/data/telechargement`;
+export const MONDE_DESCRIPTION_URL = `${MONDE_TELECHARGEMENT_DIR}/monde.json`;

@@ -111,7 +111,7 @@ export const LIVRES = [
         articles: [
           { titre: "Fonder un royaume.", texte: "Toute faction ou maison noble se déclare sur la page Civilisations — titre, gouvernement et date de fondation RP à l'appui." },
           { titre: "Les guerres se déclarent, elles ne s'improvisent pas.", texte: "Un conflit entre civilisations se prépare en amont avec un modérateur RP, qui encadre son issue et ses enjeux." },
-          { titre: "Le territoire RP n'est pas la protection technique.", texte: "Revendiquer une terre en jeu (lore, bannière) est distinct du claim de construction — les deux se négocient séparément." },
+          { titre: "Le territoire RP n'est pas la protection technique.", texte: "Revendiquer une terre en jeu (lore, bannière) est distinct de la zone protégée par Flan, tracée à la houe en or — les deux se négocient séparément." },
         ],
       },
       {
@@ -144,8 +144,8 @@ export const LIVRES = [
         titre: "Fermes & ressources",
         icon: "fa-solid fa-wheat-awn",
         articles: [
-          { titre: "Toute ferme se déclare.", texte: "Chaque ferme, manuelle ou automatique, se déclare sur la page Fermes du site (/fermes) avec sa position, une photo et sa justification RP : qui l'exploite, ce qu'elle produit, et pourquoi. Un modérateur RP la valide." },
-          { titre: "Toute ferme s'habille.", texte: "Elle est intégrée à un bâtiment cohérent avec ce qu'elle produit — moulin, étable, mine, atelier — sans machinerie ni mob apparents depuis l'extérieur.", warn: true },
+          { titre: "Seules les fermes automatiques se déclarent.", texte: "Une ferme automatique, qui produit sans vous (redstone, mobs, villageois, machines), se déclare sur la page Fermes du site (/fermes) avec sa position, une photo et sa justification RP : qui l'exploite, ce qu'elle produit, et pourquoi. Un modérateur RP la valide. Les fermes manuelles — champs, vergers, enclos que vous travaillez vous-même — n'ont pas à être déclarées." },
+          { titre: "Toute ferme automatique s'habille.", texte: "Elle est intégrée à un bâtiment cohérent avec ce qu'elle produit — moulin, étable, mine, atelier — sans machinerie ni mob apparents depuis l'extérieur.", warn: true },
           { titre: "Mise en conformité.", texte: "Un modérateur RP peut demander de déclarer, d'habiller ou de réduire une ferme : la demande s'affiche sur sa déclaration, qui repasse en examen une fois corrigée. Une ferme laissée hors règle peut être désactivée, comme les machines à lag." },
         ],
       },

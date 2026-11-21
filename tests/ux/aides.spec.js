@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { apiGet, apiPost, blockExternalRequests, createSession, signIn, uniqueSuffix } from "./helpers.js";
 
-// Aides et utilitaires : guides, commandes et outils (accueil des outils, candidature, Nether, tetras, distance
-// entre villes, fiche Discord).
+// Aides et utilitaires : guides et commandes (/aides), et page des outils (/outils : accueil, candidature, Nether,
+// tetras, distance entre villes, fiche Discord, monde téléchargeable).
 test.describe.configure({ mode: "serial" });
 
 let joueur;
@@ -22,13 +22,15 @@ test.beforeAll(async () => {
 
 const main = (page) => page.locator("main.container");
 
-test("la page range guides, commandes et outils en onglets, et se trouve depuis le menu", async ({ page }) => {
+test("la page des aides range guides et commandes en onglets, et se trouve depuis le menu", async ({ page }) => {
   await blockExternalRequests(page);
   await page.goto("/aides");
   await expect(page).toHaveTitle("Aides et utilitaires - Tetrago");
   const guides = main(page).getByRole("tabpanel", { name: "Guides" });
   await expect(guides).toContainText("Rejoindre le serveur");
   await expect(main(page).getByRole("link", { name: /Profil/ }).first()).toHaveAttribute("href", "/profil");
+  // Les outils ont quitté la page : plus d'onglet Outils
+  await expect(main(page).getByRole("tab")).toHaveCount(2);
 
   // Un onglet à la fois, repris dans l'adresse
   await main(page).getByRole("tab", { name: "Commandes" }).click();
@@ -36,31 +38,44 @@ test("la page range guides, commandes et outils en onglets, et se trouve depuis 
   await expect(guides).toBeHidden();
   await expect(page).toHaveURL(/\/aides#commandes$/);
   // Flèches du clavier d'un onglet à l'autre
-  await page.keyboard.press("ArrowRight");
-  await expect(main(page).getByRole("tab", { name: "Outils", exact: true })).toBeFocused();
-  await expect(main(page).getByRole("tab", { name: "Outils", exact: true })).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("ArrowLeft");
+  await expect(main(page).getByRole("tab", { name: "Guides" })).toBeFocused();
+  await expect(main(page).getByRole("tab", { name: "Guides" })).toHaveAttribute("aria-selected", "true");
+  await main(page).getByRole("tab", { name: "Commandes" }).click();
 
   // Sans ancre dans l'adresse, la page revient au dernier onglet ouvert
   await page.goto("/aides");
-  await expect(main(page).getByRole("tab", { name: "Outils", exact: true })).toHaveAttribute("aria-selected", "true");
+  await expect(main(page).getByRole("tab", { name: "Commandes" })).toHaveAttribute("aria-selected", "true");
+  // Plus de bouton « ? » : les aides sont dans le menu « Infos », marqué sur leur page
+  await expect(page.locator(".navbar").getByRole("link", { name: "Aides et utilitaires" })).toHaveCount(0);
+  await expect(page.locator(".navbar").getByRole("navigation", { name: "Sections" }).getByRole("button", { name: "Infos" })).toHaveClass(/bg-secondary/);
 
-  // Une ancre intérieure ouvre son onglet : le lien du guide vers la fiche Discord
+  // Le lien d'un guide vers un outil mène à la page des outils
   await main(page).getByRole("tab", { name: "Guides" }).click();
   await guides.getByRole("link", { name: /Fiche Discord/ }).click();
+  await expect(page).toHaveURL(/\/outils#fiche-discord$/);
   await expect(page.locator("#fiche-discord")).toBeVisible();
-  await expect(page.locator(".navbar").getByRole("link", { name: "Aides et utilitaires" })).toHaveAttribute("aria-current", "page");
 });
 
-test("l'onglet Outils présente chaque outil, puis l'ouvre dans son propre onglet", async ({ page }) => {
+test("les outils ont leur page, dans le menu, et les anciens liens des aides y mènent", async ({ page }) => {
   await blockExternalRequests(page);
-  await page.goto("/aides#outils");
+  await page.setViewportSize({ width: 1366, height: 900 });
+  await page.goto("/");
+  // Dans le menu « Infos » de la barre du haut
+  const nav = page.locator(".navbar").getByRole("navigation", { name: "Sections" });
+  await nav.getByRole("button", { name: "Infos" }).click();
+  await nav.getByRole("link", { name: "Outils", exact: true }).click();
+  await expect(page).toHaveURL(/\/outils$/);
+  await expect(page).toHaveTitle("Outils - Tetrago");
+  await expect(nav.getByRole("button", { name: "Infos" })).toHaveClass(/bg-secondary/);
+
   const accueil = main(page).getByRole("tabpanel", { name: "Tous les outils" });
-  for (const titre of ["Aide à la candidature", "Coordonnées du Nether", "Tetras et diamants", "Distance et temps de trajet", "Fiche de personnage pour Discord", "Cabine photo"]) {
+  for (const titre of ["Aide à la candidature", "Coordonnées du Nether", "Tetras et diamants", "Distance et temps de trajet", "Fiche de personnage pour Discord", "Cabine photo", "Télécharger le monde"]) {
     await expect(accueil.getByRole("link", { name: new RegExp(titre) })).toBeVisible();
   }
   // La carte ouvre l'outil, seul dans son onglet, et l'adresse suit
   await accueil.getByRole("link", { name: /Coordonnées du Nether/ }).click();
-  await expect(page).toHaveURL(/\/aides#nether$/);
+  await expect(page).toHaveURL(/\/outils#nether$/);
   await expect(main(page).getByRole("tab", { name: "Nether" })).toHaveAttribute("aria-selected", "true");
   await expect(page.locator("#nether")).toBeVisible();
   await expect(page.locator("#tetras")).toBeHidden();
@@ -70,11 +85,25 @@ test("l'onglet Outils présente chaque outil, puis l'ouvre dans son propre ongle
   await page.keyboard.press("ArrowRight");
   await expect(main(page).getByRole("tab", { name: "Trajets" })).toBeFocused();
   await expect(page.locator("#distance")).toBeVisible();
-  await expect(page).toHaveURL(/\/aides#distance$/);
-  // Retour à l'accueil des outils
+  await expect(page).toHaveURL(/\/outils#distance$/);
+  // Retour à l'accueil des outils : l'adresse perd son ancre
   await main(page).getByRole("tab", { name: "Tous les outils" }).click();
-  await expect(page).toHaveURL(/\/aides#outils$/);
+  await expect(page).toHaveURL(/\/outils$/);
   await expect(accueil).toBeVisible();
+
+  // Anciens liens, du temps où les outils étaient un onglet des aides
+  await page.goto("/outils#tetras");
+  await expect(page).toHaveURL(/\/outils#tetras$/);
+  await expect(page.locator("#tetras")).toBeVisible();
+  await page.goto("/aides#outils");
+  await expect(page).toHaveURL(/\/outils$/);
+  await expect(main(page).getByRole("tabpanel", { name: "Tous les outils" })).toBeVisible();
+
+  // Sur téléphone, le menu latéral y mène aussi
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/aides");
+  await page.locator(".navbar").getByRole("button", { name: "Menu" }).click();
+  await expect(page.locator("#panneau-menu").getByRole("link", { name: "Outils", exact: true })).toHaveAttribute("href", "/outils");
 });
 
 test("l'aide à la candidature, ouverte depuis l'accueil, prépare des réponses à copier et garde le brouillon", async ({ page, context }) => {
@@ -87,8 +116,8 @@ test("l'aide à la candidature, ouverte depuis l'accueil, prépare des réponses
 
   // Le parcours de l'accueil y mène depuis l'étape « Candidatez sur le Discord »
   await page.goto("/");
-  await expect(page.locator("#parcours").getByRole("link", { name: "Préparer ma candidature" })).toHaveAttribute("href", "/aides#candidature");
-  await page.goto("/aides#candidature");
+  await expect(page.locator("#parcours").getByRole("link", { name: "Préparer ma candidature" })).toHaveAttribute("href", "/outils#candidature");
+  await page.goto("/outils#candidature");
   const outil = page.locator("#candidature");
   await expect(outil).toBeVisible();
 
@@ -128,7 +157,7 @@ test("l'aide à la candidature, ouverte depuis l'accueil, prépare des réponses
 
 test("les coordonnées passent de la surface au Nether, et inversement", async ({ page }) => {
   await blockExternalRequests(page);
-  await page.goto("/aides#nether");
+  await page.goto("/outils#nether");
   const outil = page.locator("#nether");
   const surface = outil.getByRole("group", { name: "Surface" });
   const nether = outil.getByRole("group", { name: "Nether" });
@@ -140,9 +169,38 @@ test("les coordonnées passent de la surface au Nether, et inversement", async (
   await expect(surface.getByLabel("X")).toHaveValue("96");
 });
 
+test("le monde de la dernière carte se télécharge, avec sa date, sa version et sa taille", async ({ page }) => {
+  await blockExternalRequests(page);
+  // monde.json est publié par le générateur de la carte (Shard-Maps) : simulé ici
+  let publie = true;
+  await page.route("**/assets/data/telechargement/monde.json", (route) => (publie
+    ? route.fulfill({
+      json: {
+        fichier: "tetrago-monde.zip", monde: "Tetrago-S3", version: "26.3", date: "2026-11-16T04:12:00+01:00",
+        taille: 477951921, sha256: "2f6f05ad", dimensions: ["dimensions/minecraft/overworld", "dimensions/minecraft/the_nether"],
+      },
+    })
+    : route.fulfill({ status: 404, body: "" })));
+  await page.goto("/outils#monde");
+  const outil = page.locator("#monde");
+  await expect(outil.getByRole("heading", { name: "Télécharger le monde" })).toBeVisible();
+  await expect(outil).toContainText(/lundi 16 novembre 2026/i);
+  await expect(outil).toContainText("26.3");
+  await expect(outil).toContainText("Surface, Nether");
+  const lien = outil.getByRole("link", { name: "Télécharger Tetrago-S3 (456 Mo)" });
+  await expect(lien).toHaveAttribute("href", /\/assets\/data\/telechargement\/tetrago-monde\.zip$/);
+  await expect(lien).toHaveAttribute("download", "");
+
+  // Avant la première publication : un message, pas de lien
+  publie = false;
+  await page.reload();
+  await expect(page.locator("#monde")).toContainText("Aucun monde n'est publié pour l'instant");
+  await expect(page.locator("#monde").getByRole("link")).toHaveCount(0);
+});
+
 test("des diamants se changent en tetras, et un montant dit combien de diamants frapper", async ({ page }) => {
   await blockExternalRequests(page);
-  await page.goto("/aides#tetras");
+  await page.goto("/outils#tetras");
   const outil = page.locator("#tetras");
   // 1 diamant = 8 tetras à la frappe
   await outil.getByLabel("Diamants").fill("2");
@@ -158,7 +216,7 @@ test("des diamants se changent en tetras, et un montant dit combien de diamants 
 
 test("la distance entre deux villes publiques donne les temps de trajet", async ({ page }) => {
   await blockExternalRequests(page);
-  await page.goto("/aides#distance");
+  await page.goto("/outils#distance");
   const outil = page.locator("#distance");
   const depart = outil.getByRole("combobox", { name: "Départ" });
   await expect(depart.locator("option", { hasText: `Aval ${suffixe}` })).toHaveCount(1);
@@ -182,7 +240,7 @@ test("la distance entre deux villes publiques donne les temps de trajet", async 
 
 test("la fiche Discord d'un personnage est prête à copier", async ({ page, context }) => {
   await blockExternalRequests(page);
-  await page.goto("/aides#fiche-discord");
+  await page.goto("/outils#fiche-discord");
   await expect(page.locator("#fiche-discord")).toContainText("Connectez-vous pour copier la fiche de vos personnages.");
 
   await signIn(context, joueur);

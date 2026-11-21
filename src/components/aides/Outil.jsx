@@ -1,12 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-// Carte d'un outil de la page des aides : titre, phrase d'usage, puis l'outil lui-même
+// Carte d'un outil de la page des aides : titre, phrase d'usage, puis l'outil lui-même ; icon : nom FontAwesome, ou
+// élément à afficher à sa place (la pièce du tetra)
 export default function Outil({ id, icon, titre, texte, children }) {
     return (
         <section id={id} aria-labelledby={`${id}-titre`} className="flex flex-col gap-4 bg-base-200 rounded-3xl p-5 shadow-md scroll-mt-24 target:ring-2 target:ring-primary">
             <div className="flex flex-row items-start gap-3">
                 <span className="flex items-center justify-center w-10 h-10 shrink-0 rounded-2xl bg-secondary text-secondary-content">
-                    <FontAwesomeIcon icon={icon} />
+                    {typeof icon === 'string' ? <FontAwesomeIcon icon={icon} /> : icon}
                 </span>
                 <div className="flex flex-col gap-1 min-w-0">
                     <h3 id={`${id}-titre`} className="font-bold text-lg">{titre}</h3>

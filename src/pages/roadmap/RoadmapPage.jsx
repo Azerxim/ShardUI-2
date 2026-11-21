@@ -171,7 +171,7 @@ const SECTIONS = [
                 titre: "Fermes justifiées en RP",
                 icon: "fa-solid fa-wheat-awn",
                 lien: "/codex#fermes",
-                texte: "Toute ferme se déclare avec sa raison d'être dans l'histoire et s'habille d'un bâtiment qui lui ressemble : plus de boîte de redstone posée au milieu d'un champ.",
+                texte: "Toute ferme automatique se déclare avec sa raison d'être dans l'histoire et s'habille d'un bâtiment qui lui ressemble : plus de boîte de redstone posée au milieu d'un champ.",
             },
             {
                 titre: "Actions secrètes",
@@ -249,7 +249,7 @@ const SECTIONS = [
                 titre: "Déclaration des fermes sur le site",
                 icon: "fa-solid fa-wheat-awn",
                 lien: "/fermes",
-                texte: "Déclarer une ferme sur le site (position, justification RP, photo) plutôt que par ticket, et suivre son statut : en attente, validée ou à mettre en conformité.",
+                texte: "Déclarer une ferme automatique sur le site (position, justification RP, photo) plutôt que par ticket, et suivre son statut : en attente, validée ou à mettre en conformité.",
             },
             {
                 titre: "Chroniques de Tetrago",
@@ -313,8 +313,8 @@ const SECTIONS = [
             {
                 titre: "Aides et utilitaires",
                 icon: "fa-solid fa-life-ring",
-                lien: "/aides",
-                texte: "Les guides pour bien démarrer, les rappels de commandes et les petits outils du quotidien, pour ne plus fouiller le Discord.",
+                lien: "/outils",
+                texte: "Les guides pour bien démarrer et les rappels de commandes sur la page des aides, et les petits outils du quotidien sur la leur, pour ne plus fouiller le Discord.",
                 details: [
                     "Conversion des coordonnées entre la surface et le Nether.",
                     "Distance et temps de trajet entre deux villes.",
@@ -325,6 +325,18 @@ const SECTIONS = [
                 titre: "Carte interactive",
                 icon: "fa-solid fa-map",
                 texte: "Le monde vu d'en haut : villes, quartiers, commerces, alliances et zones de guerre, chacun sur son calque. Les frontières se tracent dans l'éditeur.",
+            },
+            {
+                titre: "Protection des constructions",
+                icon: "fa-solid fa-lock",
+                lien: "/aides#guide-proteger",
+                texte: "Le mod Flan protège en jeu les terrains revendiqués à la houe en or : rien n'y est détruit sans l'accord de leur propriétaire, qui donne ses droits à qui il veut.",
+            },
+            {
+                titre: "Monde à télécharger",
+                icon: "fa-solid fa-download",
+                lien: "/outils#monde",
+                texte: "Le monde qui a servi à la dernière mise à jour de la carte, à télécharger et à ouvrir en solo : pour visiter, repérer un terrain ou préparer un tournage.",
             },
             {
                 titre: "Comptes Discord et Minecraft",

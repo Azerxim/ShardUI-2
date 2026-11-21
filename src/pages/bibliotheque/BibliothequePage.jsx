@@ -74,6 +74,20 @@ export default function BibliothequePage() {
     const [storageLivres, setStorageLivres] = useState(JSON.parse(localStorage.getItem('livres')) || []);
     const [filtres, changerFiltres] = useFiltresMemorises('bibliotheque-filtres', FILTRES_DEFAUT, { afficher: AFFICHER, tri: TRIS, visibilite: VISIBILITES });
     const user = getSessionUser();
+
+    // Liens du menu (/bibliotheque#journaux, #livres, config/navbar.js) : n'affichent que ce support. L'ancre est ensuite
+    // retirée de l'adresse, pour que le filtre « Afficher » reste libre ; un nouveau clic la remet.
+    useEffect(() => {
+        const suivreAncre = () => {
+            const ancre = window.location.hash.slice(1);
+            if (ancre !== 'journaux' && ancre !== 'livres') return;
+            if (filtres.afficher !== ancre) changerFiltres({ ...filtres, afficher: ancre });
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        };
+        suivreAncre();
+        window.addEventListener('hashchange', suivreAncre);
+        return () => window.removeEventListener('hashchange', suivreAncre);
+    }, [filtres, changerFiltres]);
     // Index de recherche des liens (vide tant qu'il n'est pas chargé : la recherche porte alors sur les écrits seuls)
     const [liens, setLiens] = useState(() => new Map());
 

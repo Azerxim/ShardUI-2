@@ -1,6 +1,7 @@
 import Swal from "sweetalert2";
 import { checkMemberAuth } from "@/services/authorisation";
 import { getSessionUser } from "@/services/session";
+import { dateRp } from "@/config/chroniques";
 
 // Libellés et règles partagés par les pages alliances et guerres
 
@@ -33,6 +34,10 @@ export const GUERRE_ISSUES = [
 ];
 
 export const formatDate = (date) => date ? new Date(date).toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" }) : null;
+
+// Date de déclaration d'une guerre : sa date RP (« 24 janvier de l'an 3 »), sinon, pour les guerres déclarées avant,
+// le jour réel de la déclaration
+export const dateDeclaration = (guerre) => (guerre?.date_declaration ? dateRp(guerre.date_declaration) : formatDate(guerre?.declared_at));
 
 export const entityHref = (entite) => entite?.type === "religion" ? `/religion/${entite.id}` : `/civilisation/${entite?.id}`;
 

@@ -1,11 +1,11 @@
 import React from 'react'
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { Fragment, useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import '@/components/layout/Navbar.css';
 import { syncSessionUser } from '@/services/session';
-import { AIDES, CARTE, DECOUVRIR, MONDE } from '@/config/navbar';
+import { CARTE, DECOUVRIR, GROUPES } from '@/config/navbar';
 import NavbarLaunch from '@/components/layout/NavbarLaunch';
 import RechercheGlobale from '@/components/layout/RechercheGlobale';
 import { BoutonNotifications, ContenuNotifications } from '@/components/layout/Notifications';
@@ -142,13 +142,14 @@ function ContenuMenu({ active, User, fermer, nonLues, ouvrirNotifications }) {
             )}
             <li className="menu-title pt-3 pb-1">Découvrir</li>
             {DECOUVRIR.map((lien) => <MenuLien key={lien.id} lien={lien} active={active} />)}
-            <MenuLien lien={AIDES} active={active} />
             <MenuLien lien={{ ...CARTE, text: 'Cartographie' }} active={active} />
-            <MenuLien lien={{ id: 'calendrier', href: '/calendrier', icon: 'fa-solid fa-calendar-days', text: 'Calendrier' }} active={active} />
-            <MenuLien lien={{ id: 'chroniques', href: '/chroniques', icon: 'fa-solid fa-timeline', text: 'Chroniques' }} active={active} />
-            <MenuLien lien={{ id: 'roadmap', href: '/roadmap', icon: 'fa-solid fa-route', text: 'Feuille de route' }} active={active} />
-            <li className="menu-title pt-3 pb-1">Le monde</li>
-            {MONDE.map((lien) => <MenuLien key={lien.id} lien={lien} active={active} />)}
+            {/* Mêmes groupes que les menus déroulants de la barre du haut */}
+            {GROUPES.map((groupe) => (
+                <Fragment key={groupe.id}>
+                    <li className="menu-title pt-3 pb-1">{groupe.titreMenu ?? groupe.titre}</li>
+                    {groupe.liens.map((lien) => <MenuLien key={lien.id} lien={lien} active={active} />)}
+                </Fragment>
+            ))}
             {(User?.is_admin || User?.is_moderateur) && <li className="menu-title pt-3 pb-1">Administration</li>}
             {User?.is_admin && (
                 <>
@@ -442,16 +443,18 @@ function NavbarSaison({ active }) {
                                 {lien.text}
                             </a>
                         ))}
-                        <div className="dropdown dropdown-bottom dropdown-center">
-                            <div tabIndex={0} role="button" aria-label="Monde" className={barItemClass(MONDE.some((lien) => lien.id === active))}>
-                                <FontAwesomeIcon icon="fa-solid fa-earth-europe" />
-                                Monde
-                                <FontAwesomeIcon icon="fa-solid fa-chevron-down" className="text-xs opacity-70" />
+                        {GROUPES.map((groupe) => (
+                            <div key={groupe.id} className="dropdown dropdown-bottom dropdown-center">
+                                <div tabIndex={0} role="button" aria-label={groupe.titre} className={barItemClass(active === groupe.page || groupe.liens.some((lien) => lien.id === active))}>
+                                    <FontAwesomeIcon icon={groupe.icon} />
+                                    {groupe.titre}
+                                    <FontAwesomeIcon icon="fa-solid fa-chevron-down" className="text-xs opacity-70" />
+                                </div>
+                                <ul tabIndex="-1" className={`dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 mt-5 shadow-xl flex-col gap-1 w-52 ${DEROULANT_DEFILANT}`}>
+                                    {groupe.liens.map((lien) => <MenuLien key={lien.id} lien={lien} active={active} />)}
+                                </ul>
                             </div>
-                            <ul tabIndex="-1" className={`dropdown-content menu bg-base-200 rounded-3xl z-1 p-2 mt-5 shadow-xl flex-col gap-1 w-52 ${DEROULANT_DEFILANT}`}>
-                                {MONDE.map((lien) => <MenuLien key={lien.id} lien={lien} active={active} />)}
-                            </ul>
-                        </div>
+                        ))}
                         <a href={CARTE.href} className={barItemClass(false)}>
                             <FontAwesomeIcon icon={CARTE.icon} />
                             {CARTE.text}
@@ -459,16 +462,6 @@ function NavbarSaison({ active }) {
                     </nav>
                 </div>
                 <div className="navbar-end gap-2">
-                    {/* Sous 1024 px (lg), le menu latéral garde le lien des aides */}
-                    <a
-                        href={AIDES.href}
-                        aria-label="Aides et utilitaires"
-                        aria-current={active === AIDES.id ? 'page' : undefined}
-                        className={`btn rounded-3xl btn-ghost tooltip tooltip-left hidden lg:inline-flex ${active === AIDES.id ? 'bg-secondary text-secondary-content' : 'bg-base-200'}`}
-                        data-tip="Aides et utilitaires"
-                    >
-                        <FontAwesomeIcon icon="fa-solid fa-question" />
-                    </a>
                     <RechercheGlobale />
                     {(ServerData && NetworkData ? (
                         <div className='flex gap-2'>

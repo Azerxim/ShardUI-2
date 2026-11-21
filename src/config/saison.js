@@ -6,6 +6,7 @@
 //     dimanche d'octobre au dernier dimanche de mars), +02:00 en heure d'été ;
 //   - tout autre texte (ex. "prochainement") : annonce sans date, jusqu'à ce que la variable soit vidée.
 // La page /lancement montre l'annonce en toutes circonstances, pour la relire avant de l'activer.
+// La date marque aussi le début de l'an 1 du RP (config/temporalite.js) : la garder une fois la saison ouverte.
 const valeur = (import.meta.env.VITE_SAISON_LANCEMENT || "").trim();
 const date = valeur ? new Date(valeur) : null;
 

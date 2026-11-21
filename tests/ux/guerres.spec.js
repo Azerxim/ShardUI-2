@@ -47,12 +47,16 @@ test("déclarer une guerre au nom de sa civilisation", async ({ browser }) => {
   await dialog.locator('select[name="attaquant_id"]').selectOption({ label: titles.attaquant });
   await dialog.locator('select[name="defenseur_id"]').selectOption({ label: titles.defenseur });
   await dialog.locator('textarea[name="casus_belli"]').fill("Pillage des greniers de la Horde");
+  // Date RP de la déclaration, choisie dans la fenêtre (vide : la date du jour dans le RP)
+  await expect(dialog.locator('input[name="date_declaration"]')).toHaveValue("");
+  await dialog.locator('input[name="date_declaration"]').fill("0002-06-12");
   await dialog.locator('button[type="submit"]').click();
   expect(await readAlert(page)).toMatch(/validation par un modérateur/i);
 
   await page.waitForURL(/\/guerre\/\d+$/);
   guerreId = Number(page.url().split("/").pop());
   await expect(main(page).locator("h1")).toContainText(titles.guerre);
+  await expect(main(page)).toContainText("déclarée le 12 juin de l'an 2");
   await expect(main(page).locator(".badge", { hasText: "En attente de validation" })).toBeVisible();
   await expect(main(page).getByRole("note")).toContainText(/visible que des camps concernés/);
   const attaquants = main(page).getByRole("region", { name: "Attaquants" });
@@ -216,6 +220,8 @@ test("déclarer une guerre de religion", async ({ browser }) => {
 
   await page.waitForURL(/\/guerre\/\d+$/);
   await expect(main(page).getByText("Guerre de religion").first()).toBeVisible();
+  // Date laissée vide : la date du jour dans le RP, pas la date réelle
+  await expect(main(page)).toContainText(/déclarée le \d+(er)? \S+ de l'an \d+ /);
   const attaquants = main(page).getByRole("region", { name: "Attaquants" });
   await expect(attaquants.locator("li", { hasText: titles.cultes[1] }).locator(".badge", { hasText: "Religion" })).toBeVisible();
   await context.close();

@@ -49,7 +49,7 @@ test("un lien d'article ouvre le Codex sur cet article", async ({ page }) => {
   await page.goto("/codex#fermes-2");
   const article = main(page).locator("#fermes-2");
   await expect(article).toBeInViewport();
-  await expect(article).toContainText("Toute ferme s'habille.");
+  await expect(article).toContainText("Toute ferme automatique s'habille.");
   await expect(article.getByRole("button", { name: "Copier le lien de l'article II.7.2" })).toHaveCount(1);
 });
 

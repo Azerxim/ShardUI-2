@@ -14,7 +14,8 @@ import { MarcheMercenaires } from "@/components/conflits/MercenairesSection";
 
 import { showModalID } from "@/utils/showModal";
 import { requireLogin } from "@/utils/requireLogin";
-import { GUERRE_STATUTS, GUERRE_TYPES, formatDate, managedEntities, runAction, toOptions } from "@/utils/conflits";
+import { GUERRE_STATUTS, GUERRE_TYPES, dateDeclaration, managedEntities, runAction, toOptions } from "@/utils/conflits";
+import { dateRp } from "@/config/chroniques";
 import { getSessionUser } from "@/services/session";
 import { apiRequest, getCivilisations, getGuerres, getMesGuerres, getReligions } from "@/services/api";
 import EtatVide from '@/components/ui/EtatVide';
@@ -70,8 +71,8 @@ function GuerreCard({ guerre, camps }) {
     const statut = GUERRE_STATUTS[guerre.status] ?? { label: guerre.status, badge: "badge-ghost" };
     const { attaquant, defenseur } = leaders(camps);
     const periode = guerre.status === "terminee"
-        ? `Du ${formatDate(guerre.date_debut) ?? "?"} au ${formatDate(guerre.date_fin) ?? "?"}`
-        : guerre.date_debut ? `Depuis le ${formatDate(guerre.date_debut)}` : `Déclarée le ${formatDate(guerre.declared_at)}`;
+        ? `Du ${dateRp(guerre.date_debut) ?? "?"} au ${dateRp(guerre.date_fin) ?? "?"}`
+        : guerre.date_debut ? `Depuis le ${dateRp(guerre.date_debut)}` : `Déclarée le ${dateDeclaration(guerre)}`;
 
     return (
         <ListCard
@@ -187,6 +188,7 @@ export default function GuerresPage() {
         },
         { name: "casus_belli", label: "Casus belli", type: "textarea", required: true, placeholder: "Pourquoi cette guerre ? Offense, revendication, schisme…" },
         { name: "description", label: "Description", type: "textarea", placeholder: "Enjeux, objectifs, contexte RP (Markdown accepté)" },
+        { name: "date_declaration", label: "Déclarée le (date RP)", type: "date", help: "Vide : la date du jour dans le RP." },
     ];
 
     const declare = async (values) => {

@@ -2,8 +2,8 @@ import { DISCORD_INVITE } from "@/utils/parcours";
 import { MONNAIE } from "@/config/monnaie";
 
 // ===== Aides et utilitaires =====
-// Contenu de la page /aides (pages/aides/AidesPage.jsx) : guides pas à pas, rappel des commandes du serveur,
-// et réglages des outils (components/aides/).
+// Contenu de la page /aides (pages/aides/AidesPage.jsx) : guides pas à pas et rappel des commandes du serveur ;
+// et de la page /outils (pages/outils/OutilsPage.jsx) : présentation et réglages des outils (components/aides/).
 
 // Guides : chaque étape renvoie à la page du site où elle se fait
 export const GUIDES = [
@@ -12,7 +12,7 @@ export const GUIDES = [
         titre: "Rejoindre le serveur",
         icon: "fa-brands fa-discord",
         etapes: [
-            { texte: "Préparez votre candidature : les questions du formulaire, des conseils et vos réponses prêtes à copier.", lien: "/aides#candidature", libelle: "Aide à la candidature" },
+            { texte: "Préparez votre candidature : les questions du formulaire, des conseils et vos réponses prêtes à copier.", lien: "/outils#candidature", libelle: "Aide à la candidature" },
             { texte: "Rejoignez le Discord et déposez votre candidature : elle seule ouvre la whitelist.", lien: DISCORD_INVITE, libelle: "Discord" },
             { texte: "Lisez le Codex : la loi du serveur et les règles du rôle-play.", lien: "/codex", libelle: "Codex" },
             { texte: "Une fois accepté, connectez-vous au site avec Discord et liez votre compte Minecraft depuis votre profil.", lien: "/profil", libelle: "Profil" },
@@ -25,7 +25,7 @@ export const GUIDES = [
         etapes: [
             { texte: "Créez votre personnage : nom, espèce, classe, grade et histoire.", lien: "/personnages", libelle: "Personnages" },
             { texte: "Choisissez son skin (celui de votre compte Minecraft, un lien ou un fichier) et sa résidence." },
-            { texte: "Présentez-le sur Discord avec la fiche à copier, plus bas sur cette page.", lien: "#fiche-discord", libelle: "Fiche Discord" },
+            { texte: "Présentez-le sur Discord avec la fiche à copier, dans les outils.", lien: "/outils#fiche-discord", libelle: "Fiche Discord" },
         ],
     },
     {
@@ -35,7 +35,21 @@ export const GUIDES = [
         etapes: [
             { texte: "Fondez la civilisation, puis rattachez-lui ses villes et leurs quartiers.", lien: "/civilisations", libelle: "Civilisations" },
             { texte: "Tracez les frontières de vos villes dans l'éditeur de la carte : sans elles, la population n'est mesurée qu'au rayon." },
-            { texte: "Déclarez vos fermes, chacune justifiée dans le RP et habillée d'un bâtiment.", lien: "/fermes", libelle: "Fermes" },
+            { texte: "Déclarez vos fermes automatiques, chacune justifiée dans le RP et habillée d'un bâtiment ; les fermes manuelles n'ont pas à l'être.", lien: "/fermes", libelle: "Fermes" },
+            { texte: "Protégez vos constructions en jeu avec Flan : les frontières de la carte ne les protègent pas.", lien: "#guide-proteger", libelle: "Protéger ses constructions" },
+        ],
+    },
+    {
+        id: "proteger",
+        titre: "Protéger ses constructions",
+        icon: "fa-solid fa-lock",
+        etapes: [
+            { texte: "Prenez une houe en or et faites un clic droit sur deux coins opposés de votre terrain : la zone est protégée, les autres joueurs ne peuvent plus rien y détruire." },
+            { texte: "La houe en main, vous voyez vos blocs de revendication : ils fixent la surface que vous pouvez protéger, et vous en gagnez en jouant." },
+            { texte: "Un clic droit avec un bâton sur un bloc montre la zone protégée à laquelle il appartient." },
+            { texte: "Dans votre zone, ouvrez /flan menu pour donner des droits à vos proches : groupe Co-Owner (presque tout) ou Visitor (sans rien détruire)." },
+            { texte: "Pour une maison ou une boutique à l'intérieur, passez en sous-zone avec /flan switchMode SUBCLAIM, puis tracez-la avec la houe." },
+            { texte: "La zone protégée reste distincte du territoire RP : les frontières de vos villes se tracent dans l'éditeur de la carte.", lien: "/codex#royaumes", libelle: "Codex" },
         ],
     },
     {
@@ -78,6 +92,25 @@ export const COMMANDES = [
         ],
     },
     {
+        id: "protection",
+        titre: "Protection des zones",
+        icon: "fa-solid fa-lock",
+        source: "Flan",
+        commandes: [
+            { commande: "Houe en or", texte: "Clic droit sur deux coins opposés pour protéger une zone ; sur un coin puis un autre bloc pour la redimensionner." },
+            { commande: "Bâton", texte: "Clic droit sur un bloc pour voir la zone protégée dont il fait partie." },
+            { commande: "/flan menu", texte: "Ouvrir le menu de la zone où vous êtes : droits des joueurs, groupes Co-Owner et Visitor." },
+            { commande: "/flan list", texte: "Lister vos zones protégées." },
+            { commande: "/flan name <nom>", texte: "Nommer la zone où vous êtes." },
+            { commande: "/flan expand <distance>", texte: "Agrandir la zone où vous êtes, dans la direction de votre regard." },
+            { commande: "/flan switchMode SUBCLAIM · DEFAULT", texte: "Passer au tracé des sous-zones (une maison dans la ville), ou revenir aux zones." },
+            { commande: "/flan transferClaim <joueur>", texte: "Donner la zone à un autre joueur." },
+            { commande: "/flan delete", texte: "Supprimer la zone où vous êtes." },
+            { commande: "/flan trapped", texte: "Coincé dans la zone d'un autre : vous en sortez au bout de 5 secondes." },
+            { commande: "/flan help", texte: "Toutes les commandes de Flan." },
+        ],
+    },
+    {
         id: "echanges",
         titre: "Échanges",
         icon: "fa-solid fa-comments",
@@ -112,8 +145,8 @@ export const TAILLE_PILE = 64;
 export const LIMITE_DISCORD = 2000;
 
 // ===== Outils =====
-// Accueil de l'onglet « Outils » (pages/aides/AidesPage.jsx) : les outils rangés par usage, chacun expliqué.
-// L'id est l'ancre de l'outil (/aides#nether) et celle de sa section (components/aides/).
+// Accueil de la page /outils (pages/outils/OutilsPage.jsx) : les outils rangés par usage, chacun expliqué.
+// L'id est l'ancre de l'outil (/outils#nether) et celle de sa section (components/aides/).
 export const OUTILS = [
     {
         id: "candidature", onglet: "Candidature", icon: "fa-solid fa-file-signature", titre: "Aide à la candidature",
@@ -136,6 +169,11 @@ export const OUTILS = [
         details: ["À pied, à cheval, en bateau ou par le Nether", "En temps réel et en temps RP"],
     },
     {
+        id: "monde", onglet: "Monde", icon: "fa-solid fa-earth-europe", titre: "Télécharger le monde",
+        resume: "Le monde qui a servi à la dernière mise à jour de la carte, à ouvrir en solo pour le visiter.",
+        details: ["Mis à jour avec la carte, chaque semaine", "Sans les données des joueurs"],
+    },
+    {
         id: "tetras", onglet: "Tetras", icon: MONNAIE.icon, titre: "Tetras et diamants",
         resume: "Combien de diamants porter à la Monnaie pour un montant, ou ce que vaut votre bourse.",
         details: [MONNAIE.valeur, MONNAIE.equivalence],
@@ -149,7 +187,7 @@ export const OUTILS = [
 
 export const GROUPES_OUTILS = [
     { id: "demarrer", titre: "Pour bien démarrer", icon: "fa-solid fa-signs-post", outils: ["candidature"] },
-    { id: "jeu", titre: "En jeu", icon: "fa-solid fa-cube", outils: ["nether", "distance", "tetras"] },
+    { id: "jeu", titre: "En jeu", icon: "fa-solid fa-cube", outils: ["nether", "distance", "tetras", "monde"] },
     { id: "personnages", titre: "Pour vos personnages", icon: "fa-solid fa-masks-theater", outils: ["fiche-discord", "cabine-photo"] },
 ];
 

@@ -26,8 +26,8 @@ const MODAL_FOIRE = 'foire-modal';
 
 const champsFoire = (zones) => [
     { name: 'title', label: 'Nom', type: 'text', required: true, placeholder: 'Ex. Foire aux chevaux, Grande foire d\'automne' },
-    { name: 'date_debut', label: 'Premier jour', type: 'date', required: true },
-    { name: 'date_fin', label: 'Dernier jour', type: 'date', help: 'Vide : la foire dure un seul jour. 31 jours au plus.' },
+    { name: 'date_debut', label: 'Premier jour', type: 'date', reel: true, required: true },
+    { name: 'date_fin', label: 'Dernier jour', type: 'date', reel: true, help: 'Vide : la foire dure un seul jour. 31 jours au plus.' },
     { name: 'horaires', label: 'Horaires', type: 'text', placeholder: 'Ex. dès 20 h' },
     { name: 'zone_id', label: 'Lieu', type: 'select', placeholder: 'Au centre de la ville', options: zones.map((zone) => ({ value: zone.id, label: zone.title || 'Zone sans nom' })), empty: 'Au centre de la ville (aucune zone commerciale tracée).' },
     { name: 'description', label: 'Programme', type: 'textarea', placeholder: 'Marchands attendus, joutes, spectacles…' },

@@ -11,6 +11,12 @@ export const MONNAIE = {
     pluriel: "tetras",
     petit: { nom: "petit tetra", pluriel: "petits tetras" },
     icon: "fa-solid fa-coins",
+    // Pièces de diamant du pack de ressources Minted Coins (github.com/Azerxim/MC-Minted-Coins-RP, textures item/
+    // diamond_coin et small_diamond_coin), copiées dans public/images/monnaie
+    pieces: {
+        tetra: { image: "/images/monnaie/tetra.png", nom: "Tetra", objet: "Pièce de diamant", texte: `${TETRAS_PAR_DIAMANT} frappés pour 1 diamant` },
+        petit: { image: "/images/monnaie/petit-tetra.png", nom: "Petit tetra", objet: "Petite pièce de diamant", texte: `${PETITS_PAR_TETRA} pour 1 tetra` },
+    },
     atelier: "la Monnaie de Tetrago",
     tetrasParDiamant: TETRAS_PAR_DIAMANT,
     tetrasParDiamantRachat: TETRAS_PAR_DIAMANT_RACHAT,

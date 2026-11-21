@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Piece from '@/components/monnaie/Piece';
 
 import { rechercherArticles } from '@/services/api';
 import { CATEGORIES_ARTICLES, categorieArticle, prixLot } from '@/config/catalogue';
@@ -37,7 +38,7 @@ function Resultat({ article }) {
                 </span>
             </span>
             <span className="flex flex-row items-center gap-2 shrink-0 pl-7 sm:pl-0">
-                <span className="font-semibold tabular-nums">{prixLot(article.prix_petits, article.quantite)}</span>
+                <span className="font-semibold tabular-nums inline-flex items-center gap-1"><Piece taille={16} />{prixLot(article.prix_petits, article.quantite)}</span>
                 {dimension?.link && magasin.x != null && magasin.z != null ? (
                     <a
                         href={`${MAPS_BASE_URL}/${dimension.link}-commerces#x=${magasin.x}&z=${magasin.z}&zoom=1`}

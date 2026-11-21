@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Outil, { ChampNombre } from '@/components/aides/Outil';
 import { entier } from '@/utils/aides';
 import { MONNAIE, decomposer, enPetits, montantTexte } from '@/config/monnaie';
+import Piece from '@/components/monnaie/Piece';
 import { TAILLE_PILE } from '@/config/aides';
 import { plural } from '@/utils/plural';
 
@@ -42,7 +43,7 @@ export default function ConvertisseurTetras() {
             id="tetras"
             icon={MONNAIE.icon}
             titre="Tetras et diamants"
-            texte={`${MONNAIE.valeur} à la frappe, ${MONNAIE.tetrasParDiamantRachat} tetras pour 1 diamant au rachat, et ${MONNAIE.equivalence}. Combien de diamants porter à la Monnaie pour un montant, ou ce que vaut votre bourse.`}
+            texte={`Saisissez des diamants pour voir combien de ${MONNAIE.pluriel} ils frappent, ou un montant pour savoir combien de diamants porter à la Monnaie. Au rachat, il faut ${MONNAIE.tetrasParDiamantRachat} ${MONNAIE.pluriel} pour récupérer un diamant.`}
         >
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
                 <ChampNombre label="Diamants" value={valeurs.diamants} min={0} onChange={changerDiamants} />
@@ -52,6 +53,7 @@ export default function ConvertisseurTetras() {
             {total > 0 && (
                 <div className="flex flex-col gap-1 text-sm bg-base-100 rounded-2xl px-4 py-3" aria-live="polite">
                     <p>
+                        <Piece taille={16} className="align-[-3px] mr-1" />
                         <strong>{montantTexte(total)}</strong>
                         {' '}: {plural(aFrapper, 'diamant')} à porter à la Monnaie pour les frapper
                         {total % PETITS_PAR_DIAMANT !== 0 && <span className="opacity-70"> (il vous restera {montantTexte(aFrapper * PETITS_PAR_DIAMANT - total)})</span>}.

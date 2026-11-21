@@ -22,7 +22,8 @@ import {
 } from "@/services/api";
 
 // ===== Fermes =====
-// Codex, « Fermes & ressources » : toute ferme se déclare et s'habille. La déclaration se fait ici (position, production,
+// Codex, « Fermes & ressources » : seules les fermes automatiques se déclarent et s'habillent (les fermes manuelles, non).
+// La déclaration se fait ici (position, production,
 // justification RP, bâtiment qui l'habille, photo) ; un modérateur RP la valide ou demande une mise en conformité,
 // jamais pour sa propre ferme (Shard-API crud_fermes). Une ferme modifiée par son déclarant repasse en attente.
 // Visibilité : le déclarant et les modérateurs RP seulement — une ferme est une position de jeu.
@@ -30,7 +31,7 @@ import {
 const MODAL_ID = "ferme-modal";
 
 const ETAPES = [
-    { icon: "fa-solid fa-file-signature", titre: "Déclarez", texte: "Position, ce qu'elle produit et sa justification RP : qui l'exploite, et pourquoi." },
+    { icon: "fa-solid fa-file-signature", titre: "Déclarez", texte: "Toute ferme automatique : sa position, ce qu'elle produit et sa justification RP (qui l'exploite, et pourquoi). Pas les fermes manuelles." },
     { icon: "fa-solid fa-house-chimney", titre: "Habillez", texte: "Moulin, étable, mine, atelier : la ferme se cache dans un bâtiment cohérent. Une photo le montre." },
     { icon: "fa-solid fa-stamp", titre: "Validation", texte: "Un modérateur RP la valide, ou dit ce qu'il faut mettre en conformité. Toute modification la renvoie en examen." },
 ];
@@ -275,7 +276,7 @@ export default function FermesPage() {
                     <GrimoireHero
                         icon="fa-solid fa-wheat-awn"
                         title="Les fermes de Tetrago"
-                        description="Toute ferme, manuelle ou automatique, se déclare et s'habille. Déclarez-la ici, avec sa justification RP et une photo : un modérateur RP la valide."
+                        description="Seules les fermes automatiques se déclarent et s'habillent : déclarez-les ici, avec leur justification RP et une photo, un modérateur RP les valide. Les fermes manuelles (champs, vergers, enclos que vous travaillez vous-même) n'ont pas à être déclarées."
                         topRight={
                             <button onClick={declarer} className="flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left" data-tip="Déclarer une ferme" style={{ padding: "0.75rem 0.75rem 0.75rem 1.25rem", cursor: "pointer" }}>
                                 <span className="flex">Ferme</span>
@@ -341,7 +342,7 @@ export default function FermesPage() {
                                     <EtatVide
                                         icon="fa-solid fa-wheat-awn"
                                         texte="Vous n'avez déclaré aucune ferme."
-                                        aide="Champ, étable, ferme à mobs ou machine : déclarez-la avant de l'exploiter."
+                                        aide="Ferme à mobs, à villageois, redstone ou machine : déclarez-la avant de l'exploiter. Champs et enclos travaillés à la main n'ont pas à l'être."
                                         action={{ label: "Déclarer une ferme", icon: "fa-solid fa-plus", onClick: () => ouvrir() }}
                                     />
                                 ) : mesFermesFiltrees.length === 0 ? (
@@ -364,7 +365,7 @@ export default function FermesPage() {
                         <FormModal
                             key={`${MODAL_ID}-${edition.count}`}
                             id={MODAL_ID}
-                            title={edition.ferme ? `Modifier « ${edition.ferme.title} »` : "Déclarer une ferme"}
+                            title={edition.ferme ? `Modifier « ${edition.ferme.title} »` : "Déclarer une ferme automatique"}
                             intro={edition.ferme && edition.ferme.status !== "en_attente" && edition.ferme.declarant?.id === user.id ? "Modifiée, la ferme repasse en attente de validation." : null}
                             fields={champs(villes, edition.ferme)}
                             initialValues={valeursInitiales(edition.ferme, dimensions)}

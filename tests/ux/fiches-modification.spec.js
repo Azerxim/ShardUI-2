@@ -67,7 +67,15 @@ test("la date de fondation d'une ville s'enregistre et s'affiche sur sa fiche et
   await main(page).getByRole("button", { name: "Modifier", exact: true }).click();
   const dialog = page.locator("dialog[open]");
   await expect(dialog.locator('input[name="title"]')).toHaveValue(ville.title);
-  await dialog.locator('input[name="founded_date"]').fill("0042-03-15");
+  // Champ vide : rien n'est rempli d'office, mais le calendrier s'ouvre sur la date du jour dans le RP (borne max)
+  const date = dialog.locator('input[name="founded_date"]');
+  await expect(date).toHaveValue("");
+  await expect(date).toHaveAttribute("max", /^\d{4}-\d{2}-\d{2}$/);
+  await expect(dialog.getByText(/Aujourd'hui dans le RP : .+ de l'an \d+/)).toBeVisible();
+  await date.fill("0042-03-15");
+  // Une date saisie, même plus lointaine que la date du jour RP, reste valable
+  await expect(date).not.toHaveAttribute("max");
+  await expect(dialog.getByText(/Aujourd'hui dans le RP/)).toHaveCount(0);
   await dialog.locator('button[type="submit"]').click();
   expect(await readAlert(page)).toMatch(/succès/i);
   await expect(main(page).getByText(/fondée le 15 mars 42/i)).toBeVisible();

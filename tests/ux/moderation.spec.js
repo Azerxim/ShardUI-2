@@ -59,6 +59,10 @@ test("le modérateur valide une guerre et juge un piège depuis le tableau de bo
   await page.locator(".swal2-confirm").click();
   await expect(guerres).not.toContainText(`Guerre du tableau ${suffixe}`);
   await expect(main(page).locator("#suivi-guerres")).toContainText(`Guerre du tableau ${suffixe}`);
+  // Sans date saisie, la guerre commence à la date du jour dans le RP (config.json « rp »), pas à la date réelle
+  const validee = (await apiGet("/guerres/list")).find((item) => item.guerre.id === guerre.id).guerre;
+  expect(validee.date_debut).toMatch(/^00\d\d-\d{2}-\d{2}$/);
+  await expect(main(page).locator("#suivi-guerres")).toContainText(/en cours depuis le \d+(er)? \S+ de l'an \d+/);
 
   // Piège : une blessure demande un motif
   await pieges.getByRole("listitem").filter({ hasText: `Fosse ${suffixe}` }).getByRole("button", { name: "Simple blessure" }).click();

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Swal from "sweetalert2";
+import InputDateRp from "@/components/temps/InputDateRp";
 
 import LocalisationField from "@/components/modals/fields/LocalisationField";
 
@@ -9,6 +10,8 @@ const resolve = (option, values) => (typeof option === "function" ? option(value
 // Modale de formulaire décrite par la page (alliances, guerres…).
 // fields : [{ name, label, type, options, required, placeholder, help, empty, resets }]
 //   type : "text" | "textarea" | "select" | "radio" | "checkboxes" | "file" | "date" | "number" | "color" | "icons"
+//   date : date RP (vide par défaut, calendrier ouvert sur la date du jour RP, components/temps/InputDateRp.jsx),
+//   sauf avec reel: true (date du calendrier réel, ex. jours d'une foire)
 //   checkboxes : valeur = tableau des options cochées ; file : valeur = File (accept : types acceptés)
 //   localisation : monde + X/Z avec carte de localisation, comme pour les villes (écrit dimension_id, x et z)
 //   onglets : la valeur est l'onglet choisi ; options : [{ value, label, aide?, fields? }] — seuls les champs de
@@ -141,6 +144,9 @@ export default function FormModal({ id, title, intro = null, fields = [], initia
                         ))}
                     </div>
                 );
+            case "date":
+                if (!field.reel) return <InputDateRp name={field.name} value={value} required={field.required} onChange={(e) => setValue(field, e.target.value)} className={inputClass} />;
+                return <input type="date" name={field.name} value={value} required={field.required} onChange={(e) => setValue(field, e.target.value)} className={inputClass} />;
             default:
                 return <input type={field.type || "text"} name={field.name} value={value} placeholder={field.placeholder} required={field.required} onChange={(e) => setValue(field, e.target.value)} className={field.type === "color" ? "w-full h-10 cursor-pointer rounded-2xl" : inputClass} />;
         }

@@ -4,6 +4,7 @@ import Navbar from "@/components/layout/Navbar";
 import { MAPS_BASE_URL } from "@/config/maps";
 import CopyBtn from '@/components/ui/CopyButton'
 import GrimoireHero from '@/components/layout/GrimoireHero';
+import TemporaliteRp from '@/components/temps/TemporaliteRp';
 import ImageHero from '@/components/layout/ImageHero';
 import LaunchHomePage from '@/pages/home/LaunchHomePage';
 import { lancementAVenir } from '@/config/saison';
@@ -28,7 +29,7 @@ const books = [
 // Textes des étapes du parcours (ordre, numéros et chemins : utils/parcours.js) ; la prochaine à faire devient le bouton principal du héros
 const steps = {
   codex: { icon: "fa-solid fa-scroll", title: "Lisez le Codex", description: "Les règles du serveur et du rôle-play, à parcourir avant toute chose.", link: "/codex", action: "Lire le Codex" },
-  discord: { icon: "fa-brands fa-discord", title: "Candidatez sur le Discord", description: "Rejoignez le Discord et déposez votre candidature pour être ajouté à la whitelist du serveur.", link: DISCORD_INVITE, externe: true, action: "Candidater sur le Discord", complement: { icon: "fa-solid fa-file-signature", label: "Préparer ma candidature", link: "/aides#candidature" } },
+  discord: { icon: "fa-brands fa-discord", title: "Candidatez sur le Discord", description: "Rejoignez le Discord et déposez votre candidature pour être ajouté à la whitelist du serveur.", link: DISCORD_INVITE, externe: true, action: "Candidater sur le Discord", complement: { icon: "fa-solid fa-file-signature", label: "Préparer ma candidature", link: "/outils#candidature" } },
   serveur: { icon: "fa-solid fa-network-wired", title: "Rejoignez le serveur", description: <>Ajoutez l'adresse <b className="text-primary">{serverURL}</b> dans Minecraft Java.</>, action: "Copier l'IP du serveur" },
   compte: { icon: "fa-solid fa-user-plus", title: "Créez votre compte", description: "Inscrivez-vous en quelques secondes pour entrer dans l'histoire.", link: "/register", action: "Créer un compte" },
   civilisation: { icon: "fa-solid fa-flag", title: "Fondez une civilisation ou rejoignez-en une", description: "Fondez la vôtre, ou demandez à rejoindre une civilisation existante depuis sa page.", link: "/civilisations", action: "Fonder ou rejoindre une civilisation" },
@@ -118,6 +119,9 @@ function AccueilSaison() {
 
           {/* Appels aux armes et déclarations en attente du joueur connecté */}
           <ActionsEnAttente className="mb-12 -mt-6" />
+
+          {/* Date du jour dans le RP et règle du temps (1 semaine réelle = 2 ans RP) */}
+          <TemporaliteRp className="mb-12" />
 
           {/* Parcours : étapes faites cochées, étapes à faire mises en avant */}
           <section id="parcours" className="mb-12 scroll-mt-24">

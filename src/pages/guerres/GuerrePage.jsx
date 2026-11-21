@@ -28,8 +28,9 @@ import { DEFAULT_RELIGION_ICON, religionColor, religionIcon } from "@/utils/reli
 import DynamicIcon from "@/components/ui/DynamicIcon";
 import {
     GUERRE_ISSUES, GUERRE_STATUTS, GUERRE_TYPES,
-    entityHref, formatDate, isModerateur, managedEntities, runAction,
+    dateDeclaration, entityHref, formatDate, isModerateur, managedEntities, runAction,
 } from "@/utils/conflits";
+import { dateRp } from "@/config/chroniques";
 import { getSessionUser } from "@/services/session";
 import { ENCRE, encreSur, metalSur } from "@/utils/couleurFiche";
 import { useCouleurCivilisation } from "@/utils/useCouleurCivilisation";
@@ -372,14 +373,14 @@ export default function GuerrePage() {
             {/* En-tête encre : la guerre et ses deux camps, chacun aux couleurs de son chef de camp */}
             <EnTeteFiche
                 couleur={ENCRE}
-                surtitre={`${type.label} · déclarée le ${formatDate(guerre.declared_at)}${data.declarant ? ` par ${data.declarant.full_name || data.declarant.username}` : ""}`}
+                surtitre={`${type.label} · déclarée le ${dateDeclaration(guerre)}${data.declarant ? ` par ${data.declarant.full_name || data.declarant.username}` : ""}`}
                 titre={guerre.title}
                 infos={
                     <>
                         <span className={`badge ${statut.badge}`}>{statut.label}</span>
                         {guerre.date_debut ? (
                             <InfoLine icon="fa-solid fa-calendar">
-                                {guerre.status === "terminee" ? `Du ${formatDate(guerre.date_debut)} au ${formatDate(guerre.date_fin)}` : `Débutée le ${formatDate(guerre.date_debut)}`}
+                                {guerre.status === "terminee" ? `Du ${dateRp(guerre.date_debut)} au ${dateRp(guerre.date_fin) ?? "?"}` : `Débutée le ${dateRp(guerre.date_debut)}`}
                             </InfoLine>
                         ) : null}
                         {data.moderateur ? <InfoLine icon="fa-solid fa-gavel">Encadrée par {data.moderateur.full_name || data.moderateur.username}</InfoLine> : null}
@@ -480,7 +481,7 @@ export default function GuerrePage() {
                                             ) : null}
                                         </div>
                                         <span className="text-xs opacity-70">
-                                            {evenement.date_rp ? `${formatDate(evenement.date_rp)} (RP)` : formatDate(evenement.created_at)}
+                                            {evenement.date_rp ? dateRp(evenement.date_rp) : formatDate(evenement.created_at)}
                                             {evenement.auteur ? ` · ${evenement.auteur.full_name || evenement.auteur.username}` : ""}
                                         </span>
                                         {evenement.description ? <p className="whitespace-pre-wrap break-words">{evenement.description}</p> : null}
@@ -585,8 +586,9 @@ export default function GuerrePage() {
                                     { name: "title", label: "Nom de la guerre", type: "text", required: true },
                                     { name: "casus_belli", label: "Casus belli", type: "textarea" },
                                     { name: "description", label: "Description", type: "textarea" },
+                                    { name: "date_declaration", label: "Déclarée le (date RP)", type: "date" },
                                 ]}
-                                initialValues={{ title: guerre.title, casus_belli: guerre.casus_belli ?? "", description: guerre.description ?? "" }}
+                                initialValues={{ title: guerre.title, casus_belli: guerre.casus_belli ?? "", description: guerre.description ?? "", date_declaration: guerre.date_declaration ?? "" }}
                                 submitLabel="Enregistrer"
                                 onSubmit={(values) => submitAndReload(() => apiRequest("PUT", `/guerres/update/${id}`, values))}
                             />
@@ -597,7 +599,7 @@ export default function GuerrePage() {
                                         title="Valider la guerre"
                                         intro="La guerre devient publique et commence à la date RP indiquée."
                                         fields={[
-                                            { name: "date_debut", label: "Début dans le RP", type: "date", help: "Aujourd'hui si laissé vide." },
+                                            { name: "date_debut", label: "Début dans le RP", type: "date", help: "Vide : la date du jour dans le RP." },
                                             { name: "note", label: "Note de modération", type: "textarea", placeholder: "Cadre, enjeux, règles particulières…" },
                                         ]}
                                         submitLabel="Valider"
@@ -620,7 +622,7 @@ export default function GuerrePage() {
                                         fields={[
                                             { name: "issue", label: "Issue", type: "select", required: true, options: GUERRE_ISSUES.map((issue) => ({ value: issue, label: issue })) },
                                             { name: "precisions", label: "Précisions", type: "textarea", placeholder: "Clauses du traité, territoires cédés…" },
-                                            { name: "date_fin", label: "Fin dans le RP", type: "date", help: "Aujourd'hui si laissé vide." },
+                                            { name: "date_fin", label: "Fin dans le RP", type: "date", help: "Vide : la date du jour dans le RP." },
                                         ]}
                                         submitLabel="Terminer"
                                         submitIcon="fas fa-flag-checkered"

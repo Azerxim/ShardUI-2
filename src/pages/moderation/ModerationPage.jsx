@@ -11,7 +11,8 @@ import FormModal from "@/components/modals/FormModal";
 import { usePageTitle } from "@/utils/pageTitle";
 import { showModalID } from "@/utils/showModal";
 import { plural } from "@/utils/plural";
-import { formatDate } from "@/utils/conflits";
+import { dateDeclaration, formatDate } from "@/utils/conflits";
+import { dateRp } from "@/config/chroniques";
 import { getSessionUser } from "@/services/session";
 import { apiRequest, deciderAjustement, deciderFerme, deciderPiege, getTableauModeration, photoFermeUrl } from "@/services/api";
 
@@ -168,11 +169,11 @@ export default function ModerationPage() {
                                             icon="fa-solid fa-shield-halved"
                                             titre={guerre.title}
                                             lien={`/guerre/${guerre.id}`}
-                                            sousTitre={`${leader(camps.attaquant)} contre ${leader(camps.defenseur)} · déclarée le ${formatDate(guerre.declared_at)}${declarant ? ` par ${nom(declarant)}` : ""}`}
+                                            sousTitre={`${leader(camps.attaquant)} contre ${leader(camps.defenseur)} · déclarée le ${dateDeclaration(guerre)}${declarant ? ` par ${nom(declarant)}` : ""}`}
                                             actions={(
                                                 <>
                                                     <button type="button" className="btn btn-sm btn-success" onClick={() => decider(`Valider « ${guerre.title} »`, [
-                                                        { name: "date_debut", label: "Début dans le RP", type: "date", help: "Aujourd'hui si laissé vide." },
+                                                        { name: "date_debut", label: "Début dans le RP", type: "date", help: "Vide : la date du jour dans le RP." },
                                                         note(false, "Cadre, enjeux, règles particulières…"),
                                                     ], (values) => apiRequest("PUT", `/guerres/${guerre.id}/valider`, values), { submitLabel: "Valider", submitClass: "btn-success" })}>Valider</button>
                                                     <button type="button" className="btn btn-sm btn-ghost bg-base-100" onClick={() => decider(`Refuser « ${guerre.title} »`, [
@@ -271,7 +272,7 @@ export default function ModerationPage() {
                                 <Groupe id="suivi-guerres" titre="Guerres en cours" icon="fa-solid fa-fire" elements={suivi.guerres} vide="Aucune guerre en cours.">
                                     {suivi.guerres.map(({ guerre, camps }) => (
                                         <Carte key={guerre.id} icon="fa-solid fa-fire" titre={guerre.title} lien={`/guerre/${guerre.id}`}
-                                            sousTitre={`${leader(camps.attaquant)} contre ${leader(camps.defenseur)} · en cours depuis le ${formatDate(guerre.date_debut || guerre.validated_at)} · à clore sur sa fiche une fois l'issue jouée`} />
+                                            sousTitre={`${leader(camps.attaquant)} contre ${leader(camps.defenseur)} · en cours depuis le ${guerre.date_debut ? dateRp(guerre.date_debut) : formatDate(guerre.validated_at)} · à clore sur sa fiche une fois l'issue jouée`} />
                                     ))}
                                 </Groupe>
                                 <Groupe id="suivi-fermes" titre="Fermes à mettre en conformité" icon="fa-solid fa-wrench" elements={suivi.fermes} vide="Aucune ferme en attente de correction.">

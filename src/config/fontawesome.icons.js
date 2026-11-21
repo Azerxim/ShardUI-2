@@ -43,6 +43,7 @@ import { definition as fasCakeCandles } from "@fortawesome/free-solid-svg-icons/
 import { definition as fasCalendar } from "@fortawesome/free-solid-svg-icons/faCalendar";
 import { definition as fasCalendarDay } from "@fortawesome/free-solid-svg-icons/faCalendarDay";
 import { definition as fasCalendarDays } from "@fortawesome/free-solid-svg-icons/faCalendarDays";
+import { definition as fasCalendarWeek } from "@fortawesome/free-solid-svg-icons/faCalendarWeek";
 import { definition as fasCalendarXmark } from "@fortawesome/free-solid-svg-icons/faCalendarXmark";
 import { definition as fasCamera } from "@fortawesome/free-solid-svg-icons/faCamera";
 import { definition as fasChair } from "@fortawesome/free-solid-svg-icons/faChair";
@@ -284,6 +285,7 @@ export default [
     fasCalendar,
     fasCalendarDay,
     fasCalendarDays,
+    fasCalendarWeek,
     fasCalendarXmark,
     fasCamera,
     fasChair,

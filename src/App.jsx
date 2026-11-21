@@ -29,6 +29,7 @@ import PersonnagePage from '@/pages/personnages/PersonnagePage';
 import CodexPage from '@/pages/codex/CodexPage';
 import RoadmapPage from '@/pages/roadmap/RoadmapPage';
 import AidesPage from '@/pages/aides/AidesPage';
+import OutilsPage from '@/pages/outils/OutilsPage';
 import ElectionsPage from '@/pages/elections/ElectionsPage';
 import ElectionPage from '@/pages/elections/ElectionPage';
 import ActionsSecretesPage from '@/pages/actions/ActionsSecretesPage';
@@ -98,6 +99,7 @@ export default function App() {
 
           <Route path="/roadmap" element={<RoadmapPage />} />
           <Route path="/aides" element={<AidesPage />} />
+          <Route path="/outils" element={<OutilsPage />} />
           <Route path="/elections" element={<ElectionsPage />} />
           <Route path="/election" element={<Navigate to="/elections" replace />} />
           <Route path="/election/:id" element={<ElectionPage />} />

@@ -13,6 +13,10 @@ export const GLOSSAIRE = {
         terme: "Quartier",
         definition: "Partie d'une ville, où peuvent résider des personnages, s'implanter des religions et ouvrir des magasins.",
     },
+    protection: {
+        terme: "Zone protégée",
+        definition: "Terrain revendiqué en jeu avec le mod Flan (houe en or) : les autres joueurs ne peuvent rien y détruire sans les droits que leur donne son propriétaire. Distincte des frontières RP tracées sur la carte.",
+    },
     religion: {
         terme: "Religion",
         definition: "Foi qui réunit des fidèles. Son influence se mesure dans chaque ville ou quartier où elle est présente.",
@@ -47,7 +51,7 @@ export const GLOSSAIRE = {
     },
     ferme: {
         terme: "Ferme",
-        definition: "Toute installation qui produit des ressources (cultures, élevage, mobs, automatismes). Elle se déclare sur le site avec sa justification RP et une photo, puis un modérateur RP la valide ou demande une mise en conformité.",
+        definition: "Installation qui produit des ressources. Une ferme automatique (redstone, mobs, villageois, machines) se déclare sur le site avec sa justification RP et une photo, puis un modérateur RP la valide ou demande une mise en conformité. Une ferme manuelle (champs, vergers, enclos travaillés à la main) ne se déclare pas.",
     },
     cible: {
         terme: "Cibles d'une guerre",

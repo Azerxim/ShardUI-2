@@ -1,6 +1,7 @@
 import IconPicker from "@/components/ui/IconPicker";
 import FieldWrapper from "@/components/modals/fields/FieldWrapper";
 import { selectValue } from "@/components/modals/fields/selectValue";
+import InputDateRp from "@/components/temps/InputDateRp";
 
 // Champs sans état propre de DynamicModal.
 // Props communes : champ (config du champ), value, onChange(name, value)
@@ -145,11 +146,11 @@ export function IconField({ champ, value, onChange }) {
   );
 }
 
+// Date RP (toutes les dates des modales dynamiques le sont) : vide par défaut, calendrier ouvert sur la date du jour RP
 export function DateField({ champ, value, onChange }) {
   return (
     <FieldWrapper champ={champ}>
-      <input
-        type="date"
+      <InputDateRp
         name={champ.name}
         placeholder={champ.placeholder}
         value={value}

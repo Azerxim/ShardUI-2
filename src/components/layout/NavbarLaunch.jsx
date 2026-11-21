@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import '@/components/layout/Navbar.css';
 import { syncSessionUser } from '@/services/session';
-import { AIDES, CARTE, LAUNCH } from '@/config/navbar';
+import { AIDES, CARTE, LAUNCH, OUTILS } from '@/config/navbar';
 import RechercheGlobale from '@/components/layout/RechercheGlobale';
 import { BoutonNotifications, ContenuNotifications } from '@/components/layout/Notifications';
 import useNotifications from '@/components/layout/useNotifications';
@@ -137,6 +137,7 @@ function ContenuMenu({ active, User, fermer, nonLues, ouvrirNotifications }) {
             <li className="menu-title pt-3 pb-1">Découvrir</li>
             {LAUNCH.map((lien) => <MenuLien key={lien.id} lien={lien} active={active} />)}
             <MenuLien lien={AIDES} active={active} />
+            <MenuLien lien={OUTILS} active={active} />
             <MenuLien lien={{ ...CARTE, text: 'Cartographie' }} active={active} />
             <MenuLien lien={{ id: 'calendrier', href: '/calendrier', icon: 'fa-solid fa-calendar-days', text: 'Calendrier' }} active={active} />
             <MenuLien lien={{ id: 'chroniques', href: '/chroniques', icon: 'fa-solid fa-timeline', text: 'Chroniques' }} active={active} />
@@ -340,16 +341,6 @@ export default function NavbarLaunch({ active = '' }) {
                     </nav>
                 </div>
                 <div className="navbar-end gap-2">
-                    {/* Sous 1024 px (lg), le menu latéral garde le lien des aides */}
-                    <a
-                        href={AIDES.href}
-                        aria-label="Aides et utilitaires"
-                        aria-current={active === AIDES.id ? 'page' : undefined}
-                        className={`btn rounded-3xl btn-ghost tooltip tooltip-left hidden lg:inline-flex ${active === AIDES.id ? 'bg-secondary text-secondary-content' : 'bg-base-200'}`}
-                        data-tip="Aides et utilitaires"
-                    >
-                        <FontAwesomeIcon icon="fa-solid fa-question" />
-                    </a>
                 </div>
             </div>
 

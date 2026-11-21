@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Swal from 'sweetalert2';
+import Piece from '@/components/monnaie/Piece';
 
 import FormModal from '@/components/modals/FormModal';
 import { createArticle, deleteArticle, getCatalogueMagasin, updateArticle } from '@/services/api';
@@ -115,7 +116,7 @@ export default function CatalogueMagasin({ magasin, auth = false }) {
                                         {article.description && <span className="text-xs opacity-70 break-words">{article.description}</span>}
                                     </span>
                                     <span className="flex flex-row items-center gap-1 shrink-0 ml-auto">
-                                        <span className="text-sm font-semibold tabular-nums text-right">{prixLot(article.prix_petits, article.quantite)}</span>
+                                        <span className="text-sm font-semibold tabular-nums inline-flex items-center justify-end gap-1 text-right"><Piece taille={16} />{prixLot(article.prix_petits, article.quantite)}</span>
                                         {auth && (
                                             <span className="flex flex-row">
                                                 <button type="button" className="btn btn-xs btn-ghost btn-circle" aria-label={`Modifier ${article.title}`} onClick={() => ouvrir(article)}>
