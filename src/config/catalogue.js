@@ -1,4 +1,4 @@
-import { MONNAIE } from "@/config/monnaie";
+import { montantTexte } from "@/config/monnaie";
 
 // Catalogue des boutiques : catégories d'articles (mêmes clés que Shard-API crud_catalogue.CATEGORIES)
 export const CATEGORIES_ARTICLES = [
@@ -14,8 +14,8 @@ export const CATEGORIES_ARTICLES = [
 
 export const categorieArticle = (value) => CATEGORIES_ARTICLES.find((categorie) => categorie.value === value) ?? CATEGORIES_ARTICLES.at(-1);
 
-// « 3 tetras », « 1 tetra », « Offert »
-export const prixTexte = (prix) => (prix === 0 ? "Offert" : `${prix.toLocaleString("fr-FR")} ${prix > 1 ? MONNAIE.pluriel : MONNAIE.nom}`);
+// Prix en petits tetras (Shard-API crud_catalogue) : « 3 tetras », « 1 tetra et 4 petits tetras », « Offert »
+export const prixTexte = (prixPetits) => (prixPetits === 0 ? "Offert" : montantTexte(prixPetits));
 
-// « 1 tetra les 16 », « 3 tetras l'unité »
-export const prixLot = (prix, quantite = 1) => (prix === 0 ? "Offert" : `${prixTexte(prix)} ${quantite > 1 ? `les ${quantite.toLocaleString("fr-FR")}` : "l'unité"}`);
+// « 1 tetra les 16 », « 5 petits tetras l'unité »
+export const prixLot = (prixPetits, quantite = 1) => (prixPetits === 0 ? "Offert" : `${prixTexte(prixPetits)} ${quantite > 1 ? `les ${quantite.toLocaleString("fr-FR")}` : "l'unité"}`);

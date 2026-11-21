@@ -5,13 +5,13 @@ import Swal from 'sweetalert2';
 import FormModal from '@/components/modals/FormModal';
 import { createArticle, deleteArticle, getCatalogueMagasin, updateArticle } from '@/services/api';
 import { CATEGORIES_ARTICLES, categorieArticle, prixLot } from '@/config/catalogue';
-import { MONNAIE } from '@/config/monnaie';
+import { MONNAIE, decomposer, enPetits } from '@/config/monnaie';
 import { showModalID } from '@/utils/showModal';
 import { runAction } from '@/utils/conflits';
 import { plural } from '@/utils/plural';
 
 // ===== Catalogue d'un magasin =====
-// Articles vendus par lot, prix en tetras (Shard-API crud_catalogue). Tenu par le Fondateur et les Admins du commerce
+// Articles vendus par lot, prix en tetras et petits tetras, enregistré en petits tetras (Shard-API crud_catalogue). Tenu par le Fondateur et les Admins du commerce
 // (auth), comme le magasin. Replié d'office au-delà de PLIE_AU_DELA articles pour ne pas allonger la fiche.
 
 const PLIE_AU_DELA = 8;
@@ -19,7 +19,8 @@ const PLIE_AU_DELA = 8;
 const CHAMPS = [
     { name: 'title', label: 'Article', type: 'text', required: true, placeholder: 'Ex. Flèches, Épée en fer, Réparation d\'armure' },
     { name: 'categorie', label: 'Catégorie', type: 'select', required: true, options: CATEGORIES_ARTICLES.map(({ value, label }) => ({ value, label })) },
-    { name: 'prix', label: `Prix en ${MONNAIE.pluriel}`, type: 'number', required: true, placeholder: 'Ex. 1', help: `Prix du lot entier (1 ${MONNAIE.nom} = 1 diamant). 0 : offert.` },
+    { name: 'prix_tetras', label: `Prix : ${MONNAIE.pluriel}`, type: 'number', required: true, placeholder: 'Ex. 1', help: `Prix du lot entier (${MONNAIE.valeur}). 0 et 0 : offert.` },
+    { name: 'prix_petits', label: `et ${MONNAIE.petit.pluriel}`, type: 'number', placeholder: 'Ex. 4', help: `De 0 à ${MONNAIE.petitsParTetra - 1} (${MONNAIE.equivalence}).` },
     { name: 'quantite', label: 'Taille du lot', type: 'number', required: true, placeholder: 'Ex. 16', help: '« 16 flèches pour 1 tetra » : lot de 16, prix 1.' },
     { name: 'en_stock', label: 'Disponibilité', type: 'radio', required: true, options: [{ value: true, label: 'En stock' }, { value: false, label: 'En rupture' }] },
     { name: 'description', label: 'Précisions', type: 'textarea', placeholder: 'Facultatives : enchantements, durabilité, sur commande…' },
@@ -28,7 +29,8 @@ const CHAMPS = [
 const valeursInitiales = (article) => ({
     title: article?.title ?? '',
     categorie: article?.categorie ?? '',
-    prix: article ? String(article.prix) : '',
+    prix_tetras: article ? String(decomposer(article.prix_petits).tetras) : '',
+    prix_petits: article ? String(decomposer(article.prix_petits).petits) : '0',
     quantite: article ? String(article.quantite) : '1',
     en_stock: article ? article.en_stock : true,
     description: article?.description ?? '',
@@ -55,15 +57,19 @@ export default function CatalogueMagasin({ magasin, auth = false }) {
     const ouvrir = (article = null) => setEdition((prev) => ({ article, count: (prev?.count ?? 0) + 1 }));
 
     const enregistrer = async (values) => {
+        const tetras = Number.parseInt(values.prix_tetras, 10);
+        const petits = values.prix_petits === '' || values.prix_petits == null ? 0 : Number.parseInt(values.prix_petits, 10);
+        if (![tetras, petits].every((n) => Number.isInteger(n) && n >= 0)) {
+            throw new Error(`Le prix est un nombre entier de ${MONNAIE.pluriel} et de ${MONNAIE.petit.pluriel}, 0 ou plus.`);
+        }
         const corps = {
             title: values.title,
             categorie: values.categorie,
-            prix: Number.parseInt(values.prix, 10),
+            prix_petits: enPetits(tetras, petits),
             quantite: Number.parseInt(values.quantite, 10),
             en_stock: values.en_stock === true || values.en_stock === 'true',
             description: values.description,
         };
-        if (!Number.isInteger(corps.prix) || corps.prix < 0) throw new Error('Le prix est un nombre entier de tetras, 0 ou plus.');
         if (!Number.isInteger(corps.quantite) || corps.quantite < 1) throw new Error('Un lot contient au moins un article.');
         const data = edition.article
             ? await updateArticle(edition.article.id, corps)
@@ -109,7 +115,7 @@ export default function CatalogueMagasin({ magasin, auth = false }) {
                                         {article.description && <span className="text-xs opacity-70 break-words">{article.description}</span>}
                                     </span>
                                     <span className="flex flex-row items-center gap-1 shrink-0 ml-auto">
-                                        <span className="text-sm font-semibold tabular-nums text-right">{prixLot(article.prix, article.quantite)}</span>
+                                        <span className="text-sm font-semibold tabular-nums text-right">{prixLot(article.prix_petits, article.quantite)}</span>
                                         {auth && (
                                             <span className="flex flex-row">
                                                 <button type="button" className="btn btn-xs btn-ghost btn-circle" aria-label={`Modifier ${article.title}`} onClick={() => ouvrir(article)}>

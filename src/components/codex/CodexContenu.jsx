@@ -18,7 +18,7 @@ import { DISCORD_INVITE } from "@/utils/parcours";
 const ROMAINS = ["I", "II", "III", "IV", "V"];
 
 const ANNEXES = [
-    { id: "monnaie", titre: "Monnaie officielle", icon: "fa-solid fa-gem" },
+    { id: "monnaie", titre: "Monnaie officielle", icon: "fa-solid fa-coins" },
     { id: "glossaire", titre: "Glossaire", icon: "fa-solid fa-book-open" },
     { id: "serment", titre: "Le Serment", icon: "fa-solid fa-feather-pointed" },
 ];

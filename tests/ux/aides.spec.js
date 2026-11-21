@@ -55,7 +55,7 @@ test("l'onglet Outils présente chaque outil, puis l'ouvre dans son propre ongle
   await blockExternalRequests(page);
   await page.goto("/aides#outils");
   const accueil = main(page).getByRole("tabpanel", { name: "Tous les outils" });
-  for (const titre of ["Aide à la candidature", "Coordonnées du Nether", "Tetras, diamants et blocs", "Distance et temps de trajet", "Fiche de personnage pour Discord", "Cabine photo"]) {
+  for (const titre of ["Aide à la candidature", "Coordonnées du Nether", "Tetras et diamants", "Distance et temps de trajet", "Fiche de personnage pour Discord", "Cabine photo"]) {
     await expect(accueil.getByRole("link", { name: new RegExp(titre) })).toBeVisible();
   }
   // La carte ouvre l'outil, seul dans son onglet, et l'adresse suit
@@ -140,16 +140,20 @@ test("les coordonnées passent de la surface au Nether, et inversement", async (
   await expect(surface.getByLabel("X")).toHaveValue("96");
 });
 
-test("un montant en tetras se répartit en blocs et diamants", async ({ page }) => {
+test("des diamants se changent en tetras, et un montant dit combien de diamants frapper", async ({ page }) => {
   await blockExternalRequests(page);
   await page.goto("/aides#tetras");
   const outil = page.locator("#tetras");
-  await outil.getByLabel("Montant en tetras").fill("100");
-  await expect(outil.getByLabel("Blocs de diamant")).toHaveValue("11");
-  await expect(outil.getByLabel("Diamants", { exact: true })).toHaveValue("1");
-  await expect(outil).toContainText("100 tetras = 11 blocs de diamant et 1 diamant");
-  await outil.getByLabel("Blocs de diamant").fill("2");
-  await expect(outil.getByLabel("Montant en tetras")).toHaveValue("19");
+  // 1 diamant = 8 tetras à la frappe
+  await outil.getByLabel("Diamants").fill("2");
+  await expect(outil.getByLabel("Montant : tetras")).toHaveValue("16");
+  await expect(outil.getByLabel("et petits tetras")).toHaveValue("0");
+  // 10 tetras et 4 petits = 94 petits tetras : 2 diamants à frapper (144 petits), 1 diamant au rachat (81 petits)
+  await outil.getByLabel("Montant : tetras").fill("10");
+  await outil.getByLabel("et petits tetras").fill("4");
+  await expect(outil.getByLabel("Diamants")).toHaveValue("2");
+  await expect(outil).toContainText("10 tetras et 4 petits tetras : 2 diamants à porter à la Monnaie pour les frapper (il vous restera 5 tetras et 5 petits tetras)");
+  await expect(outil).toContainText("Rendus à la Monnaie, ils rachètent 1 diamant");
 });
 
 test("la distance entre deux villes publiques donne les temps de trajet", async ({ page }) => {

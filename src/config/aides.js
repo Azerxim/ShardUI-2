@@ -44,7 +44,7 @@ export const GUIDES = [
         icon: "fa-solid fa-shop",
         etapes: [
             { texte: "Déclarez votre échoppe, son enseigne et sa ville.", lien: "/commerces", libelle: "Commerces" },
-            { texte: "Remplissez son catalogue : article, lot et prix en tetras entiers.", lien: "/commerces#ou-acheter", libelle: "Où acheter ?" },
+            { texte: "Remplissez son catalogue : article, lot et prix en tetras et petits tetras.", lien: "/commerces#ou-acheter", libelle: "Où acheter ?" },
             { texte: "Annoncez vos jours de marché et vos foires aux joueurs de votre ville." },
         ],
     },
@@ -136,8 +136,8 @@ export const OUTILS = [
         details: ["À pied, à cheval, en bateau ou par le Nether", "En temps réel et en temps RP"],
     },
     {
-        id: "tetras", onglet: "Tetras", icon: MONNAIE.icon, titre: "Tetras, diamants et blocs",
-        resume: "Combien sortir du coffre pour payer un montant, ou ce que vaut votre bourse.",
+        id: "tetras", onglet: "Tetras", icon: MONNAIE.icon, titre: "Tetras et diamants",
+        resume: "Combien de diamants porter à la Monnaie pour un montant, ou ce que vaut votre bourse.",
         details: [MONNAIE.valeur, MONNAIE.equivalence],
     },
     {

@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { MONNAIE } from '@/config/monnaie';
 
-// Carte de la monnaie officielle : sa valeur, où elle a cours, comment l'obtenir.
+// Carte de la monnaie officielle : sa valeur, où elle a cours, ce qu'échange la Monnaie de Tetrago, comment l'obtenir.
 // compact : version courte pour la page des commerces, avec un lien vers le Codex.
 export default function MonnaieOfficielle({ compact = false, id }) {
     return (
@@ -21,10 +21,23 @@ export default function MonnaieOfficielle({ compact = false, id }) {
             </div>
             {compact ? (
                 <p className="text-sm opacity-80">
-                    Indiquez vos prix en {MONNAIE.pluriel}.{' '}
+                    Indiquez vos prix en {MONNAIE.pluriel} et {MONNAIE.petit.pluriel}, frappés en jeu par {MONNAIE.atelier}.{' '}
                     <a href="/codex#monnaie" className="link link-hover font-semibold">Comment en obtenir ?</a>
                 </p>
             ) : (
+                <>
+                <div className="flex flex-col gap-2">
+                    <h3 className="font-semibold">Frappée par {MONNAIE.atelier}</h3>
+                    <ul className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        {MONNAIE.frappe.map((echange) => (
+                            <li key={echange.texte} className="flex items-center gap-3 bg-base-100 rounded-2xl p-3 text-sm">
+                                <FontAwesomeIcon icon={echange.icon} className="opacity-70" />
+                                <span>{echange.texte}</span>
+                            </li>
+                        ))}
+                    </ul>
+                    <p className="text-sm opacity-80">{MONNAIE.authenticite}</p>
+                </div>
                 <div className="flex flex-col gap-2">
                     <h3 className="font-semibold">Comment obtenir des {MONNAIE.pluriel}</h3>
                     <ul className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -39,6 +52,7 @@ export default function MonnaieOfficielle({ compact = false, id }) {
                         ))}
                     </ul>
                 </div>
+                </>
             )}
         </section>
     );

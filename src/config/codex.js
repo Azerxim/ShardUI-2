@@ -48,7 +48,7 @@ export const LIVRES = [
         titre: "Économie & échanges",
         icon: "fa-solid fa-coins",
         articles: [
-          { titre: "Le tetra, seule monnaie du royaume.", texte: "Un tetra vaut un diamant. Aucune transaction contre argent réel, biens externes ou service tiers n'est autorisée.", warn: true },
+          { titre: "Le tetra, seule monnaie du royaume.", texte: "Seuls les tetras frappés par la Monnaie de Tetrago ont cours : 1 diamant = 8 tetras, 1 tetra = 9 petits tetras. Aucune transaction contre argent réel, biens externes ou service tiers n'est autorisée.", warn: true },
           { titre: "Échanges équitables.", texte: "Une arnaque entre joueurs — bien promis non livré, double prix — est traitée comme un vol." },
           { titre: "Marché libre, prix libres.", texte: "L'équipe ne fixe pas les prix, mais intervient en cas de monopole abusif ou de sabotage économique organisé." },
         ],

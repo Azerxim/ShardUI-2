@@ -37,7 +37,7 @@ function Resultat({ article }) {
                 </span>
             </span>
             <span className="flex flex-row items-center gap-2 shrink-0 pl-7 sm:pl-0">
-                <span className="font-semibold tabular-nums">{prixLot(article.prix, article.quantite)}</span>
+                <span className="font-semibold tabular-nums">{prixLot(article.prix_petits, article.quantite)}</span>
                 {dimension?.link && magasin.x != null && magasin.z != null ? (
                     <a
                         href={`${MAPS_BASE_URL}/${dimension.link}-commerces#x=${magasin.x}&z=${magasin.z}&zoom=1`}

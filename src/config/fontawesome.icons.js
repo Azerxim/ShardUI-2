@@ -172,7 +172,6 @@ import { definition as fasPeopleArrows } from "@fortawesome/free-solid-svg-icons
 import { definition as fasPeopleGroup } from "@fortawesome/free-solid-svg-icons/faPeopleGroup";
 import { definition as fasPeopleRoof } from "@fortawesome/free-solid-svg-icons/faPeopleRoof";
 import { definition as fasPersonBreastfeeding } from "@fortawesome/free-solid-svg-icons/faPersonBreastfeeding";
-import { definition as fasPersonDigging } from "@fortawesome/free-solid-svg-icons/faPersonDigging";
 import { definition as fasPersonHiking } from "@fortawesome/free-solid-svg-icons/faPersonHiking";
 import { definition as fasPersonRunning } from "@fortawesome/free-solid-svg-icons/faPersonRunning";
 import { definition as fasPersonWalking } from "@fortawesome/free-solid-svg-icons/faPersonWalking";
@@ -185,6 +184,7 @@ import { definition as fasQuoteLeft } from "@fortawesome/free-solid-svg-icons/fa
 import { definition as fasRightFromBracket } from "@fortawesome/free-solid-svg-icons/faRightFromBracket";
 import { definition as fasRightToBracket } from "@fortawesome/free-solid-svg-icons/faRightToBracket";
 import { definition as fasRing } from "@fortawesome/free-solid-svg-icons/faRing";
+import { definition as fasRotateLeft } from "@fortawesome/free-solid-svg-icons/faRotateLeft";
 import { definition as fasRotateRight } from "@fortawesome/free-solid-svg-icons/faRotateRight";
 import { definition as fasRoute } from "@fortawesome/free-solid-svg-icons/faRoute";
 import { definition as fasSailboat } from "@fortawesome/free-solid-svg-icons/faSailboat";
@@ -408,7 +408,6 @@ export default [
     fasPeopleGroup,
     fasPeopleRoof,
     fasPersonBreastfeeding,
-    fasPersonDigging,
     fasPersonHiking,
     fasPersonRunning,
     fasPersonWalking,
@@ -421,6 +420,7 @@ export default [
     fasRightFromBracket,
     fasRightToBracket,
     fasRing,
+    fasRotateLeft,
     fasRotateRight,
     fasRoute,
     fasSailboat,

@@ -79,7 +79,7 @@ export const GLOSSAIRE = {
     },
     tetra: {
         terme: "Tetra",
-        definition: "Monnaie officielle du serveur : un tetra vaut un diamant. C'est la seule monnaie admise dans les échanges entre joueurs.",
+        definition: "Monnaie officielle du serveur, frappée en jeu par la Monnaie de Tetrago : 1 diamant = 8 tetras, et 1 tetra = 9 petits tetras. C'est la seule monnaie admise dans les échanges entre joueurs.",
     },
     journal: {
         terme: "Journal",

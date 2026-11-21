@@ -36,7 +36,7 @@ test("le Fondateur du dirigeant gère le commerce dirigé, pas l'inverse", async
   const modifie = await apiPut(`/commerces/update/${dirigeId}`, patron.token, { description: "Reprise en main par la maison mère" });
   expect(modifie.commerce.description).toBe("Reprise en main par la maison mère");
   await apiPut(`/commerces/magasins/update/${magasin.id}`, patron.token, { description: "Horaires fixés par la maison mère" });
-  await apiPost("/catalogue/articles", patron.token, { magasin_id: magasin.id, title: "Pain", categorie: "nourriture", prix: 1, quantite: 8 });
+  await apiPost("/catalogue/articles", patron.token, { magasin_id: magasin.id, title: "Pain", categorie: "nourriture", prix_petits: 9, quantite: 8 });
   // Le gérant du commerce dirigé n'a aucun droit sur le dirigeant
   await expect(apiPut(`/commerces/update/${dirigeantId}`, gerant.token, { description: "Coup d'État" })).rejects.toThrow(/403/);
 });

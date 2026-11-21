@@ -782,7 +782,7 @@ export const marquerNotificationsLues = () => apiRequest("PUT", "/notifications/
 
 //_______________________________CATALOGUE DES BOUTIQUES________________________
 
-// [{ id, title, categorie, description, prix, quantite, prix_unitaire, en_stock, updated_at }]
+// [{ id, title, categorie, description, prix_petits, quantite, prix_unitaire, en_stock, updated_at }] (prix en petits tetras)
 export const getCatalogueMagasin = (magasinId) => publicGet(`/catalogue/magasin/${magasinId}`);
 
 // Où acheter : { total, resultats: [{ ...article, magasin, commerce, ville, dimension }] }

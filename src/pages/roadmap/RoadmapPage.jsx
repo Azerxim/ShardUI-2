@@ -122,15 +122,15 @@ const SECTIONS = [
             },
             {
                 titre: "La monnaie officielle : le tetra",
-                icon: "fa-solid fa-gem",
+                icon: "fa-solid fa-coins",
                 lien: "/codex#monnaie",
-                texte: "Un tetra vaut un diamant. Il s'obtient par le commerce, le minage ou le trésor d'une civilisation, et c'est la seule monnaie admise entre joueurs.",
+                texte: "Une vraie pièce en jeu, frappée par la Monnaie de Tetrago : 8 tetras par diamant, 9 petits tetras par tetra, impossible à contrefaire. Elle s'obtient par le commerce, la frappe ou le trésor d'une civilisation, et c'est la seule monnaie admise entre joueurs.",
             },
             {
                 titre: "Catalogue des boutiques",
                 icon: "fa-solid fa-tags",
                 lien: "/commerces#ou-acheter",
-                texte: "Chaque magasin publie ses articles et leurs prix en tetras, et la recherche « Où acheter ? » de la page des commerces trouve les boutiques qui les vendent, de la moins chère à la plus chère.",
+                texte: "Chaque magasin publie ses articles et leurs prix en tetras et petits tetras, et la recherche « Où acheter ? » de la page des commerces trouve les boutiques qui les vendent, de la moins chère à la plus chère.",
             },
             {
                 titre: "Jours de marché et foires",
@@ -253,7 +253,7 @@ const SECTIONS = [
                 details: [
                     "Conversion des coordonnées entre la surface et le Nether.",
                     "Distance et temps de trajet entre deux villes.",
-                    "Conversion entre tetras, diamants et blocs ; fiche de personnage à coller sur Discord.",
+                    "Conversion entre tetras, petits tetras et diamants ; fiche de personnage à coller sur Discord.",
                 ],
             },
             {

@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { API_URL, apiGet, apiPost, blockExternalRequests, createSession, readAlert, signIn, uniqueSuffix } from "./helpers.js";
 
-// Catalogue des boutiques : chaque magasin publie ses articles et leurs prix en tetras (tenu par le Fondateur et les
+// Catalogue des boutiques : chaque magasin publie ses articles et leurs prix en tetras et petits tetras, enregistrés en
+// petits tetras (tenu par le Fondateur et les
 // Admins du commerce) ; « Où acheter ? » ne cherche que dans les magasins publics des commerces publics.
 test.describe.configure({ mode: "serial" });
 
@@ -33,13 +34,13 @@ test.beforeAll(async () => {
 const main = (page) => page.locator("main.container");
 
 test("seuls le Fondateur et les Admins tiennent le catalogue, avec des prix valides", async () => {
-  const article = { magasin_id: echoppe.id, title: "Arc", categorie: "armes", prix: 4 };
+  const article = { magasin_id: echoppe.id, title: "Arc", categorie: "armes", prix_petits: 36 };
   await expect(apiPost("/catalogue/articles", curieux.token, article)).rejects.toThrow(/403/);
-  await expect(apiPost("/catalogue/articles", marchand.token, { ...article, prix: -1 })).rejects.toThrow(/400/);
+  await expect(apiPost("/catalogue/articles", marchand.token, { ...article, prix_petits: -1 })).rejects.toThrow(/400/);
   await expect(apiPost("/catalogue/articles", marchand.token, { ...article, quantite: 0 })).rejects.toThrow(/400/);
   await expect(apiPost("/catalogue/articles", marchand.token, { ...article, categorie: "bijoux" })).rejects.toThrow(/400/);
   // Un article du magasin privé ne doit jamais sortir dans la recherche publique
-  await apiPost("/catalogue/articles", marchand.token, { magasin_id: reserve.id, title: `Flèches ${suffixe}`, categorie: "armes", prix: 1, quantite: 64 });
+  await apiPost("/catalogue/articles", marchand.token, { magasin_id: reserve.id, title: `Flèches ${suffixe}`, categorie: "armes", prix_petits: 9, quantite: 64 });
 });
 
 test("le marchand ajoute un article depuis la fiche du commerce", async ({ page, context }) => {
@@ -53,13 +54,14 @@ test("le marchand ajoute un article depuis la fiche du commerce", async ({ page,
   const dialog = page.locator("dialog[open]");
   await dialog.locator('input[name="title"]').fill(`Flèches ${suffixe}`);
   await dialog.locator('select[name="categorie"]').selectOption("armes");
-  await dialog.locator('input[name="prix"]').fill("1");
+  await dialog.locator('input[name="prix_tetras"]').fill("1");
+  await dialog.locator('input[name="prix_petits"]').fill("4");
   await dialog.locator('input[name="quantite"]').fill("16");
   await dialog.locator('button[type="submit"]').click();
   expect(await readAlert(page)).toMatch(/ajouté au catalogue/);
 
   await expect(carte).toContainText(`Flèches ${suffixe}`);
-  await expect(carte).toContainText("1 tetra les 16");
+  await expect(carte).toContainText("1 tetra et 4 petits tetras les 16");
 });
 
 test("« Où acheter ? » trouve la boutique publique, sans accents ni majuscules", async ({ page }) => {
@@ -73,11 +75,11 @@ test("« Où acheter ? » trouve la boutique publique, sans accents ni majuscule
   const lien = recherche.getByRole("link", { name: `Échoppe ${suffixe}`, exact: true });
   await expect(lien).toHaveAttribute("href", `/commerce/${commerceId}#magasin-${echoppe.id}`);
   await expect(recherche).not.toContainText(`Réserve ${suffixe}`);
-  await expect(recherche).toContainText("1 tetra les 16");
+  await expect(recherche).toContainText("1 tetra et 4 petits tetras les 16");
 });
 
 test("un article en rupture passe après ceux en stock ; la suppression du magasin vide son catalogue", async () => {
-  const autre = (await apiPost("/catalogue/articles", marchand.token, { magasin_id: echoppe.id, title: `Flèches de luxe ${suffixe}`, categorie: "armes", prix: 1, quantite: 32, en_stock: false })).article;
+  const autre = (await apiPost("/catalogue/articles", marchand.token, { magasin_id: echoppe.id, title: `Flèches de luxe ${suffixe}`, categorie: "armes", prix_petits: 9, quantite: 32, en_stock: false })).article;
   const { resultats } = await apiGet(`/catalogue/recherche?q=${encodeURIComponent(`fleches ${suffixe}`)}`);
   expect(resultats.map((article) => article.id).at(-1)).toBe(autre.id);
   expect((await apiGet(`/catalogue/recherche?q=${encodeURIComponent(`fleches ${suffixe}`)}&en_stock=true`)).total).toBe(1);
