@@ -37,7 +37,9 @@ test("le fondateur voit les informations et les actions de sa ville", async ({ p
   await expect(main(page).locator("h1")).toContainText(ville.title);
   await expect(main(page).locator(".badge", { hasText: "Capitale" })).toBeVisible();
   await expect(main(page).getByText("X 120 · Z -45")).toBeVisible();
-  await expect(main(page).getByText("250", { exact: true })).toBeVisible();
+  // Chiffre clé de l'en-tête (la section Population répète le nombre plus bas)
+  const statPopulation = main(page).locator("div.rounded-2xl", { has: page.getByText("Population officielle", { exact: true }) });
+  await expect(statPopulation.getByText("250", { exact: true })).toBeVisible();
   for (const name of ["Frontières", "Modifier"]) {
     await expect(main(page).getByRole("button", { name, exact: true })).toBeVisible();
   }

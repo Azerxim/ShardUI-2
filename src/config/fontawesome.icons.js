@@ -108,6 +108,7 @@ import { definition as fasFlagCheckered } from "@fortawesome/free-solid-svg-icon
 import { definition as fasFlask } from "@fortawesome/free-solid-svg-icons/faFlask";
 import { definition as fasFont } from "@fortawesome/free-solid-svg-icons/faFont";
 import { definition as fasGamepad } from "@fortawesome/free-solid-svg-icons/faGamepad";
+import { definition as fasGaugeHigh } from "@fortawesome/free-solid-svg-icons/faGaugeHigh";
 import { definition as fasGavel } from "@fortawesome/free-solid-svg-icons/faGavel";
 import { definition as fasGears } from "@fortawesome/free-solid-svg-icons/faGears";
 import { definition as fasGem } from "@fortawesome/free-solid-svg-icons/faGem";
@@ -152,11 +153,13 @@ import { definition as fasLock } from "@fortawesome/free-solid-svg-icons/faLock"
 import { definition as fasLockOpen } from "@fortawesome/free-solid-svg-icons/faLockOpen";
 import { definition as fasMagnifyingGlass } from "@fortawesome/free-solid-svg-icons/faMagnifyingGlass";
 import { definition as fasMagnifyingGlassDollar } from "@fortawesome/free-solid-svg-icons/faMagnifyingGlassDollar";
+import { definition as fasMagnifyingGlassLocation } from "@fortawesome/free-solid-svg-icons/faMagnifyingGlassLocation";
 import { definition as fasMap } from "@fortawesome/free-solid-svg-icons/faMap";
 import { definition as fasMapLocationDot } from "@fortawesome/free-solid-svg-icons/faMapLocationDot";
 import { definition as fasMasksTheater } from "@fortawesome/free-solid-svg-icons/faMasksTheater";
 import { definition as fasMedal } from "@fortawesome/free-solid-svg-icons/faMedal";
 import { definition as fasMinus } from "@fortawesome/free-solid-svg-icons/faMinus";
+import { definition as fasMobileScreen } from "@fortawesome/free-solid-svg-icons/faMobileScreen";
 import { definition as fasMoon } from "@fortawesome/free-solid-svg-icons/faMoon";
 import { definition as fasMusic } from "@fortawesome/free-solid-svg-icons/faMusic";
 import { definition as fasNetworkWired } from "@fortawesome/free-solid-svg-icons/faNetworkWired";
@@ -187,6 +190,7 @@ import { definition as fasRing } from "@fortawesome/free-solid-svg-icons/faRing"
 import { definition as fasRotateLeft } from "@fortawesome/free-solid-svg-icons/faRotateLeft";
 import { definition as fasRotateRight } from "@fortawesome/free-solid-svg-icons/faRotateRight";
 import { definition as fasRoute } from "@fortawesome/free-solid-svg-icons/faRoute";
+import { definition as fasRuler } from "@fortawesome/free-solid-svg-icons/faRuler";
 import { definition as fasSailboat } from "@fortawesome/free-solid-svg-icons/faSailboat";
 import { definition as fasScaleBalanced } from "@fortawesome/free-solid-svg-icons/faScaleBalanced";
 import { definition as fasScroll } from "@fortawesome/free-solid-svg-icons/faScroll";
@@ -227,6 +231,7 @@ import { definition as fasUserInjured } from "@fortawesome/free-solid-svg-icons/
 import { definition as fasUserPen } from "@fortawesome/free-solid-svg-icons/faUserPen";
 import { definition as fasUserPlus } from "@fortawesome/free-solid-svg-icons/faUserPlus";
 import { definition as fasUserSecret } from "@fortawesome/free-solid-svg-icons/faUserSecret";
+import { definition as fasUserShield } from "@fortawesome/free-solid-svg-icons/faUserShield";
 import { definition as fasUserSlash } from "@fortawesome/free-solid-svg-icons/faUserSlash";
 import { definition as fasUserTie } from "@fortawesome/free-solid-svg-icons/faUserTie";
 import { definition as fasUsers } from "@fortawesome/free-solid-svg-icons/faUsers";
@@ -344,6 +349,7 @@ export default [
     fasFlask,
     fasFont,
     fasGamepad,
+    fasGaugeHigh,
     fasGavel,
     fasGears,
     fasGem,
@@ -388,11 +394,13 @@ export default [
     fasLockOpen,
     fasMagnifyingGlass,
     fasMagnifyingGlassDollar,
+    fasMagnifyingGlassLocation,
     fasMap,
     fasMapLocationDot,
     fasMasksTheater,
     fasMedal,
     fasMinus,
+    fasMobileScreen,
     fasMoon,
     fasMusic,
     fasNetworkWired,
@@ -423,6 +431,7 @@ export default [
     fasRotateLeft,
     fasRotateRight,
     fasRoute,
+    fasRuler,
     fasSailboat,
     fasScaleBalanced,
     fasScroll,
@@ -463,6 +472,7 @@ export default [
     fasUserPen,
     fasUserPlus,
     fasUserSecret,
+    fasUserShield,
     fasUserSlash,
     fasUserTie,
     fasUsers,

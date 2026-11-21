@@ -26,7 +26,7 @@ const barItemClass = (actif) => `btn btn-ghost btn-sm rounded-3xl gap-2 ${actif 
 
 const MenuLien = ({ lien, active }) => (
     <li>
-        <a href={lien.href} className={menuItemClass(active === lien.id)}>
+        <a href={lien.href} aria-current={active === lien.id ? 'page' : undefined} className={menuItemClass(active === lien.id)}>
             <FontAwesomeIcon icon={lien.icon} />
             <span>{lien.text}</span>
         </a>
@@ -437,7 +437,7 @@ function NavbarSaison({ active }) {
                     {/* Sections principales visibles sur grand écran ; le menu latéral les garde toutes */}
                     <nav aria-label="Sections" className="hidden xl:flex items-center gap-1">
                         {DECOUVRIR.map((lien) => (
-                            <a key={lien.id} href={lien.href} className={barItemClass(active === lien.id)}>
+                            <a key={lien.id} href={lien.href} aria-current={active === lien.id ? 'page' : undefined} className={barItemClass(active === lien.id)}>
                                 <FontAwesomeIcon icon={lien.icon} />
                                 {lien.text}
                             </a>

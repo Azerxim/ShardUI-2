@@ -91,7 +91,9 @@ test("sur une civilisation dont il n'est pas membre, il sait comment la rejoindr
   const other = civilisations.find(({ civilisation, members }) => civilisation.is_public && !members.some((m) => m.username === account.username));
   test.skip(!other, "aucune autre civilisation publique dans la base de test");
   await page.goto(`/civilisation/${other.civilisation.id}`);
-  await expect(main().getByRole("note")).toContainText(/pour rejoindre cette civilisation, contactez/i);
+  // Depuis les demandes d'adhésion : on envoie une demande au lieu de contacter le fondateur
+  await expect(main().getByRole("note")).toContainText(/pour rejoindre cette civilisation.*envoyez une demande/i);
+  await expect(main().getByRole("note").getByRole("button", { name: "Demander à rejoindre" })).toBeVisible();
   await expect(main().getByRole("button", { name: /ajouter|modifier|marqueurs|nouveau/i })).toHaveCount(0);
 });
 

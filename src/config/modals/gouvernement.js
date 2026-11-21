@@ -100,10 +100,10 @@ export const gouvernementModal = {
     },
   ],
   api: {
-    get: { method: "GET", url: "$apiURL/civilisations/gouvernement/read/$id" },
+    get: { method: "GET", url: "$apiURL/civilisations/gouvernement/read/$local-id" },
     create: { method: "POST", url: "$apiURL/civilisations/gouvernement/create" },
-    update: { method: "PUT", url: "$apiURL/civilisations/gouvernement/update/$id" },
-    delete: { method: "DELETE", url: "$apiURL/civilisations/gouvernement/delete/$id" },
+    update: { method: "PUT", url: "$apiURL/civilisations/gouvernement/update/$local-id" },
+    delete: { method: "DELETE", url: "$apiURL/civilisations/gouvernement/delete/$local-id" },
   },
   dataKey: "gouvernement",
   is_activate: {

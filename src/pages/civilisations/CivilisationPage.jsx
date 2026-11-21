@@ -418,7 +418,8 @@ export default function CivilisationPage() {
                     <DynamicModal config={civilisationModal} mode="edit" onSubmit={updateCivilisation} onDelete={() => navigate('/civilisations')} />
                     <DynamicModal config={civilisationMemberModal} mode="add" onSubmit={addMember} />
                     <TransferFounderModal id={TRANSFER_MODAL_ID} entity="civilisation" entityId={id} members={members} onTransfer={updateMembers} />
-                    <DynamicModal config={gouvernementModal} mode="edit" onSubmit={updateGouvernement} onDelete={() => setGouvernement(null)} />
+                    {/* Identifiant du gouvernement (pas celui de la civilisation de l'adresse : les deux peuvent différer) */}
+                    {gouvernement ? <DynamicModal config={gouvernementModal} mode="edit" local={{ id: gouvernement.id }} onSubmit={updateGouvernement} onDelete={() => setGouvernement(null)} /> : null}
 
                     <DynamicModal config={livreModal} mode="add" onSubmit={(livre) => setLivres((prev) => [...prev, livre])} />
                     <DynamicModal config={villeModal} mode="add" onSubmit={(ville) => setVilles((prev) => [...prev, ville])} />

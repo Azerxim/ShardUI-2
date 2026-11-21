@@ -18,13 +18,78 @@ const ETATS = {
 };
 
 const SECTIONS = [
-    // Retirée tant qu'aucun chantier n'est annoncé
-    // {
-    //     etat: "avenir",
-    //     titre: "À venir",
-    //     dek: "Les chantiers suivants, dans le désordre : l'ordre se décidera avec vous.",
-    //     fonctionnalites: [],
-    // },
+    {
+        etat: "avenir",
+        titre: "À venir",
+        dek: "Les chantiers suivants, dans le désordre : l'ordre se décidera avec vous.",
+        fonctionnalites: [
+            // Carte
+            {
+                titre: "Recherche sur la carte",
+                icon: "fa-solid fa-magnifying-glass-location",
+                texte: "Un champ « Aller à… » pour retrouver une ville, un quartier, un magasin ou des coordonnées : la carte s'y centre et ouvre sa fiche.",
+            },
+            {
+                titre: "Règle de mesure",
+                icon: "fa-solid fa-ruler",
+                texte: "Deux clics sur la carte pour connaître la distance en blocs et le temps de trajet dans le récit, au rythme d'un jour Minecraft pour un jour RP.",
+            },
+            {
+                titre: "Calque « Vie RP »",
+                icon: "fa-solid fa-masks-theater",
+                texte: "La vie du monde sur la carte : événements du calendrier qui ont un lieu, élections en cours dans les villes, fermes validées.",
+                details: [
+                    "Des fermes, seule la position est montrée : la photo de la déclaration reste privée.",
+                ],
+            },
+            {
+                titre: "Frontières au fil du temps",
+                icon: "fa-solid fa-clock-rotate-left",
+                texte: "Un curseur de date RP pour revoir l'étendue des civilisations à une époque donnée, d'après les fondations et les chroniques.",
+            },
+            {
+                titre: "Réseau du Nether",
+                icon: "fa-solid fa-dungeon",
+                texte: "Les portails et les chemins du Nether reportés sur la carte de la surface, pour voir d'un coup d'œil par où passer.",
+            },
+            {
+                titre: "Carte plus rapide à charger",
+                icon: "fa-solid fa-gauge-high",
+                texte: "Une feuille de style préparée à l'avance au lieu d'être construite par le navigateur : la carte s'ouvrira plus vite, surtout sur téléphone.",
+            },
+            // Site
+            {
+                titre: "Fiche de ville plus complète",
+                icon: "fa-solid fa-city",
+                texte: "La date de fondation toujours affichée (ou signalée inconnue), les habitants célèbres et les postes du gouvernement de la ville réunis sur sa fiche.",
+            },
+            {
+                titre: "Historique des modifications",
+                icon: "fa-solid fa-clock-rotate-left",
+                texte: "Qui a changé le titre, la devise ou les frontières d'une fiche, et quand : utile aux dirigeants comme aux modérateurs RP.",
+            },
+            {
+                titre: "Page « Mon royaume »",
+                icon: "fa-solid fa-crown",
+                texte: "Pour les dirigeants, un seul écran avec ce qui attend une décision : demandes d'adhésion, écarts de population, troupes levées, élections à organiser, fermes à mettre en conformité.",
+            },
+            {
+                titre: "Abonnements aux notifications",
+                icon: "fa-solid fa-bell",
+                texte: "Suivre une civilisation, une guerre ou une maison sans en être membre, et choisir quelles notifications recevoir, sur le site ou sur Discord.",
+            },
+            {
+                titre: "Tetrago sur l'écran d'accueil",
+                icon: "fa-solid fa-mobile-screen",
+                texte: "Installer le site comme une application sur son téléphone, et relire les fiches déjà consultées même sans réseau.",
+            },
+            {
+                titre: "Rôles pris en compte sans recharger",
+                icon: "fa-solid fa-user-shield",
+                texte: "Un rôle accordé ou retiré par un administrateur apparaîtra tout de suite, sans avoir à recharger la page.",
+            },
+        ],
+    },
     // {
     //     etat: "chantier",
     //     titre: "En chantier",
