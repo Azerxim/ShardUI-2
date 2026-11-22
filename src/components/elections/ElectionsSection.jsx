@@ -5,8 +5,10 @@ import TitleH2 from '@/components/ui/TitleH2';
 import FormModal from '@/components/modals/FormModal';
 import ScrutinCard from '@/components/elections/ScrutinCard';
 import { showModalID } from '@/utils/showModal';
-import { createScrutin, getPostes, getScrutins } from '@/services/api';
-import { CORPS, CORPS_PAR_ENTITE, MODES } from '@/config/elections';
+import { createScrutin, getScrutins } from '@/services/api';
+import { CORPS, CORPS_PAR_ENTITE } from '@/config/elections';
+import { scrutinFields } from '@/config/modals/scrutin';
+import { postesEnJeu } from '@/components/elections/postesEnJeu';
 
 // ===== Élections d'une civilisation, d'une religion ou d'une alliance =====
 // Section des fiches : scrutins en cours puis passés (Shard-API crud_elections), et ouverture d'un scrutin par le
@@ -16,35 +18,6 @@ import { CORPS, CORPS_PAR_ENTITE, MODES } from '@/config/elections';
 // les annulés et les plus anciens restent sur /elections.
 
 const MODAL_ID = 'scrutin-modal';
-
-const scrutinFields = (entityType, postes) => [
-    { name: 'title', label: 'Titre', type: 'text', required: true, placeholder: 'Élection du chancelier, désignation du grand prêtre…' },
-    { name: 'description', label: 'Présentation', type: 'textarea', placeholder: 'Ce qui est en jeu, les règles particulières…' },
-    ...(entityType === 'religion' ? [{
-        name: 'corps', label: 'Qui vote', type: 'radio', required: true,
-        options: [{ value: 'personnages', label: 'Les fidèles' }, { value: 'villes', label: 'Les villes' }],
-        help: 'Fidèles : chaque personnage de cette foi vote. Villes : une voix par ville où la religion a la plus forte influence, donnée par le dirigeant de la ville.',
-    }] : []),
-    {
-        name: 'mode', label: 'Vote', type: 'radio', required: true,
-        options: Object.entries(MODES).map(([value, mode]) => ({ value, label: mode.label })),
-        help: (values) => MODES[values.mode]?.texte,
-    },
-    {
-        name: 'deux_tours', label: 'Tours', type: 'radio', required: true,
-        options: [{ value: 'non', label: 'Un tour' }, { value: 'oui', label: 'Deux tours' }],
-        help: 'Deux tours : sans majorité absolue, les deux premiers s\'affrontent au second tour, aussi long que le premier.',
-    },
-    ...(entityType === 'civilisation' ? [{
-        name: 'poste_id', label: 'Poste en jeu', type: 'select', placeholder: 'Aucun',
-        options: postes.map((poste) => ({ value: poste.id, label: poste.label })),
-        empty: 'Le gouvernement n\'a pas encore de poste : ajoutez-en dans la section « Gouvernement ».',
-        help: 'À la clôture, l\'élu occupe ce poste.',
-    }] : []),
-    { name: 'vote_debut', label: 'Ouverture du vote', type: 'datetime-local', required: true, help: 'Heure réelle du serveur. Les candidatures se déposent jusque-là.' },
-    { name: 'vote_fin', label: 'Clôture du vote', type: 'datetime-local', required: true, help: 'Les résultats restent cachés jusqu\'à la clôture.' },
-    { name: 'date_rp', label: 'Date RP du scrutin', type: 'date', help: 'Facultative : avec elle, le résultat entre dans les chroniques.' },
-];
 
 const EN_COURS = ['candidatures', 'vote', 'second_tour'];
 const recents = (a, b) => new Date(b.closed_at ?? 0) - new Date(a.closed_at ?? 0);
@@ -68,11 +41,7 @@ export default function ElectionsSection({ entityType, entityId, peutOrganiser =
     useEffect(() => {
         if (entityType !== 'civilisation' || !peutOrganiser) return;
         let annule = false;
-        const sources = [{ type: 'civilisation', id: entityId, suffixe: '' }, ...villes.map((ville) => ({ type: 'ville', id: ville.id, suffixe: ` de ${ville.title}` }))];
-        Promise.all(sources.map((source) => getPostes(source.type, source.id)
-            .then((liste) => (Array.isArray(liste) ? liste : []).map((poste) => ({ id: poste.id, label: `${poste.title}${source.suffixe}` })))
-            .catch(() => [])))
-            .then((listes) => { if (!annule) setPostes(listes.flat()); });
+        postesEnJeu(entityId, villes).then((liste) => { if (!annule) setPostes(liste); });
         return () => { annule = true; };
     }, [entityType, entityId, peutOrganiser, villesIds]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -125,8 +94,8 @@ export default function ElectionsSection({ entityType, entityId, peutOrganiser =
                     id={MODAL_ID}
                     title="Ouvrir un scrutin"
                     intro={fixe ? `${CORPS[fixe.corps]} : ${fixe.texte.charAt(0).toLowerCase()}${fixe.texte.slice(1)}` : null}
-                    fields={scrutinFields(entityType, postes)}
-                    initialValues={{ mode: 'secret', deux_tours: 'non', corps: 'personnages' }}
+                    fields={scrutinFields({ entityType, postes })}
+                    initialValues={{ mode: 'secret', deux_tours: 'non', egalite: 'personne', corps: 'personnages' }}
                     submitLabel="Ouvrir le scrutin"
                     submitIcon="fas fa-check-to-slot"
                     onSubmit={ouvrir}

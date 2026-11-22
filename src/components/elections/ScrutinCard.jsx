@@ -33,7 +33,7 @@ export default function ScrutinCard({ scrutin, avecEntite = false }) {
                 </span>
                 {scrutin.phase === 'clos' ? (
                     <span className="text-sm font-semibold">
-                        {scrutin.elu ? <><FontAwesomeIcon icon="fa-solid fa-award" className="mr-2 text-warning" />{scrutin.elu.nom} est élu</> : RESULTATS[scrutin.resultat]}
+                        {scrutin.elu ? <><FontAwesomeIcon icon="fa-solid fa-award" className="mr-2 text-warning" />{scrutin.elu.nom} est élu{scrutin.tirage ? ' (tirage au sort)' : ''}</> : RESULTATS[scrutin.resultat]}
                     </span>
                 ) : null}
             </a>

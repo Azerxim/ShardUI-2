@@ -1048,6 +1048,8 @@ export const getMesVotes = () => apiRequest("GET", "/elections/mes-votes");
 // { title, entity_type, entity_id, corps? (religion : personnages | villes), mode, deux_tours, poste_id?, vote_debut, vote_fin, date_rp?, description? }
 export const createScrutin = (scrutin) => apiRequest("POST", "/elections", scrutin);
 
+// Paramètres d'un scrutin, modifiables par l'organisateur jusqu'à l'ouverture du vote
+export const modifierScrutin = (scrutinId, scrutin) => apiRequest("PUT", `/elections/${scrutinId}`, scrutin);
 export const annulerScrutin = (scrutinId) => apiRequest("POST", `/elections/${scrutinId}/annuler`);
 
 export const candidater = (scrutinId, personnageId, programme) => apiRequest("POST", `/elections/${scrutinId}/candidatures`, { personnage_id: personnageId, programme });

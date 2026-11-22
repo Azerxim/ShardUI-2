@@ -14,9 +14,16 @@ import { usePageTitle } from "@/utils/pageTitle";
 import { runAction } from "@/utils/conflits";
 import { plural } from "@/utils/plural";
 import { dateRp } from "@/config/chroniques";
-import { CORPS, ENTITES_ELECTIONS, MODES, RESULTATS, finDuVote, heureScrutin, phaseScrutin } from "@/config/elections";
-import { annulerScrutin, candidater, getScrutin, modifierProgramme, retirerCandidature, voter } from "@/services/api";
+import FormModal from "@/components/modals/FormModal";
+import { postesEnJeu } from "@/components/elections/postesEnJeu";
+import { CORPS, EGALITES, ENTITES_ELECTIONS, MODES, RESULTATS, finDuVote, heureScrutin, phaseScrutin } from "@/config/elections";
+import { corpsScrutin, scrutinFields, valeursScrutin } from "@/config/modals/scrutin";
+import { annulerScrutin, candidater, getCivilisationById, getScrutin, modifierProgramme, modifierScrutin, retirerCandidature, voter } from "@/services/api";
 import { alerteErreur } from "@/utils/alerteErreur";
+import { showModalID } from "@/utils/showModal";
+import Swal from "sweetalert2";
+
+const EDITION_ID = "scrutin-edition-modal";
 
 // ===== Un scrutin =====
 // Candidatures jusqu'à l'ouverture du vote, puis vote de chaque voix du joueur (ses personnages, ou la civilisation /
@@ -155,7 +162,23 @@ export default function ElectionPage() {
     const { id } = useParams();
     const [scrutin, setScrutin] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [edition, setEdition] = useState(0);
+    const [postes, setPostes] = useState([]);
     usePageTitle(scrutin?.title);
+
+    // Postes que la civilisation peut mettre en jeu (formulaire de modification), tant que les paramètres sont modifiables
+    const civilisationModifiable = scrutin?.peut_organiser && scrutin.phase === "candidatures" && scrutin.entite.type === "civilisation" ? scrutin.entite.id : null;
+    useEffect(() => {
+        if (!civilisationModifiable) return;
+        let annule = false;
+        getCivilisationById(civilisationModifiable)
+            .then((data) => postesEnJeu(civilisationModifiable, data.villes ?? []))
+            .then((liste) => { if (!annule) setPostes(liste); })
+            .catch(() => { });
+        return () => { annule = true; };
+    }, [civilisationModifiable]);
+
+    useEffect(() => { if (edition) showModalID(EDITION_ID); }, [edition]);
 
     const charger = useCallback(() => getScrutin(id)
         .then((data) => setScrutin(data.scrutin))
@@ -185,6 +208,11 @@ export default function ElectionPage() {
         const participation = scrutin.tour === 2 ? scrutin.participation.tour2 : scrutin.participation.tour1;
         const nomCandidat = Object.fromEntries(scrutin.candidats.map((c) => [c.id, c.nom]));
         const FctScrutin = [{
+            id: 2, title: "Modifier", icon: "fas fa-pen", class: "bg-base-200 hover:bg-base-300", connected: true,
+            authorisation: scrutin.peut_organiser && scrutin.phase === "candidatures",
+            tooltip: { text: "Modifier les paramètres avant l'ouverture du vote", position: "bottom" },
+            function: () => setEdition((n) => n + 1),
+        }, {
             id: 1, title: "Annuler", icon: "fas fa-ban", class: "bg-base-200 hover:bg-base-300 text-error", connected: true,
             authorisation: scrutin.peut_organiser && !["clos", "annule"].includes(scrutin.phase),
             function: async () => {
@@ -204,12 +232,30 @@ export default function ElectionPage() {
                     fonctions={FctScrutin}
                     ariane={[{ label: "Élections", href: "/elections" }, { label: scrutin.title }]}
                 />
+                {edition ? (
+                    <FormModal
+                        key={edition}
+                        id={EDITION_ID}
+                        title="Modifier le scrutin"
+                        intro="Les paramètres se modifient jusqu'à l'ouverture du vote ; les candidatures déjà déposées restent."
+                        fields={scrutinFields({ entityType: scrutin.entite.type, postes, modification: true })}
+                        initialValues={valeursScrutin(scrutin)}
+                        submitLabel="Enregistrer"
+                        submitIcon="fas fa-check"
+                        onSubmit={async (values) => {
+                            const result = await modifierScrutin(scrutin.id, corpsScrutin(values));
+                            if (result?.scrutin) setScrutin(result.scrutin);
+                            Swal.fire({ icon: "success", title: "Succès", text: result?.text ?? "C'est fait." });
+                        }}
+                    />
+                ) : null}
 
                 <div className="flex flex-col gap-3 w-full bg-base-200 rounded-3xl p-4">
                     <div className="flex flex-row flex-wrap items-center gap-2">
                         <span className={`badge ${phase.badge}`}><FontAwesomeIcon icon={phase.icon} />{phase.label}</span>
                         <span className="badge badge-ghost"><FontAwesomeIcon icon={mode.icon} />Vote {mode.label.toLowerCase()}</span>
                         <span className="badge badge-ghost">{scrutin.deux_tours ? "Deux tours" : "Un tour"}</span>
+                        <span className="badge badge-ghost">Égalité : {EGALITES[scrutin.egalite]?.label ?? EGALITES.personne.label}</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <InfoLine icon={entite.icon}>
@@ -236,7 +282,7 @@ export default function ElectionPage() {
                     <section aria-label="Résultat" className="flex flex-col gap-2 w-full bg-base-200 rounded-3xl p-4">
                         <span className="font-bold text-lg flex items-center gap-2">
                             <FontAwesomeIcon icon="fa-solid fa-award" className="text-warning" />
-                            {scrutin.elu ? `${scrutin.elu.nom} est élu${scrutin.poste ? ` : ${scrutin.poste.title}` : ""}` : RESULTATS[scrutin.resultat]}
+                            {scrutin.elu ? `${scrutin.elu.nom} est élu${scrutin.poste ? ` : ${scrutin.poste.title}` : ""}${scrutin.tirage ? " (tirage au sort)" : ""}` : RESULTATS[scrutin.resultat]}
                         </span>
                         <span className="text-sm opacity-80">
                             Participation : {plural(scrutin.participation.tour1, "votant")}

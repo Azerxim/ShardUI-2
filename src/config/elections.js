@@ -29,6 +29,13 @@ export const MODES = {
     public: { label: "Public", icon: "fa-solid fa-hand", texte: "Chaque bulletin est publié avec le nom du votant au dépouillement." },
 };
 
+// Règle d'égalité en tête, choisie par l'organisateur (Shard-API crud_elections, EGALITES)
+export const EGALITES = {
+    personne: { label: "Personne n'est élu", texte: "Personne n'est élu en cas d'égalité." },
+    tirage: { label: "Tirage au sort", texte: "En cas d'égalité, l'élu est tiré au sort parmi les ex aequo." },
+    nouveau_vote: { label: "Nouveau vote", texte: "En cas d'égalité, les ex aequo se départagent par un nouveau vote, de même durée. Une nouvelle égalité ne donne personne élu." },
+};
+
 export const RESULTATS = {
     egalite: "Égalité : personne n'est élu.",
     sans_candidat: "Aucun candidat ne s'est présenté.",

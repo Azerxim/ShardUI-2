@@ -88,6 +88,28 @@ test("le fondateur ouvre un scrutin qui met le poste de roi en jeu", async ({ pa
   expect((await api("POST", "/elections", electeur.token, { title: "Coup d'État", entity_type: "civilisation", entity_id: civilisationId, vote_debut: iso(60), vote_fin: iso(120) })).status).toBe(403);
 });
 
+test("le fondateur modifie les paramètres avant l'ouverture du vote, et personne d'autre", async ({ page, context }) => {
+  await blockExternalRequests(page);
+  await signIn(context, fondateur);
+  await page.goto(`/election/${scrutinId}`);
+  await page.getByRole("button", { name: "Modifier" }).click();
+  const modale = page.locator("dialog[open]");
+  await modale.locator('textarea[name="description"]').fill("Le trône est vacant depuis trois ans.");
+  await modale.getByRole("radio", { name: "Tirage au sort" }).check();
+  await modale.getByRole("button", { name: "Enregistrer" }).click();
+  expect(await readAlert(page)).toContain("Le scrutin est modifié");
+  await expect(page.getByText("Égalité : Tirage au sort")).toBeVisible();
+  const lu = await lire(scrutinId, fondateur);
+  expect(lu.egalite).toBe("tirage");
+  expect(lu.description).toBe("Le trône est vacant depuis trois ans.");
+  expect(lu.title).toBe(`Couronnement ${suffixe}`);
+
+  // Seuls ceux qui ouvrent le scrutin le modifient
+  expect((await api("PUT", `/elections/${scrutinId}`, electeur.token, { egalite: "nouveau_vote" })).status).toBe(403);
+  // Règle inconnue refusée
+  expect((await api("PUT", `/elections/${scrutinId}`, fondateur.token, { egalite: "pile_ou_face" })).status).toBe(400);
+});
+
 test("chaque joueur présente son personnage, puis vote une fois par personnage", async ({ page, context }) => {
   await blockExternalRequests(page);
   await signIn(context, electeur);
@@ -305,3 +327,77 @@ test("tous les résidents d'une civilisation dirigée se présentent, seul son r
   const chancelier = (await apiGet(`/elections/postes/civilisation/${civilisationId}`)).find((p) => p.id === poste.id);
   expect(chancelier.personnage?.id).toBe(yseult.id);
 });
+
+// Égalités : scrutins d'une civilisation à deux personnages qui se départagent à une voix chacun
+test.describe("égalités", () => {
+  let civilisation;
+  let premier;
+  let second;
+
+  const ouvrirAvecEgalite = async (titre, egalite, deuxTours = false) => {
+    const { scrutin } = await apiPost("/elections", fondateur.token, { title: `${titre} ${suffixe}`, entity_type: "civilisation", entity_id: civilisation, mode: "secret", deux_tours: deuxTours, egalite, vote_debut: iso(60), vote_fin: iso(120) });
+    await apiPost(`/elections/${scrutin.id}/candidatures`, fondateur.token, { personnage_id: premier.id });
+    await apiPost(`/elections/${scrutin.id}/candidatures`, fondateur.token, { personnage_id: second.id });
+    return scrutin.id;
+  };
+  const candidatDe = async (id, personnage) => (await lire(id, fondateur)).candidats.find((c) => c.personnage?.id === personnage.id).id;
+  // Ouverture du vote passée, puis chacun donne sa voix à l'autre : une voix chacun
+  // La clôture passe dans le passé après les votes : un second tour de même durée commence alors (tour2_fin à venir)
+  const voterEgaux = async (id) => {
+    deplacerScrutin(id, { vote_debut: -120 });
+    await apiPost(`/elections/${id}/votes`, fondateur.token, { votant_type: "personnage", votant_id: premier.id, candidat_id: await candidatDe(id, second) });
+    await apiPost(`/elections/${id}/votes`, fondateur.token, { votant_type: "personnage", votant_id: second.id, candidat_id: await candidatDe(id, premier) });
+    deplacerScrutin(id, { vote_fin: -30 });
+  };
+
+  test.beforeAll(async () => {
+    ({ civilisationId: civilisation } = await civilisationAvecVille(fondateur, "Égalité"));
+    premier = (await apiPost("/personnages/create", fondateur.token, { name: `Premier ${suffixe}`, civilisation_id: civilisation })).personnage;
+    second = (await apiPost("/personnages/create", fondateur.token, { name: `Second ${suffixe}`, civilisation_id: civilisation })).personnage;
+  });
+
+  test("tirage au sort : l'élu est tiré parmi les ex aequo", async () => {
+    const id = await ouvrirAvecEgalite("Tirage", "tirage");
+    await voterEgaux(id);
+    const clos = await lire(id, fondateur);
+    expect(clos.resultat).toBe("elu");
+    expect(clos.tirage).toBe(true);
+    expect([premier.id, second.id]).toContain(clos.elu.personnage_id);
+  });
+
+  test("nouveau vote : les ex aequo revotent, et le gagnant est élu", async () => {
+    const id = await ouvrirAvecEgalite("Revote", "nouveau_vote");
+    await voterEgaux(id);
+    const revote = await lire(id, fondateur);
+    expect(revote.phase).toBe("second_tour");
+    expect(revote.candidats.every((c) => c.au_second_tour)).toBe(true);
+    // Second vote : les deux voix vont au second
+    await apiPost(`/elections/${id}/votes`, fondateur.token, { votant_type: "personnage", votant_id: premier.id, candidat_id: await candidatDe(id, second) });
+    await apiPost(`/elections/${id}/votes`, fondateur.token, { votant_type: "personnage", votant_id: second.id, candidat_id: await candidatDe(id, second) });
+    deplacerScrutin(id, { tour2_fin: -1 });
+    const clos = await lire(id, fondateur);
+    expect(clos.resultat).toBe("elu");
+    expect(clos.elu.personnage_id).toBe(second.id);
+    expect(clos.tirage).toBe(false);
+  });
+
+  test("nouveau vote à nouveau à égalité : personne n'est élu", async () => {
+    const id = await ouvrirAvecEgalite("Double égalité", "nouveau_vote");
+    await voterEgaux(id);
+    await apiPost(`/elections/${id}/votes`, fondateur.token, { votant_type: "personnage", votant_id: premier.id, candidat_id: await candidatDe(id, premier) });
+    await apiPost(`/elections/${id}/votes`, fondateur.token, { votant_type: "personnage", votant_id: second.id, candidat_id: await candidatDe(id, second) });
+    deplacerScrutin(id, { tour2_fin: -1 });
+    const clos = await lire(id, fondateur);
+    expect(clos.resultat).toBe("egalite");
+    expect(clos.elu).toBeNull();
+  });
+
+  test("personne n'est élu par défaut", async () => {
+    const id = await ouvrirAvecEgalite("Sans règle", "personne");
+    await voterEgaux(id);
+    const clos = await lire(id, fondateur);
+    expect(clos.resultat).toBe("egalite");
+    expect(clos.tirage).toBe(false);
+  });
+});
+
