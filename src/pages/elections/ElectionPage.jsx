@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -8,20 +8,26 @@ import TitleH1 from "@/components/ui/TitleH1";
 import TitleH2 from "@/components/ui/TitleH2";
 import InfoLine from "@/components/ui/InfoLine";
 import PersonnageAvatar from "@/components/personnages/PersonnageAvatar";
+import MarkdownTextEditor, { MarkdownContent, MarkdownEditor } from "@/components/ui/MarkdownTextEditor";
 
 import { usePageTitle } from "@/utils/pageTitle";
 import { runAction } from "@/utils/conflits";
 import { plural } from "@/utils/plural";
 import { dateRp } from "@/config/chroniques";
 import { CORPS, ENTITES_ELECTIONS, MODES, RESULTATS, finDuVote, heureScrutin, phaseScrutin } from "@/config/elections";
-import { annulerScrutin, candidater, getScrutin, retirerCandidature, voter } from "@/services/api";
+import { annulerScrutin, candidater, getScrutin, modifierProgramme, retirerCandidature, voter } from "@/services/api";
+import { alerteErreur } from "@/utils/alerteErreur";
 
 // ===== Un scrutin =====
 // Candidatures jusqu'à l'ouverture du vote, puis vote de chaque voix du joueur (ses personnages, ou la civilisation /
 // la ville qu'il représente), et dépouillement à la clôture (Shard-API crud_elections). Voix et bulletins publics ne
-// sont envoyés par l'API qu'une fois le scrutin clos.
+// sont envoyés par l'API qu'une fois le scrutin clos. Le programme d'un candidat est en Markdown, et son joueur le modifie
+// jusqu'au début du vote (programme_modifiable, envoyé par l'API).
 
-function Candidat({ candidat, scrutin, elu, retirable, onRetirer }) {
+// Même limite que l'API (PROGRAMME_MAX de crud_elections)
+const PROGRAMME_MAX = 5000;
+
+function Candidat({ candidat, scrutin, elu, retirable, onRetirer, onDone }) {
     const clos = scrutin.phase === "clos";
     return (
         <li aria-label={candidat.nom} className={`flex flex-col gap-2 bg-base-100 rounded-2xl p-3 ${elu ? "ring-2 ring-warning" : ""}`}>
@@ -48,7 +54,32 @@ function Candidat({ candidat, scrutin, elu, retirable, onRetirer }) {
                     </button>
                 ) : null}
             </div>
-            {candidat.programme ? <p className="text-sm whitespace-pre-line break-words opacity-90">{candidat.programme}</p> : null}
+            {candidat.programme_modifiable ? (
+                <section aria-label={`Programme de ${candidat.nom}`} className="flex flex-col gap-1 text-sm break-words">
+                    <span className="text-xs opacity-60"><FontAwesomeIcon icon="fa-solid fa-pen" /> Cliquez sur le programme pour le modifier, jusqu'au début du vote le {heureScrutin(scrutin.vote_debut)}.</span>
+                    <MarkdownTextEditor
+                        value={candidat.programme || ""}
+                        authorisation
+                        maxLength={PROGRAMME_MAX}
+                        placeholder="Aucun programme : cliquez pour écrire ce que votre personnage promet de faire…"
+                        classes="bg-base-200/60"
+                        onChange={async (texte) => {
+                            // Promesse rejetée : l'éditeur reste ouvert avec le brouillon
+                            try {
+                                const result = await modifierProgramme(scrutin.id, candidat.id, texte);
+                                if (result?.scrutin) onDone(result.scrutin);
+                            } catch (error) {
+                                alerteErreur("Programme non enregistré", error);
+                                throw error;
+                            }
+                        }}
+                    />
+                </section>
+            ) : candidat.programme ? (
+                <section aria-label={`Programme de ${candidat.nom}`} className="text-sm break-words opacity-90">
+                    <MarkdownContent text={candidat.programme} />
+                </section>
+            ) : null}
         </li>
     );
 }
@@ -56,13 +87,17 @@ function Candidat({ candidat, scrutin, elu, retirable, onRetirer }) {
 function Candidature({ scrutin, onDone }) {
     const [personnageId, setPersonnageId] = useState(String(scrutin.mes_candidats_possibles[0]?.id ?? ""));
     const [programme, setProgramme] = useState("");
+    const formRef = useRef(null);
     const envoyer = async (event) => {
         event.preventDefault();
         const result = await runAction(() => candidater(scrutin.id, Number(personnageId), programme));
-        if (result?.scrutin) onDone(result.scrutin);
+        if (result?.scrutin) {
+            setProgramme("");
+            onDone(result.scrutin);
+        }
     };
     return (
-        <form onSubmit={envoyer} aria-label="Se porter candidat" className="flex flex-col gap-3 w-full bg-base-200 rounded-3xl p-4">
+        <form ref={formRef} onSubmit={envoyer} aria-label="Se porter candidat" className="flex flex-col gap-3 w-full bg-base-200 rounded-3xl p-4">
             <span className="font-bold flex items-center gap-2"><FontAwesomeIcon icon="fa-solid fa-user-plus" />Se porter candidat</span>
             <label className="flex flex-col gap-1">
                 <span className="text-xs font-semibold opacity-70">Personnage</span>
@@ -70,10 +105,17 @@ function Candidature({ scrutin, onDone }) {
                     {scrutin.mes_candidats_possibles.map((personnage) => <option key={personnage.id} value={String(personnage.id)}>{personnage.name}</option>)}
                 </select>
             </label>
-            <label className="flex flex-col gap-1">
-                <span className="text-xs font-semibold opacity-70">Programme</span>
-                <textarea value={programme} onChange={(e) => setProgramme(e.target.value)} rows={3} placeholder="Ce que votre personnage promet de faire…" className="textarea textarea-ghost bg-base-100 w-full" />
-            </label>
+            <div className="flex flex-col gap-1">
+                <span className="text-xs font-semibold opacity-70">Programme <span className="font-normal">(Markdown, modifiable jusqu'au début du vote)</span></span>
+                <MarkdownEditor
+                    value={programme}
+                    onChange={setProgramme}
+                    label="Programme"
+                    placeholder="Ce que votre personnage promet de faire…"
+                    maxLength={PROGRAMME_MAX}
+                    onSubmit={() => formRef.current?.requestSubmit()}
+                />
+            </div>
             <button type="submit" className="btn btn-primary w-fit"><FontAwesomeIcon icon="fa-solid fa-user-plus" />Déposer la candidature</button>
         </form>
     );
@@ -228,6 +270,7 @@ export default function ElectionPage() {
                                 candidat={candidat}
                                 scrutin={scrutin}
                                 elu={scrutin.elu?.id === candidat.id}
+                                onDone={setScrutin}
                                 retirable={scrutin.phase === "candidatures" && (scrutin.peut_organiser || candidat.user_id === JSON.parse(localStorage.getItem("user") || "null")?.id)}
                                 onRetirer={async () => {
                                     const result = await runAction(() => retirerCandidature(scrutin.id, candidat.id), {

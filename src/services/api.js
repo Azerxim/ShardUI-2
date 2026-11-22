@@ -1052,6 +1052,8 @@ export const annulerScrutin = (scrutinId) => apiRequest("POST", `/elections/${sc
 
 export const candidater = (scrutinId, personnageId, programme) => apiRequest("POST", `/elections/${scrutinId}/candidatures`, { personnage_id: personnageId, programme });
 
+// Programme en Markdown, modifiable jusqu'au début du vote
+export const modifierProgramme = (scrutinId, candidatId, programme) => apiRequest("PUT", `/elections/${scrutinId}/candidatures/${candidatId}`, { programme });
 export const retirerCandidature = (scrutinId, candidatId) => apiRequest("DELETE", `/elections/${scrutinId}/candidatures/${candidatId}`);
 
 // votant : la voix donnée (personnage, ville ou civilisation, voir mes_voix du scrutin)

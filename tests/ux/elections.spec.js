@@ -94,16 +94,38 @@ test("chaque joueur présente son personnage, puis vote une fois par personnage"
   await page.goto(`/election/${scrutinId}`);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(`Couronnement ${suffixe}`);
   const formulaire = page.getByRole("form", { name: "Se porter candidat" });
-  await formulaire.getByRole("textbox").fill("Du pain et des routes.");
+  // Programme écrit en Markdown avec l'éditeur, affiché mis en forme
+  await formulaire.getByRole("textbox", { name: "Programme" }).fill("Du **pain** et des routes.");
+  await formulaire.getByRole("button", { name: "Aperçu" }).click();
+  await expect(formulaire.locator("strong")).toHaveText("pain");
   await formulaire.getByRole("button", { name: "Déposer la candidature" }).click();
   expect(await readAlert(page)).toContain("candidature est déposée");
-  await expect(page.getByRole("listitem", { name: `Brune ${suffixe}` })).toContainText("Du pain et des routes.");
+  const carteBrune = page.getByRole("listitem", { name: `Brune ${suffixe}` });
+  await expect(carteBrune).toContainText("Du pain et des routes.");
+  await expect(carteBrune.locator("strong", { hasText: "pain" })).toBeVisible();
+
+  // La candidate modifie son programme avant le début du vote
+  await carteBrune.getByRole("region", { name: `Programme de Brune ${suffixe}` }).getByText("Du pain et des routes.").click();
+  await carteBrune.getByRole("textbox", { name: "Texte en Markdown" }).fill("Du pain, des routes et *la paix*.");
+  await carteBrune.getByRole("button", { name: "Sauvegarder" }).click();
+  await expect(carteBrune.locator("em")).toHaveText("la paix");
+  const candidatBrune = (await lire(scrutinId, electeur)).candidats.find((c) => c.personnage?.id === brune.id);
+  expect(candidatBrune.programme).toBe("Du pain, des routes et *la paix*.");
+  expect(candidatBrune.programme_modifiable).toBe(true);
+  // Un autre joueur ne le modifie pas
+  expect((await lire(scrutinId, fondateur)).candidats.find((c) => c.id === candidatBrune.id).programme_modifiable).toBe(false);
+  expect((await api("PUT", `/elections/${scrutinId}/candidatures/${candidatBrune.id}`, fondateur.token, { programme: "Trahison" })).status).toBe(403);
+
   await apiPost(`/elections/${scrutinId}/candidatures`, fondateur.token, { personnage_id: aldric.id });
   // Pas de vote avant l'ouverture
   expect((await api("POST", `/elections/${scrutinId}/votes`, electeur.token, { votant_type: "personnage", votant_id: brune.id, candidat_id: 1 })).status).toBe(400);
 
   deplacerScrutin(scrutinId, { vote_debut: -1 });
+  // Le vote ouvert, le programme ne change plus
+  expect((await api("PUT", `/elections/${scrutinId}/candidatures/${candidatBrune.id}`, electeur.token, { programme: "Volte-face" })).status).toBe(400);
   await page.reload();
+  await expect(page.getByRole("listitem", { name: `Brune ${suffixe}` }).locator("em")).toHaveText("la paix");
+  await expect(page.getByRole("listitem", { name: `Brune ${suffixe}` }).getByText(/Cliquez sur le programme/)).toHaveCount(0);
   const voix = page.getByRole("listitem", { name: `Vote de Brune ${suffixe}` });
   await voix.getByRole("combobox").selectOption({ label: `Aldric ${suffixe}` });
   await voix.getByRole("button", { name: "Voter" }).click();
