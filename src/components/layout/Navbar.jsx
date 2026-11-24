@@ -55,7 +55,8 @@ const THEMES = [
 // Menu, compte, thème et notifications (à gauche), joueurs connectés (à droite) : masqués par défaut, ils glissent depuis le bord
 // de leur bouton de la barre. Se ferment par la croix, un clic sur le voile, ou Échap. Rendus dans body, comme la
 // modale de recherche.
-function PanneauLateral({ id, label, ouvert, fermer, entete, cote = 'gauche', children }) {
+// pied : contenu fixé sous la liste (hors défilement), facultatif
+function PanneauLateral({ id, label, ouvert, fermer, entete, cote = 'gauche', pied = null, children }) {
     const fermerRef = useRef(null);
 
     useEffect(() => {
@@ -94,6 +95,7 @@ function PanneauLateral({ id, label, ouvert, fermer, entete, cote = 'gauche', ch
                 <ul className="menu w-full flex-1 min-h-0 flex-nowrap overflow-y-auto overscroll-contain p-2 pt-0 gap-1">
                     {children}
                 </ul>
+                {pied ? <div className="shrink-0 border-t border-base-300 px-4 py-3 text-sm opacity-70">{pied}</div> : null}
             </aside>
         </div>,
         document.body
@@ -406,7 +408,16 @@ function NavbarSaison({ active }) {
                 </PanneauLateral>
             )}
             {ServerData?.online === true && (
-                <PanneauLateral id="panneau-joueurs" label="Joueurs connectés" cote="droite" ouvert={panneau === 'joueurs'} fermer={fermerPanneau} entete={<TitrePanneau icon="fa-solid fa-people-group" text="Joueurs connectés" />}>
+                <PanneauLateral
+                    id="panneau-joueurs"
+                    label="Joueurs connectés"
+                    cote="droite"
+                    ouvert={panneau === 'joueurs'}
+                    fermer={fermerPanneau}
+                    entete={<TitrePanneau icon="fa-solid fa-people-group" text="Joueurs connectés" />}
+                    // Version annoncée par le serveur (server.name de mcapi.us, ex. « Paper 1.21.1 »)
+                    pied={ServerData.server?.name ? <span className="flex items-center gap-2"><FontAwesomeIcon icon="fa-solid fa-cube" />Version du jeu : <strong>{ServerData.server.name}</strong></span> : null}
+                >
                     <ContenuJoueurs joueurs={ServerData.players?.sample ?? []} />
                 </PanneauLateral>
             )}

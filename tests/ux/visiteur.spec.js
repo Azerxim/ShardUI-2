@@ -84,7 +84,7 @@ test.describe("Visiteur", () => {
   test("les joueurs connectés s'affichent dans un panneau latéral à droite", async ({ page }) => {
     // Réponse simulée de mcapi.us (état du serveur), prioritaire sur le blocage des requêtes externes
     await page.route(/mcapi\.us/, (route) => route.fulfill({
-      json: { online: true, players: { now: 2, max: 20, sample: [{ name: "Alice_RP", id: "a" }, { name: "Bob_RP", id: "b" }] } },
+      json: { online: true, players: { now: 2, max: 20, sample: [{ name: "Alice_RP", id: "a" }, { name: "Bob_RP", id: "b" }] }, server: { name: "Paper 1.21.1", protocol: 767 } },
     }));
     await page.goto("/");
     const panneau = page.locator("#panneau-joueurs");
@@ -95,6 +95,8 @@ test.describe("Visiteur", () => {
     await expect(panneau).toBeInViewport();
     await expect(panneau.getByText("Alice_RP")).toBeVisible();
     await expect(panneau.getByText("Bob_RP")).toBeVisible();
+    // Version du jeu annoncée par le serveur, en bas du panneau
+    await expect(panneau.getByText("Version du jeu : Paper 1.21.1")).toBeVisible();
     const { gauche, largeur } = await panneau.evaluate((element) => ({ gauche: element.getBoundingClientRect().left, largeur: window.innerWidth }));
     expect(gauche).toBeGreaterThan(largeur / 2);
 
