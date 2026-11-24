@@ -47,6 +47,8 @@ export default defineConfig({
         MICROSOFT_API_BASE_URL: `http://127.0.0.1:${FAKE_DISCORD_PORT}`,
         // Messages des journaux lus dans ce fichier (dossier tests/ux/.env-api) au lieu du vrai Discord
         SHARD_FAKE_JOURNAL_MESSAGES: "fake-journal-messages.json",
+        // Salons Discord des journaux (création, liaison, déplacement, suppression) lus et modifiés dans ce fichier
+        SHARD_FAKE_DISCORD_CHANNELS: "fake-discord-channels.json",
         // Annonces Discord (guerres…) écrites dans ce fichier au lieu d'être envoyées
         SHARD_FAKE_DISCORD_ANNOUNCEMENTS: "fake-discord-announcements.jsonl",
         // Événements programmés du serveur Discord (calendrier) : opérations écrites dans ce fichier

@@ -131,14 +131,33 @@ test("chaque joueur présente son personnage, puis vote une fois par personnage"
   await carteBrune.getByRole("textbox", { name: "Texte en Markdown" }).fill("Du pain, des routes et *la paix*.");
   await carteBrune.getByRole("button", { name: "Sauvegarder" }).click();
   await expect(carteBrune.locator("em")).toHaveText("la paix");
+  // <br> et retour à la ligne simple forcent un saut de ligne ; le reste du HTML n'est pas interprété
+  await carteBrune.getByRole("region", { name: `Programme de Brune ${suffixe}` }).getByText(/Du pain, des routes/).click();
+  await carteBrune.getByRole("textbox", { name: "Texte en Markdown" }).fill("Du pain,<br>des routes\net *la paix*.");
+  await carteBrune.getByRole("button", { name: "Sauvegarder" }).click();
+  await expect(carteBrune.locator("em")).toHaveText("la paix");
+  await expect(carteBrune.locator("p br")).toHaveCount(2);
+  await expect(carteBrune).not.toContainText("<br>");
   const candidatBrune = (await lire(scrutinId, electeur)).candidats.find((c) => c.personnage?.id === brune.id);
-  expect(candidatBrune.programme).toBe("Du pain, des routes et *la paix*.");
+  expect(candidatBrune.programme).toBe("Du pain,<br>des routes\net *la paix*.");
   expect(candidatBrune.programme_modifiable).toBe(true);
   // Un autre joueur ne le modifie pas
   expect((await lire(scrutinId, fondateur)).candidats.find((c) => c.id === candidatBrune.id).programme_modifiable).toBe(false);
   expect((await api("PUT", `/elections/${scrutinId}/candidatures/${candidatBrune.id}`, fondateur.token, { programme: "Trahison" })).status).toBe(403);
 
-  await apiPost(`/elections/${scrutinId}/candidatures`, fondateur.token, { personnage_id: aldric.id });
+  // Un long programme n'affiche que ses 5 premières lignes, puis se déplie avec « Voir plus »
+  const lignes = Array.from({ length: 12 }, (_, i) => `- Promesse numéro ${i + 1}`).join("\n");
+  await apiPost(`/elections/${scrutinId}/candidatures`, fondateur.token, { personnage_id: aldric.id, programme: lignes });
+  await page.reload();
+  const carteAldric = page.getByRole("listitem", { name: `Aldric ${suffixe}` });
+  await expect(carteAldric.getByText("Promesse numéro 1", { exact: true })).toBeVisible();
+  await expect(carteAldric.getByText("Promesse numéro 12")).not.toBeInViewport();
+  await carteAldric.getByRole("button", { name: `Voir plus : programme de Aldric ${suffixe}` }).click();
+  await carteAldric.getByText("Promesse numéro 12").scrollIntoViewIfNeeded();
+  await expect(carteAldric.getByText("Promesse numéro 12")).toBeInViewport();
+  await expect(carteAldric.getByRole("button", { name: /^Voir moins/ })).toHaveAttribute("aria-expanded", "true");
+  // Un programme court n'a pas de bouton
+  await expect(page.getByRole("listitem", { name: `Brune ${suffixe}` }).getByRole("button", { name: /^Voir plus/ })).toHaveCount(0);
   // Pas de vote avant l'ouverture
   expect((await api("POST", `/elections/${scrutinId}/votes`, electeur.token, { votant_type: "personnage", votant_id: brune.id, candidat_id: 1 })).status).toBe(400);
 

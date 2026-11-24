@@ -18,6 +18,7 @@ import { requireLogin } from '@/utils/requireLogin';
 import { getSessionUser } from '@/services/session';
 import { correspond, normalize, parDate, parTitre, useFiltresMemorises } from '@/utils/filtres';
 import { journalModal } from '@/config/modals/journal';
+import { CATEGORIES_JOURNAUX, CATEGORIE_JOURNAL_DEFAUT } from '@/config/journaux';
 import { livreModal } from '@/config/modals/livre';
 import {
     getJournaux,
@@ -27,10 +28,12 @@ import {
 import EtatVide from '@/components/ui/EtatVide';
 
 // ===== Filtres de la bibliothèque (BarreFiltres) =====
-const FILTRES_DEFAUT = { recherche: '', afficher: 'tous', tri: 'publication-desc', mesEcrits: false, visibilite: 'tous' };
+const FILTRES_DEFAUT = { recherche: '', afficher: 'tous', tri: 'publication-desc', mesEcrits: false, visibilite: 'tous', categorie: 'toutes' };
 
 const AFFICHER = { tous: 'Journaux et livres', journaux: 'Journaux seulement', livres: 'Livres seulement' };
 const VISIBILITES = { tous: 'Publics et privés', publics: 'Publics seulement', prives: 'Privés seulement' };
+// Catégories des journaux (config/journaux.js), « Monde » en tête ; un journal sans catégorie est « Divers »
+const CATEGORIES = { toutes: 'Toutes les catégories', ...Object.fromEntries(Object.entries(CATEGORIES_JOURNAUX).map(([cle, { label }]) => [cle, label])) };
 
 const TRIS = {
   'publication-desc': { label: 'Publication RP : récents', compare: parDate((e) => e.published_date, -1) },
@@ -61,8 +64,11 @@ const filtrerEcrits = (ecrits, support, filtres, user, liens) => {
     .filter((ecrit) => ecrit.is_public !== false || user?.is_admin || ecrit.user_id === user?.id)
     .filter((ecrit) => !filtres.mesEcrits || ecrit.user_id === user?.id)
     .filter((ecrit) => filtres.visibilite === 'tous' || (filtres.visibilite === 'prives') === (ecrit.is_public === false))
+    .filter((ecrit) => support !== 'journal' || filtres.categorie === 'toutes' || (ecrit.categorie || CATEGORIE_JOURNAL_DEFAUT) === filtres.categorie)
     .filter((ecrit) => correspond(query, [ecrit.title, ecrit.author, ecrit.description, liens.get(`${support}-${ecrit.id}`)]))
-    .sort(TRIS[filtres.tri].compare);
+    .sort(TRIS[filtres.tri].compare)
+    // Journaux « Monde » toujours en tête, quel que soit le tri (dans l'ordre de ce tri)
+    .sort((a, b) => Number(support === 'journal' && b.categorie === 'monde') - Number(support === 'journal' && a.categorie === 'monde'));
 };
 
 export default function BibliothequePage() {
@@ -72,7 +78,7 @@ export default function BibliothequePage() {
     const [loadingLivres, setLoadingLivres] = useState(true);
     const [storageJournaux, setStorageJournaux] = useState(JSON.parse(localStorage.getItem('journaux')) || []);
     const [storageLivres, setStorageLivres] = useState(JSON.parse(localStorage.getItem('livres')) || []);
-    const [filtres, changerFiltres] = useFiltresMemorises('bibliotheque-filtres', FILTRES_DEFAUT, { afficher: AFFICHER, tri: TRIS, visibilite: VISIBILITES });
+    const [filtres, changerFiltres] = useFiltresMemorises('bibliotheque-filtres', FILTRES_DEFAUT, { afficher: AFFICHER, tri: TRIS, visibilite: VISIBILITES, categorie: CATEGORIES });
     const user = getSessionUser();
 
     // Liens du menu (/bibliotheque#journaux, #livres, config/navbar.js) : n'affichent que ce support. L'ancre est ensuite
@@ -231,6 +237,7 @@ export default function BibliothequePage() {
                         recherche={{ placeholder: "Titre, auteur, civilisation, religion, guerre, personnage…", label: "Rechercher dans la bibliothèque" }}
                         selects={[
                             { name: 'afficher', label: 'Afficher', options: AFFICHER },
+                            ...(filtres.afficher !== 'livres' ? [{ name: 'categorie', label: 'Catégorie', options: CATEGORIES, className: 'sm:w-52' }] : []),
                             { name: 'tri', label: 'Trier', options: TRI_LIBELLES, className: 'sm:w-56' },
                             ...(user ? [{ name: 'visibilite', label: 'Visibilité', options: VISIBILITES, className: 'sm:w-48' }] : []),
                         ]}

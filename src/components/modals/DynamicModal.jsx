@@ -109,7 +109,20 @@ export default function DynamicModal({
     const token = localStorage.getItem("token");
     const api = config.api.delete;
     const apiUrl = api.url.replace("$id", params.id).replace("$local-id", local.id);
-    await fetch(apiUrl.replace("$apiURL", apiURL), {
+    // config.confirmDelete(valeurs) : confirmation propre au formulaire, qui renvoie la chaîne de requête à ajouter
+    // (ex. "?supprimer_salon=false"), ou null pour renoncer. La fenêtre est fermée pendant la question (SweetAlert
+    // passerait sous la boîte de dialogue), puis rouverte si l'on renonce.
+    let query = "";
+    if (config.confirmDelete) {
+      const dialog = document.getElementById(config.id[mode].replace("$local-id", local.id));
+      dialog.close();
+      query = await config.confirmDelete(formValues);
+      if (query === null || query === undefined) {
+        dialog.showModal();
+        return;
+      }
+    }
+    await fetch(apiUrl.replace("$apiURL", apiURL) + query, {
       method: api.method,
       headers: {
         "Content-Type": "application/json",
@@ -156,6 +169,8 @@ export default function DynamicModal({
             </button>
             <div className="modal-content flex flex-col gap-5">
               {config.champs.map((champ, index) => (
+                // champ.modes : modes où le champ existe (ex. ["add"]) ; champ.visibleIf(valeurs) : affiché selon les autres champs
+                (champ.modes && !champ.modes.includes(mode)) || (champ.visibleIf && !champ.visibleIf(formValues ?? {})) ? null : (
                 <div
                   key={index}
                   className={`form-control flex flex-col gap-1 w-full ${champ.display ? "" : "hidden"}`}
@@ -169,6 +184,7 @@ export default function DynamicModal({
                     onChange={handleInputChange}
                   />
                 </div>
+                )
               ))}
             </div>
             <div className="modal-action flex flex-row-reverse gap-2 justify-between">

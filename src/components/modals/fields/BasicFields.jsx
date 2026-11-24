@@ -2,6 +2,7 @@ import IconPicker from "@/components/ui/IconPicker";
 import FieldWrapper from "@/components/modals/fields/FieldWrapper";
 import { selectValue } from "@/components/modals/fields/selectValue";
 import InputDateRp from "@/components/temps/InputDateRp";
+import { getSessionUser } from "@/services/session";
 
 // Champs sans état propre de DynamicModal.
 // Props communes : champ (config du champ), value, onChange(name, value)
@@ -77,11 +78,14 @@ export function RadioField({ champ, value, onChange }) {
   );
 }
 
+// Option adminOnly : proposée aux seuls administrateurs du site, ou déjà choisie (elle reste alors affichée)
 export function SelectField({ champ, value, onChange }) {
+  const admin = Boolean(getSessionUser()?.is_admin);
+  const options = champ.option.filter((opt) => !opt.adminOnly || admin || String(opt.value) === String(value));
   return (
     <FieldWrapper champ={champ}>
       <select
-        value={selectValue(value, champ.option.map((opt) => opt.value))}
+        value={selectValue(value, options.map((opt) => opt.value))}
         className="select select-ghost bg-base-100 brightness-98 w-full"
         onChange={(e) => onChange(champ.name, e.target.value)}
         required={champ.required}
@@ -89,7 +93,7 @@ export function SelectField({ champ, value, onChange }) {
         <option key="placeholder" value="" disabled={true}>
           {champ.placeholder}
         </option>
-        {champ.option.map((opt, index) => (
+        {options.map((opt, index) => (
           <option key={index} value={String(opt.value)}>
             {opt.label}
           </option>

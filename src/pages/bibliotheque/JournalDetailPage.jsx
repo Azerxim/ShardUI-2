@@ -26,6 +26,8 @@ import { showModal, showModalID } from '@/utils/showModal';
 import { runAction } from '@/utils/conflits';
 import { couleurFiche, metalSur } from '@/utils/couleurFiche';
 import { journalModal } from '@/config/modals/journal';
+import { categorieJournal } from '@/config/journaux';
+import { dateRp } from '@/config/chroniques';
 import {
   apiRequest,
   getJournalById,
@@ -415,7 +417,8 @@ export default function JournalDetailPage() {
   const personnagesCount = new Set(links.filter((link) => messageIds.has(String(link.message_id))).map((link) => link.personnage.id)).size;
   const lastGroup = groups[groups.length - 1];
   const lastMessageDate = lastGroup ? formatDateCourte(lastGroup[lastGroup.length - 1].timestamp) : null;
-  const published = formatDate(journal?.published_date);
+  // Date de publication dans le RP : « 12 mars de l'an 3 »
+  const published = journal?.published_date ? dateRp(String(journal.published_date).slice(0, 10)) : null;
   // Un journal privé n'est visible que par son auteur et les administrateurs (auth)
   const hidden = journal?.is_public === false && !auth;
 
@@ -440,7 +443,7 @@ export default function JournalDetailPage() {
       <EnTeteFiche
         couleur={couleur}
         embleme={<Medaillon forme="carre" fond={metalSur(couleur)} encre={couleur} icon={journal.cover_icon || "fa-solid fa-newspaper"} iconFallback="fa-solid fa-newspaper" titre={`Emblème de ${journal.title}`} />}
-        surtitre={[journal.is_public === false ? "Journal privé" : "Journal public", published ? `publié le ${published}` : null].filter(Boolean).join(" · ")}
+        surtitre={[categorieJournal(journal.categorie).label, journal.is_public === false ? "Journal privé" : "Journal public", published ? `publié le ${published}` : null].filter(Boolean).join(" · ")}
         titre={journal.title}
         infos={
           <>
@@ -544,7 +547,8 @@ export default function JournalDetailPage() {
               {journal.author ? <>Rédigé par <strong>{journal.author}</strong></> : "Auteur inconnu"}
             </InfoLine>
             {published ? <InfoLine icon="fa-solid fa-calendar">Publié le {published}</InfoLine> : null}
-            {journal.uid ? <InfoLine icon="fa-brands fa-discord">Alimenté par un salon Discord</InfoLine> : null}
+            <InfoLine icon={categorieJournal(journal.categorie).icon}>Catégorie : <strong>{categorieJournal(journal.categorie).label}</strong></InfoLine>
+            {journal.uid ? <InfoLine icon="fa-brands fa-discord">{journal.salon_cree === false ? "Alimenté par un salon Discord existant, lié au site" : "Alimenté par un salon Discord"}</InfoLine> : null}
             <LivreLiensSection ecrit={journal} support="journal" auth={auth} />
           </div>
         </aside>

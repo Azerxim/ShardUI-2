@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { ANCRES, discordVersMarkdown } from "@/utils/discordMarkdown";
+import remarkSautsDeLigne from "@/utils/remarkSautsDeLigne";
 
 // Spoiler Discord : texte masqué, révélé au clic (ou au clavier)
 function Spoiler({ children }) {
@@ -64,12 +65,15 @@ const composants = {
 };
 /* eslint-enable no-unused-vars */
 
-// Message de journal (contenu Discord) affiché en Markdown ; le HTML brut éventuel reste du texte
+// Retours à la ligne déjà convertis par discordVersMarkdown : seule la balise <br> est ajoutée
+const remarkPlugins = [remarkGfm, remarkSautsDeLigne];
+
+// Message de journal (contenu Discord) affiché en Markdown ; le HTML brut éventuel est ignoré, sauf <br>
 export default function DiscordMarkdown({ texte, className = "" }) {
     if (!texte) return null;
     return (
         <div className={`break-words ${className}`}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]} components={composants}>
+            <ReactMarkdown remarkPlugins={remarkPlugins} components={composants}>
                 {discordVersMarkdown(texte)}
             </ReactMarkdown>
         </div>

@@ -33,6 +33,45 @@ const EDITION_ID = "scrutin-edition-modal";
 
 // Même limite que l'API (PROGRAMME_MAX de crud_elections)
 const PROGRAMME_MAX = 5000;
+// Lignes du programme affichées avant « Voir plus »
+const PROGRAMME_LIGNES = 15;
+
+// Replie son contenu sur PROGRAMME_LIGNES lignes (unité lh : hauteur de ligne du texte), avec un bouton « Voir plus »
+// seulement si le contenu dépasse. Un clic dans le contenu le déplie : l'éditeur du programme s'ouvre alors en entier.
+function Repliable({ children, label }) {
+    const contenuRef = useRef(null);
+    const [ouvert, setOuvert] = useState(false);
+    const [deborde, setDeborde] = useState(false);
+    useEffect(() => {
+        const element = contenuRef.current;
+        if (!element || ouvert) return undefined;
+        const mesurer = () => setDeborde(element.scrollHeight > element.clientHeight + 1);
+        mesurer();
+        const observer = new ResizeObserver(mesurer);
+        observer.observe(element);
+        if (element.firstElementChild) observer.observe(element.firstElementChild);
+        return () => observer.disconnect();
+    }, [ouvert, children]);
+    const replie = !ouvert;
+    return (
+        <div className="flex flex-col gap-1">
+            <div
+                ref={contenuRef}
+                onClickCapture={() => { if (deborde) setOuvert(true); }}
+                className="relative overflow-hidden"
+                style={replie ? { maxHeight: `${PROGRAMME_LIGNES}lh` } : undefined}
+            >
+                {children}
+                {replie && deborde ? <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-base-100 to-transparent" /> : null}
+            </div>
+            {deborde ? (
+                <button type="button" aria-expanded={ouvert} aria-label={`${ouvert ? "Voir moins" : "Voir plus"} : ${label}`} onClick={() => setOuvert((o) => !o)} className="btn btn-xs btn-ghost w-fit">
+                    <FontAwesomeIcon icon={ouvert ? "fa-solid fa-chevron-up" : "fa-solid fa-chevron-down"} />{ouvert ? "Voir moins" : "Voir plus"}
+                </button>
+            ) : null}
+        </div>
+    );
+}
 
 function Candidat({ candidat, scrutin, elu, retirable, onRetirer, onDone }) {
     const clos = scrutin.phase === "clos";
@@ -64,27 +103,31 @@ function Candidat({ candidat, scrutin, elu, retirable, onRetirer, onDone }) {
             {candidat.programme_modifiable ? (
                 <section aria-label={`Programme de ${candidat.nom}`} className="flex flex-col gap-1 text-sm break-words">
                     <span className="text-xs opacity-60"><FontAwesomeIcon icon="fa-solid fa-pen" /> Cliquez sur le programme pour le modifier, jusqu'au début du vote le {heureScrutin(scrutin.vote_debut)}.</span>
-                    <MarkdownTextEditor
-                        value={candidat.programme || ""}
-                        authorisation
-                        maxLength={PROGRAMME_MAX}
-                        placeholder="Aucun programme : cliquez pour écrire ce que votre personnage promet de faire…"
-                        classes="bg-base-200/60"
-                        onChange={async (texte) => {
-                            // Promesse rejetée : l'éditeur reste ouvert avec le brouillon
-                            try {
-                                const result = await modifierProgramme(scrutin.id, candidat.id, texte);
-                                if (result?.scrutin) onDone(result.scrutin);
-                            } catch (error) {
-                                alerteErreur("Programme non enregistré", error);
-                                throw error;
-                            }
-                        }}
-                    />
+                    <Repliable label={`programme de ${candidat.nom}`}>
+                        <MarkdownTextEditor
+                            value={candidat.programme || ""}
+                            authorisation
+                            maxLength={PROGRAMME_MAX}
+                            placeholder="Aucun programme : cliquez pour écrire ce que votre personnage promet de faire…"
+                            classes="bg-base-200/60"
+                            onChange={async (texte) => {
+                                // Promesse rejetée : l'éditeur reste ouvert avec le brouillon
+                                try {
+                                    const result = await modifierProgramme(scrutin.id, candidat.id, texte);
+                                    if (result?.scrutin) onDone(result.scrutin);
+                                } catch (error) {
+                                    alerteErreur("Programme non enregistré", error);
+                                    throw error;
+                                }
+                            }}
+                        />
+                    </Repliable>
                 </section>
             ) : candidat.programme ? (
                 <section aria-label={`Programme de ${candidat.nom}`} className="text-sm break-words opacity-90">
-                    <MarkdownContent text={candidat.programme} />
+                    <Repliable label={`programme de ${candidat.nom}`}>
+                        <MarkdownContent text={candidat.programme} />
+                    </Repliable>
                 </section>
             ) : null}
         </li>
@@ -120,6 +163,7 @@ function Candidature({ scrutin, onDone }) {
                     label="Programme"
                     placeholder="Ce que votre personnage promet de faire…"
                     maxLength={PROGRAMME_MAX}
+                    rows={8}
                     onSubmit={() => formRef.current?.requestSubmit()}
                 />
             </div>
@@ -309,7 +353,7 @@ export default function ElectionPage() {
                 {scrutin.candidats.length === 0 ? (
                     <i className="w-full">{scrutin.phase === "candidatures" ? `Personne ne s'est encore présenté. Les candidatures sont ouvertes jusqu'au ${heureScrutin(scrutin.vote_debut)}.` : "Aucun candidat."}</i>
                 ) : (
-                    <ul className="grid grid-cols-1 lg:grid-cols-2 gap-3 w-full">
+                    <ul className="flex flex-col gap-3 w-full">
                         {scrutin.candidats.map((candidat) => (
                             <Candidat
                                 key={candidat.id}

@@ -43,12 +43,26 @@ export function createDiscordJournal({ title, uid, userId, coverIcon = null }) {
   return Number(runPython("import sqlite3, sys, datetime; db = sqlite3.connect(sys.argv[1]); cur = db.execute('insert into journaux (user_id, author, title, uid, cover_icon, created_at) values (?, ?, ?, ?, ?, ?)', (int(sys.argv[4]), 'Testeur', sys.argv[2], sys.argv[3], sys.argv[5] or None, str(datetime.datetime.now()))); db.commit(); print(cur.lastrowid)", [title, uid, userId, coverIcon ?? ""]));
 }
 
+// Change l'auteur (compte) d'un journal
+export function setJournalOwner(journalId, userId) {
+  runPython("import sqlite3, sys; db = sqlite3.connect(sys.argv[1]); db.execute('update journaux set user_id = ? where id = ?', (int(sys.argv[3]), int(sys.argv[2]))); db.commit()", [String(journalId), String(userId)]);
+}
+
 // Messages renvoyés par l'API de test pour un salon (voir SHARD_FAKE_JOURNAL_MESSAGES dans playwright.config.js)
 export function setJournalMessages(channelId, messages) {
   const file = path.join(here, ".env-api", "fake-journal-messages.json");
   const data = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf-8")) : {};
   data[String(channelId)] = messages;
   fs.writeFileSync(file, JSON.stringify(data));
+}
+
+// Salons du faux serveur Discord : { "<id>": { name, category_id, type } } (voir SHARD_FAKE_DISCORD_CHANNELS)
+const fichierSalons = () => path.join(here, ".env-api", "fake-discord-channels.json");
+export function readDiscordChannels() {
+  return fs.existsSync(fichierSalons()) ? JSON.parse(fs.readFileSync(fichierSalons(), "utf-8")) : {};
+}
+export function addDiscordChannel(channelId, salon) {
+  fs.writeFileSync(fichierSalons(), JSON.stringify({ ...readDiscordChannels(), [String(channelId)]: { type: "text", ...salon } }));
 }
 
 // Annonces Discord enregistrées par l'API de test : [{ channel, content }] (voir SHARD_FAKE_DISCORD_ANNOUNCEMENTS)

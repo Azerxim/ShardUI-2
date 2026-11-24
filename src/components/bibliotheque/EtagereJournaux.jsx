@@ -23,7 +23,7 @@ export default function EtagereJournaux({ books, height = 12, width = 6, orienta
                                 {orientation === 'vertical' ? (
                                     <>
                                         {/* Ruban qui ficelle le rouleau */}
-                                        <div className="journal-ribbon w-full flex items-center justify-center gap-1 py-1">
+                                        <div className="journal-ribbon w-full flex items-center justify-center gap-1 py-1" style={book.cover_color ? { backgroundColor: book.cover_color } : undefined}>
                                             <DynamicIcon icon={book.cover_icon} fallback="fa-solid fa-newspaper" className="text-xs" style={{ color: '#f4ecd8' }} />
                                         </div>
                                         <div className="flex-1 flex items-center justify-center writing-mode-vertical-upward font-serif font-bold text-sm px-1 overflow-hidden">
@@ -33,7 +33,7 @@ export default function EtagereJournaux({ books, height = 12, width = 6, orienta
                                 ) : (
                                     <>
                                         {/* Tampon d'édition dans le coin */}
-                                        <div className="journal-stamp absolute top-2 left-2 rounded-full flex items-center justify-center shadow">
+                                        <div className="journal-stamp absolute top-2 left-2 rounded-full flex items-center justify-center shadow" style={book.cover_color ? { backgroundColor: book.cover_color } : undefined}>
                                             <DynamicIcon icon={book.cover_icon} fallback="fa-solid fa-newspaper" className="text-xs" style={{ color: '#f4ecd8' }} />
                                         </div>
                                         <div className="journal-masthead text-sm text-center font-serif font-black uppercase pt-2 pb-1 px-8 truncate">

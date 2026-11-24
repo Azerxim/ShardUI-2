@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkSautsDeLigne from '@/utils/remarkSautsDeLigne';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 /* eslint-disable no-unused-vars -- `node` must be destructured out so it isn't spread onto the DOM element */
@@ -33,10 +34,13 @@ const markdownComponents = {
 };
 /* eslint-enable no-unused-vars */
 
+// <br> et retour à la ligne simple : sauts de ligne (utils/remarkSautsDeLigne)
+const remarkPlugins = [remarkGfm, [remarkSautsDeLigne, { retoursSimples: true }]];
+
 export function MarkdownContent({ text, className = '', style = {} }) {
     return (
         <div className={className} style={style}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+            <ReactMarkdown remarkPlugins={remarkPlugins} components={markdownComponents}>
                 {text}
             </ReactMarkdown>
         </div>
