@@ -64,7 +64,28 @@ test.describe("Feuille de route", () => {
     await page.goto("/roadmap");
     await page.getByRole("searchbox", { name: "Rechercher dans la feuille de route" }).fill("genealogie");
     await expect(page.getByRole("status")).toHaveText("1 fonctionnalité trouvée.");
-    await expect(page.locator("main article h3")).toHaveText(["Lignées et généalogie"]);
+    await expect(page.locator("main article h4")).toHaveText(["Lignées et généalogie"]);
     await expect(page.locator("section#avenir")).toHaveCount(0);
+  });
+
+  test("les fonctionnalités sont rangées par catégorie, et se filtrent par catégorie", async ({ page }) => {
+    await page.goto("/roadmap");
+    const avenir = page.locator("section#avenir");
+    // Chaque section regroupe ses fonctionnalités sous le titre de leur catégorie
+    const bibliotheque = avenir.getByRole("group", { name: /Bibliothèque/ });
+    await expect(bibliotheque.getByRole("heading", { name: "Le fil du monde" })).toBeVisible();
+    await expect(avenir.getByRole("group", { name: /Carte & monde/ }).getByRole("heading", { name: "Réseau du Nether" })).toBeVisible();
+
+    // Filtre : seule la bibliothèque reste, dans chaque section
+    const categories = page.getByRole("group", { name: "Catégories de la feuille de route" });
+    await categories.getByRole("button", { name: /Bibliothèque/ }).click();
+    await expect(categories.getByRole("button", { name: /Bibliothèque/ })).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator("main article h4", { hasText: "Réseau du Nether" })).toHaveCount(0);
+    await expect(page.locator("section#disponible").getByRole("heading", { name: "Codex" })).toBeVisible();
+    await expect(page.locator("main section h3")).toHaveText(["Bibliothèque", "Bibliothèque"].map((label) => new RegExp(label)));
+
+    // Un second clic revient à toutes les catégories
+    await categories.getByRole("button", { name: /Bibliothèque/ }).click();
+    await expect(page.locator("main article h4", { hasText: "Réseau du Nether" })).toHaveCount(1);
   });
 });

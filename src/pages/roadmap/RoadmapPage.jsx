@@ -17,25 +17,38 @@ const ETATS = {
     nouveau: { label: "Nouveau", icon: "fa-solid fa-star", badge: "badge-info", puce: "text-info" },
 };
 
+// Catégories des fonctionnalités, dans leur ordre d'affichage à l'intérieur de chaque section
+const CATEGORIES = {
+    carte: { label: "Carte & monde", icon: "fa-solid fa-map" },
+    civilisations: { label: "Civilisations & politique", icon: "fa-solid fa-crown" },
+    guerres: { label: "Guerres & intrigues", icon: "fa-solid fa-shield-halved" },
+    economie: { label: "Économie", icon: "fa-solid fa-coins" },
+    recit: { label: "Personnages & récit", icon: "fa-solid fa-masks-theater" },
+    bibliotheque: { label: "Bibliothèque", icon: "fa-solid fa-book-open" },
+    site: { label: "Compte & site", icon: "fa-solid fa-user-shield" },
+};
+
 const SECTIONS = [
     {
         etat: "avenir",
         titre: "À venir",
         dek: "Les chantiers suivants, dans le désordre : l'ordre se décidera avec vous.",
         fonctionnalites: [
-            // Carte
             {
                 titre: "Recherche sur la carte",
+                categorie: "carte",
                 icon: "fa-solid fa-magnifying-glass-location",
                 texte: "Un champ « Aller à… » pour retrouver une ville, un quartier, un magasin ou des coordonnées : la carte s'y centre et ouvre sa fiche.",
             },
             {
                 titre: "Règle de mesure",
+                categorie: "carte",
                 icon: "fa-solid fa-ruler",
                 texte: "Deux clics sur la carte pour connaître la distance en blocs et le temps de trajet dans le récit, au rythme d'un jour Minecraft pour un jour RP.",
             },
             {
                 titre: "Calque « Vie RP »",
+                categorie: "carte",
                 icon: "fa-solid fa-masks-theater",
                 texte: "La vie du monde sur la carte : événements du calendrier qui ont un lieu, élections en cours dans les villes, fermes validées.",
                 details: [
@@ -44,49 +57,186 @@ const SECTIONS = [
             },
             {
                 titre: "Frontières au fil du temps",
+                categorie: "carte",
                 icon: "fa-solid fa-clock-rotate-left",
                 texte: "Un curseur de date RP pour revoir l'étendue des civilisations à une époque donnée, d'après les fondations et les chroniques.",
             },
             {
                 titre: "Réseau du Nether",
+                categorie: "carte",
                 icon: "fa-solid fa-dungeon",
                 texte: "Les portails et les chemins du Nether reportés sur la carte de la surface, pour voir d'un coup d'œil par où passer.",
             },
             {
                 titre: "Carte plus rapide à charger",
+                categorie: "carte",
                 icon: "fa-solid fa-gauge-high",
                 texte: "Une feuille de style préparée à l'avance au lieu d'être construite par le navigateur : la carte s'ouvrira plus vite, surtout sur téléphone.",
             },
-            // Site
             {
                 titre: "Fiche de ville plus complète",
+                categorie: "civilisations",
                 icon: "fa-solid fa-city",
                 texte: "La date de fondation toujours affichée (ou signalée inconnue), les habitants célèbres et les postes du gouvernement de la ville réunis sur sa fiche.",
             },
             {
                 titre: "Historique des modifications",
+                categorie: "site",
                 icon: "fa-solid fa-clock-rotate-left",
                 texte: "Qui a changé le titre, la devise ou les frontières d'une fiche, et quand : utile aux dirigeants comme aux modérateurs RP.",
             },
             {
                 titre: "Page « Mon royaume »",
+                categorie: "civilisations",
                 icon: "fa-solid fa-crown",
                 texte: "Pour les dirigeants, un seul écran avec ce qui attend une décision : demandes d'adhésion, écarts de population, troupes levées, élections à organiser, fermes à mettre en conformité.",
             },
             {
                 titre: "Abonnements aux notifications",
+                categorie: "site",
                 icon: "fa-solid fa-bell",
                 texte: "Suivre une civilisation, une guerre ou une maison sans en être membre, et choisir quelles notifications recevoir, sur le site ou sur Discord.",
             },
             {
                 titre: "Tetrago sur l'écran d'accueil",
+                categorie: "site",
                 icon: "fa-solid fa-mobile-screen",
                 texte: "Installer le site comme une application sur son téléphone, et relire les fiches déjà consultées même sans réseau.",
             },
             {
                 titre: "Rôles pris en compte sans recharger",
+                categorie: "site",
                 icon: "fa-solid fa-user-shield",
                 texte: "Un rôle accordé ou retiré par un administrateur apparaîtra tout de suite, sans avoir à recharger la page.",
+            },
+            {
+                titre: "Journaux plus rapides à ouvrir",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-gauge-high",
+                texte: "Les messages des journaux gardés quelques minutes par le site au lieu d'être relus sur Discord à chaque visite, et un bouton « Charger plus » pour les longs journaux.",
+            },
+            {
+                titre: "Catégories des livres",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-tags",
+                texte: "Comme les journaux, les livres rangés par catégorie (lois, histoire, légendes, religion, traités…) et filtrables dans la bibliothèque.",
+                details: [
+                    "Une catégorie réservée aux textes officiels du serveur, toujours en tête.",
+                ],
+            },
+            {
+                titre: "Recherche dans le texte des livres",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-magnifying-glass",
+                texte: "Retrouver un passage, pas seulement un titre : la recherche de la bibliothèque parcourt aussi les chapitres et mène au bon endroit.",
+            },
+            {
+                titre: "Chapitres à réordonner",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-list-ol",
+                texte: "Changer l'ordre des chapitres d'un livre en les faisant glisser.",
+            },
+            {
+                titre: "Marque-page",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-bookmark",
+                texte: "Reprendre un livre là où on s'était arrêté, sans même avoir besoin d'un compte.",
+            },
+            {
+                titre: "Co-auteurs",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-user-group",
+                texte: "Écrire un livre à plusieurs, ou tenir un journal à plusieurs plumes.",
+            },
+            {
+                titre: "Publication à une date RP",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-hourglass-half",
+                texte: "Écrire un livre à l'avance et le faire paraître à la date choisie dans le récit.",
+            },
+            {
+                titre: "Écrits réservés",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-key",
+                texte: "Des archives secrètes ou des textes sacrés lisibles seulement par les membres d'une civilisation ou d'une religion.",
+            },
+            {
+                titre: "Suivre un journal ou un auteur",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-bell",
+                texte: "Être prévenu à chaque nouveau chapitre ou nouveau message d'un journal ou d'un auteur qu'on suit.",
+            },
+            {
+                titre: "Écrits reliés aux chroniques",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-timeline",
+                texte: "Citer un passage de livre ou un message de journal dans les chroniques, et retrouver depuis un écrit les faits qu'il raconte.",
+            },
+            {
+                titre: "Livres en jeu",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-cube",
+                texte: "Faire passer un chapitre du site en livre écrit dans Minecraft, ou ranger dans la bibliothèque un livre écrit en jeu.",
+            },
+            {
+                titre: "Export et impression",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-download",
+                texte: "Télécharger un livre complet en PDF, ou l'imprimer mis en page comme un grimoire.",
+            },
+            {
+                titre: "Écrits les plus lus",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-chart-line",
+                texte: "Le nombre de lectures de chaque écrit, et sur l'accueil les plus lus de la semaine et les dernières parutions.",
+            },
+            {
+                titre: "Le fil du monde",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-newspaper",
+                texte: "Une nouvelle page qui réunit tous les messages des journaux publics en un seul fil, comme la gazette du serveur, à filtrer par catégorie, civilisation ou personnage.",
+            },
+            {
+                titre: "Lecture chapitre par chapitre",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-book-open-reader",
+                texte: "Une page de lecture en plein écran pour chaque chapitre, avec le précédent et le suivant, et une adresse à partager sur Discord.",
+            },
+            {
+                titre: "Rayons de la bibliothèque",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-book",
+                texte: "Une page par catégorie, avec sa présentation, une vitrine des écrits récents et les plus anciens ; le rayon « Monde » devient la vitrine officielle du serveur.",
+            },
+            {
+                titre: "Page d'un auteur RP",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-user-pen",
+                texte: "Tout ce qu'un personnage a écrit au même endroit : ses livres, ses journaux et les messages qu'il a signés.",
+            },
+            {
+                titre: "L'atelier de l'auteur",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-pen-nib",
+                texte: "Le tableau de bord de vos écrits : publics ou privés, journaux sans salon, liens à compléter, et plus tard les brouillons et les co-auteurs.",
+            },
+            {
+                titre: "Archives d'une civilisation",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-box-archive",
+                texte: "Tous les écrits liés à une civilisation, une religion ou une guerre, rangés sur une frise en dates RP : l'histoire d'un royaume se lit comme un dossier.",
+            },
+            {
+                titre: "Recueils",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-layer-group",
+                texte: "Des sélections composées par les joueurs ou les modérateurs, qui mêlent livres, journaux et messages : « Les traités de la guerre du Nord », « Légendes de l'an 1 »…",
+            },
+            {
+                titre: "Appels à écrits",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-bullhorn",
+                texte: "Les modérateurs RP lancent un thème avec une date limite RP, et chacun y rattache ses écrits ; les meilleurs entrent dans les chroniques ou un recueil.",
             },
         ],
     },
@@ -122,36 +272,42 @@ const SECTIONS = [
         fonctionnalites: [
             {
                 titre: "Civilisations, villes et quartiers",
+                categorie: "civilisations",
                 icon: "fa-solid fa-flag",
                 lien: "/civilisations",
                 texte: "Fonder une civilisation, y rattacher des villes et découper celles-ci en quartiers, avec leurs dirigeants et leurs habitants.",
             },
             {
                 titre: "Religions",
+                categorie: "civilisations",
                 icon: "fa-solid fa-cross",
                 lien: "/religions",
                 texte: "Créer un culte, accueillir ses fidèles, l'implanter dans les villes qui l'adoptent.",
             },
             {
                 titre: "Commerces",
+                categorie: "economie",
                 icon: "fa-solid fa-shop",
                 lien: "/commerces",
                 texte: "Déclarer une échoppe, son enseigne, sa ville et les membres qui la tiennent.",
             },
             {
                 titre: "Population officielle ajustée",
+                categorie: "civilisations",
                 icon: "fa-solid fa-users",
                 lien: "/civilisations",
                 texte: "La population d'une ville, ce sont les lits habités comptés au relevé du monde, plus les écarts motivés (réfugiés, épidémie…) que ses dirigeants demandent et qu'un modérateur RP valide. Chaque civilisation affiche aussi l'armée qu'elle peut lever.",
             },
             {
                 titre: "Zones commerciales",
+                categorie: "economie",
                 icon: "fa-solid fa-store",
                 lien: "/commerces",
                 texte: "Marchés et quartiers marchands tracés sur la carte par chaque ville, avec les boutiques qui s'y tiennent : visibles sur la carte, sur la fiche de la ville et sur la page des commerces.",
             },
             {
                 titre: "Règles des guerres",
+                categorie: "guerres",
                 icon: "fa-solid fa-chess-knight",
                 lien: "/codex#guerres",
                 texte: "Le règlement d'une guerre RP dans le Codex, pour que chaque camp joue avec les mêmes cartes en main.",
@@ -163,66 +319,77 @@ const SECTIONS = [
             },
             {
                 titre: "Cohérence historique",
+                categorie: "recit",
                 icon: "fa-solid fa-landmark",
                 lien: "/codex#coherence",
                 texte: "Un Moyen Âge où la magie existe : ni poudre ni machines, des villes bâties selon leur temps et une mécanique qui se dissimule.",
             },
             {
                 titre: "Fermes justifiées en RP",
+                categorie: "economie",
                 icon: "fa-solid fa-wheat-awn",
                 lien: "/codex#fermes",
                 texte: "Toute ferme automatique se déclare avec sa raison d'être dans l'histoire et s'habille d'un bâtiment qui lui ressemble : plus de boîte de redstone posée au milieu d'un champ.",
             },
             {
                 titre: "Actions secrètes",
+                categorie: "guerres",
                 icon: "fa-solid fa-user-secret",
                 lien: "/actions-secretes",
                 texte: "Sceller une action à la date et à l'heure réelles, puis la révéler plus tard (soi-même, par un modérateur RP ou à une date fixée) : la preuve qu'elle a été décidée avant, et non après coup. Le conflit d'intérêts de l'équipe, qui joue aussi, est levé par la lecture tracée : chaque lecture d'un administrateur ou d'un modérateur RP est rendue publique.",
             },
             {
                 titre: "Zones et bâtiments destructibles",
+                categorie: "guerres",
                 icon: "fa-solid fa-house-crack",
                 lien: "/civilisations",
                 texte: "Savoir, avant la bataille, ce qui peut tomber : chaque ville désigne sur la carte les bâtiments et les zones qu'une guerre RP autorise à détruire, listés sur sa fiche.",
             },
             {
                 titre: "La monnaie officielle : le tetra",
+                categorie: "economie",
                 icon: "fa-solid fa-coins",
                 lien: "/codex#monnaie",
                 texte: "Une vraie pièce en jeu, frappée par la Monnaie de Tetrago : 8 tetras par diamant, 9 petits tetras par tetra, impossible à contrefaire. Elle s'obtient par le commerce, la frappe ou le trésor d'une civilisation, et c'est la seule monnaie admise entre joueurs.",
             },
             {
                 titre: "Catalogue des boutiques",
+                categorie: "economie",
                 icon: "fa-solid fa-tags",
                 lien: "/commerces#ou-acheter",
                 texte: "Chaque magasin publie ses articles et leurs prix en tetras et petits tetras, et la recherche « Où acheter ? » de la page des commerces trouve les boutiques qui les vendent, de la moins chère à la plus chère.",
             },
             {
                 titre: "Jours de marché et foires",
+                categorie: "economie",
                 icon: "fa-solid fa-calendar-day",
                 lien: "/commerces#foires",
                 texte: "Chaque zone commerciale affiche ses jours d'ouverture, et une ville peut annoncer une foire datée : sur sa fiche, sur la page des commerces, sur la carte et sur Discord.",
             },
             {
                 titre: "Cibles d'une guerre",
+                categorie: "guerres",
                 icon: "fa-solid fa-house-crack",
                 lien: "/guerres",
                 texte: "Sur la fiche d'une guerre, les bâtiments et zones destructibles des villes des deux camps, avec leur carte : ce que la guerre autorise à détruire.",
             },
             {
                 titre: "Levée des troupes",
+                categorie: "guerres",
                 icon: "fa-solid fa-people-group",
                 lien: "/guerres",
                 texte: "Pendant une guerre, chaque civilisation engagée lève ses troupes ville par ville, au plus un soldat pour cinq habitants. Une troupe est toujours sur un champ de bataille ou en mouvement ; ses déplacements publics entrent dans la chronologie, et seuls son camp et les modérateurs RP la voient, y compris sur la carte de la guerre, jusqu'à la fin de celle-ci.",
             },
             {
                 titre: "Compagnies de mercenaires",
+                categorie: "guerres",
                 icon: "fa-solid fa-coins",
                 lien: "/guerres#mercenaires",
                 texte: "Une civilisation loue ses soldats en compagnies de mercenaires, avec leur tarif, sans entrer dans les guerres : le camp qui les engage les commande, et leur civilisation peut les rappeler en rompant le contrat.",
             },
             {
                 titre: "Tableau de bord des modérateurs RP",
+                categorie: "site",
                 icon: "fa-solid fa-gavel",
                 texte: "Une seule page pour tout ce qui attend une décision de la modération RP : déclarations de guerre, ajustements de population, fermes déclarées, pièges révélés. Le suivi des guerres en cours et l'historique de chaque décision y sont rassemblés.",
                 details: [
@@ -232,12 +399,14 @@ const SECTIONS = [
             },
             {
                 titre: "Carte unifiée",
+                categorie: "carte",
                 icon: "fa-solid fa-layer-group",
                 lien: CARTE.href,
                 texte: "Civilisations, commerces et guerres ensemble sur une même carte, avec une légende : chaque thème s'affiche ou se masque, et l'adresse garde la vue choisie pour la partager.",
             },
             {
                 titre: "Notifications sur le site",
+                categorie: "site",
                 icon: "fa-solid fa-bell",
                 texte: "Une cloche dans la barre, une fois connecté, pour ce qui vous concerne : appels aux armes, invitations d'alliance, liens de parenté à accepter, lectures tracées et révélations de vos actions secrètes, décisions de la modération RP.",
                 details: [
@@ -247,60 +416,70 @@ const SECTIONS = [
             },
             {
                 titre: "Déclaration des fermes sur le site",
+                categorie: "economie",
                 icon: "fa-solid fa-wheat-awn",
                 lien: "/fermes",
                 texte: "Déclarer une ferme automatique sur le site (position, justification RP, photo) plutôt que par ticket, et suivre son statut : en attente, validée ou à mettre en conformité.",
             },
             {
                 titre: "Chroniques de Tetrago",
+                categorie: "recit",
                 icon: "fa-solid fa-timeline",
                 lien: "/chroniques",
                 texte: "Une frise de l'histoire du monde, année après année du calendrier RP, remplie toute seule : fondations, alliances, guerres et batailles, naissances, morts et mariages des maisons nobles, plus les faits marquants qu'y inscrivent les modérateurs RP.",
             },
             {
                 titre: "Lignées et généalogie",
+                categorie: "recit",
                 icon: "fa-solid fa-sitemap",
                 lien: "/maisons",
                 texte: "Des liens de parenté entre personnages (parents, conjoints, héritiers), acceptés par le joueur de chacun, et les maisons nobles : blason, devise, chef et l'arbre de leur lignée.",
             },
             {
                 titre: "Calendrier des événements RP",
+                categorie: "recit",
                 icon: "fa-solid fa-calendar-days",
                 lien: "/calendrier",
                 texte: "Batailles prévues, fêtes, couronnements, tournois : chacun annonce ses événements et s'inscrit à ceux des autres, sous les traits de son personnage. Chaque annonce est publiée sur Discord et reproduite parmi les événements du serveur.",
             },
             {
                 titre: "Alliances",
+                categorie: "civilisations",
                 icon: "fa-solid fa-handshake",
                 lien: "/alliances",
                 texte: "Sceller un pacte entre civilisations, avec son chef de file et ses membres.",
             },
             {
                 titre: "Guerres",
+                categorie: "guerres",
                 icon: "fa-solid fa-shield-halved",
                 lien: "/guerres",
                 texte: "Déclarer une guerre, rallier un camp, tenir la chronologie des batailles, sièges et traités, tracer les zones de conflit sur la carte. Chaque étape est annoncée sur le Discord.",
             },
             {
                 titre: "Personnages RP",
+                categorie: "recit",
                 icon: "fa-solid fa-masks-theater",
                 lien: "/personnages",
                 texte: "Espèce, classe, grade, skin et résidence : votre personnage vit sur le site autant que sur le serveur.",
             },
             {
                 titre: "Bibliothèque",
+                categorie: "bibliotheque",
                 icon: "fa-solid fa-book",
                 lien: "/bibliotheque",
                 texte: "Livres et journaux du monde, avec les messages signés par les personnages.",
             },
             {
                 titre: "Codex",
+                categorie: "bibliotheque",
                 icon: "fa-solid fa-scroll",
                 lien: "/codex",
                 texte: "La loi du serveur et les règles du rôle-play, réunies en deux livres.",
             },
             {
                 titre: "Élections RP",
+                categorie: "civilisations",
                 icon: "fa-solid fa-check-to-slot",
                 lien: "/elections",
                 texte: "Ouvrir un scrutin au sein d'une civilisation, d'une alliance ou d'une religion : candidatures, vote entre deux heures, dépouillement, et l'élu qui prend son poste au gouvernement.",
@@ -312,6 +491,7 @@ const SECTIONS = [
             },
             {
                 titre: "Aides et utilitaires",
+                categorie: "site",
                 icon: "fa-solid fa-life-ring",
                 lien: "/outils",
                 texte: "Les guides pour bien démarrer et les rappels de commandes sur la page des aides, et les petits outils du quotidien sur la leur, pour ne plus fouiller le Discord.",
@@ -323,28 +503,33 @@ const SECTIONS = [
             },
             {
                 titre: "Carte interactive",
+                categorie: "carte",
                 icon: "fa-solid fa-map",
                 texte: "Le monde vu d'en haut : villes, quartiers, commerces, alliances et zones de guerre, chacun sur son calque. Les frontières se tracent dans l'éditeur.",
             },
             {
                 titre: "Protection des constructions",
+                categorie: "carte",
                 icon: "fa-solid fa-lock",
                 lien: "/aides#guide-proteger",
                 texte: "Le mod Flan protège en jeu les terrains revendiqués à la houe en or : rien n'y est détruit sans l'accord de leur propriétaire, qui donne ses droits à qui il veut.",
             },
             {
                 titre: "Monde à télécharger",
+                categorie: "carte",
                 icon: "fa-solid fa-download",
                 lien: "/outils#monde",
                 texte: "Le monde qui a servi à la dernière mise à jour de la carte, à télécharger et à ouvrir en solo : pour visiter, repérer un terrain ou préparer un tournage.",
             },
             {
                 titre: "Comptes Discord et Minecraft",
+                categorie: "site",
                 icon: "fa-brands fa-discord",
                 texte: "Se connecter au site avec son compte Discord, et lier son compte Minecraft pour retrouver son pseudo et son skin.",
             },
             {
                 titre: "Statistiques du monde",
+                categorie: "carte",
                 icon: "fa-solid fa-chart-simple",
                 texte: "La sauvegarde du serveur est relevée régulièrement : population des villes mesurée d'après les lits réellement habités, zones les plus vécues, présence de chaque joueur.",
             },
@@ -356,7 +541,12 @@ const SECTIONS = [
 const slug = (texte) => texte.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const normaliser = (texte) => (texte || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const correspond = (fonctionnalite, recherche) => !recherche
-    || [fonctionnalite.titre, fonctionnalite.texte, ...(fonctionnalite.details || [])].some((texte) => normaliser(texte).includes(recherche));
+    || [fonctionnalite.titre, fonctionnalite.texte, CATEGORIES[fonctionnalite.categorie]?.label, ...(fonctionnalite.details || [])].some((texte) => normaliser(texte).includes(recherche));
+
+// Fonctionnalités d'une section regroupées par catégorie, dans l'ordre de CATEGORIES : [[clé, [fonctionnalités]], …]
+const parCategorie = (fonctionnalites) => Object.keys(CATEGORIES)
+    .map((cle) => [cle, fonctionnalites.filter((f) => f.categorie === cle)])
+    .filter(([, liste]) => liste.length > 0);
 
 // Sections repliées, gardées dans ce navigateur seulement (simple confort de lecture)
 const CLE_REPLIEES = "roadmap-sections-repliees";
@@ -382,9 +572,9 @@ function Fonctionnalite({ fonctionnalite, etat }) {
         <article id={ancre} className="group bg-base-200 rounded-3xl p-4 shadow-md flex flex-col gap-2 scroll-mt-40 target:ring-2 target:ring-primary">
             <div className="flex flex-row items-center gap-3">
                 <FontAwesomeIcon icon={icon} className={`text-xl ${etat.puce}`} />
-                <h3 className="font-bold text-lg flex-1">
+                <h4 className="font-bold text-lg flex-1">
                     {lien ? <a href={lien} className="link link-hover">{titre}</a> : titre}
-                </h3>
+                </h4>
                 <a href={`#${ancre}`} className="opacity-0 group-hover:opacity-60 focus:opacity-60 text-sm" aria-label={`Lien vers « ${titre} »`}>
                     <FontAwesomeIcon icon="fa-solid fa-link" />
                 </a>
@@ -408,14 +598,27 @@ function Fonctionnalite({ fonctionnalite, etat }) {
 export default function RoadmapPage() {
     const [repliees, setRepliees] = useState(lireRepliees);
     const [recherche, setRecherche] = useState("");
+    // Catégorie affichée (null : toutes)
+    const [categorie, setCategorie] = useState(null);
     const [actif, setActif] = useState(SECTIONS[0].etat);
     const [enHaut, setEnHaut] = useState(true);
 
     const terme = normaliser(recherche.trim());
     const sections = useMemo(
-        () => SECTIONS.map((section) => ({ ...section, visibles: section.fonctionnalites.filter((f) => correspond(f, terme)) })),
-        [terme]
+        () => SECTIONS.map((section) => ({
+            ...section,
+            visibles: section.fonctionnalites.filter((f) => correspond(f, terme) && (!categorie || f.categorie === categorie)),
+        })),
+        [terme, categorie]
     );
+    // Nombre de fonctionnalités de chaque catégorie, toutes sections confondues (selon la recherche)
+    const parCategorieTotal = useMemo(() => {
+        const totaux = {};
+        SECTIONS.forEach((section) => section.fonctionnalites.forEach((f) => {
+            if (correspond(f, terme)) totaux[f.categorie] = (totaux[f.categorie] || 0) + 1;
+        }));
+        return totaux;
+    }, [terme]);
     const trouvees = sections.reduce((total, section) => total + section.visibles.length, 0);
 
     const changer = (etat, replier) => setRepliees((avant) => {
@@ -438,6 +641,7 @@ export default function RoadmapPage() {
             if (!id) return;
             const section = SECTIONS.find((s) => s.etat === id || s.fonctionnalites.some((f) => slug(f.titre) === id));
             if (!section) return;
+            setCategorie(null);
             setRepliees((avant) => {
                 if (!avant.has(section.etat)) return avant;
                 const apres = new Set(avant);
@@ -516,7 +720,27 @@ export default function RoadmapPage() {
                         </div>
                     </nav>
 
-                    {terme ? (
+                    {/* Catégories : une seule à la fois, un second clic revient à toutes */}
+                    <div role="group" aria-label="Catégories de la feuille de route" className="mt-3 flex flex-wrap gap-2">
+                        <button type="button" aria-pressed={!categorie} onClick={() => setCategorie(null)} className={`btn btn-xs rounded-full ${!categorie ? "btn-primary" : "btn-ghost bg-base-200"}`}>
+                            Toutes
+                        </button>
+                        {Object.entries(CATEGORIES).map(([cle, { label, icon }]) => (
+                            <button
+                                key={cle}
+                                type="button"
+                                aria-pressed={categorie === cle}
+                                onClick={() => setCategorie(categorie === cle ? null : cle)}
+                                className={`btn btn-xs rounded-full ${categorie === cle ? "btn-primary" : "btn-ghost bg-base-200"}`}
+                            >
+                                <FontAwesomeIcon icon={icon} />
+                                {label}
+                                <span className="badge badge-xs">{parCategorieTotal[cle] || 0}</span>
+                            </button>
+                        ))}
+                    </div>
+
+                    {terme || categorie ? (
                         <p role="status" className="mt-4 opacity-80">
                             {trouvees === 0 ? "Aucune fonctionnalité ne correspond à votre recherche." : `${trouvees} fonctionnalité${trouvees > 1 ? "s" : ""} trouvée${trouvees > 1 ? "s" : ""}.`}
                         </p>
@@ -526,7 +750,7 @@ export default function RoadmapPage() {
                         const etat = ETATS[section.etat];
                         // Une recherche déplie les sections, pour montrer tous les résultats
                         const repliee = repliees.has(section.etat) && !terme;
-                        if (terme && section.visibles.length === 0) return null;
+                        if ((terme || categorie) && section.visibles.length === 0) return null;
                         return (
                             <section key={section.etat} id={section.etat} className="mb-10 mt-6 scroll-mt-40">
                                 <div className="flex flex-row items-center gap-2">
@@ -547,9 +771,20 @@ export default function RoadmapPage() {
                                     <span>{section.dek}</span>
                                     {repliee ? <span className="text-sm opacity-70">· {section.fonctionnalites.length} fonctionnalité{section.fonctionnalites.length > 1 ? "s" : ""} masquée{section.fonctionnalites.length > 1 ? "s" : ""}</span> : null}
                                 </p>
-                                <div id={`${section.etat}-contenu`} hidden={repliee} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {section.visibles.map((fonctionnalite) => (
-                                        <Fonctionnalite key={fonctionnalite.titre} fonctionnalite={fonctionnalite} etat={etat} />
+                                <div id={`${section.etat}-contenu`} hidden={repliee} className="flex flex-col gap-6">
+                                    {parCategorie(section.visibles).map(([cle, liste]) => (
+                                        <div key={cle} role="group" aria-labelledby={`${section.etat}-${cle}`} className="flex flex-col gap-3">
+                                            <h3 id={`${section.etat}-${cle}`} className="flex flex-row items-center gap-2 font-semibold text-base opacity-80 px-1">
+                                                <FontAwesomeIcon icon={CATEGORIES[cle].icon} />
+                                                {CATEGORIES[cle].label}
+                                                <span className="badge badge-sm badge-ghost">{liste.length}</span>
+                                            </h3>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {liste.map((fonctionnalite) => (
+                                                    <Fonctionnalite key={fonctionnalite.titre} fonctionnalite={fonctionnalite} etat={etat} />
+                                                ))}
+                                            </div>
+                                        </div>
                                     ))}
                                 </div>
                             </section>
