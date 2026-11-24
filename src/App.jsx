@@ -45,14 +45,19 @@ import AdminMondePage from '@/pages/admin/AdminMondePage';
 import NotFoundPage from '@/pages/not-found/NotFoundPage';
 
 import Footer from '@/components/layout/Footer'
+import HorsLigne from '@/components/layout/HorsLigne'
 import { RouteTitle } from '@/utils/pageTitle';
+import AnnonceRoles from '@/components/layout/AnnonceRoles';
+import { useVersionRoles } from '@/services/syncRoles';
 
 export default function App() {
+  // Rôles du site changés (services/syncRoles.js) : la page en cours est remontée, ses droits recalculés sans rechargement
+  const { version: versionRoles, annonce, fermerAnnonce } = useVersionRoles();
   return (
     <div className='mx-auto pt-20 min-h-screen flex flex-col'>
       <main className='flex-1'>
         <RouteTitle />
-        <Routes>
+        <Routes key={versionRoles}>
           <Route path="/" element={<HomePage />} />
 
           <Route path="/login" element={<LoginPage />} />
@@ -122,6 +127,8 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
+      <HorsLigne />
+      <AnnonceRoles annonce={annonce} onClose={fermerAnnonce} />
     </div>
   );
 }

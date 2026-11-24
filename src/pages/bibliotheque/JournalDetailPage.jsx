@@ -267,14 +267,30 @@ export default function JournalDetailPage() {
     setLinks([]);
   }
 
-  const applyContent = (journalId, data) => {
+  // mode : « remplacer » (ouverture), « actualiser » (Rafraîchir : les plus récents remplacent, les plus anciens déjà
+  // chargés restent) ou « ajouter » (Charger plus : messages plus anciens à la suite)
+  const applyContent = (journalId, data, mode = "remplacer", precedent = null) => {
     const next = data?.content;
     if (next && !next.error) {
-      const savedAt = new Date().toISOString();
-      setContent(next);
+      let merged = next;
+      if (mode !== "remplacer" && precedent?.messages?.length) {
+        const recents = mode === "ajouter" ? precedent.messages : next.messages;
+        const anciens = mode === "ajouter" ? next.messages : precedent.messages;
+        const connus = new Set(recents.map((message) => String(message.id)));
+        const garde = anciens.filter((message) => !connus.has(String(message.id)));
+        merged = {
+          ...next,
+          messages: [...recents, ...garde],
+          // Après Rafraîchir, des messages plus anciens déjà chargés : la suite est celle qu'on connaissait
+          plus_anciens: mode === "actualiser" && garde.length ? Boolean(precedent.plus_anciens) : Boolean(next.plus_anciens),
+        };
+      }
+      // Date de la lecture sur Discord (l'API garde les messages quelques minutes)
+      const savedAt = mode === "ajouter" && precedent ? updatedAt : new Date(Date.now() - (Number(next.lu_le) || 0) * 1000).toISOString();
+      setContent(merged);
       setUpdatedAt(savedAt);
       setContentError(null);
-      writeCache(journalId, next, savedAt);
+      writeCache(journalId, merged, savedAt);
     } else {
       setContentError(next?.message || "Impossible de récupérer les messages de ce journal.");
     }
@@ -359,14 +375,28 @@ export default function JournalDetailPage() {
     if (linkRequest) showModalID(LINK_MODAL_ID);
   }, [linkRequest]);
 
+  // Rafraîchir : l'API relit le salon Discord au lieu de servir les messages qu'elle garde
   const reloadContent = () => {
     if (fetching) return;
     setFetching(true);
-    getJournalContentById(id)
-      .then((data) => applyContent(id, data))
+    const precedent = content;
+    getJournalContentById(id, { rafraichir: true })
+      .then((data) => applyContent(id, data, "actualiser", precedent))
       .catch(failContent)
       .finally(() => setFetching(false));
     setLinksKey((key) => key + 1);
+  };
+
+  // Charger plus : les messages plus anciens que ceux déjà affichés
+  const [loadingMore, setLoadingMore] = useState(false);
+  const loadMore = () => {
+    if (loadingMore || fetching || !content) return;
+    setLoadingMore(true);
+    const precedent = content;
+    getJournalContentById(id, { skip: precedent.messages?.length ?? 0 })
+      .then((data) => applyContent(id, data, "ajouter", precedent))
+      .catch(failContent)
+      .finally(() => setLoadingMore(false));
   };
 
   const changePerPage = (value) => {
@@ -507,6 +537,17 @@ export default function JournalDetailPage() {
                 </div>
               ) : null}
 
+              {/* Les plus anciens en première page : le bouton les fait précéder des messages antérieurs */}
+              {content.plus_anciens && page === 1 ? (
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 w-full bg-base-200 rounded-2xl p-3 text-sm">
+                  <span className="opacity-70">Les {messages.length} messages les plus récents sont affichés.</span>
+                  <button type="button" onClick={loadMore} disabled={loadingMore || fetching} className="btn btn-sm btn-ghost bg-base-100">
+                    {loadingMore ? <span className="loading loading-spinner loading-xs"></span> : <FontAwesomeIcon icon="fa-solid fa-angles-up" />}
+                    Charger plus
+                  </button>
+                </div>
+              ) : null}
+
               <div className="flex flex-col w-full">
                 {pageGroups.map((group, index) => (
                   <Fragment key={group[0].id}>
@@ -533,7 +574,7 @@ export default function JournalDetailPage() {
         <aside className="flex flex-col gap-2 min-w-0 order-first lg:order-none">
           <div className="flex flex-col gap-2 mt-4 lg:mt-7">
             <div className="grid grid-cols-2 gap-2 bg-base-200 rounded-3xl p-2">
-              <Stat icon="fa-solid fa-comments" label={messages.length > 1 ? "Messages" : "Message"} value={statValue(messages.length)} />
+              <Stat icon="fa-solid fa-comments" label={messages.length > 1 ? "Messages" : "Message"} value={statValue(content?.plus_anciens ? `${messages.length}+` : messages.length)} />
               <Stat icon="fa-solid fa-user-pen" label={authorsCount > 1 ? "Auteurs" : "Auteur"} value={statValue(authorsCount)} />
               <Stat icon="fa-solid fa-masks-theater" label={personnagesCount > 1 ? "Personnages" : "Personnage"} value={statValue(personnagesCount)} />
               <Stat icon="fa-solid fa-clock-rotate-left" label="Dernier message" value={statValue(lastMessageDate || "—")} />

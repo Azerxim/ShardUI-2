@@ -19,6 +19,7 @@ import { getSessionUser } from '@/services/session';
 import { correspond, normalize, parDate, parTitre, useFiltresMemorises } from '@/utils/filtres';
 import { journalModal } from '@/config/modals/journal';
 import { CATEGORIES_JOURNAUX, CATEGORIE_JOURNAL_DEFAUT } from '@/config/journaux';
+import { CATEGORIES_LIVRES, CATEGORIE_LIVRE_DEFAUT } from '@/config/livres';
 import { livreModal } from '@/config/modals/livre';
 import {
     getJournaux,
@@ -28,12 +29,20 @@ import {
 import EtatVide from '@/components/ui/EtatVide';
 
 // ===== Filtres de la bibliothèque (BarreFiltres) =====
-const FILTRES_DEFAUT = { recherche: '', afficher: 'tous', tri: 'publication-desc', mesEcrits: false, visibilite: 'tous', categorie: 'toutes' };
+const FILTRES_DEFAUT = { recherche: '', afficher: 'tous', tri: 'publication-desc', mesEcrits: false, visibilite: 'tous', categorie: 'toutes', categorieLivre: 'toutes' };
 
 const AFFICHER = { tous: 'Journaux et livres', journaux: 'Journaux seulement', livres: 'Livres seulement' };
 const VISIBILITES = { tous: 'Publics et privés', publics: 'Publics seulement', prives: 'Privés seulement' };
 // Catégories des journaux (config/journaux.js), « Monde » en tête ; un journal sans catégorie est « Divers »
-const CATEGORIES = { toutes: 'Toutes les catégories', ...Object.fromEntries(Object.entries(CATEGORIES_JOURNAUX).map(([cle, { label }]) => [cle, label])) };
+const CATEGORIES = { toutes: 'Toutes les catégories de journal', ...Object.fromEntries(Object.entries(CATEGORIES_JOURNAUX).map(([cle, { label }]) => [cle, label])) };
+// Catégories des livres (config/livres.js), « Textes officiels » en tête ; un livre sans catégorie est « Divers »
+const CATEGORIES_LIVRE = { toutes: 'Toutes les catégories de livre', ...Object.fromEntries(Object.entries(CATEGORIES_LIVRES).map(([cle, { label }]) => [cle, label])) };
+
+// Par support : clé du filtre, catégorie par défaut et catégorie réservée aux administrateurs, toujours en tête
+const CATEGORIE_SUPPORT = {
+  journal: { filtre: 'categorie', defaut: CATEGORIE_JOURNAL_DEFAUT, enTete: 'monde' },
+  livre: { filtre: 'categorieLivre', defaut: CATEGORIE_LIVRE_DEFAUT, enTete: 'officiel' },
+};
 
 const TRIS = {
   'publication-desc': { label: 'Publication RP : récents', compare: parDate((e) => e.published_date, -1) },
@@ -59,17 +68,23 @@ const indexerLiens = (liens, user) => {
 // Un écrit privé n'est visible que par son auteur et les administrateurs ; puis recherche (titre, auteur, description et
 // noms de ce qui y est lié), « mes écrits », visibilité et tri
 const filtrerEcrits = (ecrits, support, filtres, user, liens) => {
+  const categorie = CATEGORIE_SUPPORT[support];
   const query = normalize(filtres.recherche.trim());
   return (ecrits || [])
     .filter((ecrit) => ecrit.is_public !== false || user?.is_admin || ecrit.user_id === user?.id)
     .filter((ecrit) => !filtres.mesEcrits || ecrit.user_id === user?.id)
     .filter((ecrit) => filtres.visibilite === 'tous' || (filtres.visibilite === 'prives') === (ecrit.is_public === false))
-    .filter((ecrit) => support !== 'journal' || filtres.categorie === 'toutes' || (ecrit.categorie || CATEGORIE_JOURNAL_DEFAUT) === filtres.categorie)
+    .filter((ecrit) => filtres[categorie.filtre] === 'toutes' || (ecrit.categorie || categorie.defaut) === filtres[categorie.filtre])
     .filter((ecrit) => correspond(query, [ecrit.title, ecrit.author, ecrit.description, liens.get(`${support}-${ecrit.id}`)]))
     .sort(TRIS[filtres.tri].compare)
-    // Journaux « Monde » toujours en tête, quel que soit le tri (dans l'ordre de ce tri)
-    .sort((a, b) => Number(support === 'journal' && b.categorie === 'monde') - Number(support === 'journal' && a.categorie === 'monde'));
+    // Journaux « Monde » et livres « Textes officiels » toujours en tête, quel que soit le tri (dans l'ordre de ce tri)
+    .sort((a, b) => Number(b.categorie === categorie.enTete) - Number(a.categorie === categorie.enTete));
 };
+
+// Livres rangés par catégorie, une étagère par catégorie non vide, dans l'ordre de config/livres.js
+const etageresParCategorie = (livres) => Object.entries(CATEGORIES_LIVRES)
+  .map(([cle, infos]) => ({ cle, ...infos, livres: livres.filter((livre) => (livre.categorie || CATEGORIE_LIVRE_DEFAUT) === cle) }))
+  .filter((etagere) => etagere.livres.length > 0);
 
 export default function BibliothequePage() {
     const [journaux, setJournaux] = useState([]);
@@ -78,7 +93,7 @@ export default function BibliothequePage() {
     const [loadingLivres, setLoadingLivres] = useState(true);
     const [storageJournaux, setStorageJournaux] = useState(JSON.parse(localStorage.getItem('journaux')) || []);
     const [storageLivres, setStorageLivres] = useState(JSON.parse(localStorage.getItem('livres')) || []);
-    const [filtres, changerFiltres] = useFiltresMemorises('bibliotheque-filtres', FILTRES_DEFAUT, { afficher: AFFICHER, tri: TRIS, visibilite: VISIBILITES, categorie: CATEGORIES });
+    const [filtres, changerFiltres] = useFiltresMemorises('bibliotheque-filtres', FILTRES_DEFAUT, { afficher: AFFICHER, tri: TRIS, visibilite: VISIBILITES, categorie: CATEGORIES, categorieLivre: CATEGORIES_LIVRE });
     const user = getSessionUser();
 
     // Liens du menu (/bibliotheque#journaux, #livres, config/navbar.js) : n'affichent que ce support. L'ancre est ensuite
@@ -237,7 +252,9 @@ export default function BibliothequePage() {
                         recherche={{ placeholder: "Titre, auteur, civilisation, religion, guerre, personnage…", label: "Rechercher dans la bibliothèque" }}
                         selects={[
                             { name: 'afficher', label: 'Afficher', options: AFFICHER },
-                            ...(filtres.afficher !== 'livres' ? [{ name: 'categorie', label: 'Catégorie', options: CATEGORIES, className: 'sm:w-52' }] : []),
+                            // Journaux et livres affichés ensemble : un filtre de catégorie pour chacun
+                            ...(filtres.afficher !== 'livres' ? [{ name: 'categorie', label: filtres.afficher === 'tous' ? 'Catégorie des journaux' : 'Catégorie', options: CATEGORIES, className: 'sm:w-52' }] : []),
+                            ...(filtres.afficher !== 'journaux' ? [{ name: 'categorieLivre', label: filtres.afficher === 'tous' ? 'Catégorie des livres' : 'Catégorie', options: CATEGORIES_LIVRE, className: 'sm:w-52' }] : []),
                             { name: 'tri', label: 'Trier', options: TRI_LIBELLES, className: 'sm:w-56' },
                             ...(user ? [{ name: 'visibilite', label: 'Visibilité', options: VISIBILITES, className: 'sm:w-48' }] : []),
                         ]}
@@ -282,7 +299,23 @@ export default function BibliothequePage() {
                                 />
                             ) : livresFiltres.length === 0 ? (
                                 <EtatVide icon="fa-solid fa-magnifying-glass" texte="Aucun livre ne correspond à vos filtres." action={effacerFiltres} />
-                            ) : <EtagereLivres books={livresFiltres} text='livre(s)' height={12} width={4} orientation='vertical' />}
+                            ) : filtres.categorieLivre !== 'toutes' ? (
+                                <EtagereLivres books={livresFiltres} text='livre(s)' height={12} width={4} orientation='vertical' />
+                            ) : (
+                                // Toutes les catégories : une étagère par catégorie, « Textes officiels » en tête
+                                <div className="w-full flex flex-col gap-4">
+                                    {etageresParCategorie(livresFiltres).map((etagere) => (
+                                        <section key={etagere.cle} className="w-full" aria-label={etagere.label}>
+                                            <h3 className="flex items-center gap-2 text-sm font-semibold opacity-80">
+                                                <FontAwesomeIcon icon={etagere.icon} />
+                                                <span>{etagere.label}</span>
+                                                <span className="badge badge-ghost badge-sm">{etagere.livres.length}</span>
+                                            </h3>
+                                            <EtagereLivres books={etagere.livres} text='livre(s)' height={12} width={4} orientation='vertical' />
+                                        </section>
+                                    ))}
+                                </div>
+                            )}
                         </>
                     ) : null}
 

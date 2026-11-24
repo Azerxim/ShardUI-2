@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { clearSession } from '@/services/session';
 import { Link, useNavigate } from "react-router-dom"
 import Swal from "sweetalert2"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -147,8 +148,7 @@ export default function AdminProfil({ user_id }) {
             const connectedUser = JSON.parse(localStorage.getItem("user") || "null")
             if (connectedUser && String(connectedUser.id) === String(user_id)) {
                 // L'utilisateur vient de supprimer son propre compte : sa session n'a plus lieu d'être.
-                localStorage.removeItem("token")
-                localStorage.removeItem("user")
+                clearSession()
                 navigate("/login")
             } else {
                 navigate("/users")

@@ -53,6 +53,17 @@ export const GUIDES = [
         ],
     },
     {
+        id: "installer",
+        titre: "Installer Tetrago sur son téléphone",
+        icon: "fa-solid fa-mobile-screen",
+        etapes: [
+            { texte: "Sur Android (Chrome) : ouvrez le site, touchez le menu ⋮ puis « Installer l'application » ou « Ajouter à l'écran d'accueil »." },
+            { texte: "Sur iPhone ou iPad (Safari) : touchez le bouton Partager, puis « Sur l'écran d'accueil »." },
+            { texte: "Sur ordinateur (Chrome, Edge) : le bouton « Installer l'application » du pied de page, ou l'icône d'installation dans la barre d'adresse." },
+            { texte: "Sans réseau, les pages déjà consultées sur l'appareil restent lisibles ; elles sont effacées à la déconnexion." },
+        ],
+    },
+    {
         id: "commerce",
         titre: "Ouvrir un commerce",
         icon: "fa-solid fa-shop",

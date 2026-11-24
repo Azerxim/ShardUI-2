@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { clearSession } from '@/services/session';
 import { useNavigate } from "react-router-dom"
 import Swal from "sweetalert2"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -49,8 +50,7 @@ export default function Profil({ User }) {
             cancelButtonText: 'Annuler'
         }).then((result) => {
             if (result.isConfirmed) {
-                localStorage.removeItem('user')
-                localStorage.removeItem('token')
+                clearSession()
                 navigate('/login')
                 Swal.fire({
                     icon: 'success',

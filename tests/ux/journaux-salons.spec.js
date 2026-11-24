@@ -119,16 +119,16 @@ test("depuis la bibliothèque, un joueur publie un journal classé, coloré et d
 
   // Filtre par catégorie (« Monde » toujours en tête), badge, date RP et pastille colorée sur la carte
   await page.reload();
-  await expect(page.getByLabel("Catégorie").locator("option").nth(1)).toHaveText("Monde");
-  await page.getByLabel("Catégorie").selectOption({ label: "Chronique" });
+  await expect(page.getByLabel("Catégorie des journaux").locator("option").nth(1)).toHaveText("Monde");
+  await page.getByLabel("Catégorie des journaux").selectOption({ label: "Chronique" });
   const carte = page.getByRole("link", { name: new RegExp(`Chronique du Nord ${suffixe}`) });
   await expect(carte).toBeVisible();
   await expect(carte).toContainText("Chronique");
   await expect(carte).toContainText("Publié le 12 mars de l'an 3");
   await expect(carte.locator('[style*="background-color"]').first()).toHaveCSS("background-color", "rgb(31, 122, 85)");
-  await page.getByLabel("Catégorie").selectOption({ label: "Gazette" });
+  await page.getByLabel("Catégorie des journaux").selectOption({ label: "Gazette" });
   await expect(carte).toHaveCount(0);
-  await page.getByLabel("Catégorie").selectOption({ label: "Toutes les catégories" });
+  await page.getByLabel("Catégorie des journaux").selectOption({ label: "Toutes les catégories de journal" });
 
   // Les journaux « Monde » passent avant les autres, quel que soit le tri
   for (const tri of ["Titre : A → Z", "Titre : Z → A", "Ajoutés récemment"]) {

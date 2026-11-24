@@ -20,6 +20,7 @@ import { showModal } from '@/utils/showModal';
 import { getContrastTextColor } from '@/utils/contrastColor';
 import { couleurValide } from '@/utils/couleurFiche';
 import { livreModal } from '@/config/modals/livre';
+import { categorieLivre } from '@/config/livres';
 import LivreLiensSection from '@/components/bibliotheque/LivreLiensSection';
 import { livreContentModal } from '@/config/modals/livre-content';
 import {
@@ -168,7 +169,7 @@ export default function LivreDetailPage() {
             <EnTeteFiche
                 couleur={couleurCouverture}
                 embleme={<span className="block rounded-r-lg rounded-l-sm ring-[3px] ring-[#17131f] self-start sm:self-auto"><BookCover livre={livre} /></span>}
-                surtitre={["Livre", livre.author ? `par ${livre.author}` : null, livre.language].filter(Boolean).join(" · ")}
+                surtitre={[categorieLivre(livre.categorie).label, livre.author ? `par ${livre.author}` : null, livre.language].filter(Boolean).join(" · ")}
                 titre={livre.title}
                 fonctions={FctModify}
                 ariane={[{ label: "Bibliothèque", href: "/bibliotheque" }, { label: livre.title }]}
@@ -211,6 +212,7 @@ export default function LivreDetailPage() {
                         <InfoLine icon="fa-solid fa-feather">
                             {livre.author ? <>Écrit par <strong>{livre.author}</strong></> : "Auteur inconnu"}
                         </InfoLine>
+                        <InfoLine icon={categorieLivre(livre.categorie).icon}>Catégorie : <strong>{categorieLivre(livre.categorie).label}</strong></InfoLine>
                         <InfoLine icon="fa-solid fa-calendar">{published ? `Publié le ${published}` : "Date de publication inconnue"}</InfoLine>
                         {livre.language ? <InfoLine icon="fa-solid fa-language">{livre.language}</InfoLine> : null}
                         <LivreLiensSection ecrit={livre} auth={auth} onLiens={droitsParLiens} />

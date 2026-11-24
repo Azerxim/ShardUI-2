@@ -12,7 +12,7 @@ test.describe("Feuille de route", () => {
     await page.locator(".navbar").getByRole("button", { name: "Menu" }).click();
     await page.locator("#panneau-menu").getByRole("link", { name: "Feuille de route" }).click();
     await expect(page).toHaveURL(/\/roadmap$/);
-    await expect(page.getByRole("heading", { name: /feuille de route/i })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: /feuille de route/i })).toBeVisible();
     await expect(page).toHaveTitle(/Feuille de route/);
   });
 
@@ -76,13 +76,13 @@ test.describe("Feuille de route", () => {
     await expect(bibliotheque.getByRole("heading", { name: "Le fil du monde" })).toBeVisible();
     await expect(avenir.getByRole("group", { name: /Carte & monde/ }).getByRole("heading", { name: "Réseau du Nether" })).toBeVisible();
 
-    // Filtre : seule la bibliothèque reste, dans chaque section
+    // Filtre : seule la bibliothèque reste, dans chaque section (À venir, Nouveau, Fonctionnalités)
     const categories = page.getByRole("group", { name: "Catégories de la feuille de route" });
     await categories.getByRole("button", { name: /Bibliothèque/ }).click();
     await expect(categories.getByRole("button", { name: /Bibliothèque/ })).toHaveAttribute("aria-pressed", "true");
     await expect(page.locator("main article h4", { hasText: "Réseau du Nether" })).toHaveCount(0);
     await expect(page.locator("section#disponible").getByRole("heading", { name: "Codex" })).toBeVisible();
-    await expect(page.locator("main section h3")).toHaveText(["Bibliothèque", "Bibliothèque"].map((label) => new RegExp(label)));
+    await expect(page.locator("main section h3")).toHaveText(["Bibliothèque", "Bibliothèque", "Bibliothèque"].map((label) => new RegExp(label)));
 
     // Un second clic revient à toutes les catégories
     await categories.getByRole("button", { name: /Bibliothèque/ }).click();

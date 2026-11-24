@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import '@/components/layout/Navbar.css';
-import { syncSessionUser } from '@/services/session';
+import { syncSessionUser, clearSession } from '@/services/session';
 import { AIDES, CARTE, LAUNCH, OUTILS } from '@/config/navbar';
 import RechercheGlobale from '@/components/layout/RechercheGlobale';
 import { BoutonNotifications, ContenuNotifications } from '@/components/layout/Notifications';
@@ -172,8 +172,7 @@ function ContenuCompte({ active, User }) {
     }
 
     const deconnecter = () => {
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
+        clearSession();
         window.location.reload();
     };
 

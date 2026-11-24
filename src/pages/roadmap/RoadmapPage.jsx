@@ -98,33 +98,6 @@ const SECTIONS = [
                 texte: "Suivre une civilisation, une guerre ou une maison sans en être membre, et choisir quelles notifications recevoir, sur le site ou sur Discord.",
             },
             {
-                titre: "Tetrago sur l'écran d'accueil",
-                categorie: "site",
-                icon: "fa-solid fa-mobile-screen",
-                texte: "Installer le site comme une application sur son téléphone, et relire les fiches déjà consultées même sans réseau.",
-            },
-            {
-                titre: "Rôles pris en compte sans recharger",
-                categorie: "site",
-                icon: "fa-solid fa-user-shield",
-                texte: "Un rôle accordé ou retiré par un administrateur apparaîtra tout de suite, sans avoir à recharger la page.",
-            },
-            {
-                titre: "Journaux plus rapides à ouvrir",
-                categorie: "bibliotheque",
-                icon: "fa-solid fa-gauge-high",
-                texte: "Les messages des journaux gardés quelques minutes par le site au lieu d'être relus sur Discord à chaque visite, et un bouton « Charger plus » pour les longs journaux.",
-            },
-            {
-                titre: "Catégories des livres",
-                categorie: "bibliotheque",
-                icon: "fa-solid fa-tags",
-                texte: "Comme les journaux, les livres rangés par catégorie (lois, histoire, légendes, religion, traités…) et filtrables dans la bibliothèque.",
-                details: [
-                    "Une catégorie réservée aux textes officiels du serveur, toujours en tête.",
-                ],
-            },
-            {
                 titre: "Recherche dans le texte des livres",
                 categorie: "bibliotheque",
                 icon: "fa-solid fa-magnifying-glass",
@@ -252,19 +225,102 @@ const SECTIONS = [
     //         },
     //     ],
     // },
-    // {
-    //     etat: "nouveau",
-    //     titre: "Nouvelles fonctionnalités",
-    //     dek: "Les fonctionnalités récemment ajoutées.",
-    //     fonctionnalites: [
-    //         {
-    //             titre: "???",
-    //             icon: "fa-solid fa-question",
-    //             lien: "/",
-    //             texte: "",
-    //         },
-    //     ],
-    // },
+    {
+        etat: "nouveau",
+        titre: "Nouvelles fonctionnalités",
+        dek: "Les fonctionnalités ajoutées récemment.",
+        fonctionnalites: [
+            {
+                titre: "Catégories des journaux",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-newspaper",
+                lien: "/bibliotheque#journaux",
+                texte: "Chaque journal choisit sa catégorie (gazette, chronique, correspondance, carnet, proclamation…) : elle se filtre dans la bibliothèque, et son salon Discord est rangé dans la catégorie correspondante du serveur.",
+                details: [
+                    "« Monde », réservée aux administrateurs pour les récits officiels, toujours en tête.",
+                ],
+            },
+            {
+                titre: "Salon Discord d'un journal",
+                categorie: "bibliotheque",
+                icon: "fa-brands fa-discord",
+                lien: "/bibliotheque#journaux",
+                texte: "Un administrateur peut relier un journal à un salon qui existe déjà sur le serveur. À la suppression d'un journal, son salon peut être gardé sur Discord au lieu d'être supprimé.",
+            },
+            {
+                titre: "Journaux en couleur, datés dans le RP",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-palette",
+                lien: "/bibliotheque#journaux",
+                texte: "Une couleur au choix teinte la tuile du journal et l'en-tête de sa page ; sa date de publication se saisit en date RP, sans rien de rempli d'office.",
+            },
+            {
+                titre: "Sauts de ligne respectés",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-paragraph",
+                texte: "Dans les messages des journaux et les textes du site, un simple retour à la ligne (ou <br>) passe à la ligne, comme on l'a écrit.",
+            },
+            {
+                titre: "Programmes des candidats plus lisibles",
+                categorie: "civilisations",
+                icon: "fa-solid fa-check-to-slot",
+                lien: "/elections",
+                texte: "Sur la page d'un scrutin, chaque candidat occupe toute la largeur ; un long programme est replié sur cinq lignes avec « Voir plus », et l'éditeur du dépôt s'ouvre plus grand.",
+            },
+            {
+                titre: "Version du jeu",
+                categorie: "site",
+                icon: "fa-solid fa-cube",
+                texte: "La version du serveur Minecraft s'affiche en bas du panneau des joueurs connectés.",
+            },
+            {
+                titre: "Feuille de route par catégorie",
+                categorie: "site",
+                icon: "fa-solid fa-route",
+                lien: "/roadmap",
+                texte: "Cette page range désormais les fonctionnalités par catégorie (carte, civilisations, guerres, économie, récit, bibliothèque, site), avec des pastilles pour n'en afficher qu'une.",
+            },
+            {
+                titre: "Catégories des livres",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-tags",
+                lien: "/bibliotheque#livres",
+                texte: "Comme les journaux, les livres sont rangés par catégorie (lois, histoire, légendes, religion, traités, récits, savoirs…) : une étagère par catégorie dans la bibliothèque, et un filtre pour n'en garder qu'une.",
+                details: [
+                    "« Textes officiels », réservée aux administrateurs, toujours en tête.",
+                ],
+            },
+            {
+                titre: "Journaux plus rapides à ouvrir",
+                categorie: "bibliotheque",
+                icon: "fa-solid fa-gauge-high",
+                lien: "/bibliotheque#journaux",
+                texte: "Les messages des journaux sont gardés quelques minutes par le site au lieu d'être relus sur Discord à chaque visite ; les longs journaux s'ouvrent sur leurs 100 derniers messages, et « Charger plus » remonte le fil.",
+                details: [
+                    "« Rafraîchir » relit le salon Discord tout de suite.",
+                ],
+            },
+            {
+                titre: "Rôles pris en compte sans recharger",
+                categorie: "site",
+                icon: "fa-solid fa-user-shield",
+                texte: "Un rôle accordé ou retiré par un administrateur apparaît dans la minute, ou dès le retour sur l'onglet, sans avoir à recharger la page ; une annonce le signale.",
+                details: [
+                    "Une fenêtre en cours de saisie n'est jamais fermée : la page attend qu'elle le soit.",
+                ],
+            },
+            {
+                titre: "Tetrago sur l'écran d'accueil",
+                categorie: "site",
+                icon: "fa-solid fa-mobile-screen",
+                lien: "/aides#guide-installer",
+                texte: "Le site s'installe comme une application sur téléphone et sur ordinateur, et les pages déjà consultées se relisent même sans réseau.",
+                details: [
+                    "Les pages gardées hors ligne sont effacées à la déconnexion.",
+                ],
+            },
+        ],
+    },
     {
         etat: "disponible",
         titre: "Fonctionnalités",

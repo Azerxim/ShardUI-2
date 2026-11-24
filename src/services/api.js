@@ -226,13 +226,19 @@ export async function getJournalById(journalId) {
   return response.json();
 }
 
-export async function getJournalContentById(journalId) {
+// Messages d'un journal par pages, du plus récent au plus ancien (gardés quelques minutes par l'API) : skip = messages
+// déjà reçus (« Charger plus »), rafraichir = relire le salon Discord. Réponse : { content: { messages, plus_anciens,
+// complet, lu_le (secondes depuis la lecture sur Discord), … } }
+export const JOURNAL_MESSAGES_PAR_PAGE = 100;
+export async function getJournalContentById(journalId, { skip = 0, limit = JOURNAL_MESSAGES_PAR_PAGE, rafraichir = false } = {}) {
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${localStorage.getItem("token")}`,
   };
+  const params = new URLSearchParams({ skip: String(skip), limit: String(limit) });
+  if (rafraichir) params.set("rafraichir", "true");
 
-  const response = await fetch(`${apiURL}/bibliotheque/journaux/contents/${journalId}`, {
+  const response = await fetch(`${apiURL}/bibliotheque/journaux/contents/${journalId}?${params}`, {
     method: "GET",
     headers,
   });

@@ -1,0 +1,26 @@
+{
+  "name": "Tetrago",
+  "short_name": "Tetrago",
+  "description": "Le site du serveur Minecraft RP Tetrago : civilisations, carte, bibliothèque et chroniques du monde.",
+  "lang": "fr",
+  "dir": "ltr",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4efe6",
+  "theme_color": "#17131f",
+  "categories": ["games", "entertainment", "social"],
+  "icons": [
+    { "src": "/images/logo/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/images/logo/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/images/logo/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/images/logo/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/images/logo/tetrago_favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Bibliothèque", "url": "/bibliotheque", "icons": [{ "src": "/images/logo/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Civilisations", "url": "/civilisations", "icons": [{ "src": "/images/logo/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

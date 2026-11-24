@@ -139,12 +139,16 @@ export async function refreshSession(session) {
   return { ...session, token };
 }
 
-// Ouvre la session dans le navigateur avant chaque chargement de page
+// Ouvre la session dans le navigateur avant chaque chargement de page. Le profil est relu à l'API (rôles donnés par
+// makeAdmin ou makeModerateur depuis la création du compte) : sinon le site, qui réaligne le profil au chargement,
+// verrait un rôle changer et remonterait la page en cours de test (services/syncRoles.js).
 export async function signIn(context, session) {
+  const verifie = await fetch(`${API_URL}/users/verify`, { headers: { Authorization: `Bearer ${session.token}` } });
+  const user = verifie.ok ? (await verifie.json()).user ?? session.user : session.user;
   await context.addInitScript(([user, token]) => {
     localStorage.setItem("user", user);
     localStorage.setItem("token", token);
-  }, [JSON.stringify(session.user), session.token]);
+  }, [JSON.stringify(user), session.token]);
 }
 
 // Lit l'alerte SweetAlert affichée puis la ferme (button : "confirm", "deny" ou "cancel")

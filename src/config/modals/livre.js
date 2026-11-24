@@ -1,3 +1,5 @@
+import { CATEGORIES_LIVRES, CATEGORIE_LIVRE_DEFAUT } from "@/config/livres";
+
 export const livreModal = {
   id: {
     default: "Modal",
@@ -82,6 +84,20 @@ export const livreModal = {
       render: null,
       option: [],
       required: false,
+      display: true,
+      param: false,
+    },
+    {
+      name: "categorie",
+      label: "Catégorie",
+      description: "Range le livre sur l'étagère correspondante de la bibliothèque.",
+      placeholder: "Choisir une catégorie",
+      type: "select",
+      defaultValue: CATEGORIE_LIVRE_DEFAUT,
+      render: null,
+      // « Textes officiels » n'est proposée qu'aux administrateurs (adminOnly, voir SelectField)
+      option: Object.entries(CATEGORIES_LIVRES).map(([value, { label, adminOnly }]) => ({ label, value, adminOnly })),
+      required: true,
       display: true,
       param: false,
     },

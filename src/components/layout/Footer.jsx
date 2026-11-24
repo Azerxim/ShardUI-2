@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { version } from '../../../package.json'
 import FooterLaunch from '@/components/layout/FooterLaunch'
 import { lancementAVenir } from '@/config/saison'
+import { useInstallation } from '@/services/pwa'
 
 export default function Footer() {
     // Pied de page de l'annonce tant que VITE_SAISON_LANCEMENT annonce la saison à venir (config/saison.js)
@@ -11,6 +12,8 @@ export default function Footer() {
 }
 
 function FooterSaison() {
+    // Chrome, Edge, Android : invitation à installer le site comme une application (services/pwa.js)
+    const installer = useInstallation();
     const year = new Date().getFullYear();
     let HTMLyear = `${year}`;
     if (year > 2025) {
@@ -60,6 +63,12 @@ function FooterSaison() {
                             </li>
                         </ul>
                     </div>
+                    {installer ? (
+                        <button type="button" onClick={installer} className="btn btn-sm bg-base-200 rounded-3xl btn-ghost gap-2" aria-label="Installer l'application Tetrago">
+                            <FontAwesomeIcon icon="fa-solid fa-mobile-screen" />
+                            <span className="hidden sm:inline">Installer l'application</span>
+                        </button>
+                    ) : null}
                     <p className="text-sm text-base-content/60"><i>ShardUI</i> v{version}</p>
                     <a href="https://discord.gg/pcVFzYA534" target="_blank" rel="noopener noreferrer" className="tooltip tooltip-left" data-tip="Rejoindre le Discord">
                         <FontAwesomeIcon icon="fa-brands fa-discord" size='xl' />
