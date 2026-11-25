@@ -112,6 +112,7 @@ export const LIVRES = [
           { titre: "Fonder un royaume.", texte: "Toute faction ou maison noble se déclare sur la page Civilisations — titre, gouvernement et date de fondation RP à l'appui." },
           { titre: "Les guerres se déclarent, elles ne s'improvisent pas.", texte: "Un conflit entre civilisations se prépare en amont avec un modérateur RP, qui encadre son issue et ses enjeux." },
           { titre: "Le territoire RP n'est pas la protection technique.", texte: "Revendiquer une terre en jeu (lore, bannière) est distinct de la zone protégée par Flan, tracée à la houe en or — les deux se négocient séparément." },
+          { titre: "Les pactes secrets.", texte: "Deux civilisations, alliances ou commerces peuvent s'engager en secret : l'un propose un pacte sur la page des actions secrètes, l'autre le signe tel quel ou le refuse. Un accord secret qui n'a pas été scellé ainsi avant d'être invoqué n'a jamais existé ; une fois signé, chacune des deux parties peut le révéler." },
         ],
       },
       {

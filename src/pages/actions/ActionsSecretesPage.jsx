@@ -19,9 +19,10 @@ import { requireLogin } from "@/utils/requireLogin";
 import { isModerateur, managedEntities } from "@/utils/conflits";
 import { alerteErreur } from "@/utils/alerteErreur";
 import { getSessionUser } from "@/services/session";
+import { ENTITE_TYPES } from "@/utils/actions";
 import {
-    createAction, getActionsSecretes, getCivilisations, getGuerres, getMesActions, getReligions,
-    lireAction, revelerAction,
+    createAction, createPacte, getActionsSecretes, getCivilisations, getGuerres, getMesActions, getPartiesPactes, getReligions,
+    lireAction, refuserPacte, retirerPacte, revelerAction, signerPacte,
 } from "@/services/api";
 
 // ===== Actions secrètes =====
@@ -29,15 +30,18 @@ import {
 // modérateur RP ou à une date fixée. Avant révélation, le public n'en voit que l'existence (code, date, empreinte).
 // Lecture tracée : administrateurs et modérateurs RP jouent aussi ; ils peuvent lire, mais chaque lecture est
 // enregistrée, visible de l'auteur aussitôt et de tous à la révélation.
+// Pacte secret : une civilisation, une alliance ou un commerce le propose à une autre partie, qui le signe ou le refuse ;
+// signé, il entre au registre comme une action scellée, et chacune des deux parties peut le révéler.
 
 const CREATE_MODAL_ID = "action-secrete-modal";
+const PACTE_MODAL_ID = "pacte-secret-modal";
 
 // ===== Filtres du registre public (BarreFiltres) =====
 // Une action scellée ne montre que son code et sa date : auteur, titre, guerre et nature ne se filtrent qu'une fois révélée.
 const FILTRES_DEFAUT = { recherche: "", etat: "toutes", nature: "toutes", guerre: "toutes", tri: "scellee-desc" };
 
 const ETATS = { toutes: "Scellées et révélées", scellees: "Encore scellées", revelees: "Révélées" };
-const NATURES = { toutes: "Toutes natures", actions: "Actions (révélées)", pieges: "Pièges mortels (révélés)" };
+const NATURES = { toutes: "Toutes natures", actions: "Actions (révélées)", pieges: "Pièges mortels (révélés)", pactes: "Pactes secrets (révélés)" };
 
 const TRIS = {
     "scellee-desc": { label: "Scellées récemment", compare: parDate((a) => a.created_at, -1) },
@@ -50,9 +54,9 @@ const TRI_LIBELLES = Object.fromEntries(Object.entries(TRIS).map(([value, { labe
 const filtrerActions = (actions, filtres, guerreFiltre) => {
     const query = normalize(filtres.recherche.trim());
     return actions
-        .filter((action) => correspond(query, [action.code, action.title, action.content, action.entite?.title, action.guerre?.title, action.created_by?.full_name, action.created_by?.username]))
+        .filter((action) => correspond(query, [action.code, action.title, action.content, action.entite?.title, action.pacte?.partie?.title, action.guerre?.title, action.created_by?.full_name, action.created_by?.username]))
         .filter((action) => ({ toutes: true, scellees: !action.revealed, revelees: action.revealed })[filtres.etat])
-        .filter((action) => ({ toutes: true, actions: action.revealed && !action.piege, pieges: action.revealed && action.piege })[filtres.nature])
+        .filter((action) => ({ toutes: true, actions: action.revealed && !action.piege && !action.pacte, pieges: action.revealed && action.piege, pactes: action.revealed && Boolean(action.pacte) })[filtres.nature])
         .filter((action) => guerreFiltre === "toutes" || String(action.guerre?.id) === guerreFiltre)
         .sort(TRIS[filtres.tri].compare);
 };
@@ -61,7 +65,11 @@ const ETAPES = [
     { icon: "fa-solid fa-envelope-circle-check", titre: "Scellez", texte: "L'action est horodatée à la date et à l'heure réelles. Son empreinte, publiée aussitôt, prouvera qu'elle n'a pas été réécrite." },
     { icon: "fa-solid fa-eye", titre: "Lecture tracée", texte: "Les administrateurs et modérateurs RP peuvent la lire pour arbitrer, mais chaque lecture est enregistrée et rendue publique." },
     { icon: "fa-solid fa-lock-open", titre: "Révélez", texte: "Vous la révélez quand vous le voulez, ou à la date choisie au dépôt ; un modérateur RP peut aussi la révéler pour trancher un litige." },
+    { icon: "fa-solid fa-handshake", titre: "Pactisez", texte: "Une civilisation, une alliance ou un commerce propose un pacte secret à une autre partie. Signé, il est scellé ; chacune des deux peut le révéler." },
 ];
+
+// Libellé d'une partie de pacte dans les listes : « Alliance · Ligue du Nord »
+const optionPartie = (partie) => ({ value: `${partie.type}:${partie.id}`, label: `${ENTITE_TYPES[partie.type]?.label} · ${partie.title}` });
 
 export default function ActionsSecretesPage() {
     const user = getSessionUser();
@@ -72,11 +80,15 @@ export default function ActionsSecretesPage() {
     const [reloadKey, setReloadKey] = useState(0);
     const [auteurs, setAuteurs] = useState({ personnages: [], civilisations: [], religions: [] });
     const [guerres, setGuerres] = useState([]);
+    const [parties, setParties] = useState([]);
     const [pret, setPret] = useState(false);
     const [filtres, changerFiltres] = useFiltresMemorises("actions-filtres", FILTRES_DEFAUT, { etat: ETATS, nature: NATURES, tri: TRIS });
     // Bouton « Action » des pages de guerre : /actions-secretes?nouvelle=1[&guerre=ID]
     const [searchParams] = useSearchParams();
     const demandeDepot = searchParams.get("nouvelle") === "1";
+    // Lien direct vers le formulaire d'un pacte : /actions-secretes?pacte=1[&avec=type:ID]
+    const demandePacte = searchParams.get("pacte") === "1";
+    const partieDemandee = searchParams.get("avec") || "";
     const guerreDemandee = searchParams.get("guerre") || "";
 
     useEffect(() => {
@@ -97,7 +109,8 @@ export default function ActionsSecretesPage() {
             getCivilisations().catch(() => []),
             getReligions().catch(() => []),
             getGuerres().catch(() => []),
-        ]).then(([personnages, civilisations, religions, listeGuerres]) => {
+            getPartiesPactes().catch(() => []),
+        ]).then(([personnages, civilisations, religions, listeGuerres, listeParties]) => {
             setAuteurs({
                 // Ses personnages ; tous ceux du site pour un administrateur
                 personnages: (Array.isArray(personnages) ? personnages : []).map((fiche) => ({ id: fiche.personnage.id, name: libellePersonnage(fiche, user) })),
@@ -105,6 +118,7 @@ export default function ActionsSecretesPage() {
                 religions: managedEntities(religions, "religion"),
             });
             setGuerres((Array.isArray(listeGuerres) ? listeGuerres : []).filter(({ guerre }) => guerre.status === "en_cours").map(({ guerre }) => guerre));
+            setParties(Array.isArray(listeParties) ? listeParties : []);
             setPret(true);
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -112,6 +126,9 @@ export default function ActionsSecretesPage() {
 
     const recharger = () => setReloadKey((key) => key + 1);
     const mesIds = new Set(mesActions.map((action) => action.id));
+    // Pactes qu'on m'invite à signer, en tête ; le reste de mes actions et pactes ensuite
+    const aSigner = mesActions.filter((action) => action.peut_signer);
+    const mesAutres = mesActions.filter((action) => !action.peut_signer);
     const autres = (registre || []).filter((action) => !mesIds.has(action.id)).map((action) => luesParMoi[action.id] || action);
     const scellees = autres.filter((action) => !action.revealed).length;
 
@@ -156,6 +173,85 @@ export default function ActionsSecretesPage() {
         },
     ];
 
+    const optionsProposant = parties.filter((partie) => partie.gere).map(optionPartie);
+    const champsPacte = [
+        {
+            name: "auteur", label: "Au nom de", type: "select", required: true, options: optionsProposant,
+            empty: "Dirigez d'abord une civilisation, un commerce, ou la civilisation chef de file d'une alliance.",
+        },
+        {
+            name: "partie", label: "Avec", type: "select", required: true,
+            options: (values) => parties.filter((partie) => `${partie.type}:${partie.id}` !== values.auteur).map(optionPartie),
+            empty: "Aucune autre civilisation, alliance ou commerce.",
+            help: "Ses dirigeants recevront la proposition : ils pourront la signer telle quelle ou la refuser.",
+        },
+        { name: "title", label: "Titre", type: "text", required: true, placeholder: "Ex. Pacte de non-agression du Gué" },
+        { name: "content", label: "Les termes du pacte", type: "textarea", required: true, placeholder: "Ce que chaque partie s'engage à faire ou à ne pas faire, pour combien de temps, en échange de quoi." },
+        {
+            name: "guerre_id", label: "Guerre liée", type: "select", placeholder: "Aucune",
+            options: guerres.map((guerre) => ({ value: guerre.id, label: guerre.title })).sort((a, b) => a.label.localeCompare(b.label)),
+            empty: "Aucune guerre en cours.",
+            help: "Facultatif. La guerre n'est indiquée qu'à la révélation.",
+        },
+        {
+            name: "reveal_at", label: "Révélation automatique", type: "datetime-local",
+            help: "Facultatif. Sans date, le pacte reste scellé jusqu'à ce que l'une des parties le révèle.",
+        },
+    ];
+
+    const proposer = async (values) => {
+        const [entity_type, entity_id] = String(values.auteur || "").split(":");
+        const [partie_type, partie_id] = String(values.partie || "").split(":");
+        const data = await createPacte({
+            entity_type,
+            entity_id: Number(entity_id),
+            partie_type,
+            partie_id: Number(partie_id),
+            title: values.title,
+            content: values.content,
+            guerre_id: values.guerre_id ? Number(values.guerre_id) : null,
+            reveal_at: values.reveal_at || null,
+        });
+        await Swal.fire({
+            icon: "success",
+            title: `Pacte ${data.action.code} proposé`,
+            text: `${data.action.pacte.partie.title} doit maintenant le signer. Son texte ne peut plus changer ; vous pouvez le retirer tant qu'il n'est pas signé.`,
+        });
+        recharger();
+    };
+
+    const repondre = async (action, request, confirmation, succes) => {
+        const answer = await Swal.fire({ icon: "question", showCancelButton: true, cancelButtonText: "Annuler", ...confirmation });
+        if (!answer.isConfirmed) return;
+        try {
+            await request(answer.value?.trim?.() || null);
+            await Swal.fire({ icon: "success", title: succes });
+            recharger();
+        } catch (error) {
+            alerteErreur("Action impossible", error);
+        }
+    };
+
+    const signer = (action) => repondre(action, () => signerPacte(action.id), {
+        title: `Signer le pacte ${action.code} ?`,
+        text: `Au nom de ${action.pacte.partie.title}. Le pacte sera scellé dans le registre ; chacune des deux parties pourra le révéler.`,
+        confirmButtonText: "Signer",
+    }, `${action.code} est signé et scellé`);
+
+    const refuser = (action) => repondre(action, (motif) => refuserPacte(action.id, motif), {
+        title: `Refuser le pacte ${action.code} ?`,
+        text: "Le pacte ne sera jamais scellé. Motif facultatif, vu des deux parties seulement :",
+        input: "textarea",
+        inputPlaceholder: "Ex. les termes ne conviennent pas au conseil",
+        confirmButtonText: "Refuser",
+    }, `${action.code} est refusé`);
+
+    const retirer = (action) => repondre(action, () => retirerPacte(action.id), {
+        title: `Retirer la proposition ${action.code} ?`,
+        text: `${action.pacte.partie.title} ne pourra plus la signer.`,
+        confirmButtonText: "Retirer",
+    }, "La proposition est retirée");
+
     const sceller = async (values) => {
         const [entity_type, entity_id] = String(values.auteur || "").split(":");
         const data = await createAction({
@@ -176,6 +272,7 @@ export default function ActionsSecretesPage() {
     };
 
     const ouvrirDepot = () => requireLogin(() => showModalID(CREATE_MODAL_ID), "sceller une action");
+    const ouvrirPacte = () => requireLogin(() => showModalID(PACTE_MODAL_ID), "proposer un pacte");
 
     // Formulaire ouvert d'emblée quand on arrive d'une page de guerre (après le chargement des auteurs et des guerres,
     // sinon la modale serait recréée, donc refermée, par le changement de sa key)
@@ -185,6 +282,24 @@ export default function ActionsSecretesPage() {
         else if (pret) showModalID(CREATE_MODAL_ID);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [demandeDepot, pret]);
+
+    useEffect(() => {
+        if (!demandePacte) return;
+        if (!user) ouvrirPacte();
+        else if (pret) showModalID(PACTE_MODAL_ID);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [demandePacte, pret]);
+
+    const cartePerso = (action) => (
+        <ActionCard
+            key={action.id}
+            action={action}
+            onReveler={action.revealed || (action.pacte && action.pacte.statut !== "signe") ? null : () => reveler(action, true)}
+            onSigner={action.peut_signer ? () => signer(action) : null}
+            onRefuser={action.peut_signer ? () => refuser(action) : null}
+            onRetirer={action.peut_retirer ? () => retirer(action) : null}
+        />
+    );
 
     const lire = async (action) => {
         const answer = await Swal.fire({
@@ -251,15 +366,21 @@ export default function ActionsSecretesPage() {
                         title="Les actions secrètes"
                         description="Un piège, un complot, une marche de nuit : consignez votre action avant de la jouer. Scellée à l'heure réelle, elle prouvera à sa révélation qu'elle avait été décidée avant, et non après coup."
                         topRight={
-                            <button onClick={ouvrirDepot} aria-label="Sceller une action" className="flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left" data-tip="Sceller une action" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
-                                <span className="flex">Action</span>
-                                <FontAwesomeIcon icon="fas fa-plus" />
-                            </button>
+                            <div className="flex flex-col gap-2">
+                                <button onClick={ouvrirDepot} aria-label="Sceller une action" className="flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left" data-tip="Sceller une action" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
+                                    <span className="flex">Action</span>
+                                    <FontAwesomeIcon icon="fas fa-plus" />
+                                </button>
+                                <button onClick={ouvrirPacte} aria-label="Proposer un pacte" className="flex flex-nowrap justify-end gap-2 items-center h-full bg-base-200 hover:bg-base-300 text-base-content rounded-3xl tooltip tooltip-left" data-tip="Proposer un pacte secret" style={{ padding: '0.75rem 0.75rem 0.75rem 1.25rem', cursor: 'pointer' }}>
+                                    <span className="flex">Pacte</span>
+                                    <FontAwesomeIcon icon="fa-solid fa-handshake" />
+                                </button>
+                            </div>
                         }
                     />
                     {/* <DynamicNavbar active_id="actions" /> */}
 
-                    <ol className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full my-2">
+                    <ol className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 w-full my-2">
                         {ETAPES.map((etape, index) => (
                             <li key={etape.titre} className="flex gap-3 bg-base-200 rounded-2xl p-4">
                                 <span className="flex items-center justify-center w-10 h-10 shrink-0 rounded-xl bg-secondary text-secondary-content">
@@ -273,13 +394,20 @@ export default function ActionsSecretesPage() {
                         ))}
                     </ol>
 
-                    {mesActions.length > 0 && (
+                    {aSigner.length > 0 && (
                         <>
-                            <TitleH2 text="Mes actions" icon="fa-solid fa-feather-pointed" />
+                            <TitleH2 text="Pactes à signer" icon="fa-solid fa-signature" aide="pacte" />
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 w-full items-start">
-                                {mesActions.map((action) => (
-                                    <ActionCard key={action.id} action={action} onReveler={action.revealed ? null : () => reveler(action, true)} />
-                                ))}
+                                {aSigner.map(cartePerso)}
+                            </div>
+                        </>
+                    )}
+
+                    {mesAutres.length > 0 && (
+                        <>
+                            <TitleH2 text="Mes actions et pactes" icon="fa-solid fa-feather-pointed" />
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 w-full items-start">
+                                {mesAutres.map(cartePerso)}
                             </div>
                         </>
                     )}
@@ -343,6 +471,19 @@ export default function ActionsSecretesPage() {
                             submitLabel="Sceller"
                             submitIcon="fas fa-envelope-circle-check"
                             onSubmit={sceller}
+                        />
+                    ) : null}
+                    {user ? (
+                        <FormModal
+                            key={`pacte-${parties.length}-${guerres.length}-${partieDemandee}`}
+                            initialValues={partieDemandee ? { partie: partieDemandee } : {}}
+                            id={PACTE_MODAL_ID}
+                            title="Proposer un pacte secret"
+                            intro="Le texte est figé dès la proposition : l'autre partie le signe tel quel ou le refuse. Signé, le pacte est scellé dans le registre (sans dire entre qui) ; chacune des deux parties peut le révéler."
+                            fields={champsPacte}
+                            submitLabel="Proposer"
+                            submitIcon="fa-solid fa-handshake"
+                            onSubmit={proposer}
                         />
                     ) : null}
                 </div>

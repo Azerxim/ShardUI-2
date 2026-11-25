@@ -770,6 +770,13 @@ export const createAction = (action) => apiRequest("POST", "/actions/create", ac
 // motif : obligatoire pour un modérateur qui révèle l'action d'un autre
 export const revelerAction = (actionId, motif = null) => apiRequest("POST", `/actions/${actionId}/reveler`, { motif });
 
+// Pactes secrets entre civilisations, alliances et commerces : [{ type, id, title, gere }] (gere : proposer en son nom)
+export const getPartiesPactes = () => apiRequest("GET", "/actions/pactes/parties");
+export const createPacte = (pacte) => apiRequest("POST", "/actions/pactes/create", pacte);
+export const signerPacte = (actionId) => apiRequest("POST", `/actions/${actionId}/signer`);
+export const refuserPacte = (actionId, motif = null) => apiRequest("POST", `/actions/${actionId}/refuser`, { motif });
+export const retirerPacte = (actionId) => apiRequest("POST", `/actions/${actionId}/retirer`);
+
 // Modérateur RP : piège révélé mortel (true) ou simple blessure (false, motif obligatoire)
 export const deciderPiege = (actionId, mortel, note = null) => apiRequest("PUT", `/actions/${actionId}/piege`, { mortel, note });
 

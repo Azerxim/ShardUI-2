@@ -15,6 +15,7 @@ import { definition as fasAngleLeft } from "@fortawesome/free-solid-svg-icons/fa
 import { definition as fasAngleRight } from "@fortawesome/free-solid-svg-icons/faAngleRight";
 import { definition as fasAnglesLeft } from "@fortawesome/free-solid-svg-icons/faAnglesLeft";
 import { definition as fasAnglesRight } from "@fortawesome/free-solid-svg-icons/faAnglesRight";
+import { definition as fasAnglesUp } from "@fortawesome/free-solid-svg-icons/faAnglesUp";
 import { definition as fasArchway } from "@fortawesome/free-solid-svg-icons/faArchway";
 import { definition as fasArrowLeft } from "@fortawesome/free-solid-svg-icons/faArrowLeft";
 import { definition as fasArrowRight } from "@fortawesome/free-solid-svg-icons/faArrowRight";
@@ -168,6 +169,7 @@ import { definition as fasNewspaper } from "@fortawesome/free-solid-svg-icons/fa
 import { definition as fasPalette } from "@fortawesome/free-solid-svg-icons/faPalette";
 import { definition as fasPaperPlane } from "@fortawesome/free-solid-svg-icons/faPaperPlane";
 import { definition as fasPaperclip } from "@fortawesome/free-solid-svg-icons/faPaperclip";
+import { definition as fasParagraph } from "@fortawesome/free-solid-svg-icons/faParagraph";
 import { definition as fasPause } from "@fortawesome/free-solid-svg-icons/faPause";
 import { definition as fasPaw } from "@fortawesome/free-solid-svg-icons/faPaw";
 import { definition as fasPen } from "@fortawesome/free-solid-svg-icons/faPen";
@@ -182,8 +184,8 @@ import { definition as fasPersonWalking } from "@fortawesome/free-solid-svg-icon
 import { definition as fasPersonWalkingArrowRight } from "@fortawesome/free-solid-svg-icons/faPersonWalkingArrowRight";
 import { definition as fasPlaceOfWorship } from "@fortawesome/free-solid-svg-icons/faPlaceOfWorship";
 import { definition as fasPlay } from "@fortawesome/free-solid-svg-icons/faPlay";
+import { definition as fasPlugCircleXmark } from "@fortawesome/free-solid-svg-icons/faPlugCircleXmark";
 import { definition as fasPlus } from "@fortawesome/free-solid-svg-icons/faPlus";
-import { definition as fasQuestion } from "@fortawesome/free-solid-svg-icons/faQuestion";
 import { definition as fasQuoteLeft } from "@fortawesome/free-solid-svg-icons/faQuoteLeft";
 import { definition as fasRightFromBracket } from "@fortawesome/free-solid-svg-icons/faRightFromBracket";
 import { definition as fasRightToBracket } from "@fortawesome/free-solid-svg-icons/faRightToBracket";
@@ -258,6 +260,7 @@ export default [
     fasAngleRight,
     fasAnglesLeft,
     fasAnglesRight,
+    fasAnglesUp,
     fasArchway,
     fasArrowLeft,
     fasArrowRight,
@@ -411,6 +414,7 @@ export default [
     fasPalette,
     fasPaperPlane,
     fasPaperclip,
+    fasParagraph,
     fasPause,
     fasPaw,
     fasPen,
@@ -425,8 +429,8 @@ export default [
     fasPersonWalkingArrowRight,
     fasPlaceOfWorship,
     fasPlay,
+    fasPlugCircleXmark,
     fasPlus,
-    fasQuestion,
     fasQuoteLeft,
     fasRightFromBracket,
     fasRightToBracket,

@@ -4,6 +4,16 @@ export const ENTITE_TYPES = {
     personnage: { label: "Personnage", icon: "fa-solid fa-masks-theater", href: (id) => `/personnage/${id}` },
     civilisation: { label: "Civilisation", icon: "fa-solid fa-flag", href: (id) => `/civilisation/${id}` },
     religion: { label: "Religion", icon: "fa-solid fa-cross", href: (id) => `/religion/${id}` },
+    alliance: { label: "Alliance", icon: "fa-solid fa-handshake", href: (id) => `/alliance/${id}` },
+    commerce: { label: "Commerce", icon: "fa-solid fa-store", href: (id) => `/commerce/${id}` },
+};
+
+// Pactes secrets : proposés par une partie, signés (ou refusés) par l'autre ; seuls les pactes signés entrent au registre
+export const PACTE_STATUTS = {
+    en_attente: { label: "En attente de signature", badge: "badge-info", icon: "fa-solid fa-hourglass-half" },
+    signe: { label: "Signé", badge: "badge-success", icon: "fa-solid fa-signature" },
+    refuse: { label: "Refusé", badge: "badge-error", icon: "fa-solid fa-ban" },
+    annule: { label: "Retiré", badge: "badge-ghost", icon: "fa-solid fa-rotate-left" },
 };
 
 export const REVELATION_MODES = {

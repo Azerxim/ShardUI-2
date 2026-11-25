@@ -231,6 +231,17 @@ const SECTIONS = [
         dek: "Les fonctionnalités ajoutées récemment.",
         fonctionnalites: [
             {
+                titre: "Pactes secrets",
+                categorie: "guerres",
+                icon: "fa-solid fa-handshake",
+                lien: "/actions-secretes",
+                texte: "Une civilisation, une alliance ou un commerce propose un pacte secret à une autre partie, qui le signe tel quel ou le refuse. Signé, il est scellé dans le registre des actions secrètes sans dire entre qui ; chacune des deux parties peut le révéler.",
+                details: [
+                    "Le texte est figé dès la proposition, et celui qui propose peut la retirer tant qu'elle n'est pas signée.",
+                    "Un pacte non signé n'existe que pour ses deux parties.",
+                ],
+            },
+            {
                 titre: "Catégories des journaux",
                 categorie: "bibliotheque",
                 icon: "fa-solid fa-newspaper",

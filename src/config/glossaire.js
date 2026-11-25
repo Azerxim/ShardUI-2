@@ -73,6 +73,10 @@ export const GLOSSAIRE = {
         terme: "Action secrète",
         definition: "Action RP scellée à l'heure réelle avant d'être jouée, puis révélée par son auteur, par un modérateur RP ou à une date fixée. Les lectures de l'équipe avant révélation sont tracées et rendues publiques.",
     },
+    pacte: {
+        terme: "Pacte secret",
+        definition: "Accord scellé entre deux civilisations, alliances ou commerces : l'un le propose, l'autre le signe tel quel ou le refuse. Signé, il reste secret comme une action, et chacune des deux parties peut le révéler.",
+    },
     moderateur: {
         terme: "Modérateur RP",
         definition: "Membre de l'équipe qui valide les déclarations de guerre et veille à la cohérence du rôle-play.",
